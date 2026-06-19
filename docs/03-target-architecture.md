@@ -56,6 +56,71 @@
               └──────────────────────────────────────┘
 ```
 
+### 3.2.1. Mermaid-диаграмма (рендерится в GitHub)
+
+```mermaid
+flowchart TB
+    User[Браузер пользователя] -->|HTTPS| Caddy[Caddy / Nginx<br/>reverse proxy + TLS]
+    Caddy --> Web[Next.js app<br/>React 19 + API Routes<br/>NextAuth + Prisma]
+    Caddy -.->|/internal/* только из docker-сети| Worker[Python FastAPI worker<br/>Celery + LangChain<br/>IMAP/SMTP + Telegram]
+
+    Web <-->|webhook X-Internal-Secret| Worker
+    Web -->|read/write web_user| DB[(PostgreSQL 16<br/>общая БД)]
+    Worker -->|read/write worker_user| DB
+    Worker <-->|задачи/результаты| MQ{{RabbitMQ<br/>+ DLQ}}
+    Web -->|presigned URLs| S3[(S3 / MinIO<br/>Object Storage)]
+    Worker -->|файлы| S3
+
+    Worker -.->|API calls| LLM[OpenAI / Anthropic /<br/>DeepSeek / Gemini]
+    Worker -.->|IMAP poll / SMTP send| Email[Email IMAP/SMTP]
+    Worker -.->|long polling| TG[Telegram Bot API]
+    Worker -.->|cron / file watch| Bank[1С-клиент-банк]
+```
+
+### 3.2.2. Mermaid: поток данных (от контакта до проекта)
+
+```mermaid
+sequenceDiagram
+    actor U as Менеджер
+    participant W as Next.js (Web)
+    participant DB as PostgreSQL
+    participant P as Python Worker
+    participant M as MinIO (S3)
+
+    U->>W: Создаёт контакт (имя, телефон, источник)
+    W->>DB: INSERT Contact + AuditLog
+    W-->>U: Контакт создан
+
+    U->>W: Создаёт сделку из контакта
+    W->>DB: INSERT Deal (stage=new) + DealHistory
+    W-->>U: Сделка создана (С-2026-00001)
+
+    U->>W: Создаёт договор из сделки
+    W->>DB: INSERT Contract + ContractVersion
+    W->>M: PUT generated PDF
+    W-->>U: PDF готов к скачиванию
+
+    U->>W: Загружает скан подписанного договора
+    W->>M: PUT signed scan
+    W->>DB: UPDATE Contract status=signed
+    W-->>U: Договор подписан
+
+    U->>W: "Создать проект" из договора
+    W->>DB: INSERT Project + ProjectStage x5
+    W-->>U: Проект создан (ПМ-2026-00001)
+
+    U->>W: Загружает Excel-спецификацию
+    W->>M: PUT excel file
+    W->>DB: INSERT BOM (status=parsing)
+    W->>P: POST /internal/ai/parse-bom { fileId, projectId }
+    P->>M: GET excel file
+    P->>P: pandas + LLM parse
+    P->>DB: INSERT BOMItem x N
+    P->>W: POST /api/internal/bom-parsed { bomId, itemsCount }
+    W->>DB: INSERT Notification
+    W-->>U: Уведомление: BOM готов, N позиций
+```
+
 ## 3.3. Контуры системы
 
 ### 3.3.1. Web App (Next.js)

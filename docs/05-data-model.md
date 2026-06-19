@@ -60,11 +60,73 @@
 | 41 | `EmailLog` | Procurement | Журнал email-переписки |
 | 42 | `AutomationRule` | Shared | Правило автоматизации |
 
-## 5.3. ER-описание ключевых сущностей
+## 5.3. ER-диаграмма (Mermaid)
+
+Ниже — упрощённая ER-диаграмма ключевых сущностей и связей между bounded contexts. Полная схема (40+ сущностей) — в `apps/web/prisma/schema.prisma`.
+
+```mermaid
+erDiagram
+    User ||--o{ UserRole : "has"
+    Role ||--o{ UserRole : "assigned"
+    User ||--o{ Contact : "owns"
+    User ||--o{ Deal : "manages"
+    User ||--o{ Project : "manages"
+
+    LeadSource ||--o{ Contact : "source of"
+    Contact ||--o{ Deal : "becomes"
+    Contact ||--o{ Contract : "signs"
+    Contact ||--o{ Project : "client of"
+    Contact ||--o{ Interaction : "has"
+
+    Pipeline ||--o{ DealStage : "contains"
+    Pipeline ||--o{ Deal : "uses"
+    DealStage ||--o{ Deal : "current stage"
+    Deal ||--o{ DealHistory : "tracked by"
+    Deal ||--o| Contract : "converts to"
+    Deal ||--o| Project : "becomes"
+
+    ContractTemplate ||--o{ Contract : "based on"
+    Contract ||--o{ ContractVersion : "versioned"
+    Contract ||--o{ ContractSigner : "signed by"
+    Contract ||--o| Project : "creates"
+
+    Project ||--o{ ProjectStage : "has stages"
+    Project ||--o{ ProjectMember : "team"
+    Project ||--o| BOM : "specification"
+    Project ||--o{ PurchaseRequest : "generates"
+    Project ||--o{ Invoice : "receives"
+    Project ||--o{ Transaction : "tracked in"
+    Project ||--o{ Budget : "planned"
+    Project ||--o{ CashFlowPayment : "cash flow"
+
+    Counterparty ||--o{ PurchaseRequest : "supplier"
+    Counterparty ||--o{ Invoice : "from"
+    Counterparty ||--o{ Transaction : "party"
+    Counterparty ||--o{ Delivery : "delivers"
+
+    BOM ||--o{ BOMItem : "contains"
+    BOMItem ||--o{ PurchaseRequestItem : "in"
+    BOMItem ||--o{ InvoiceItem : "matched to"
+    BOMItem ||--o{ WarehouseTransaction : "reserve/out"
+
+    PurchaseRequest ||--o{ PurchaseRequestItem : "items"
+    Invoice ||--o{ InvoiceItem : "items"
+    Invoice ||--o| Delivery : "delivered by"
+    Invoice ||--o{ ApprovalRequest : "approval"
+    Invoice ||--o{ Transaction : "paid by"
+
+    Category ||--o{ Transaction : "classifies"
+    Category ||--o{ Budget : "planned in"
+    Category ||--o{ ClassificationRule : "rule target"
+
+    WarehouseItem ||--o{ WarehouseTransaction : "movements"
+```
+
+## 5.4. ER-описание ключевых сущностей
 
 Ниже приведены описания в псевдо-Prisma синтаксе. Полная схема будет в `apps/web/prisma/schema.prisma`.
 
-### 5.3.1. Identity
+### 5.4.1. Identity
 
 ```prisma
 model User {
@@ -145,7 +207,7 @@ model AuditLog {
 }
 ```
 
-### 5.3.2. CRM (Contacts, LeadSource, Interaction)
+### 5.4.2. CRM (Contacts, LeadSource, Interaction)
 
 ```prisma
 model Contact {
@@ -223,7 +285,7 @@ model Interaction {
 }
 ```
 
-### 5.3.3. Sales (Pipeline, DealStage, Deal, DealHistory)
+### 5.4.3. Sales (Pipeline, DealStage, Deal, DealHistory)
 
 ```prisma
 model Pipeline {
@@ -306,7 +368,7 @@ model DealHistory {
 }
 ```
 
-### 5.3.4. Contracts (ContractTemplate, Contract, ContractVersion, ContractSigner)
+### 5.4.4. Contracts (ContractTemplate, Contract, ContractVersion, ContractSigner)
 
 ```prisma
 model ContractTemplate {
@@ -386,7 +448,7 @@ model ContractSigner {
 }
 ```
 
-### 5.3.5. Projects (Project, ProjectStage, ProjectMember)
+### 5.4.5. Projects (Project, ProjectStage, ProjectMember)
 
 ```prisma
 model Project {
@@ -463,7 +525,7 @@ model ProjectMember {
 }
 ```
 
-### 5.3.6. Procurement (Counterparty, BOM, BOMItem, PurchaseRequest, Invoice, WarehouseItem, Delivery, ApprovalRequest)
+### 5.4.6. Procurement (Counterparty, BOM, BOMItem, PurchaseRequest, Invoice, WarehouseItem, Delivery, ApprovalRequest)
 
 ```prisma
 model Counterparty {
@@ -708,7 +770,7 @@ model ApprovalRequest {
 }
 ```
 
-### 5.3.7. Finance (Category, Transaction, Budget, CashFlowPayment, ClassificationRule, PeriodClose)
+### 5.4.7. Finance (Category, Transaction, Budget, CashFlowPayment, ClassificationRule, PeriodClose)
 
 ```prisma
 model Category {
@@ -823,7 +885,7 @@ model PeriodClose {
 }
 ```
 
-### 5.3.8. Shared (FileEntity, Setting, Notification, SyncLog, EmailLog, AutomationRule)
+### 5.4.8. Shared (FileEntity, Setting, Notification, SyncLog, EmailLog, AutomationRule)
 
 ```prisma
 model FileEntity {
