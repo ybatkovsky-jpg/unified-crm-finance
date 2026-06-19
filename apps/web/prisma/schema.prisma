@@ -1,0 +1,809 @@
+// Prisma schema for unified-crm-finance
+// Полная спецификация модели данных — в docs/05-data-model.md
+// Эта схема покрывает S1 (фундамент) и S2 (Identity, базовые сервисы).
+// Остальные сущности (BOM, PurchaseRequest, Invoice, Transaction, Budget, ...)
+// добавляются в соответствующих спринтах.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =====================================================================
+// Identity (S1-S2)
+// =====================================================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  phone        String?
+  telegramId   String?
+  avatarUrl    String?
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  userRoles       UserRole[]
+  refreshTokens   RefreshToken[]
+  auditLogs       AuditLog[]
+  notifications   Notification[]
+  contacts        Contact[]         @relation("ContactOwner")
+  deals           Deal[]            @relation("DealManager")
+  projects        Project[]         @relation("ProjectManager")
+  interactions    Interaction[]     @relation("InteractionAuthor")
+  approvalsReq    ApprovalRequest[] @relation("ApprovalRequester")
+  approvalsDec    ApprovalRequest[] @relation("ApprovalDecider")
+
+  @@index([isActive])
+  @@index([email])
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  code        String   @unique // owner | sales | manager | accountant | storekeeper
+  name        String
+  description String?
+  permissions Json     // массив строк: "deal:read", "contract:sign", etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users UserRole[]
+
+  @@index([code])
+}
+
+model UserRole {
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  userAgent String?
+  ip        String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  entityType String // contact | deal | contract | project | transaction | ...
+  entityId   String
+  action     String // create | update | delete | restore | login | logout | sync
+  changes    Json?   // { before: {...}, after: {...} }
+  metadata   Json?   // { ip, userAgent, source }
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+// =====================================================================
+// Shared (S1-S2)
+// =====================================================================
+
+model FileEntity {
+  id           String   @id @default(uuid())
+  filename     String
+  mimeType     String
+  size         Int
+  storageKey   String // ключ в S3/MinIO
+  bucket       String   @default("default")
+  uploadedBy   String?
+  createdAt    DateTime @default(now())
+
+  @@index([uploadedBy])
+  @@index([createdAt])
+}
+
+model Setting {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+  type  String @default("string") // string | number | boolean | json
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String // deal_stage_changed | project_deadline | budget_overrun | ...
+  title     String
+  message   String
+  level     String   @default("info") // info | success | warning | error
+  link      String?
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+model SyncLog {
+  id            String   @id @default(uuid())
+  source        String // 1c_clientbank | zakuppro | csv | email | telegram
+  status        String // success | partial | failed
+  recordsTotal  Int      @default(0)
+  recordsSynced Int      @default(0)
+  errors        String?  // JSON
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+}
+
+model AutomationRule {
+  id         String   @id @default(uuid())
+  name       String
+  type       String
+  enabled    Boolean  @default(false)
+  config     Json
+  lastRunAt  DateTime?
+  runCount   Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// =====================================================================
+// CRM: Contact, LeadSource, Interaction (S3)
+// =====================================================================
+
+model Contact {
+  id              String   @id @default(uuid())
+  type            String // person | company
+  // Для person
+  firstName       String?
+  lastName        String?
+  middleName      String?
+  // Для company
+  companyName     String?
+  inn             String?
+  kpp             String?
+  ogrn            String?
+  // Общие
+  email           String?
+  phone           String?
+  address         String?
+  physicalAddress String?
+  sourceId        String?
+  ownerId         String?
+  status          String   @default("active") // active | blacklisted | archived
+  tags            String[] @default([])
+  attributes      Json?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  source        LeadSource?   @relation(fields: [sourceId], references: [id])
+  owner         User?         @relation("ContactOwner", fields: [ownerId], references: [id])
+  deals         Deal[]
+  interactions  Interaction[]
+  contracts     Contract[]    @relation("ContractClient")
+  projects      Project[]
+
+  @@index([inn])
+  @@index([phone])
+  @@index([email])
+  @@index([ownerId])
+  @@index([status])
+  @@index([type])
+}
+
+model LeadSource {
+  id          String   @id @default(uuid())
+  code        String   @unique // call | office | website | email | telegram | referral | other
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  contacts Contact[]
+}
+
+model Interaction {
+  id          String    @id @default(uuid())
+  contactId   String
+  type        String // call | meeting | email | telegram | note | visit
+  direction   String? // incoming | outgoing
+  subject     String?
+  content     String?
+  scheduledAt DateTime?
+  completedAt DateTime?
+  authorId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  contact  Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  author   User    @relation("InteractionAuthor", fields: [authorId], references: [id])
+
+  @@index([contactId, completedAt])
+  @@index([authorId])
+}
+
+// =====================================================================
+// Sales: Pipeline, DealStage, Deal, DealHistory (S4)
+// =====================================================================
+
+model Pipeline {
+  id          String   @id @default(uuid())
+  code        String   @unique // default | b2b | retail
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  stages DealStage[]
+  deals  Deal[]
+}
+
+model DealStage {
+  id          String  @id @default(uuid())
+  pipelineId  String
+  code        String // new | qualified | meeting | proposal | negotiation | contract | won | lost
+  name        String
+  order       Int
+  probability Float   @default(0) // вероятность выигрыша в %
+  isWonStage  Boolean @default(false)
+  isLostStage Boolean @default(false)
+  color       String?
+
+  pipeline Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  deals    Deal[]
+
+  @@unique([pipelineId, code])
+  @@index([pipelineId, order])
+}
+
+model Deal {
+  id                String    @id @default(uuid())
+  number            String    @unique // С-2026-00001
+  title             String
+  pipelineId        String
+  stageId           String
+  contactId         String?
+  amount            Float     @default(0)
+  currency          String    @default("RUB")
+  expectedCloseDate DateTime?
+  actualCloseDate   DateTime?
+  managerId         String?
+  description       String?
+  lossReason        String?
+  attributes        Json?
+  contractId        String?   @unique
+  projectId         String?   @unique
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  closedAt          DateTime?
+  deletedAt         DateTime?
+
+  pipeline Pipeline  @relation(fields: [pipelineId], references: [id])
+  stage    DealStage @relation(fields: [stageId], references: [id])
+  contact  Contact?  @relation(fields: [contactId], references: [id])
+  manager  User?     @relation("DealManager", fields: [managerId], references: [id])
+  contract Contract? @relation(fields: [contractId], references: [id])
+  project  Project?  @relation(fields: [projectId], references: [id])
+  history  DealHistory[]
+
+  @@index([stageId])
+  @@index([managerId])
+  @@index([expectedCloseDate])
+}
+
+model DealHistory {
+  id          String   @id @default(uuid())
+  dealId      String
+  fromStageId String?
+  toStageId   String?
+  comment     String?
+  changedBy   String
+  changedAt   DateTime  @default(now())
+
+  deal Deal @relation(fields: [dealId], references: [id], onDelete: Cascade)
+
+  @@index([dealId, changedAt])
+}
+
+// =====================================================================
+// Contracts: ContractTemplate, Contract, ContractVersion, ContractSigner (S5)
+// =====================================================================
+
+model ContractTemplate {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?
+  contentMd   String // шаблон с плейсхолдерами {{...}}
+  variables   Json
+  isActive    Boolean  @default(true)
+  version     Int      @default(1)
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  contracts Contract[]
+}
+
+model Contract {
+  id           String    @id @default(uuid())
+  number       String    @unique // Д-2026-00001
+  dealId       String?   @unique
+  contactId    String
+  templateId   String?
+  title        String
+  amount       Float     @default(0)
+  currency     String    @default("RUB")
+  startDate    DateTime?
+  endDate      DateTime?
+  signedAt     DateTime?
+  status       String    @default("draft") // draft|sent|signed|active|completed|cancelled|expired
+  signedFileId String?
+  notes        String?
+  attributes   Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  deal        Deal?              @relation(fields: [dealId], references: [id])
+  contact     Contact            @relation("ContractClient", fields: [contactId], references: [id])
+  template    ContractTemplate?  @relation(fields: [templateId], references: [id])
+  signedFile  FileEntity?        @relation(fields: [signedFileId], references: [id])
+  versions    ContractVersion[]
+  signers     ContractSigner[]
+  project     Project?           @relation(fields: [contractId], references: [id])
+
+  @@index([contactId])
+  @@index([status])
+}
+
+model ContractVersion {
+  id                 String   @id @default(uuid())
+  contractId         String
+  version            Int
+  contentMd          String
+  generatedPdfFileId String?
+  createdBy          String
+  createdAt          DateTime @default(now())
+
+  contract     Contract   @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  generatedPdf FileEntity? @relation(fields: [generatedPdfFileId], references: [id])
+
+  @@unique([contractId, version])
+}
+
+model ContractSigner {
+  id              String   @id @default(uuid())
+  contractId      String
+  name            String
+  position        String?
+  signedAt        DateTime?
+  signatureFileId String?
+
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@index([contractId])
+}
+
+// =====================================================================
+// Projects: Project, ProjectStage, ProjectMember (S6)
+// =====================================================================
+
+model Project {
+  id              String    @id @default(uuid())
+  externalNumber  String    @unique // ПМ-2026-00001
+  name            String
+  description     String?
+  dealId          String?   @unique
+  contractId      String?   @unique
+  contactId       String?
+  status          String    @default("lead") // lead|active|on_hold|completed|cancelled
+  contractAmount  Float     @default(0)
+  currency        String    @default("RUB")
+  startDate       DateTime?
+  endDate         DateTime?
+  completedAt     DateTime?
+  marginTarget    Float     @default(0.25)
+  qualityRating   String? // good | acceptable | poor
+  deadlineStatus  String    @default("on_track") // on_track | at_risk | overdue
+  managerId       String?
+  attributes      Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  deal        Deal?       @relation(fields: [dealId], references: [id])
+  contract    Contract?   @relation(fields: [contractId], references: [id])
+  contact     Contact?    @relation(fields: [contactId], references: [id])
+  manager     User?       @relation("ProjectManager", fields: [managerId], references: [id])
+  stages      ProjectStage[]
+  members     ProjectMember[]
+
+  @@index([status])
+  @@index([managerId])
+}
+
+model ProjectStage {
+  id          String    @id @default(uuid())
+  projectId   String
+  code        String // design | procurement | production | installation | handover
+  name        String
+  order       Int
+  status      String    @default("pending") // pending | in_progress | completed | skipped
+  startDate   DateTime?
+  endDate     DateTime?
+  completedAt DateTime?
+  assigneeId  String?
+  notes       String?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, code])
+  @@index([projectId, order])
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid())
+  projectId String
+  userId    String
+  role      String // manager | buyer | accountant | storekeeper | worker
+  joinedAt  DateTime @default(now())
+  leftAt    DateTime?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([userId])
+}
+
+// =====================================================================
+// Procurement: Counterparty, BOM, BOMItem, PurchaseRequest, Invoice,
+//   WarehouseItem, WarehouseTransaction, Delivery, ApprovalRequest (S7-S8)
+// =====================================================================
+
+model Counterparty {
+  id            String   @id @default(uuid())
+  name          String
+  type          String // supplier | customer | contractor | other
+  types         String[] @default([])
+  inn           String?
+  kpp           String?
+  email         String?
+  phone         String?
+  contactPerson String?
+  address       String?
+  bankName      String?
+  bankAccount   String?
+  korAccount    String?
+  bik           String?
+  notes         String?
+  rating        Int?
+  attributes    Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  @@index([inn])
+  @@index([type])
+}
+
+model BOM {
+  id           String   @id @default(uuid())
+  projectId    String   @unique
+  sourceFileId String?
+  status       String   @default("draft") // draft|parsed|verified|locked
+  version      Int      @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sourceFile FileEntity? @relation(fields: [sourceFileId], references: [id])
+  items      BOMItem[]
+}
+
+model BOMItem {
+  id              String   @id @default(uuid())
+  bomId           String
+  rowNumber       Int
+  name            String
+  article         String?
+  category        String?
+  quantity        Float
+  unit            String   @default("шт")
+  price           Float    @default(0)
+  supplierId      String?
+  status          String   @default("pending")
+  isFromWarehouse Boolean  @default(false)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  bom       BOM     @relation(fields: [bomId], references: [id], onDelete: Cascade)
+  supplier  Counterparty? @relation(fields: [supplierId], references: [id])
+
+  @@index([bomId])
+  @@index([supplierId])
+  @@index([status])
+}
+
+model PurchaseRequest {
+  id           String    @id @default(uuid())
+  number       String    @unique
+  projectId    String
+  supplierId   String
+  status       String    @default("draft")
+  emailTo      String?
+  emailSubject String?
+  emailBody    String?
+  sentAt       DateTime?
+  responseAt   DateTime?
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  supplier Counterparty @relation(fields: [supplierId], references: [id])
+
+  @@index([projectId])
+  @@index([supplierId])
+  @@index([status])
+}
+
+model Invoice {
+  id            String   @id @default(uuid())
+  number        String   @unique
+  projectId     String
+  supplierId    String
+  invoiceNumber String?
+  totalAmount   Float    @default(0)
+  status        String   @default("received")
+  receivedAt    DateTime @default(now())
+  paidAt        DateTime?
+  dueDate       DateTime?
+  notes         String?
+  sourceFileId  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  supplier    Counterparty @relation(fields: [supplierId], references: [id])
+  sourceFile  FileEntity?  @relation(fields: [sourceFileId], references: [id])
+  approval    ApprovalRequest?
+  delivery    Delivery?
+
+  @@index([projectId])
+  @@index([supplierId])
+  @@index([status])
+}
+
+model WarehouseItem {
+  id           String   @id @default(uuid())
+  name         String
+  article      String?
+  category     String?
+  quantity     Float    @default(0)
+  reservedQty  Float    @default(0)
+  availableQty Float    @default(0)
+  minQuantity  Float    @default(0)
+  unit         String   @default("шт")
+  location     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([article])
+  @@index([name])
+}
+
+model WarehouseTransaction {
+  id              String   @id @default(uuid())
+  warehouseItemId String
+  type            String // in | out | reserve | release
+  quantity        Float
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  warehouseItem WarehouseItem @relation(fields: [warehouseItemId], references: [id], onDelete: Cascade)
+
+  @@index([warehouseItemId])
+}
+
+model Delivery {
+  id             String    @id @default(uuid())
+  projectId      String
+  supplierId     String
+  invoiceId      String?   @unique
+  status         String    @default("pending")
+  trackingNumber String?
+  carrier        String?
+  estimatedDate  DateTime?
+  actualDate     DateTime?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  supplier Counterparty @relation(fields: [supplierId], references: [id])
+  invoice  Invoice?     @relation(fields: [invoiceId], references: [id])
+
+  @@index([projectId])
+}
+
+model ApprovalRequest {
+  id          String    @id @default(uuid())
+  type        String // purchase | payment | writeoff
+  entityId    String
+  status      String    @default("pending") // pending | approved | rejected | cancelled
+  amount      Float?
+  requestedBy String
+  requestedAt DateTime  @default(now())
+  decidedBy   String?
+  decidedAt   DateTime?
+  comment     String?
+
+  requester User? @relation("ApprovalRequester", fields: [requestedBy], references: [id])
+  decider   User? @relation("ApprovalDecider", fields: [decidedBy], references: [id])
+  invoice   Invoice? @relation(fields: [entityId], references: [id])
+
+  @@index([status])
+  @@index([requestedBy])
+}
+
+// =====================================================================
+// Finance: Category, Transaction, Budget, CashFlowPayment,
+//   ClassificationRule, PeriodClose (S9-S10)
+// =====================================================================
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  type      String // income | expense
+  parentId  String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parent              Category?             @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children            Category[]            @relation("CategoryHierarchy")
+  transactions        Transaction[]
+  budgets             Budget[]
+  classificationRules ClassificationRule[]
+
+  @@index([type])
+  @@index([parentId])
+}
+
+model Transaction {
+  id             String   @id @default(uuid())
+  projectId      String?
+  categoryId     String
+  counterpartyId String?
+  invoiceId      String?
+  createdBy      String
+  date           DateTime
+  amount         Float
+  type           String // income | expense
+  description    String?
+  source         String   @default("manual") // manual | 1c_clientbank | zakuppro | cash
+  externalId     String?
+  status         String   @default("confirmed")
+  fileIds        String[] @default([])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  category     Category      @relation(fields: [categoryId], references: [id])
+  counterparty Counterparty? @relation(fields: [counterpartyId], references: [id])
+
+  @@unique([externalId, source, date])
+  @@index([categoryId])
+  @@index([type, date])
+  @@index([source])
+}
+
+model Budget {
+  id         String   @id @default(uuid())
+  projectId  String
+  categoryId String
+  amount     Float
+  period     String // 2026-01 | 2026-Q1 | 2026
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([projectId, categoryId, period])
+}
+
+model CashFlowPayment {
+  id             String   @id @default(uuid())
+  date           DateTime
+  amount         Float
+  type           String // inflow | outflow | planned_inflow | planned_outflow
+  counterpartyId String?
+  projectId      String?
+  invoiceId      String?
+  description    String?
+  status         String   @default("planned")
+  dueDate        DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  counterparty Counterparty? @relation(fields: [counterpartyId], references: [id], onDelete: SetNull)
+
+  @@index([status, date])
+}
+
+model ClassificationRule {
+  id                  String   @id @default(uuid())
+  keyword             String
+  categoryId          String
+  counterpartyKeyword String?
+  projectId           String?
+  priority            Int      @default(0)
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id])
+}
+
+model PeriodClose {
+  id         String   @id @default(uuid())
+  period     String   @unique
+  closedBy   String
+  closedAt   DateTime @default(now())
+  note       String?
+  isReopened Boolean  @default(false)
+}
+
+// =====================================================================
+// Procurement auxiliary: EmailLog (S7)
+// =====================================================================
+
+model EmailLog {
+  id          String   @id @default(uuid())
+  projectId   String?
+  supplierId  String?
+  direction   String // outgoing | incoming
+  subject     String
+  body        String
+  from        String
+  to          String
+  attachments Json?
+  sentAt      DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  supplier Counterparty? @relation(fields: [supplierId], references: [id])
+
+  @@index([projectId, sentAt])
+}
+
+// Связи FileEntity с другими сущностями (добавлены как полиморфные через отдельные поля)
+//-file-entity-relations-start
+// FileEntity расширен связями, чтобы избежать ошибки "missing relation":
+// (сейчас это сделано через @relation в целевых сущностях: BOM.sourceFileId,
+// Invoice.sourceFileId, Contract.signedFileId, ContractVersion.generatedPdfFileId)
+// Если Prisma ругается — добавьте недостающие @relation сюда.
+//-file-entity-relations-end

@@ -1,0 +1,165 @@
+/**
+ * Seed script для начального наполнения БД.
+ * Запуск: npm run db:seed (или: cd apps/web && tsx prisma/seed.ts)
+ *
+ * Создаёт:
+ * - 5 ролей (owner, sales, manager, accountant, storekeeper)
+ * - 1 пользователя-owner (для первого входа)
+ * - Справочник источников лидов
+ * - 1 воронку со стадиями (для модуля Сделки)
+ * - Корневые категории (для модуля Финансы)
+ */
+import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
+
+const prisma = new PrismaClient();
+
+async function main() {
+  console.log('🌱 Seeding...');
+
+  // === Роли ===
+  const roles = [
+    {
+      code: 'owner',
+      name: 'Владелец',
+      description: 'Полный доступ ко всему',
+      permissions: ['*'],
+    },
+    {
+      code: 'sales',
+      name: 'Менеджер по продажам',
+      description: 'Работает с контактами и сделками',
+      permissions: ['contact:*', 'deal:*', 'interaction:*'],
+    },
+    {
+      code: 'manager',
+      name: 'Менеджер проектов',
+      description: 'Ведёт проекты и закупки',
+      permissions: ['project:*', 'bom:*', 'purchase:*', 'invoice:*', 'warehouse:read'],
+    },
+    {
+      code: 'accountant',
+      name: 'Бухгалтер',
+      description: 'Финансы, импорт выписок',
+      permissions: ['transaction:*', 'budget:*', 'invoice:*', 'report:*'],
+    },
+    {
+      code: 'storekeeper',
+      name: 'Кладовщик',
+      description: 'Склад, приёмка, списание',
+      permissions: ['warehouse:*', 'delivery:*'],
+    },
+  ];
+
+  for (const role of roles) {
+    await prisma.role.upsert({
+      where: { code: role.code },
+      update: role,
+      create: role,
+    });
+    console.log(`  ✓ Role: ${role.code}`);
+  }
+
+  // === Owner пользователь ===
+  const passwordHash = await bcrypt.hash('admin123', 12);
+  const owner = await prisma.user.upsert({
+    where: { email: 'admin@local' },
+    update: {},
+    create: {
+      email: 'admin@local',
+      name: 'Администратор',
+      passwordHash,
+      isActive: true,
+    },
+  });
+  const ownerRole = await prisma.role.findUnique({ where: { code: 'owner' } });
+  if (ownerRole) {
+    await prisma.userRole.upsert({
+      where: { userId_roleId: { userId: owner.id, roleId: ownerRole.id } },
+      update: {},
+      create: { userId: owner.id, roleId: ownerRole.id },
+    });
+  }
+  console.log('  ✓ Owner user: admin@local / admin123');
+
+  // === Источники лидов ===
+  const sources = [
+    { code: 'call', name: 'Звонок', description: 'Входящий звонок' },
+    { code: 'office', name: 'Визит в офис', description: 'Личный визит' },
+    { code: 'website', name: 'Сайт', description: 'Заявка с сайта' },
+    { code: 'email', name: 'Email', description: 'Обращение по email' },
+    { code: 'telegram', name: 'Telegram', description: 'Обращение в Telegram' },
+    { code: 'referral', name: 'Рекомендация', description: 'Пришёл по рекомендации' },
+    { code: 'other', name: 'Другое', description: 'Прочее' },
+  ];
+  for (const s of sources) {
+    await prisma.leadSource.upsert({
+      where: { code: s.code },
+      update: s,
+      create: s,
+    });
+  }
+  console.log(`  ✓ Lead sources: ${sources.length}`);
+
+  // === Воронка по умолчанию ===
+  const pipeline = await prisma.pipeline.upsert({
+    where: { code: 'default' },
+    update: {},
+    create: {
+      code: 'default',
+      name: 'Воронка по умолчанию',
+      description: 'Стандартная воронка B2B-продаж',
+      isActive: true,
+    },
+  });
+
+  const stages = [
+    { code: 'new', name: 'Новый лид', order: 1, probability: 0.1, color: '#94a3b8' },
+    { code: 'qualified', name: 'Квалификация', order: 2, probability: 0.25, color: '#3b82f6' },
+    { code: 'meeting', name: 'Встреча', order: 3, probability: 0.4, color: '#8b5cf6' },
+    { code: 'proposal', name: 'КП', order: 4, probability: 0.55, color: '#ec4899' },
+    { code: 'negotiation', name: 'Переговоры', order: 5, probability: 0.7, color: '#f59e0b' },
+    { code: 'contract', name: 'Договор', order: 6, probability: 0.9, color: '#10b981' },
+    { code: 'won', name: 'Выиграно', order: 7, probability: 1.0, isWonStage: true, color: '#059669' },
+    { code: 'lost', name: 'Потеряно', order: 8, probability: 0, isLostStage: true, color: '#ef4444' },
+  ];
+  for (const s of stages) {
+    await prisma.dealStage.upsert({
+      where: { pipelineId_code: { pipelineId: pipeline.id, code: s.code } },
+      update: s,
+      create: { ...s, pipelineId: pipeline.id },
+    });
+  }
+  console.log(`  ✓ Default pipeline with ${stages.length} stages`);
+
+  // === Категории финансов ===
+  const categories = [
+    { name: 'Выручка', type: 'income', order: 1 },
+    { name: 'Материалы', type: 'expense', order: 1 },
+    { name: 'Подрядчики', type: 'expense', order: 2 },
+    { name: 'Зарплаты', type: 'expense', order: 3 },
+    { name: 'Аренда', type: 'expense', order: 4 },
+    { name: 'Налоги', type: 'expense', order: 5 },
+    { name: 'Транспорт', type: 'expense', order: 6 },
+    { name: 'Прочее', type: 'expense', order: 99 },
+  ];
+  for (const c of categories) {
+    await prisma.category.create({ data: c }).catch(() => {
+      // ignore duplicates
+    });
+  }
+  console.log(`  ✓ Categories: ${categories.length}`);
+
+  console.log('✅ Seeding complete');
+  console.log('');
+  console.log('Login: admin@local / admin123');
+}
+
+main()
+  .catch((e) => {
+    console.error('❌ Seed failed:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

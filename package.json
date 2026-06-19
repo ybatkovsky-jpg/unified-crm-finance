@@ -1,0 +1,33 @@
+{
+  "name": "unified-crm-finance",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Единая CRM-система: контакты, сделки, договоры, проекты, закупки и управленческий учёт",
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=apps/web",
+    "start": "npm run start --workspace=apps/web",
+    "lint": "npm run lint --workspace=apps/web",
+    "typecheck": "npm run typecheck --workspace=apps/web",
+    "test:unit": "npm run test:unit --workspace=apps/web",
+    "test:integration": "npm run test:integration --workspace=apps/web",
+    "test:e2e": "echo 'E2E tests will be set up in S2'",
+    "db:migrate": "npm run db:migrate --workspace=apps/web",
+    "db:generate": "npm run db:generate --workspace=apps/web",
+    "db:seed": "npm run db:seed --workspace=apps/web",
+    "worker:dev": "cd apps/worker && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "worker:worker": "cd apps/worker && celery -A app.celery_app worker -l info",
+    "worker:beat": "cd apps/worker && celery -A app.celery_app beat -l info",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:rebuild": "docker compose up -d --build"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  }
+}

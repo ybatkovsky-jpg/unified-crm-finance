@@ -1,0 +1,205 @@
+# docker-compose.yml — локальная разработка и staging
+# Production-конфигурация: docker-compose.prod.yml (будет в S12)
+
+services:
+  # ===================================================================
+  # PostgreSQL — основная БД
+  # ===================================================================
+  db:
+    image: postgres:16-alpine
+    container_name: unified-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: unified_crm
+      POSTGRES_USER: unified
+      POSTGRES_PASSWORD: unified_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/db/init:/docker-entrypoint-initdb.d:ro  # инициализация пользователей
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U unified -d unified_crm"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ===================================================================
+  # RabbitMQ — брокер для Celery
+  # ===================================================================
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: unified-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: unified
+      RABBITMQ_DEFAULT_PASS: unified_password
+    ports:
+      - "5672:5672"      # AMQP
+      - "15672:15672"    # Management UI (unified / unified_password)
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # ===================================================================
+  # MinIO — S3-совместимое хранилище файлов
+  # ===================================================================
+  minio:
+    image: minio/minio:latest
+    container_name: unified-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: unified_minio
+      MINIO_ROOT_PASSWORD: unified_minio_secret
+    ports:
+      - "9000:9000"      # S3 API
+      - "9001:9001"      # Console (unified_minio / unified_minio_secret)
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Создание бакета при первом запуске
+  minio-init:
+    image: minio/mc:latest
+    container_name: unified-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 unified_minio unified_minio_secret;
+      mc mb local/unified-crm --ignore-existing;
+      mc anonymous set download local/unified-crm;
+      echo 'Bucket unified-crm ready';
+      "
+    restart: "no"
+
+  # ===================================================================
+  # Next.js (web) — фронтенд + API
+  # ===================================================================
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: unified-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://unified:unified_password@db:5432/unified_crm?schema=public
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-dev_secret_change_me}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      INTERNAL_WEBHOOK_SECRET: ${INTERNAL_WEBHOOK_SECRET:-dev_internal_secret}
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: unified_minio
+      S3_SECRET_KEY: unified_minio_secret
+      S3_BUCKET: unified-crm
+      S3_REGION: us-east-1
+      S3_FORCE_PATH_STYLE: "true"
+      RABBITMQ_URL: amqp://unified:unified_password@rabbitmq:5672/
+      WORKER_URL: http://worker:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/web:/app/apps/web
+      - /app/apps/web/node_modules
+      - /app/apps/web/.next
+    command: npm run dev --workspace=apps/web
+
+  # ===================================================================
+  # Python FastAPI worker — AI, email, Telegram
+  # ===================================================================
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    container_name: unified-worker
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL_SYNC: postgresql+psycopg2://unified:unified_password@db:5432/unified_crm
+      DATABASE_URL_ASYNC: postgresql+asyncpg://unified:unified_password@db:5432/unified_crm
+      RABBITMQ_URL: amqp://unified:unified_password@rabbitmq:5672/
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: unified_minio
+      S3_SECRET_KEY: unified_minio_secret
+      S3_BUCKET: unified-crm
+      S3_REGION: us-east-1
+      S3_FORCE_PATH_STYLE: "true"
+      INTERNAL_WEBHOOK_SECRET: ${INTERNAL_WEBHOOK_SECRET:-dev_internal_secret}
+      APP_URL: http://web:3000
+      LLM_DEFAULT_MODEL: ${LLM_DEFAULT_MODEL:-deepseek-chat}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./apps/worker:/app/apps/worker
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Celery worker — выполняет асинхронные задачи
+  celery-worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    container_name: unified-celery-worker
+    restart: unless-stopped
+    depends_on:
+      - worker
+      - rabbitmq
+    environment:
+      DATABASE_URL_SYNC: postgresql+psycopg2://unified:unified_password@db:5432/unified_crm
+      RABBITMQ_URL: amqp://unified:unified_password@rabbitmq:5672/
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: unified_minio
+      S3_SECRET_KEY: unified_minio_secret
+      S3_BUCKET: unified-crm
+      S3_FORCE_PATH_STYLE: "true"
+      INTERNAL_WEBHOOK_SECRET: ${INTERNAL_WEBHOOK_SECRET:-dev_internal_secret}
+      APP_URL: http://web:3000
+    volumes:
+      - ./apps/worker:/app/apps/worker
+    command: celery -A app.celery_app worker -l info --concurrency=2
+
+  # Celery beat — расписание (IMAP poll, банк, напоминания)
+  celery-beat:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    container_name: unified-celery-beat
+    restart: unless-stopped
+    depends_on:
+      - celery-worker
+      - rabbitmq
+    environment:
+      DATABASE_URL_SYNC: postgresql+psycopg2://unified:unified_password@db:5432/unified_crm
+      RABBITMQ_URL: amqp://unified:unified_password@rabbitmq:5672/
+    volumes:
+      - ./apps/worker:/app/apps/worker
+    command: celery -A app.celery_app beat -l info
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  minio_data:
