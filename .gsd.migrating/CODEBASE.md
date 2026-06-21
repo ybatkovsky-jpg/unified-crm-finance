@@ -1,17 +1,15 @@
 # Codebase Map
 
-Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
-<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T12:01:27Z","fingerprint":"c64e4120c55912b3be3fa0d616c4813e7d1080ca","fileCount":438,"truncated":false} -->
+Generated: 2026-06-21T13:11:22Z | Files: 500 | Described: 0/500
+<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T13:11:22Z","fingerprint":"e1a37ee2855065457dad41018729ffe9cf1213cd","fileCount":500,"truncated":true} -->
+Note: Truncated to first 500 files. Run with higher --max-files to include all.
 
 ### (root)/
 - `.env.example`
 - `.gitignore`
 - `DEVELOPMENT.md`
-- `docker-compose.yml`
 - `LICENSE`
 - `Makefile`
-- `package-lock.json`
-- `package.json`
 - `README.md`
 
 ### .github/
@@ -23,6 +21,7 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 
 ### .gsd.migrating/
 - `.gsd.migrating/CODEBASE.md`
+- `.gsd.migrating/completed-units.json`
 - `.gsd.migrating/DECISIONS.md`
 - `.gsd.migrating/doctor-history.jsonl`
 - `.gsd.migrating/event-log.jsonl`
@@ -40,7 +39,7 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 - `.gsd.migrating/STATE.md`
 
 ### .gsd.migrating/activity/
-- *(59 files: 59 .jsonl)*
+- *(76 files: 76 .jsonl)*
 
 ### .gsd.migrating/adr/
 - `.gsd.migrating/adr/002-data-model.md`
@@ -49,7 +48,7 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 - `.gsd.migrating/audit/events.jsonl`
 
 ### .gsd.migrating/exec/
-- *(27 files: 9 .json, 9 .stderr, 9 .stdout)*
+- *(33 files: 11 .json, 11 .stderr, 11 .stdout)*
 
 ### .gsd.migrating/graphs/
 - `.gsd.migrating/graphs/graph.json`
@@ -186,6 +185,8 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 ### .gsd.migrating/milestones/M002/
 - `.gsd.migrating/milestones/M002/M002-CONTEXT.md`
 - `.gsd.migrating/milestones/M002/M002-ROADMAP.md`
+- `.gsd.migrating/milestones/M002/M002-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/M002-VALIDATION.md`
 
 ### .gsd.migrating/milestones/M002/anchors/
 - `.gsd.migrating/milestones/M002/anchors/plan-slice.json`
@@ -231,6 +232,8 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 - `.gsd.migrating/milestones/M002/slices/S03/S03-PLAN.md`
 - `.gsd.migrating/milestones/M002/slices/S03/S03-PRE-EXEC-VERIFY.json`
 - `.gsd.migrating/milestones/M002/slices/S03/S03-RESEARCH.md`
+- `.gsd.migrating/milestones/M002/slices/S03/S03-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S03/S03-UAT.md`
 
 ### .gsd.migrating/milestones/M002/slices/S03/tasks/
 - `.gsd.migrating/milestones/M002/slices/S03/tasks/T01-PLAN.md`
@@ -240,7 +243,23 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 - `.gsd.migrating/milestones/M002/slices/S03/tasks/T02-SUMMARY.md`
 - `.gsd.migrating/milestones/M002/slices/S03/tasks/T02-VERIFY.json`
 - `.gsd.migrating/milestones/M002/slices/S03/tasks/T03-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S03/tasks/T03-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S03/tasks/T03-VERIFY.json`
 - `.gsd.migrating/milestones/M002/slices/S03/tasks/T04-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S03/tasks/T04-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S03/tasks/T04-VERIFY.json`
+
+### .gsd.migrating/milestones/M002/slices/S04/
+- `.gsd.migrating/milestones/M002/slices/S04/S04-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S04/S04-PRE-EXEC-VERIFY.json`
+- `.gsd.migrating/milestones/M002/slices/S04/S04-RESEARCH.md`
+- `.gsd.migrating/milestones/M002/slices/S04/S04-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S04/S04-UAT.md`
+
+### .gsd.migrating/milestones/M002/slices/S04/tasks/
+- `.gsd.migrating/milestones/M002/slices/S04/tasks/T01-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S04/tasks/T01-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S04/tasks/T01-VERIFY.json`
 
 ### .gsd.migrating/milestones/M003/
 - `.gsd.migrating/milestones/M003/M003-ROADMAP.md`
@@ -260,6 +279,78 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 ### .gsd.migrating/milestones/M008/
 - `.gsd.migrating/milestones/M008/M008-ROADMAP.md`
 
+### .gsd.migrating/milestones/M009/
+- `.gsd.migrating/milestones/M009/M009-CONTEXT.md`
+- `.gsd.migrating/milestones/M009/M009-ROADMAP.md`
+
+### .gsd.migrating/milestones/M009/anchors/
+- `.gsd.migrating/milestones/M009/anchors/plan-slice.json`
+- `.gsd.migrating/milestones/M009/anchors/research-slice.json`
+
+### .gsd.migrating/milestones/M009/slices/S01/
+- `.gsd.migrating/milestones/M009/slices/S01/S01-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S01/S01-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S01/S01-UAT.md`
+
+### .gsd.migrating/milestones/M009/slices/S01/tasks/
+- `.gsd.migrating/milestones/M009/slices/S01/tasks/T01-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S01/tasks/T01-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S01/tasks/T02-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S01/tasks/T02-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S01/tasks/T03-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S01/tasks/T03-SUMMARY.md`
+
+### .gsd.migrating/milestones/M009/slices/S02/
+- `.gsd.migrating/milestones/M009/slices/S02/S02-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S02/S02-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S02/S02-UAT.md`
+
+### .gsd.migrating/milestones/M009/slices/S02/tasks/
+- `.gsd.migrating/milestones/M009/slices/S02/tasks/T01-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S02/tasks/T01-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S02/tasks/T02-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S02/tasks/T02-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S02/tasks/T03-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S02/tasks/T03-SUMMARY.md`
+
+### .gsd.migrating/milestones/M009/slices/S03/
+- `.gsd.migrating/milestones/M009/slices/S03/S03-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S03/S03-PRE-EXEC-VERIFY.json`
+- `.gsd.migrating/milestones/M009/slices/S03/S03-RESEARCH.md`
+
+### .gsd.migrating/milestones/M009/slices/S03/tasks/
+- `.gsd.migrating/milestones/M009/slices/S03/tasks/T01-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S03/tasks/T02-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S03/tasks/T03-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S03/tasks/T04-PLAN.md`
+
+### .gsd.migrating/milestones/M009/slices/S04/
+- `.gsd.migrating/milestones/M009/slices/S04/S04-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S04/S04-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S04/S04-UAT.md`
+
+### .gsd.migrating/milestones/M009/slices/S04/tasks/
+- `.gsd.migrating/milestones/M009/slices/S04/tasks/T01-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S04/tasks/T01-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S04/tasks/T02-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S04/tasks/T02-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S04/tasks/T03-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S04/tasks/T03-SUMMARY.md`
+
+### .gsd.migrating/milestones/M009/slices/S05/
+- `.gsd.migrating/milestones/M009/slices/S05/S05-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S05/S05-RESEARCH.md`
+
+### .gsd.migrating/milestones/M009/slices/S05/tasks/
+- `.gsd.migrating/milestones/M009/slices/S05/tasks/T01-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S05/tasks/T01-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S05/tasks/T02-PLAN.md`
+
+### .gsd.migrating/reports/
+- `.gsd.migrating/reports/index.html`
+- `.gsd.migrating/reports/M002-2026-06-21T10-48-01.html`
+- `.gsd.migrating/reports/reports.json`
+
 ### .gsd.migrating/runtime/
 - `.gsd.migrating/runtime/M002-S01-reactive.json`
 - `.gsd.migrating/runtime/uok-parity.jsonl`
@@ -268,7 +359,7 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 - `.gsd.migrating/runtime/write-gate-state.json`
 
 ### .gsd.migrating/runtime/units/
-- *(52 files: 52 .json)*
+- *(62 files: 62 .json)*
 
 ### apps/web/
 - `apps/web/.eslintrc.json`
@@ -280,8 +371,10 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 - `apps/web/package-lock.json`
 - `apps/web/package.json`
 - `apps/web/postcss.config.mjs`
-- `apps/web/tailwind.config.ts`
-- `apps/web/tsconfig.json`
+
+### apps/web/apps/web/src/components/crm/
+- `apps/web/apps/web/src/components/crm/interaction-form.tsx`
+- `apps/web/apps/web/src/components/crm/interaction-timeline.tsx`
 
 ### apps/web/prisma/
 - `apps/web/prisma/.keep`
@@ -289,6 +382,7 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 - `apps/web/prisma/DOCKER_BLOCKER.md`
 - `apps/web/prisma/MIGRATION_PLAN.md`
 - `apps/web/prisma/schema.prisma`
+- `apps/web/prisma/seed-deals.ts`
 - `apps/web/prisma/seed.ts`
 
 ### apps/web/prisma/migrations/
@@ -315,9 +409,6 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 ### apps/web/scripts/
 - `apps/web/scripts/verify-migrations.sh`
 
-### apps/web/src/
-- `apps/web/src/middleware.ts`
-
 ### apps/web/src/app/
 - `apps/web/src/app/globals.css`
 - `apps/web/src/app/layout.tsx`
@@ -332,6 +423,30 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 ### apps/web/src/app/api/contacts/[id]/interactions/
 - `apps/web/src/app/api/contacts/[id]/interactions/route.ts`
 
+### apps/web/src/app/api/contracts/
+- `apps/web/src/app/api/contracts/route.ts`
+
+### apps/web/src/app/api/contracts/[id]/
+- `apps/web/src/app/api/contracts/[id]/route.ts`
+
+### apps/web/src/app/api/contracts/[id]/signers/
+- `apps/web/src/app/api/contracts/[id]/signers/route.ts`
+
+### apps/web/src/app/api/contracts/[id]/versions/
+- `apps/web/src/app/api/contracts/[id]/versions/route.ts`
+
+### apps/web/src/app/api/deals/
+- `apps/web/src/app/api/deals/route.ts`
+
+### apps/web/src/app/api/deals/[id]/
+- `apps/web/src/app/api/deals/[id]/route.ts`
+
+### apps/web/src/app/api/deals/[id]/convert/
+- `apps/web/src/app/api/deals/[id]/convert/route.ts`
+
+### apps/web/src/app/api/deals/[id]/move/
+- `apps/web/src/app/api/deals/[id]/move/route.ts`
+
 ### apps/web/src/app/api/health/
 - `apps/web/src/app/api/health/route.ts`
 
@@ -344,82 +459,35 @@ Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
 ### apps/web/src/app/crm/contacts/
 - `apps/web/src/app/crm/contacts/page.tsx`
 
+### apps/web/src/app/crm/contacts/[id]/
+- `apps/web/src/app/crm/contacts/[id]/page.tsx`
+
+### apps/web/src/app/deals/
+- `apps/web/src/app/deals/page.tsx`
+
+### apps/web/src/app/deals/[id]/
+- `apps/web/src/app/deals/[id]/page.tsx`
+
+### apps/web/src/components/crm/
+- `apps/web/src/components/crm/interaction-form.tsx`
+- `apps/web/src/components/crm/interaction-timeline.tsx`
+
+### apps/web/src/components/deals/
+- `apps/web/src/components/deals/create-deal-modal.tsx`
+- `apps/web/src/components/deals/deal-card-draggable.tsx`
+- `apps/web/src/components/deals/deal-card.tsx`
+- `apps/web/src/components/deals/deal-history-timeline.tsx`
+- `apps/web/src/components/deals/filter-bar.tsx`
+- `apps/web/src/components/deals/kanban-board.tsx`
+- `apps/web/src/components/deals/kanban-column.tsx`
+
 ### apps/web/src/components/ui/
 - `apps/web/src/components/ui/badge.tsx`
 - `apps/web/src/components/ui/button.tsx`
 - `apps/web/src/components/ui/card.tsx`
+- `apps/web/src/components/ui/dialog.tsx`
 - `apps/web/src/components/ui/input.tsx`
+- `apps/web/src/components/ui/label.tsx`
 - `apps/web/src/components/ui/select.tsx`
 - `apps/web/src/components/ui/table.tsx`
-
-### apps/web/src/lib/
-- `apps/web/src/lib/db.ts`
-- `apps/web/src/lib/utils.ts`
-
-### apps/web/src/lib/api/
-- `apps/web/src/lib/api/contacts.test.ts`
-- `apps/web/src/lib/api/contacts.ts`
-- `apps/web/src/lib/api/interactions.test.ts`
-- `apps/web/src/lib/api/interactions.ts`
-- `apps/web/src/lib/api/shared.ts`
-- `apps/web/src/lib/api/types.ts`
-
-### apps/web/src/lib/db/
-- `apps/web/src/lib/db/contacts.test.ts`
-- `apps/web/src/lib/db/contacts.ts`
-- `apps/web/src/lib/db/interactions.test.ts`
-- `apps/web/src/lib/db/interactions.ts`
-- `apps/web/src/lib/db/prisma.ts`
-
-### apps/worker/
-- `apps/worker/.gitignore`
-- `apps/worker/conftest.py`
-- `apps/worker/Dockerfile`
-- `apps/worker/pyproject.toml`
-- `apps/worker/pytest.ini`
-- `apps/worker/requirements.txt`
-
-### apps/worker/app/
-- `apps/worker/app/__init__.py`
-- `apps/worker/app/celery_app.py`
-- `apps/worker/app/config.py`
-- `apps/worker/app/consumer.py`
-- `apps/worker/app/database.py`
-- `apps/worker/app/db.py`
-- `apps/worker/app/health.py`
-- `apps/worker/app/main.py`
-- `apps/worker/app/tasks.py`
-
-### apps/worker/tests/
-- `apps/worker/tests/__init__.py`
-- `apps/worker/tests/conftest.py`
-- `apps/worker/tests/test_health.py`
-
-### docker/db/init/
-- `docker/db/init/01-init-roles.sql`
-
-### docs/
-- `docs/00-executive-summary.md`
-- `docs/01-introduction.md`
-- `docs/02-current-systems.md`
-- `docs/03-target-architecture.md`
-- `docs/04-tech-stack.md`
-- `docs/05-data-model.md`
-- `docs/06-module-crm.md`
-- `docs/07-module-deals.md`
-- `docs/08-module-contracts.md`
-- `docs/09-module-projects.md`
-- `docs/10-module-procurement.md`
-- `docs/11-module-finance.md`
-- `docs/12-module-analytics.md`
-- `docs/13-module-notifications.md`
-- `docs/14-api-contracts.md`
-- `docs/15-security-rbac.md`
-- `docs/16-non-functional.md`
-- `docs/17-risks-mitigations.md`
-- `docs/18-roadmap.md`
-- `docs/19-testing-strategy.md`
-
-### docs/adr/
-- `docs/adr/ADR-01-unified-data-model.md`
-- `docs/adr/ADR-02-hybrid-backend.md`
+- `apps/web/src/components/ui/textarea.tsx`

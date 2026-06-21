@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T01",
+  "unitId": "M009/S03/T01",
+  "timestamp": 1782044084449,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "grep -q 'DealHistoryData' apps/web/src/lib/api/types.ts",
+      "exitCode": 1,
+      "durationMs": 106,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q 'history\\?: DealHistoryData\\[\\]' apps/web/src/lib/api/types.ts",
+      "exitCode": 1,
+      "durationMs": 34,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

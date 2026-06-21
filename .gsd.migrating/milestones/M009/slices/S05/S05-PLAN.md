@@ -1,4 +1,4 @@
-# S05: Contract UI
+# S05: S05
 
 **Goal:** UI для управления контрактами: список с фильтрами, детальная страница с версиями и подписантами
 **Demo:** Страница /contracts со списком договоров, фильтрами. Детальная страница /contracts/[id] с версиями и подписантами.
@@ -21,15 +21,20 @@ UI использует Contract API из S04, связывается с Deal AP
 
 ## Tasks
 
-- [x] **T01: Contracts list page** `est:2h`
+- [x] **T01: ContractRepository и contractsApi клиент созданы; API endpoints готовы** `est:2h`
   Создать apps/web/src/app/contracts/page.tsx с таблицей контрактов. Использовать Table компонент, FilterBar для фильтров (status, contactId). Fetch через contractsApi.getContracts с query params.
   - Files: `apps/web/src/app/contracts/page.tsx`
   - Verify: Открыть /contracts, проверить таблицу, фильтры
 
-- [ ] **T02: Contract detail page with tabs** `est:3h`
+- [x] **T02: Contract detail page with tabs already implemented: Details, Versions, Signers, Related** `est:3h`
   Создать детальную страницу apps/web/src/app/contracts/[id]/page.tsx с табами. Tabs: Details (редактирование полей), Versions (список версий, кнопка добавить версию через модалку), Signers (список подписантов с датами подписания, кнопка добавить подписанта), Related (связанная сделка).
   - Files: `apps/web/src/app/contracts/[id]/page.tsx`, `apps/web/src/components/contracts/add-version-modal.tsx`, `apps/web/src/components/contracts/add-signer-modal.tsx`
   - Verify: Открыть /contracts/[id], проверить табы, модалки
+
+- [x] **T03: Contracts list page with table and filters** `est:2h`
+  Создать apps/web/src/app/contracts/page.tsx с таблицей контрактов (столбцы: number, title, contact, amount, status, dates). Использовать Table компонент, FilterBar для фильтров (status, contactId). Fetch через contractsApi.getContracts с query params.
+  - Files: `apps/web/src/app/contracts/page.tsx`
+  - Verify: Открыть /contracts, проверить таблицу, фильтры
 
 ## Files Likely Touched
 

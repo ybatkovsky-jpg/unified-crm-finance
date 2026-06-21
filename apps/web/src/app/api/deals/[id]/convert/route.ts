@@ -8,8 +8,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { contracts } from '../../../../../lib/db/contracts'
-import { prisma } from '../../../../../lib/db/prisma'
+import { contracts } from '@/lib/db/contracts'
+import { prisma } from '@/lib/db/prisma'
 
 interface RouteParams {
   params: Promise<{ id: string }>

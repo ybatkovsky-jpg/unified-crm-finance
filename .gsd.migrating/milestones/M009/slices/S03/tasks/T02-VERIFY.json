@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T02",
+  "unitId": "M009/S03/T02",
+  "timestamp": 1782044476521,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f apps/web/src/components/deals/deal-history-timeline.tsx",
+      "exitCode": 1,
+      "durationMs": 79,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q 'export.*DealHistoryTimeline' apps/web/src/components/deals/deal-history-timeline.tsx",
+      "exitCode": 1,
+      "durationMs": 50,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

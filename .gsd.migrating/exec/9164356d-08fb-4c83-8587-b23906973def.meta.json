@@ -1,0 +1,18 @@
+{
+  "id": "9164356d-08fb-4c83-8587-b23906973def",
+  "runtime": "bash",
+  "purpose": "Verify DealHistoryTimeline component file exists",
+  "script_chars": 141,
+  "started_at": "2026-06-21T12:24:22.324Z",
+  "finished_at": "2026-06-21T12:24:22.475Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 151,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\9164356d-08fb-4c83-8587-b23906973def.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\9164356d-08fb-4c83-8587-b23906973def.stderr"
+}

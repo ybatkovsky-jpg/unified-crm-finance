@@ -18,13 +18,13 @@
 - [x] **S02: S02** `risk:medium` `depends:[]`
   > After this: Страница /deals с kanban-доской, фильтрами, quick actions. Drag-and-drop между этапами.
 
-- [ ] **S03: Deal Detail Page** `risk:low` `depends:[S01]`
+- [x] **S03: S03** `risk:low` `depends:[]`
   > After this: Детальная страница сделки с историей (DealHistory), связанными контактами, задачами, событиями.
 
 - [x] **S04: S04** `risk:medium` `depends:[]`
   > After this: CRUD для контрактов, шаблонов, версий, подписантов. Конвертация сделки в контракт.
 
-- [ ] **S05: S05** `risk:medium` `depends:[]`
+- [x] **S05: S05** `risk:medium` `depends:[]`
   > After this: Страница /contracts со списком договоров, фильтрами. Детальная страница /contracts/[id] с версиями и подписантами.
 
 ## Boundary Map

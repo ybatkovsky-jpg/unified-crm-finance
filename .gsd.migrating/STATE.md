@@ -1,8 +1,8 @@
 # GSD State
 
 **Active Milestone:** M009: Сделки и контракты
-**Active Slice:** S03: Deal Detail Page
-**Phase:** executing
+**Active Slice:** None
+**Phase:** completing-milestone
 **Requirements Status:** 17 active · 3 validated · 0 deferred · 0 out of scope
 
 ## Milestone Registry
@@ -23,4 +23,4 @@
 - None
 
 ## Next Action
-Execute T01: Add DealHistory to API types in slice S03.
+All slices complete in M009. Write milestone summary.

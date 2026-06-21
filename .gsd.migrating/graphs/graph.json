@@ -1,16 +1,16 @@
 {
   "nodes": [
     {
-      "id": "milestone:M002",
-      "label": "M002: CRM модуль",
+      "id": "milestone:M009",
+      "label": "M009: Сделки и контракты",
       "type": "milestone",
-      "description": "Active milestone: M002",
+      "description": "Active milestone: M009",
       "confidence": "EXTRACTED",
       "sourceFile": "STATE.md"
     },
     {
-      "id": "concept:phase:completing-milestone",
-      "label": "Phase: completing-milestone",
+      "id": "concept:phase:validating-milestone",
+      "label": "Phase: validating-milestone",
       "type": "concept",
       "confidence": "EXTRACTED",
       "sourceFile": "STATE.md"
@@ -233,6 +233,13 @@
       "confidence": "EXTRACTED"
     },
     {
+      "id": "milestone:M002",
+      "label": "M002: CRM модуль",
+      "type": "milestone",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M002/M002-ROADMAP.md"
+    },
+    {
       "id": "slice:M002:S01",
       "label": "S01: Contact CRUD API",
       "type": "slice",
@@ -375,13 +382,6 @@
       "sourceFile": "milestones/M008/M008-ROADMAP.md"
     },
     {
-      "id": "milestone:M009",
-      "label": "M009: Сделки и контракты",
-      "type": "milestone",
-      "confidence": "EXTRACTED",
-      "sourceFile": "milestones/M009/M009-ROADMAP.md"
-    },
-    {
       "id": "slice:M009:S01",
       "label": "S01: Deal API",
       "type": "slice",
@@ -432,6 +432,37 @@
       "confidence": "EXTRACTED"
     },
     {
+      "id": "slice:M009:S03",
+      "label": "S03: Deal Detail Page",
+      "type": "slice",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/slices/S03/S03-PLAN.md"
+    },
+    {
+      "id": "task:M009:S03:T01",
+      "label": "T01: Add DealHistory to API types",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M009:S03:T02",
+      "label": "T02: Create DealHistoryTimeline component",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M009:S03:T03",
+      "label": "T03: Integrate DealHistoryTimeline into deal detail page",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M009:S03:T04",
+      "label": "T04: Verify deal detail page with history",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
       "id": "slice:M009:S04",
       "label": "S04: Contract API",
       "type": "slice",
@@ -453,6 +484,31 @@
     {
       "id": "task:M009:S04:T03",
       "label": "T03: Convert Deal to Contract",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "slice:M009:S05",
+      "label": "S05: S05",
+      "type": "slice",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/slices/S05/S05-PLAN.md"
+    },
+    {
+      "id": "task:M009:S05:T01",
+      "label": "T01: ContractRepository и contractsApi клиент созданы; API endpoints готовы",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M009:S05:T02",
+      "label": "T02: Contract detail page with tabs already implemented: Details, Versions, Signers, Related",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M009:S05:T03",
+      "label": "T03: Contracts list page with table and filters",
       "type": "task",
       "confidence": "EXTRACTED"
     }
@@ -808,6 +864,36 @@
     },
     {
       "from": "milestone:M009",
+      "to": "slice:M009:S03",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M009:S03",
+      "to": "task:M009:S03:T01",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M009:S03",
+      "to": "task:M009:S03:T02",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M009:S03",
+      "to": "task:M009:S03:T03",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M009:S03",
+      "to": "task:M009:S03:T04",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
       "to": "slice:M009:S04",
       "type": "contains",
       "confidence": "EXTRACTED"
@@ -829,7 +915,31 @@
       "to": "task:M009:S04:T03",
       "type": "contains",
       "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "slice:M009:S05",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M009:S05",
+      "to": "task:M009:S05:T01",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M009:S05",
+      "to": "task:M009:S05:T02",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M009:S05",
+      "to": "task:M009:S05:T03",
+      "type": "contains",
+      "confidence": "EXTRACTED"
     }
   ],
-  "builtAt": "2026-06-21T09:39:02.410Z"
+  "builtAt": "2026-06-21T13:13:39.485Z"
 }

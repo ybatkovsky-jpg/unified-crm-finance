@@ -1,0 +1,18 @@
+{
+  "id": "0a4d4236-605a-438d-9311-6bb0bbe6fc73",
+  "runtime": "bash",
+  "purpose": "TypeScript check contracts page",
+  "script_chars": 70,
+  "started_at": "2026-06-21T13:07:24.028Z",
+  "finished_at": "2026-06-21T13:07:24.125Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 97,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\0a4d4236-605a-438d-9311-6bb0bbe6fc73.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\0a4d4236-605a-438d-9311-6bb0bbe6fc73.stderr"
+}

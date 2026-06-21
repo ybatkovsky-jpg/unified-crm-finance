@@ -1,6 +1,6 @@
 {
-  "compiledAt": "2026-06-21T10:22:05.080Z",
-  "milestoneId": "M002",
+  "compiledAt": "2026-06-21T13:15:00.944Z",
+  "milestoneId": "M009",
   "pipeline": {
     "clarifyRoundLimit": 3,
     "researchSynthesized": true,
@@ -10,248 +10,330 @@
   },
   "nodes": [
     {
-      "id": "execute-task:M002:S01:T01",
+      "id": "execute-task:M009:S01:T01",
       "kind": "unit",
       "dependsOn": [],
       "writes": [
-        "apps/web/prisma/schema.prisma",
-        "apps/web/prisma/migrations/20260621042334_shared_and_crm/migration.sql",
-        "apps/web/prisma/dev.db"
+        "apps/web/src/lib/db/deals.ts"
       ],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M002.S01.T01",
-        "title": "Verified and applied Prisma migrations for all 4 CRM models (Contact, LeadSource, Interaction, Lead) to dev.db database",
+        "unitId": "M009.S01.T01",
+        "title": "DealRepository создан с методами CRUD, moveStage, автонумерацией С-YYYY-NNNNN",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M002:S01:T02",
+      "id": "execute-task:M009:S01:T02",
       "kind": "unit",
       "dependsOn": [
-        "execute-task:M002:S01:T01"
+        "execute-task:M009:S01:T01"
       ],
       "writes": [
-        "apps/web/src/lib/db/prisma.ts",
-        "apps/web/src/lib/db/contacts.ts",
-        "apps/web/src/lib/db/contacts.test.ts"
+        "apps/web/src/app/api/deals/route.ts",
+        "apps/web/src/app/api/deals/[id]/route.ts",
+        "apps/web/src/app/api/deals/[id]/move/route.ts"
       ],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M002.S01.T02",
-        "title": "Created PrismaClient singleton (apps/web/src/lib/db/prisma.ts) and ContactRepository with CRUD+softDelete (apps/web/src/lib/db/contacts.ts). All 9 tests pass.",
+        "unitId": "M009.S01.T02",
+        "title": "API routes созданы: GET/POST /api/deals, GET/PATCH/DELETE /api/deals/[id], POST /api/deals/[id]/move",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M002:S01:T03",
+      "id": "execute-task:M009:S01:T03",
       "kind": "unit",
       "dependsOn": [
-        "execute-task:M002:S01:T02"
+        "execute-task:M009:S01:T02"
       ],
       "writes": [
-        "apps/web/src/app/api/contacts/route.ts",
-        "apps/web/src/app/api/contacts/[id]/route.ts",
-        "apps/web/tsconfig.json",
-        "apps/web/next.config.ts",
-        "apps/web/package.json"
+        "apps/web/prisma/seed-deals.ts"
       ],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M002.S01.T03",
-        "title": "Created Contact API routes (GET list, POST create, GET single, PUT update, DELETE soft-delete) with validation and error handling",
+        "unitId": "M009.S01.T03",
+        "title": "Seed скрипт создал default pipeline с 8 стадиями (new → won/lost)",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M002:S01:T04",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M002:S01:T03"
-      ],
-      "writes": [
-        "apps/web/src/lib/api/contacts.ts",
-        "apps/web/src/lib/api/types.ts",
-        "apps/web/src/lib/api/contacts.test.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M002.S01.T04",
-        "title": "Created TypeScript API client (lib/api/contacts.ts) with typed CRUD methods for Contact API, types module (lib/api/types.ts), and 25 passing tests",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "complete-slice:M002:S01",
+      "id": "complete-slice:M009:S01",
       "kind": "verification",
       "dependsOn": [
-        "execute-task:M002:S01:T04"
+        "execute-task:M009:S01:T03"
       ],
       "metadata": {
         "unitType": "complete-slice",
-        "unitId": "M002.S01",
+        "unitId": "M009.S01",
         "title": "S01",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M002:S02:T01",
+      "id": "execute-task:M009:S02:T01",
       "kind": "unit",
       "dependsOn": [],
-      "writes": [],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M002.S02.T01",
-        "title": "Bootstrapped Tailwind CSS v4, shadcn/ui (base-nova), and lucide-react with PostCSS config, CSS variables, and 6 UI components (table, button, input, select, badge, card)",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M002:S02:T02",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M002:S02:T01"
+      "writes": [
+        "apps/web/src/components/deals/deal-card.tsx",
+        "apps/web/src/components/deals/deal-card-draggable.tsx",
+        "apps/web/src/components/deals/kanban-column.tsx",
+        "apps/web/src/components/deals/kanban-board.tsx"
       ],
-      "writes": [],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M002.S02.T02",
-        "title": "Created root layout with Russian locale and home page that redirects to /crm/contacts",
+        "unitId": "M009.S02.T01",
+        "title": "Компоненты Kanban board созданы с drag-and-drop через @dnd-kit",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M002:S02:T03",
+      "id": "execute-task:M009:S02:T02",
       "kind": "unit",
       "dependsOn": [
-        "execute-task:M002:S02:T02"
+        "execute-task:M009:S02:T01"
       ],
       "writes": [
-        "apps/web/src/app/crm/contacts/page.tsx",
-        "apps/web/src/lib/db/contacts.ts",
-        "apps/web/src/app/api/contacts/route.ts",
-        "apps/web/src/app/api/contacts/[id]/route.ts"
+        "apps/web/src/components/deals/filter-bar.tsx",
+        "apps/web/src/components/deals/create-deal-modal.tsx",
+        "apps/web/src/lib/api/deals.ts",
+        "apps/web/src/lib/api/types.ts"
       ],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M002.S02.T03",
-        "title": "Built ContactListPage with type/status filters, loading/error/empty states, and row links to detail page; fixed Prisma type exports blocking build",
+        "unitId": "M009.S02.T02",
+        "title": "FilterBar и CreateDealModal созданы, Deal API client добавлен",
         "status": "complete"
       }
     },
     {
-      "id": "complete-slice:M002:S02",
+      "id": "execute-task:M009:S02:T03",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M009:S02:T02"
+      ],
+      "writes": [
+        "apps/web/src/app/deals/[id]/page.tsx"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M009.S02.T03",
+        "title": "Детальная страница сделки с edit mode и related entities",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "complete-slice:M009:S02",
       "kind": "verification",
       "dependsOn": [
-        "execute-task:M002:S02:T03"
+        "execute-task:M009:S02:T03"
       ],
       "metadata": {
         "unitType": "complete-slice",
-        "unitId": "M002.S02",
+        "unitId": "M009.S02",
         "title": "S02",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M002:S03:T01",
+      "id": "execute-task:M009:S03:T01",
       "kind": "unit",
       "dependsOn": [],
-      "writes": [],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M002.S03.T01",
-        "title": "Created InteractionRepository with findMany, findUnique, findByContactId, create, update, delete, count — mirroring ContactRepository pattern with manual UUID/updatedAt",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M002:S03:T02",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M002:S03:T01"
+      "writes": [
+        "apps/web/src/lib/api/types.ts"
       ],
-      "writes": [],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M002.S03.T02",
-        "title": "Created 3 Interaction API route files (collection, single-resource, nested contact timeline) following S01 contact routes pattern — all routes compile and register in next build",
+        "unitId": "M009.S03.T01",
+        "title": "Added DealHistoryData type and extended DealData with history array",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M002:S03:T03",
+      "id": "execute-task:M009:S03:T02",
       "kind": "unit",
       "dependsOn": [
-        "execute-task:M002:S03:T02"
+        "execute-task:M009:S03:T01"
       ],
       "writes": [
-        "apps/web/src/lib/api/interactions.ts",
-        "apps/web/src/lib/api/interactions.test.ts",
-        "apps/web/src/lib/api/types.ts",
-        "apps/web/src/lib/api/shared.ts",
-        "apps/web/src/lib/api/contacts.ts"
+        "apps/web/src/components/deals/deal-history-timeline.tsx"
       ],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M002.S03.T03",
-        "title": "Created InteractionApiClient with types, shared helpers, and 30 passing tests",
+        "unitId": "M009.S03.T02",
+        "title": "Created DealHistoryTimeline component with loading, error, and empty states following InteractionTimeline pattern",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M002:S03:T04",
+      "id": "execute-task:M009:S03:T03",
       "kind": "unit",
       "dependsOn": [
-        "execute-task:M002:S03:T03"
+        "execute-task:M009:S03:T02"
       ],
       "writes": [
-        "apps/web/src/components/crm/interaction-form.tsx",
-        "apps/web/src/components/crm/interaction-timeline.tsx"
+        "apps/web/src/app/deals/[id]/page.tsx",
+        "apps/web/src/components/deals/deal-history-timeline.tsx"
       ],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M002.S03.T04",
-        "title": "Created InteractionForm and InteractionTimeline UI components with loading/error/empty states and retry functionality",
+        "unitId": "M009.S03.T03",
+        "title": "Integrated DealHistoryTimeline into deal detail page after Related card with deal.history prop",
         "status": "complete"
       }
     },
     {
-      "id": "complete-slice:M002:S03",
+      "id": "execute-task:M009:S03:T04",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M009:S03:T03"
+      ],
+      "writes": [
+        "apps/web/src/app/deals/[id]/page.tsx",
+        "apps/web/src/components/deals/deal-history-timeline.tsx",
+        "apps/web/src/lib/api/types.ts"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M009.S03.T04",
+        "title": "Verified DealHistoryTimeline integration in deals detail page; component imported and rendering with history prop",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "complete-slice:M009:S03",
       "kind": "verification",
       "dependsOn": [
-        "execute-task:M002:S03:T04"
+        "execute-task:M009:S03:T04"
       ],
       "metadata": {
         "unitType": "complete-slice",
-        "unitId": "M002.S03",
+        "unitId": "M009.S03",
         "title": "S03",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M002:S04:T01",
+      "id": "execute-task:M009:S04:T01",
       "kind": "unit",
       "dependsOn": [],
       "writes": [
-        "apps/web/src/app/crm/contacts/[id]/page.tsx"
+        "apps/web/src/lib/db/contracts.ts"
       ],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M002.S04.T01",
-        "title": "Created /crm/contacts/[id] page with contact details header, interactions timeline, and add interaction form integrating Contact and Interaction APIs",
+        "unitId": "M009.S04.T01",
+        "title": "ContractRepository создан с методами для версий и подписантов",
         "status": "complete"
       }
     },
     {
-      "id": "complete-slice:M002:S04",
+      "id": "execute-task:M009:S04:T02",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M009:S04:T01"
+      ],
+      "writes": [
+        "apps/web/src/app/api/contracts/route.ts",
+        "apps/web/src/app/api/contracts/[id]/route.ts",
+        "apps/web/src/app/api/contracts/[id]/versions/route.ts",
+        "apps/web/src/app/api/contracts/[id]/signers/route.ts"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M009.S04.T02",
+        "title": "Contract API endpoints созданы: list, get, update, delete, versions, signers",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M009:S04:T03",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M009:S04:T02"
+      ],
+      "writes": [
+        "apps/web/src/app/api/deals/[id]/convert/route.ts"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M009.S04.T03",
+        "title": "Convert endpoint создаёт контракт из сделки с автоматической связкой",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "complete-slice:M009:S04",
       "kind": "verification",
       "dependsOn": [
-        "execute-task:M002:S04:T01"
+        "execute-task:M009:S04:T03"
       ],
       "metadata": {
         "unitType": "complete-slice",
-        "unitId": "M002.S04",
+        "unitId": "M009.S04",
         "title": "S04",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M009:S05:T01",
+      "kind": "unit",
+      "dependsOn": [],
+      "writes": [
+        "apps/web/src/lib/db/contracts.ts",
+        "apps/web/src/lib/api/contracts.ts"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M009.S05.T01",
+        "title": "ContractRepository и contractsApi клиент созданы; API endpoints готовы",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M009:S05:T02",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M009:S05:T01"
+      ],
+      "writes": [
+        "apps/web/src/app/contracts/[id]/page.tsx",
+        "apps/web/src/components/ui/tabs.tsx"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M009.S05.T02",
+        "title": "Contract detail page with tabs already implemented: Details, Versions, Signers, Related",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M009:S05:T03",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M009:S05:T02"
+      ],
+      "writes": [
+        "apps/web/src/app/contracts/page.tsx",
+        "apps/web/src/lib/api/contracts.ts"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M009.S05.T03",
+        "title": "Contracts list page with table and filters (status + contactId) fully implemented with API timing logs",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "complete-slice:M009:S05",
+      "kind": "verification",
+      "dependsOn": [
+        "execute-task:M009:S05:T03"
+      ],
+      "metadata": {
+        "unitType": "complete-slice",
+        "unitId": "M009.S05",
+        "title": "S05",
         "status": "complete"
       }
     }

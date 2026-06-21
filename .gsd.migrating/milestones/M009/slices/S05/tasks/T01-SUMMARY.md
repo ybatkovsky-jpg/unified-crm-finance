@@ -8,17 +8,19 @@ key_files:
 key_decisions: []
 duration: 
 verification_result: untested
-completed_at: 2026-06-21T09:40:11.718Z
-blocker_discovered: false
+completed_at: 2026-06-21T13:02:21.430Z
+blocker_discovered: true
 ---
 
-# T01: ContractRepository и contractsApi клиент созданы, Contract types добавлены
+# T01: ContractRepository и contractsApi клиент созданы; API endpoints готовы
 
-**ContractRepository и contractsApi клиент созданы, Contract types добавлены**
+**ContractRepository и contractsApi клиент созданы; API endpoints готовы**
 
 ## What Happened
 
-Создан ContractRepository и contractsApi клиент. ContractRepository: findMany, findUnique, findByContact, findByDeal, create (автонумерация Д-YYYY-NNNNN), update, softDelete, addVersion (автоинкремент версии), getVersions, addSigner, getSigners, convertFromDeal. contractsApi: getContracts, getContract, createContract, updateContract, deleteContract, getVersions, addVersion, getSigners, addSigner, convertDeal. Types добавлены в types.ts: ContractData, ContractVersionData, ContractSignerData, ContractCreateInput, ContractUpdateInput, ContractVersionCreateInput, ContractSignerCreateInput, DealConvertInput.
+T01 создал ContractRepository (apps/web/src/lib/db/contracts.ts) и contractsApi клиент (apps/web/src/lib/api/contracts.ts). ContractRepository включает методы: findMany, findUnique, findByContact, findByDeal, create с автонумерацией Д-YYYY-NNNNN, update, softDelete, addVersion с автоинкрементом версии, getVersions, addSigner, getSigners, convertFromDeal. contractsApi предоставляет методы: getContracts, getContract, createContract, updateContract, deleteContract, getVersions, addVersion, getSigners, addSigner, convertDeal. Types добавлены в types.ts.
+
+API endpoints для контрактов и конвертации сделки готовы к использованию UI.
 
 ## Verification
 
@@ -32,11 +34,11 @@ ContractRepository и contractsApi реализованы. API endpoints (contra
 
 ## Deviations
 
-None.
+T01 изначально планировал создать страницу со списком контрактов, но вместо этого создал ContractRepository и contractsApi клиент. Страница списка контрактов (/contracts/page.tsx) всё ещё нужна и будет добавлена как отдельная задача.
 
 ## Known Issues
 
-None.
+Страница списка контрактов (/contracts/page.tsx) отсутствует - это Must-Have требование для slice S05.
 
 ## Files Created/Modified
 

@@ -4,7 +4,7 @@ estimated_files: 3
 skills_used: []
 ---
 
-# T02: Contract detail page with tabs
+# T02: Contract detail page with tabs already implemented: Details, Versions, Signers, Related
 
 Создать детальную страницу apps/web/src/app/contracts/[id]/page.tsx с табами. Tabs: Details (редактирование полей), Versions (список версий, кнопка добавить версию через модалку), Signers (список подписантов с датами подписания, кнопка добавить подписанта), Related (связанная сделка).
 

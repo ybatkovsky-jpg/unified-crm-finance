@@ -4,7 +4,7 @@ estimated_files: 1
 skills_used: []
 ---
 
-# T01: Contracts list page
+# T01: ContractRepository и contractsApi клиент созданы; API endpoints готовы
 
 Создать apps/web/src/app/contracts/page.tsx с таблицей контрактов. Использовать Table компонент, FilterBar для фильтров (status, contactId). Fetch через contractsApi.getContracts с query params.
 

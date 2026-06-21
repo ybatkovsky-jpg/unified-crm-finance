@@ -12,7 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { deals } from '../../../../../lib/db/deals'
+import { deals } from '@/lib/db/deals'
 
 interface RouteParams {
   params: Promise<{ id: string }>

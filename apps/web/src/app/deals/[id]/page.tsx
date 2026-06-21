@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2 } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText } from "lucide-react"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
+import { contractsApi } from "@/lib/api/contracts"
 import type { DealData } from "@/lib/api/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,6 +28,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   const [error, setError] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [converting, setConverting] = useState(false)
   const [editForm, setEditForm] = useState({
     title: "",
     amount: "",
@@ -119,6 +121,33 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     setError(null)
   }
 
+  const handleConvertToContract = async () => {
+    if (!deal) return
+
+    setConverting(true)
+    setError(null)
+
+    try {
+      const response = await contractsApi.convertDeal(deal.id, {
+        title: deal.title,
+        amount: deal.amount,
+        currency: deal.currency,
+        startDate: new Date().toISOString().split('T')[0],
+      })
+
+      // Navigate to the newly created contract
+      router.push(`/contracts/${response.data.contract.id}`)
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(err.message)
+      } else {
+        setError("Failed to convert deal to contract. Please try again.")
+      }
+    } finally {
+      setConverting(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -180,12 +209,24 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
             </p>
           </div>
         </div>
-        {!isEditing && (
-          <Button onClick={() => setIsEditing(true)}>
-            <Edit2 className="size-4" />
-            <span className="ml-1.5">Изменить</span>
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {!isEditing && (
+            <>
+              <Button onClick={() => setIsEditing(true)}>
+                <Edit2 className="size-4" />
+                <span className="ml-1.5">Изменить</span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleConvertToContract}
+                disabled={converting}
+              >
+                <FileText className="size-4" />
+                <span className="ml-1.5">{converting ? "Конвертация..." : "В контракт"}</span>
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {error && (

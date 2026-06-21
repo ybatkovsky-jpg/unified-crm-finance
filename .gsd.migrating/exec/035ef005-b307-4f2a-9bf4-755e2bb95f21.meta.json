@@ -1,0 +1,18 @@
+{
+  "id": "035ef005-b307-4f2a-9bf4-755e2bb95f21",
+  "runtime": "bash",
+  "purpose": "Verify contract detail page exists",
+  "script_chars": 111,
+  "started_at": "2026-06-21T12:45:21.983Z",
+  "finished_at": "2026-06-21T12:45:22.068Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 85,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\035ef005-b307-4f2a-9bf4-755e2bb95f21.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\035ef005-b307-4f2a-9bf4-755e2bb95f21.stderr"
+}
