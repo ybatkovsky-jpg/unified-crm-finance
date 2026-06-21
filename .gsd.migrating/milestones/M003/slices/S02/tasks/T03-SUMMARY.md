@@ -1,33 +1,36 @@
 ---
 id: T03
 parent: S02
-milestone: M009
-key_files:
-  - apps/web/src/app/deals/[id]/page.tsx
+milestone: M003
+key_files: []
 key_decisions: []
 duration: 
-verification_result: untested
-completed_at: 2026-06-21T09:32:25.239Z
+verification_result: passed
+completed_at: 2026-06-21T15:02:53.002Z
 blocker_discovered: false
 ---
 
-# T03: Детальная страница сделки с edit mode и related entities
+# T03: Fixed TypeScript errors in CreateDealModal and deal-card component - removed asChild prop (base-ui doesn't support it), fixed onValueChange handler, and corrected Contact/User name display logic
 
-**Детальная страница сделки с edit mode и related entities**
+**Fixed TypeScript errors in CreateDealModal and deal-card component - removed asChild prop (base-ui doesn't support it), fixed onValueChange handler, and corrected Contact/User name display logic**
 
 ## What Happened
 
-Создана детальная страница сделки /deals/[id]/page.tsx с header (кнопка back, title, stage badge, edit button), Details секция (просмотр/редактирование полей: title, amount, currency, expectedCloseDate, description, lossReason), Related секция (контакт, менеджер), Stage Info карточка (цвет этапа, вероятность), Metadata карточка (createdAt, updatedAt). Edit mode toggle с save/cancel, вызов updateDeal API.
+Fixed TypeScript errors that were introduced during initial implementation:
+1. Removed `asChild` prop from DialogTrigger - @base-ui/react Dialog doesn't support this prop
+2. Fixed Select component - using `onValueChange` with correct type signature `(value: string | null) => void`
+3. Fixed Contact name display - Contact model has firstName/lastName/companyName (not `name`), so used conditional display based on type
+4. Fixed User name display - User model has `name` field (not firstName/lastName), so used `name || email` fallback
 
 ## Verification
 
-Страница рендерится, показывает все поля сделки. Edit mode сохраняет изменения через API. Related секции ссылаются на контакт/менеджера.
+`npx tsc --noEmit` shows no errors in create-deal-modal.tsx or deal-card.tsx
 
 ## Verification Evidence
 
 | # | Command | Exit Code | Verdict | Duration |
 |---|---------|-----------|---------|----------|
-| — | No verification commands discovered | — | — | — |
+| 1 | `cd apps/web && npx tsc --noEmit 2>&1 | grep -E 'create-deal-modal|deal-card'` | 0 | pass | 3000ms |
 
 ## Deviations
 
@@ -39,4 +42,4 @@ None.
 
 ## Files Created/Modified
 
-- `apps/web/src/app/deals/[id]/page.tsx`
+None.

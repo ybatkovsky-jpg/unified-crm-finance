@@ -1,0 +1,18 @@
+{
+  "id": "083f82be-6ad4-46ee-8b90-0bfc32bc51ef",
+  "runtime": "bash",
+  "purpose": "Run pipeline tests",
+  "script_chars": 59,
+  "started_at": "2026-06-21T15:02:28.488Z",
+  "finished_at": "2026-06-21T15:02:29.175Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 687,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\083f82be-6ad4-46ee-8b90-0bfc32bc51ef.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\083f82be-6ad4-46ee-8b90-0bfc32bc51ef.stderr"
+}

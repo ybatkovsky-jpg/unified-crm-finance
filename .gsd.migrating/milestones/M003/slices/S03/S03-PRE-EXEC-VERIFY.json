@@ -1,16 +1,23 @@
 {
   "schemaVersion": 1,
-  "milestoneId": "M009",
+  "milestoneId": "M003",
   "sliceId": "S03",
-  "timestamp": 1782039053489,
+  "timestamp": 1782054349043,
   "status": "fail",
   "durationMs": 4,
   "checks": [
     {
       "category": "tool",
-      "target": "T04 Verify",
+      "target": "T01 Verify",
       "passed": false,
-      "message": "Unsafe or non-runnable Verify command: Manual review — navigate to /deals/[id] and verify history timeline displays correctly (does not look like a runnable command)",
+      "message": "Unsafe or non-runnable Verify command: Create a test deal with history via API, then GET /api/deals/[id] and verify response.data.history[0].fromStage.name exists (does not look like a runnable command)",
+      "blocking": true
+    },
+    {
+      "category": "tool",
+      "target": "T02 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: Manual verification: Browser test of /deals/[id] page showing timeline with real deal history data (does not look like a runnable command)",
       "blocking": true
     }
   ]

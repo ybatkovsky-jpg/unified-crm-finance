@@ -45,12 +45,12 @@ What remains before milestone end-to-end: S03 (Deal Detail Page + DealHistoryTim
   - Files: `apps/web/src/lib/db/deals.ts`, `apps/web/src/components/deals/kanban-column.tsx`, `apps/web/src/app/deals/page.tsx`
   - Verify: cd apps/web && npx tsx --test src/lib/db/deals.test.ts
 
-- [ ] **T03: Add contact selector to CreateDealModal** `est:35m`
+- [x] **T03: Add contact selector to CreateDealModal** `est:35m`
   Why: CreateDealModal creates deals with title/amount/currency/date but has no way to link a contact. For CRM purposes, most deals should be linked to a contact. The API accepts contactId (optional), so this is a gap in the UI.
   - Files: `apps/web/src/components/deals/create-deal-modal.tsx`
   - Verify: cd apps/web && npx tsc --noEmit
 
-- [ ] **T04: Wire pipeline API into deals page and remove hardcoded values** `est:30m`
+- [x] **T04: Wire pipeline API into deals page and remove hardcoded values** `est:30m`
   Why: The deals page has two hardcoded values: pipelineId = "default-pipeline-id" (line 94) and changedBy = "current-user-id" (line 70). It derives stages from deals via extractStagesFromDeals(), the root cause of empty columns. After T01, stages should come from the pipeline API.
   - Files: `apps/web/src/app/deals/page.tsx`
   - Verify: cd apps/web && npx tsc --noEmit

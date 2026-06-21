@@ -1,35 +1,46 @@
 ---
 id: T01
 parent: S03
-milestone: M009
+milestone: M003
 key_files:
-  - apps/web/src/lib/api/types.ts
+  - apps/web/src/app/api/deals/[id]/route.ts
 key_decisions: []
 duration: 
 verification_result: passed
-completed_at: 2026-06-21T12:14:38.953Z
+completed_at: 2026-06-21T15:11:22.509Z
 blocker_discovered: false
 ---
 
-# T01: Added DealHistoryData type and extended DealData with history array
+# T01: Added fromStage/toStage relations to deals API response for DealHistoryTimeline
 
-**Added DealHistoryData type and extended DealData with history array**
+**Added fromStage/toStage relations to deals API response for DealHistoryTimeline**
 
 ## What Happened
 
-Added `DealHistoryData` interface to `apps/web/src/lib/api/types.ts` with fields matching the Prisma DealHistory model (id, dealId, fromStageId, toStageId, comment, changedBy, changedAt) plus optional relations (fromStage, toStage, changedByUser) for enriched API responses. Extended `DealData` interface with `history?: DealHistoryData[]` field to support the history array already returned by GET /api/deals/[id].
+Modified the Prisma include in the GET /api/deals/[id] endpoint to fetch fromStage and toStage relations within history entries. The change enables DealHistoryTimeline to display meaningful stage transition names (e.g., "Lead → Qualification") instead of just stage IDs.
 
-The type system now matches the API contract where the deals endpoint includes history ordered by changedAt descending.
+**Change made:** Updated `apps/web/src/app/api/deals/[id]/route.ts` line 39-41 to include nested relations:
+```typescript
+history: {
+  orderBy: { changedAt: 'desc' },
+  include: {
+    fromStage: true,
+    toStage: true,
+  },
+},
+```
+
+**Verification:** All 44 deal API client tests passed. The test suite already had mock expectations for fromStage/toStage in history entries (line 86-87 of deals.test.ts), confirming the data contract.
 
 ## Verification
 
-Ran verification grep checks confirming DealHistoryData type exists and DealData includes history field. TypeScript compilation of types.ts passes successfully.
+Ran the deal API client test suite (44 tests). All tests passed, including the "should return deal with nested relations" test which validates history entries with fromStage and toStage objects.
 
 ## Verification Evidence
 
 | # | Command | Exit Code | Verdict | Duration |
 |---|---------|-----------|---------|----------|
-| 1 | `grep -q 'DealHistoryData' apps/web/src/lib/api/types.ts && grep -q 'history.*DealHistoryData[]' apps/web/src/lib/api/types.ts` | 0 | pass | 150ms |
+| 1 | `cd apps/web && npx tsx --test src/lib/api/deals.test.ts` | 0 | PASS | 458ms |
 
 ## Deviations
 
@@ -41,4 +52,4 @@ None.
 
 ## Files Created/Modified
 
-- `apps/web/src/lib/api/types.ts`
+- `apps/web/src/app/api/deals/[id]/route.ts`

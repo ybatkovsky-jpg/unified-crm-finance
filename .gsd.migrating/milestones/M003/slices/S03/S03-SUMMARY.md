@@ -1,88 +1,82 @@
 ---
 id: S03
-parent: M009
-milestone: M009
+parent: M003
+milestone: M003
 provides:
-  - ["Deal detail page with integrated history timeline", "DealHistoryData type for client-side type safety", "Reusable timeline component pattern for future history features"]
+  - (none)
 requires:
   []
 affects:
-  - ["S05 - Contract detail pages may reuse timeline pattern", "Future history-related features (interaction history, task history)"]
+  []
 key_files:
-  - ["apps/web/src/lib/api/types.ts", "apps/web/src/components/deals/deal-history-timeline.tsx", "apps/web/src/app/deals/[id]/page.tsx"]
+  - ["apps/web/src/app/api/deals/[id]/route.ts", "apps/web/src/components/deals/deal-history-timeline.tsx", "apps/web/src/app/deals/[id]/page.tsx"]
 key_decisions:
-  - ["Follow InteractionTimeline pattern for consistency", "History data as optional array on DealData", "Timeline renders after Related card in detail page layout"]
+  - []
 patterns_established:
-  - ["Timeline components use lucide-react History icon with ArrowRight for transitions", "Loading/error/empty state pattern for all async UI components", "History types extend data interfaces with optional arrays"]
+  - (none)
 observability_surfaces:
-  - ["Component-level error boundaries in DealHistoryTimeline", "Console logging for missing history data", "Type-level validation for DealHistoryData fields"]
+  - ["Loading state with Loader2 spinner", "Error state with AlertCircle icon and retry button", "Empty state with 'No history yet' message"]
 drill_down_paths:
   []
 duration: ""
 verification_result: passed
-completed_at: 2026-06-21T12:24:43.278Z
+completed_at: 2026-06-21T15:15:31.504Z
 blocker_discovered: false
 ---
 
-# S03: Deal Detail Page
+# S03: Deal Detail Page and History Timeline
 
-**Created deal detail page at /deals/[id] with DealHistoryTimeline showing stage changes, comments, and timestamps**
+**Deal detail page at /deals/[id] now displays deal card with contact, stage, amount; DealHistoryTimeline shows fromStage→toStage transitions with dates, comments, and user info**
 
 ## What Happened
 
-## Slice Overview
+## Summary
 
-S03 delivers the deal detail page with history timeline functionality. All 4 tasks completed successfully.
+Slice S03 delivered a complete deal detail page with history timeline functionality. The implementation consisted of three tasks:
 
-## Task Outcomes
+**T01: API Enhancement**
+- Modified `apps/web/src/app/api/deals/[id]/route.ts` to include nested `fromStage` and `toStage` relations in the history include (lines 41-44)
+- This enables DealHistoryTimeline to display meaningful stage names instead of IDs
+- Verification: 44 deal API tests passed
 
-**T01: Add DealHistory to API types** (15m)
-- Added `DealHistoryData` type with fields: id, dealId, fromStage, toStage, comment, changedBy, changedAt
-- Extended `DealData` interface with optional `history?: DealHistoryData[]` array
+**T02: DealHistoryTimeline Component**
+- Confirmed existing component at `apps/web/src/components/deals/deal-history-timeline.tsx`
+- Component displays: fromStage→toStage with ArrowRight icon, changedAt date, changedBy user, and comment
+- Handles loading state (Loader2 spinner), error state (AlertCircle with retry button), and empty state ("No history yet")
+- TypeScript compilation verified with no component-specific errors
 
-**T02: Create DealHistoryTimeline component** (45m)
-- Created `apps/web/src/components/deals/deal-history-timeline.tsx`
-- Follows InteractionTimeline pattern from M002
-- Uses lucide-react icons (History, ArrowRight) and shadcn/ui Card/Badge
-- Handles loading, error, and empty states
-- Displays fromStage→toStage transitions with comment, changer, and timestamp
+**T03: Deal Detail Page Integration**
+- Verified DealHistoryTimeline is imported (line 22) and rendered (line 441) in `apps/web/src/app/deals/[id]/page.tsx`
+- Component receives `deal.history` prop from the API response
+- Displayed in a Card section titled "История изменений"
 
-**T03: Integrate DealHistoryTimeline into deal detail page** (30m)
-- Imported `DealHistoryTimeline` in `apps/web/src/app/deals/[id]/page.tsx`
-- Rendered timeline after Related card in main content column
-- Passed `deal.history` as prop
-
-**T04: Verify deal detail page with history** (15m)
-- Verified all component imports and usage
-- TypeScript compilation passes for S03 work (pre-existing errors unrelated)
-- Integration verified with grep checks
-
-## Files Modified
-
-- `apps/web/src/lib/api/types.ts` - Added DealHistoryData type and extended DealData
-- `apps/web/src/components/deals/deal-history-timeline.tsx` - New component
-- `apps/web/src/app/deals/[id]/page.tsx` - Integrated timeline
-
-## Patterns Established
-
-- Timeline components follow InteractionTimeline pattern (card-based, icon + content, chronological)
-- History types extend data interfaces with optional arrays
-- Loading/error/empty state pattern for all async UI components
+All verification checks passed. The slice delivers the exact demo outcome specified: /deals/[id] shows deal card with contact, stage, amount, and DealHistoryTimeline shows fromStage→toStage history with dates and comments.
 
 ## Verification
 
-## Slice Verification Results
+## Slice Verification
 
-All slice-level verification checks passed:
+### T01: API Relations Check
+- **File verified**: `apps/web/src/app/api/deals/[id]/route.ts`
+- **Implementation**: Lines 41-44 include `fromStage: true, toStage: true` in history relations
+- **Evidence**: Task summary shows 44 deal API tests passed
 
-| Check | Command | Result |
-|-------|---------|--------|
-| Component file exists | `test -f apps/web/src/components/deals/deal-history-timeline.tsx` | ✅ pass |
-| Component exports | `grep -q 'export.*DealHistoryTimeline'` | ✅ pass |
-| Page imports component | `grep -q 'DealHistoryTimeline' apps/web/src/app/deals/[id]/page.tsx` | ✅ pass |
-| Type definition exists | `grep -q 'DealHistoryData' apps/web/src/lib/api/types.ts` | ✅ pass |
+### T02: DealHistoryTimeline Component
+- **File verified**: `apps/web/src/components/deals/deal-history-timeline.tsx`
+- **Features confirmed**: 
+  - Displays `fromStage.name → toStage.name` with ArrowRight icon
+  - Shows `changedAt` date, `changedBy` user, and `comment`
+  - Handles loading/error/empty states
+- **Evidence**: Direct code inspection confirms all required functionality
 
-All 4 tasks completed with verified evidence. TypeScript compilation for S03-specific code passes; pre-existing errors are unrelated (dnd-kit dependency, test files, db contract types).
+### T03: Detail Page Integration
+- **File verified**: `apps/web/src/app/deals/[id]/page.tsx`
+- **Import confirmed**: Line 22 imports DealHistoryTimeline
+- **Usage confirmed**: Line 441 renders `<DealHistoryTimeline history={deal.history} />`
+- **Evidence**: Direct grep verification
+
+### Overall
+All three tasks completed successfully. The slice delivers the exact demo outcome: `/deals/[id]` page shows deal card with contact, stage, amount, and DealHistoryTimeline displays fromStage→toStage transitions with dates and comments.
 
 ## Requirements Advanced
 

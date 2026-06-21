@@ -248,7 +248,6 @@ export class ContractRepository {
     return prisma.$transaction(async (tx) => {
       const deal = await tx.deal.findFirst({
         where: { id: dealId, deletedAt: null },
-        include: { contact: true },
       });
 
       if (!deal) {

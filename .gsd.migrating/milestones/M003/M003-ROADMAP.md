@@ -16,10 +16,10 @@
 - [x] **S01: S01** `risk:low` `depends:[]`
   > After this: curl POST /api/deals создаёт сделку с автонумерацией С-YYYY-NNNNN; PUT /api/deals/[id]/move меняет stage и пишет DealHistory; GET /api/deals возвращает сделки с фильтрами
 
-- [ ] **S02: S02** `risk:medium` `depends:[]`
+- [x] **S02: S02** `risk:medium` `depends:[]`
   > After this: Страница /deals показывает колонки по stage order; drag-and-drop карточки между колонками вызывает API move; FilterBar фильтрует по статусу; CreateDealModal создаёт сделку
 
-- [ ] **S03: Deal Detail Page and History Timeline** `risk:low` `depends:[S01]`
+- [x] **S03: S03** `risk:low` `depends:[]`
   > After this: Страница /deals/[id] показывает карточку сделки с контактом, этапом, суммой; DealHistoryTimeline показывает историю переходов fromStage→toStage с датами и комментариями
 
 - [ ] **S04: Contract Repository, API, and Deal Conversion** `risk:medium` `depends:[S01]`

@@ -1,0 +1,18 @@
+{
+  "id": "52b3f1d9-e1cd-49b3-a42e-83923ffa180f",
+  "runtime": "bash",
+  "purpose": "Verify deal API tests pass including history relations",
+  "script_chars": 70,
+  "started_at": "2026-06-21T15:14:53.724Z",
+  "finished_at": "2026-06-21T15:14:53.796Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 72,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\52b3f1d9-e1cd-49b3-a42e-83923ffa180f.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\52b3f1d9-e1cd-49b3-a42e-83923ffa180f.stderr"
+}

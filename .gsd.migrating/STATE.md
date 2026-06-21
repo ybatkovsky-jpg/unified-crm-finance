@@ -1,8 +1,8 @@
 # GSD State
 
 **Active Milestone:** M003: Сделки и контракты
-**Active Slice:** S02: S02
-**Phase:** executing
+**Active Slice:** S04: Contract Repository, API, and Deal Conversion
+**Phase:** planning
 **Requirements Status:** 15 active · 5 validated · 0 deferred · 0 out of scope
 
 ## Milestone Registry
@@ -23,4 +23,4 @@
 - None
 
 ## Next Action
-Execute T03: Add contact selector to CreateDealModal in slice S02.
+Slice S04 has no DB tasks. Plan slice tasks before execution.

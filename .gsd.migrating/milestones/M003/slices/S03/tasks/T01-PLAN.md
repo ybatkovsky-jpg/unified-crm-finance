@@ -1,25 +1,32 @@
 ---
-estimated_steps: 1
+estimated_steps: 4
 estimated_files: 1
 skills_used: []
 ---
 
-# T01: Add DealHistory to API types
+# T01: Add DealHistory stage relations to API response
 
-Extend the type system to support DealHistory data. The API already returns history in GET /api/deals/[id] response (S01 completed), but the client types don't include it yet. This task adds DealHistoryData type and extends DealData to include the history array.
+The GET /api/deals/[id] endpoint currently includes `history` but doesn't fetch the related DealStage records (fromStage, toStage) needed by DealHistoryTimeline. Update the Prisma include to fetch these relations.
+
+**Why:** DealHistoryTimeline needs fromStage.name and toStage.name to display stage transitions (e.g., "Lead → Qualification"). Without these relations, the timeline can't show meaningful stage names.
+
+**Do:** Modify the Prisma include in `apps/web/src/app/api/deals/[id]/route.ts` to include `history: { include: { fromStage: true, toStage: true } }`.
+
+**Done when:** The API returns history entries with nested fromStage and toStage objects containing name fields.
 
 ## Inputs
 
-- `apps/web/src/lib/api/types.ts`
+- `apps/web/src/app/api/deals/[id]/route.ts`
+- `apps/web/src/lib/api/deals.test.ts`
 
 ## Expected Output
 
-- `apps/web/src/lib/api/types.ts`
+- `apps/web/src/app/api/deals/[id]/route.ts`
 
 ## Verification
 
-grep -q 'DealHistoryData' apps/web/src/lib/api/types.ts && grep -q 'history\?: DealHistoryData\[\]' apps/web/src/lib/api/types.ts
+cd apps/web && npx tsx --test src/lib/api/deals.test.ts 2>&1 | grep -E '(PASS|FAIL|passed|failed)'
 
 ## Observability Impact
 
-No runtime observability changes - type definitions only
+None - this is a data fetch change, not observability. The timeline component handles loading/error states already.

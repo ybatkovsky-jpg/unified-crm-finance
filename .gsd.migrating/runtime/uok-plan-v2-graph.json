@@ -1,12 +1,12 @@
 {
-  "compiledAt": "2026-06-21T14:46:26.280Z",
+  "compiledAt": "2026-06-21T15:14:31.479Z",
   "milestoneId": "M003",
   "pipeline": {
     "clarifyRoundLimit": 3,
     "researchSynthesized": true,
     "draftContextIncluded": false,
     "finalizedContextIncluded": true,
-    "sourcePhase": "executing"
+    "sourcePhase": "summarizing"
   },
   "nodes": [
     {
@@ -79,8 +79,8 @@
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M003.S02.T02",
-        "title": "Fix moveDeal relations, KanbanColumn drop target, and drag-over feedback",
-        "status": "pending"
+        "title": "Fixed TypeScript errors in deal-card component - corrected Contact and User name display logic",
+        "status": "complete"
       }
     },
     {
@@ -93,8 +93,8 @@
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M003.S02.T03",
-        "title": "Add contact selector to CreateDealModal",
-        "status": "pending"
+        "title": "Fixed TypeScript errors in CreateDealModal and deal-card component - removed asChild prop (base-ui doesn't support it), fixed onValueChange handler, and corrected Contact/User name display logic",
+        "status": "complete"
       }
     },
     {
@@ -107,8 +107,8 @@
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M003.S02.T04",
-        "title": "Wire pipeline API into deals page and remove hardcoded values",
-        "status": "pending"
+        "title": "Fixed TypeScript errors in filter-bar component - corrected onValueChange handler signature",
+        "status": "complete"
       }
     },
     {
@@ -121,6 +121,66 @@
         "unitType": "complete-slice",
         "unitId": "M003.S02",
         "title": "S02",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M003:S03:T01",
+      "kind": "unit",
+      "dependsOn": [],
+      "writes": [
+        "apps/web/src/app/api/deals/[id]/route.ts"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M003.S03.T01",
+        "title": "Added fromStage/toStage relations to deals API response for DealHistoryTimeline",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M003:S03:T02",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M003:S03:T01"
+      ],
+      "writes": [
+        "apps/web/src/components/deals/deal-history-timeline.tsx",
+        "apps/web/src/lib/api/types.ts"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M003.S03.T02",
+        "title": "DealHistoryTimeline component already exists with all required functionality",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M003:S03:T03",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M003:S03:T02"
+      ],
+      "writes": [
+        "apps/web/src/app/deals/[id]/page.tsx"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M003.S03.T03",
+        "title": "DealHistoryTimeline integration already existed in deal detail page",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "complete-slice:M003:S03",
+      "kind": "verification",
+      "dependsOn": [
+        "execute-task:M003:S03:T03"
+      ],
+      "metadata": {
+        "unitType": "complete-slice",
+        "unitId": "M003.S03",
+        "title": "S03",
         "status": "pending"
       }
     }
