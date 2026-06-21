@@ -4,15 +4,13 @@ Async SQLAlchemy engine and session factory for PostgreSQL.
 Uses asyncpg driver for non-blocking database operations.
 Engine is created on startup via lifespan event in main.py.
 """
-from collections.abc import AsyncGenerator
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeMeta
 
 from app.config import settings
 

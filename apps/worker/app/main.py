@@ -1,17 +1,20 @@
 """
 FastAPI worker application with real PostgreSQL and RabbitMQ connectivity.
 
-Replaces mocked health checks from S01 with actual connection verification.
+Integrates health checks with actual connection verification and RabbitMQ consumer
+managed through FastAPI lifespan for graceful startup/shutdown.
 """
+import asyncio
 import logging
 from contextlib import asynccontextmanager
-from typing import Self
 
+from fastapi import FastAPI
 from pydantic import BaseModel, Field
-from fastapi import FastAPI, HTTPException, status
 
-from app.config import settings, get_settings
-from app.db import init_db, close_db, engine
+from app.config import settings
+from app.consumer import RabbitMQConsumer, default_message_handler
+from app.db import close_db, engine, init_db
+from app.health import ServiceStatus, check_postgres, check_rabbitmq
 
 # Configure structured logging
 logging.basicConfig(
@@ -20,29 +23,27 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
-class ServiceStatus(BaseModel):
-    """Status of a single service."""
-    status: str = Field(description="Service status: connected, disconnected, or error")
-    latency_ms: int | None = Field(default=None, description="Connection latency in milliseconds")
-    error: str | None = Field(default=None, description="Error message if connection failed")
+# Global consumer instance (managed by lifespan)
+consumer: RabbitMQConsumer | None = None
 
 
 class HealthResponse(BaseModel):
     """Health check response."""
     status: str = Field(description="Overall status: UP or DOWN")
-    services: dict[str, ServiceStatus] = Field(description="Status of each service")
+    services: dict[str, dict] = Field(description="Status of each service")
     version: str = Field(description="Application version")
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def lifespan(app: FastAPI):
     """
     Application lifespan manager.
 
-    Initializes database and RabbitMQ connections on startup,
-    closes them gracefully on shutdown.
+    Initializes database and RabbitMQ consumer on startup,
+    closes connections gracefully on shutdown.
     """
+    global consumer
+
     logger.info(f"Starting {settings.app_name} v{settings.app_version}")
     logger.info(f"Environment: {settings.environment}")
 
@@ -54,15 +55,49 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.error(f"Failed to connect to database: {e}")
         raise
 
-    # RabbitMQ consumer will be initialized in T02
-    logger.info("RabbitMQ consumer initialization pending (T02)")
+    # Initialize RabbitMQ consumer
+    try:
+        consumer = RabbitMQConsumer()
+        await consumer.connect()
+        logger.info("RabbitMQ connected")
+        await consumer.declare_queue("notifications")
+        consumer.set_message_handler(default_message_handler)
+
+        # Start consuming in background (non-blocking)
+        asyncio.create_task(consume_messages(consumer))
+        logger.info("RabbitMQ consumer started, listening to 'notifications' queue")
+    except Exception as e:
+        logger.error(f"Failed to start RabbitMQ consumer: {e}")
+        # Don't fail startup if RabbitMQ is unavailable
+        # Health check will report degraded status
 
     yield
 
     # Cleanup on shutdown
     logger.info("Shutting down...")
+    if consumer:
+        await consumer.close()
+        logger.info("RabbitMQ consumer closed")
     await close_db()
     logger.info("Database connection closed")
+
+
+async def consume_messages(consumer_instance: RabbitMQConsumer) -> None:
+    """
+    Background task to consume messages from RabbitMQ.
+
+    Runs indefinitely until the app shuts down. Errors are logged
+    but don't crash the worker - consumption restarts after delay.
+
+    Args:
+        consumer_instance: RabbitMQConsumer instance
+    """
+    while True:
+        try:
+            await consumer_instance.start_consuming("notifications")
+        except Exception as e:
+            logger.error(f"Consumer error, will retry in 5s: {e}")
+            await asyncio.sleep(5)
 
 
 app = FastAPI(
@@ -91,32 +126,22 @@ async def health_check() -> HealthResponse:
     Health check endpoint with real connection verification.
 
     Checks PostgreSQL and RabbitMQ connectivity, returning detailed status.
-    This replaces the mocked health check from S01.
+    Returns 200 for healthy services, 503 for degraded state.
     """
-    services: dict[str, ServiceStatus] = {}
+    services: dict[str, dict] = {}
     overall_status = "UP"
 
     # Check PostgreSQL
-    try:
-        import time
-        start = time.time()
-        async with engine.begin() as conn:
-            await conn.execute("SELECT 1")
-        latency = int((time.time() - start) * 1000)
-        services["db"] = ServiceStatus(status="connected", latency_ms=latency)
-        logger.debug(f"DB health check passed: {latency}ms")
-    except Exception as e:
-        services["db"] = ServiceStatus(status="error", error=str(e))
+    pg_status: ServiceStatus = await check_postgres(engine)
+    services["db"] = pg_status.to_dict()
+    if pg_status.status != "connected":
         overall_status = "DOWN"
-        logger.error(f"DB health check failed: {e}")
 
-    # Check RabbitMQ (will be implemented in T02)
-    # For now, report as disconnected until T02 adds consumer
-    services["rabbitmq"] = ServiceStatus(
-        status="disconnected",
-        error="RabbitMQ consumer not yet initialized (T02)"
-    )
-    overall_status = "DOWN"  # Will be UP after T02
+    # Check RabbitMQ
+    rabbitmq_status: ServiceStatus = await check_rabbitmq()
+    services["rabbitmq"] = rabbitmq_status.to_dict()
+    if rabbitmq_status.status != "connected":
+        overall_status = "DOWN"
 
     return HealthResponse(
         status=overall_status,
