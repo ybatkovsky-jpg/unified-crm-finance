@@ -67,3 +67,19 @@ public/uploads/*
 download/
 agent-ctx/
 worklog.md
+
+# ── GSD baseline (auto-generated) ──
+.gsd
+.gsd-id
+.mcp.json
+.bg-shell/
+*~
+*.code-workspace
+.env.*
+!.env.example
+*.pyc
+.venv/
+target/
+vendor/
+.cache/
+tmp/
