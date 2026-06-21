@@ -239,45 +239,61 @@ export class ContractRepository {
   /**
    * Convert a deal to a contract
    * Creates a contract from deal data and links them
+   * Uses transaction to ensure atomic bidirectional link creation
    */
   async convertFromDeal(
     dealId: string,
     additionalData?: Partial<ContractCreateInput>
   ): Promise<Contract> {
-    const deal = await prisma.deal.findFirst({
-      where: { id: dealId, deletedAt: null },
-      include: { contact: true },
+    return prisma.$transaction(async (tx) => {
+      const deal = await tx.deal.findFirst({
+        where: { id: dealId, deletedAt: null },
+        include: { contact: true },
+      });
+
+      if (!deal) {
+        throw new Error(`Deal with id ${dealId} not found`);
+      }
+
+      // Check if contract already exists (use transaction client for consistency)
+      const existing = await tx.contract.findFirst({
+        where: { dealId, deletedAt: null },
+      });
+      if (existing) {
+        throw new Error(`Contract already exists for deal ${dealId}`);
+      }
+
+      // Generate contract data
+      const now = new Date();
+      const contractId = randomUUID();
+      const contractNumber = this.generateNumber();
+
+      // Create contract from deal (within transaction)
+      const contract = await tx.contract.create({
+        data: {
+          id: contractId,
+          dealId,
+          contactId: deal.contactId || undefined,
+          title: `Договор: ${deal.title}`,
+          amount: deal.amount,
+          currency: deal.currency,
+          description: deal.description || undefined,
+          status: 'draft',
+          number: contractNumber,
+          createdAt: now,
+          updatedAt: now,
+          ...additionalData,
+        },
+      });
+
+      // Update deal with contractId (within same transaction)
+      await tx.deal.update({
+        where: { id: dealId },
+        data: { contractId: contract.id },
+      });
+
+      return contract;
     });
-
-    if (!deal) {
-      throw new Error(`Deal with id ${dealId} not found`);
-    }
-
-    // Check if contract already exists
-    const existing = await this.findByDeal(dealId);
-    if (existing) {
-      throw new Error(`Contract already exists for deal ${dealId}`);
-    }
-
-    // Create contract from deal
-    const contract = await this.create({
-      dealId,
-      contactId: deal.contactId || undefined,
-      title: `Договор: ${deal.title}`,
-      amount: deal.amount,
-      currency: deal.currency,
-      description: deal.description || undefined,
-      status: 'draft',
-      ...additionalData,
-    });
-
-    // Update deal with contractId
-    await prisma.deal.update({
-      where: { id: dealId },
-      data: { contractId: contract.id },
-    });
-
-    return contract;
   }
 }
 

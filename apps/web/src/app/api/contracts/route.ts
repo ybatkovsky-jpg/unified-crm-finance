@@ -10,7 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { contracts } from '../../../lib/db/contracts'
+import { contracts } from '@/lib/db/contracts'
 
 /**
  * GET /api/contracts
