@@ -1,4 +1,4 @@
-# GSD context snapshot (2026-06-21T05:37:18.129Z)
+# GSD context snapshot (2026-06-21T06:35:12.955Z)
 
 ## Top project memories
 - [MEM019] (gotcha) Prisma 7.x breaks Prisma 6.x schema format: datasource `url` property moved to prisma.config.ts. Task specified Prisma 6.x, so locked apps/web to Prisma 6.6.0 to avoid breaking changes.
@@ -6,4 +6,4 @@
 - [MEM014] (gotcha) S01 summary describes files (apps/web, docker-compose.yml, package.json) that don't actually exist in the repo. Current state has only apps/worker with FastAPI. Plan S06 CI/CD for actual code, not S01 summary claims. Web app CI/CD jobs will be added when apps/web is created later.
 - [MEM018] (architecture) Using SQLite for development instead of PostgreSQL due to Docker Desktop unavailable. Schema datasource is sqlite (not postgresql). This is a temporary dev-only setup; production will use PostgreSQL.
 - [MEM020] (architecture) Contact model is unified (type=person|company) per spec docs, not separate Company/Contact models. SQLite doesn't support String[] arrays — use Json with @default("[]") for tags field.
-- [MEM001] (architecture) Организация монорепозитория Chose: Feature-sliced структура внутри apps/web. Rationale: Модули пересекаются по данным — нужна гибкость между автономией и совместным использованием кода.
+- [MEM022] (gotcha) Prisma schema for Contact requires manual id (no @default) and updatedAt (no @updatedAt auto-update). The ContactRepository must generate UUID via randomUUID() and set updatedAt on create. Other models like User have same pattern - check schema before assuming auto-generated fields.

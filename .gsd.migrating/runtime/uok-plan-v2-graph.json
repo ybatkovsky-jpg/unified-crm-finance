@@ -1,573 +1,97 @@
 {
-  "compiledAt": "2026-06-21T04:59:45.862Z",
-  "milestoneId": "M001",
+  "compiledAt": "2026-06-21T06:44:01.164Z",
+  "milestoneId": "M002",
   "pipeline": {
     "clarifyRoundLimit": 3,
-    "researchSynthesized": true,
+    "researchSynthesized": false,
     "draftContextIncluded": false,
     "finalizedContextIncluded": true,
     "sourcePhase": "summarizing"
   },
   "nodes": [
     {
-      "id": "execute-task:M001:S01:T01",
+      "id": "execute-task:M002:S01:T01",
       "kind": "unit",
       "dependsOn": [],
       "writes": [
-        "package.json",
-        ".env.example",
-        ".dockerignore",
-        "apps/web/.gitkeep",
-        "apps/worker/.gitkeep",
-        "packages/types/.gitkeep"
+        "apps/web/prisma/schema.prisma",
+        "apps/web/prisma/migrations/20260621042334_shared_and_crm/migration.sql",
+        "apps/web/prisma/dev.db"
       ],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M001.S01.T01",
-        "title": "Created npm workspace root with package.json, .env.example, and directory structure (apps/web, apps/worker, packages/types)",
+        "unitId": "M002.S01.T01",
+        "title": "Verified and applied Prisma migrations for all 4 CRM models (Contact, LeadSource, Interaction, Lead) to dev.db database",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M001:S01:T02",
+      "id": "execute-task:M002:S01:T02",
       "kind": "unit",
       "dependsOn": [
-        "execute-task:M001:S01:T01"
+        "execute-task:M002:S01:T01"
       ],
       "writes": [
-        "D:/CLAUDE/Project/unified-crm-finance/.gsd/worktrees/M001/apps/web/package.json",
-        "D:/CLAUDE/Project/unified-crm-finance/.gsd/worktrees/M001/apps/web/next.config.ts",
-        "D:/CLAUDE/Project/unified-crm-finance/.gsd/worktrees/M001/apps/web/tsconfig.json",
-        "D:/CLAUDE/Project/unified-crm-finance/.gsd/worktrees/M001/apps/web/src/app/page.tsx",
-        "D:/CLAUDE/Project/unified-crm-finance/.gsd/worktrees/M001/apps/web/src/app/layout.tsx",
-        "D:/CLAUDE/Project/unified-crm-finance/.gsd/worktrees/M001/apps/web/src/app/globals.css",
-        "D:/CLAUDE/Project/unified-crm-finance/.gsd/worktrees/M001/apps/web/src/app/api/health/route.ts",
-        "D:/CLAUDE/Project/unified-crm-finance/.gsd/worktrees/M001/apps/web/Dockerfile",
-        "D:/CLAUDE/Project/unified-crm-finance/.gsd/worktrees/M001/apps/web/.dockerignore"
+        "apps/web/src/lib/db/prisma.ts",
+        "apps/web/src/lib/db/contacts.ts",
+        "apps/web/src/lib/db/contacts.test.ts"
       ],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M001.S01.T02",
-        "title": "Created Next.js 16 app with multi-stage Dockerfile (dev/prod targets), health API endpoint, and standalone build output",
+        "unitId": "M002.S01.T02",
+        "title": "Created PrismaClient singleton (apps/web/src/lib/db/prisma.ts) and ContactRepository with CRUD+softDelete (apps/web/src/lib/db/contacts.ts). All 9 tests pass.",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M001:S01:T03",
+      "id": "execute-task:M002:S01:T03",
       "kind": "unit",
       "dependsOn": [
-        "execute-task:M001:S01:T02"
+        "execute-task:M002:S01:T02"
       ],
       "writes": [
-        "apps/worker/requirements.txt",
-        "apps/worker/app/main.py",
-        "apps/worker/Dockerfile",
-        "apps/worker/.dockerignore",
-        "apps/worker/app/__init__.py"
+        "apps/web/src/app/api/contacts/route.ts",
+        "apps/web/src/app/api/contacts/[id]/route.ts",
+        "apps/web/tsconfig.json",
+        "apps/web/next.config.ts",
+        "apps/web/package.json"
       ],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M001.S01.T03",
-        "title": "Created FastAPI worker skeleton with /health endpoint and multi-stage Dockerfile",
+        "unitId": "M002.S01.T03",
+        "title": "Created Contact API routes (GET list, POST create, GET single, PUT update, DELETE soft-delete) with validation and error handling",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M001:S01:T04",
+      "id": "execute-task:M002:S01:T04",
       "kind": "unit",
       "dependsOn": [
-        "execute-task:M001:S01:T03"
+        "execute-task:M002:S01:T03"
       ],
       "writes": [
-        "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\worktrees\\M001\\docker-compose.yml"
+        "apps/web/src/lib/api/contacts.ts",
+        "apps/web/src/lib/api/types.ts",
+        "apps/web/src/lib/api/contacts.test.ts"
       ],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M001.S01.T04",
-        "title": "Created docker-compose.yml wiring all services (postgres, rabbitmq, minio, web, worker) with networks, volumes, and health checks",
+        "unitId": "M002.S01.T04",
+        "title": "Created TypeScript API client (lib/api/contacts.ts) with typed CRUD methods for Contact API, types module (lib/api/types.ts), and 25 passing tests",
         "status": "complete"
       }
     },
     {
-      "id": "execute-task:M001:S01:T05",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S01:T04"
-      ],
-      "writes": [
-        ".gsd/adr/001-hybrid-architecture.md"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S01.T05",
-        "title": "Created ADR-001 documenting hybrid Next.js API Routes + Python FastAPI architecture",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "complete-slice:M001:S01",
+      "id": "complete-slice:M002:S01",
       "kind": "verification",
       "dependsOn": [
-        "execute-task:M001:S01:T05"
+        "execute-task:M002:S01:T04"
       ],
       "metadata": {
         "unitType": "complete-slice",
-        "unitId": "M001.S01",
+        "unitId": "M002.S01",
         "title": "S01",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S02:T01",
-      "kind": "unit",
-      "dependsOn": [],
-      "writes": [
-        "apps/web/package.json",
-        "apps/web/prisma/schema.prisma",
-        "apps/web/prisma/.keep"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S02.T01",
-        "title": "Created apps/web directory with Prisma 6 dependencies and Identity schema (User, Role, UserRole, RefreshToken, AuditLog)",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S02:T02",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S02:T01"
-      ],
-      "writes": [
-        "apps/web/prisma/migrations/20260621041233_001_identity/migration.sql",
-        "apps/web/node_modules/.prisma/client/index.d.ts",
-        "apps/web/.env",
-        "apps/web/package.json",
-        "docker-compose.yml"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S02.T02",
-        "title": "Generated 001_identity migration and Prisma client types for Identity bounded context (User, Role, UserRole, RefreshToken, AuditLog) using SQLite for development",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S02:T03",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S02:T02"
-      ],
-      "writes": [
-        "apps/web/prisma/schema.prisma",
-        "apps/web/prisma/migrations/20260621042334_shared_and_crm/migration.sql",
-        "apps/web/node_modules/.prisma/client/index.d.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S02.T03",
-        "title": "Verified Shared (FileEntity, Comment, Tag, Category) and CRM (unified Contact with type field, LeadSource, Interaction, Lead) models exist in schema.prisma with migration 002_shared_and_crm applied and Prisma Client types regenerated",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S02:T07",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S02:T03"
-      ],
-      "writes": [
-        ".gsd/adr/002-data-model.md"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S02.T07",
-        "title": "Created ADR-002 documenting Prisma + SQLAlchemy consistency strategy with automap_base() reflection pattern",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S02:T08",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S02:T07"
-      ],
-      "writes": [
-        "apps/web/src/lib/db.ts",
-        "apps/web/src/app/api/health/route.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S02.T08",
-        "title": "Created PrismaClient singleton with hot-reload safety and DB health check endpoint with connection testing",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S02:T09",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S02:T08"
-      ],
-      "writes": [
-        "apps/web/prisma/schema.prisma",
-        "apps/web/prisma/migrations/20260621041233_001_identity/migration.sql",
-        "apps/web/prisma/migrations/20260621042334_shared_and_crm/migration.sql",
-        "apps/web/prisma/migrations/20260621043700_002_shared_and_crm/migration.sql",
-        "apps/web/node_modules/.prisma/client/index.d.ts",
-        "apps/web/.env"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S02.T09",
-        "title": "Verified migrations work with SQLite; documented that full 42-entity schema (including Finance/FinancialReport) not yet implemented",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "complete-slice:M001:S02",
-      "kind": "verification",
-      "dependsOn": [
-        "execute-task:M001:S02:T09"
-      ],
-      "metadata": {
-        "unitType": "complete-slice",
-        "unitId": "M001.S02",
-        "title": "S02",
         "status": "pending"
-      }
-    },
-    {
-      "id": "execute-task:M001:S03:T01",
-      "kind": "unit",
-      "dependsOn": [],
-      "writes": [
-        "apps/web/package.json"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S03.T01",
-        "title": "Installed NextAuth v5 beta (v5.0.0-beta.31), auth@beta (v1.7.0-beta.9), bcryptjs (v3.0.3), and @types/bcryptjs (v2.4.6) for authentication foundation",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S03:T02",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S03:T01"
-      ],
-      "writes": [
-        "apps/web/src/lib/auth.ts",
-        "apps/web/package.json"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S03.T02",
-        "title": "Created apps/web/src/lib/auth.ts with NextAuth v5 Credentials provider, bcrypt password verification, and JWT strategy",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S03:T03",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S03:T02"
-      ],
-      "writes": [
-        "apps/web/src/app/api/auth/[...nextauth]/route.ts",
-        "apps/web/src/lib/auth.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S03.T03",
-        "title": "Created NextAuth API route handler at apps/web/src/app/api/auth/[...nextauth]/route.ts",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S03:T04",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S03:T03"
-      ],
-      "writes": [
-        "apps/web/src/app/login/page.tsx",
-        "apps/web/src/components/login-form.tsx",
-        "apps/web/src/lib/auth.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S03.T04",
-        "title": "Created login page with credentials form and NextAuth integration",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S03:T05",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S03:T04"
-      ],
-      "writes": [
-        "apps/web/src/middleware.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S03.T05",
-        "title": "Created NextAuth v5 middleware protecting /dashboard/* routes with auth redirects and logging",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S03:T06",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S03:T05"
-      ],
-      "writes": [],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S03.T06",
-        "title": "Created protected dashboard page with user email display and logout button using server action",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "complete-slice:M001:S03",
-      "kind": "verification",
-      "dependsOn": [
-        "execute-task:M001:S03:T06"
-      ],
-      "metadata": {
-        "unitType": "complete-slice",
-        "unitId": "M001.S03",
-        "title": "S03",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S04:T01",
-      "kind": "unit",
-      "dependsOn": [],
-      "writes": [
-        "apps/web/package.json",
-        "apps/web/tailwind.config.ts",
-        "apps/web/postcss.config.mjs",
-        "apps/web/src/app/globals.css"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S04.T01",
-        "title": "Installed Tailwind CSS v4.3.1 with PostCSS/Autoprefixer, configured content paths and CSS variables for theming",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S04:T02",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S04:T01"
-      ],
-      "writes": [
-        "apps/web/components.json",
-        "apps/web/src/lib/utils.ts",
-        "apps/web/package.json"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S04.T02",
-        "title": "Initialized shadcn/ui with components.json, created utils.ts cn() helper, and installed core dependencies (class-variance-authority, clsx, tailwind-merge, next-themes)",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S04:T03",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S04:T02"
-      ],
-      "writes": [
-        "apps/web/src/components/theme-provider.tsx",
-        "apps/web/src/app/layout.tsx"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S04.T03",
-        "title": "Created ThemeProvider client component with next-themes and integrated it into root layout with suppressHydrationWarning",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S04:T04",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S04:T03"
-      ],
-      "writes": [
-        "src/components/ui/button.tsx",
-        "src/components/ui/card.tsx",
-        "src/components/ui/sheet.tsx"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S04.T04",
-        "title": "Added shadcn/ui button, card, and sheet components",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S04:T05",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S04:T04"
-      ],
-      "writes": [
-        "apps/web/src/components/sidebar.tsx",
-        "apps/web/src/components/header.tsx",
-        "apps/web/package.json"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S04.T05",
-        "title": "Created sidebar navigation component with routing and header component with theme toggle",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S04:T06",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S04:T05"
-      ],
-      "writes": [
-        "apps/web/src/components/dashboard-layout.tsx",
-        "apps/web/src/app/dashboard/page.tsx"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S04.T06",
-        "title": "Created shared dashboard layout component with sidebar/header integration and updated dashboard page to use it",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "complete-slice:M001:S04",
-      "kind": "verification",
-      "dependsOn": [
-        "execute-task:M001:S04:T06"
-      ],
-      "metadata": {
-        "unitType": "complete-slice",
-        "unitId": "M001.S04",
-        "title": "S04",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S05:T01",
-      "kind": "unit",
-      "dependsOn": [],
-      "writes": [],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S05.T01",
-        "title": "Created async SQLAlchemy engine with Pydantic settings for PostgreSQL and RabbitMQ connectivity validation",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S05:T02",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S05:T01"
-      ],
-      "writes": [],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S05.T02",
-        "title": "Implemented health checks with check_postgres/check_rabbitmq functions, RabbitMQConsumer class with aio-pika, and integrated both into FastAPI lifespan for graceful startup/shutdown",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "complete-slice:M001:S05",
-      "kind": "verification",
-      "dependsOn": [
-        "execute-task:M001:S05:T02"
-      ],
-      "metadata": {
-        "unitType": "complete-slice",
-        "unitId": "M001.S05",
-        "title": "S05",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S06:T01",
-      "kind": "unit",
-      "dependsOn": [],
-      "writes": [
-        "apps/worker/requirements.txt",
-        "apps/worker/pyproject.toml",
-        "apps/worker/tests/__init__.py",
-        "apps/worker/tests/conftest.py",
-        "apps/worker/tests/test_health.py"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S06.T01",
-        "title": "Added Python test infrastructure with pytest, pytest-asyncio, and ruff with 5 passing health endpoint tests and clean lint",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S06:T02",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S06:T01"
-      ],
-      "writes": [
-        ".github/workflows/ci.yml",
-        "apps/worker/requirements.txt"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S06.T02",
-        "title": "Created GitHub Actions CI workflow with ruff lint job and pytest test job with coverage reporting",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M001:S06:T03",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M001:S06:T02"
-      ],
-      "writes": [
-        ".github/workflows/deploy.yml",
-        "apps/worker/Dockerfile",
-        ".github/DEPLOYMENT.md"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M001.S06.T03",
-        "title": "Created GitHub Actions deploy workflow with Docker build to GHCR, Coolify webhook integration, and multi-stage Dockerfile for production deployment",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "complete-slice:M001:S06",
-      "kind": "verification",
-      "dependsOn": [
-        "execute-task:M001:S06:T03"
-      ],
-      "metadata": {
-        "unitType": "complete-slice",
-        "unitId": "M001.S06",
-        "title": "S06",
-        "status": "complete"
       }
     }
   ]
