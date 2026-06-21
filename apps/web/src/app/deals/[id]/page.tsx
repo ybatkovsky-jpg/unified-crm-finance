@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { DealHistoryTimeline } from "@/components/deals/deal-history-timeline"
 
 export default function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -384,6 +385,19 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                   )}
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Deal History */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="size-4" />
+                История изменений
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DealHistoryTimeline history={deal.history} />
             </CardContent>
           </Card>
         </div>
