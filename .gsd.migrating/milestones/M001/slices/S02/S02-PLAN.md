@@ -24,12 +24,12 @@ Upstream surfaces: S01 docker compose with PostgreSQL database. New wiring: Pris
 
 ## Tasks
 
-- [ ] **T01: Installed Prisma 6 dependencies and created Identity schema with User, Role, Permission, UserRole models** `est:30m`
+- [x] **T01: Installed Prisma 6 dependencies and created Identity schema with User, Role, Permission, UserRole models** `est:30m`
   Install @prisma/client and prisma as dependencies (not devDependencies - needed at runtime). Create apps/web/prisma/schema.prisma with generator, client config, PostgreSQL datasource using postgres hostname (not localhost), and Identity bounded context entities (User, Role, Permission, UserRole) with UUID primary keys via gen_random_uuid() default. Set up proper indexes for foreign keys and query patterns.
   - Files: `apps/web/package.json`, `apps/web/prisma/schema.prisma`
   - Verify: grep -q "@prisma/client" apps/web/package.json && grep -q "prisma" apps/web/package.json && test -f apps/web/prisma/schema.prisma
 
-- [ ] **T02: Docker Desktop cannot start - blocked on infrastructure setup** `est:20m`
+- [x] **T02: Docker Desktop cannot start - blocked on infrastructure setup** `est:20m`
   Run npx prisma migrate dev to create the initial migration for Identity entities. This creates the dev database in Docker, generates SQL migration files, and validates that Prisma can connect to PostgreSQL via the postgres hostname. Then run npx prisma generate to produce TypeScript types.
   - Files: `apps/web/prisma/migrations/*`, `node_modules/.prisma/client/*`
   - Verify: test -d apps/web/prisma/migrations && ls apps/web/prisma/migrations/* | head -1 && test -f node_modules/.prisma/client/index.d.ts

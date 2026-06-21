@@ -2,26 +2,26 @@
   "schemaVersion": 1,
   "taskId": "T01",
   "unitId": "M001/S02/T01",
-  "timestamp": 1781955176332,
+  "timestamp": 1782014463647,
   "passed": false,
   "discoverySource": "task-plan",
   "checks": [
     {
       "command": "grep -q \"@prisma/client\" apps/web/package.json",
       "exitCode": 1,
-      "durationMs": 133,
+      "durationMs": 90,
       "verdict": "fail"
     },
     {
       "command": "grep -q \"prisma\" apps/web/package.json",
       "exitCode": 1,
-      "durationMs": 32,
+      "durationMs": 30,
       "verdict": "fail"
     },
     {
       "command": "test -f apps/web/prisma/schema.prisma",
       "exitCode": 1,
-      "durationMs": 33,
+      "durationMs": 30,
       "verdict": "fail"
     }
   ],

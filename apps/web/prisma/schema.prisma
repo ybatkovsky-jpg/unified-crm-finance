@@ -40,6 +40,8 @@ model User {
   approvalRequests ApprovalRequest[] @relation("ApprovalRequester")
   approvalDecisions ApprovalRequest[] @relation("ApprovalDecider")
   interactions     Interaction[]     @relation("InteractionAuthor")
+  uploadedFiles    FileEntity[]
+  comments         Comment[]
 
   @@index([email])
   @@index([isActive])
@@ -110,17 +112,45 @@ model AuditLog {
 // ============================================================================
 
 model Contact {
-  id    String @id @default(uuid())
-  email String?
-  phone String?
+  id          String   @id @default(uuid())
+  type        String   // person | company
+  // Person fields
+  firstName   String?
+  lastName    String?
+  middleName  String?
+  // Company fields
+  companyName String?
+  inn         String?
+  kpp         String?
+  ogrn        String?
+  // Common fields
+  email       String?
+  phone       String?
+  address     String?
+  physicalAddress String?
+  position    String?  // for person contact at company
+  notes       String?
+  // Relations
+  sourceId    String?  // LeadSource.id
+  ownerId     String?  // User.id
+  status      String   @default("active") // active | blacklisted | archived
+  tags        Json?    @default("[]")  // JSON array for SQLite compatibility
+  attributes  Json?    // additional custom fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
 
-  ownerId String?
-
-  owner User? @relation("ContactOwner", fields: [ownerId], references: [id])
+  owner  User?       @relation("ContactOwner", fields: [ownerId], references: [id])
+  source LeadSource? @relation(fields: [sourceId], references: [id])
+  leads  Lead[]
+  interactions Interaction[]
 
   @@index([email])
   @@index([phone])
+  @@index([inn])
   @@index([ownerId])
+  @@index([status])
+  @@index([deletedAt])
 }
 
 model Deal {
@@ -179,11 +209,111 @@ model Notification {
 }
 
 model Interaction {
-  id        String   @id @default(uuid())
-  authorId  String
-  contactId String
+  id          String    @id @default(uuid())
+  contactId   String
+  type        String    // call | meeting | email | telegram | note | visit
+  direction   String?   // incoming | outgoing
+  subject     String?
+  content     String?
+  scheduledAt DateTime?
+  completedAt DateTime?
+  authorId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  author User @relation("InteractionAuthor", fields: [authorId], references: [id])
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  author  User    @relation("InteractionAuthor", fields: [authorId], references: [id])
+
+  @@index([contactId, completedAt])
+  @@index([authorId])
+  @@index([scheduledAt])
+}
+
+// ============================================================================
+// Shared Bounded Context
+// ============================================================================
+
+model FileEntity {
+  id         String   @id @default(uuid())
+  fileName   String
+  storageKey String   // S3/MinIO key
+  mimeType   String?
+  size       Int
+  bucket     String   @default("default")
+  uploadedBy String?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [uploadedBy], references: [id])
+
+  @@index([uploadedBy])
+}
+
+model Comment {
+  id              String   @id @default(uuid())
+  content         String
+  authorId        String
+  relatedEntityType String  // contact | deal | contract | project | etc.
+  relatedEntityId String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  author User @relation(fields: [authorId], references: [id])
 
   @@index([authorId])
+  @@index([relatedEntityType, relatedEntityId])
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  color     String?
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  parentId  String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parent   Category?   @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[]  @relation("CategoryHierarchy")
+
+  @@index([parentId])
+}
+
+// ============================================================================
+// CRM Bounded Context
+// ============================================================================
+
+model LeadSource {
+  id          String    @id @default(uuid())
+  code        String    @unique  // call | office | website | email | telegram | referral | other
+  name        String
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  contacts Contact[]
+}
+
+model Lead {
+  id          String   @id @default(uuid())
+  contactId   String
+  status      String   @default("new") // new | contacted | qualified | converted | lost
+  value       Float?
+  currency    String   @default("RUB")
+  expectedCloseDate DateTime?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  contact Contact @relation(fields: [contactId], references: [id])
+
+  @@index([contactId])
+  @@index([status])
+  @@index([expectedCloseDate])
 }
