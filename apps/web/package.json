@@ -1,0 +1,12 @@
+{
+  "name": "unified-crm-finance-web",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@prisma/client": "6.6.0",
+    "prisma": "6.6.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.22.4"
+  }
+}

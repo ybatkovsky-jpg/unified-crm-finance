@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T03",
+  "unitId": "M001/S06/T03",
+  "timestamp": 1782013456942,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f .github/workflows/deploy.yml",
+      "exitCode": 1,
+      "durationMs": 30,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f apps/worker/Dockerfile",
+      "exitCode": 1,
+      "durationMs": 31,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f .github/DEPLOYMENT.md",
+      "exitCode": 1,
+      "durationMs": 29,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

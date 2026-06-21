@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T01",
+  "unitId": "M001/S04/T01",
+  "timestamp": 1781993266362,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "grep -q '@tailwind' apps/web/src/app/globals.css",
+      "exitCode": 1,
+      "durationMs": 36,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f apps/web/tailwind.config.ts",
+      "exitCode": 1,
+      "durationMs": 36,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f apps/web/postcss.config.mjs",
+      "exitCode": 1,
+      "durationMs": 34,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

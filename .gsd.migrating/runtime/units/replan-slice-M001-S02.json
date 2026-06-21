@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "unitType": "replan-slice",
+  "unitId": "M001/S02",
+  "startedAt": 1781961578074,
+  "updatedAt": 1781961694391,
+  "phase": "finalized",
+  "wrapupWarningSent": false,
+  "continueHereFired": false,
+  "timeoutAt": null,
+  "lastProgressAt": 1781961694390,
+  "progressCount": 0,
+  "lastProgressKind": "finalize-success",
+  "recoveryAttempts": 0
+}

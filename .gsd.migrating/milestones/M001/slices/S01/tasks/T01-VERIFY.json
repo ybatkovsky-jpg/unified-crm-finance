@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T01",
+  "unitId": "M001/S01/T01",
+  "timestamp": 1781940808456,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f package.json",
+      "exitCode": 1,
+      "durationMs": 382,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f .env.example",
+      "exitCode": 1,
+      "durationMs": 34,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -d apps/web",
+      "exitCode": 1,
+      "durationMs": 29,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -d apps/worker",
+      "exitCode": 1,
+      "durationMs": 29,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -d packages/types",
+      "exitCode": 1,
+      "durationMs": 29,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

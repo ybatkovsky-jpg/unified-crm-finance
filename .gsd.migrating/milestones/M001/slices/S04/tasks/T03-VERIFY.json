@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T03",
+  "unitId": "M001/S04/T03",
+  "timestamp": 1781994668942,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f apps/web/src/components/theme-provider.tsx",
+      "exitCode": 1,
+      "durationMs": 30,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q 'ThemeProvider' apps/web/src/app/layout.tsx",
+      "exitCode": 1,
+      "durationMs": 31,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q 'suppressHydrationWarning' apps/web/src/app/layout.tsx",
+      "exitCode": 1,
+      "durationMs": 31,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

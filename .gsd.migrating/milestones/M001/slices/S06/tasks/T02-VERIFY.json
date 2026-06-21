@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T02",
+  "unitId": "M001/S06/T02",
+  "timestamp": 1782013366542,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f .github/workflows/ci.yml",
+      "exitCode": 1,
+      "durationMs": 30,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f apps/worker/requirements.txt",
+      "exitCode": 1,
+      "durationMs": 28,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q pytest-cov apps/worker/requirements.txt",
+      "exitCode": 1,
+      "durationMs": 29,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T04",
+  "unitId": "M001/S04/T04",
+  "timestamp": 1781994810591,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f apps/web/src/components/ui/button.tsx",
+      "exitCode": 1,
+      "durationMs": 31,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f apps/web/src/components/ui/card.tsx",
+      "exitCode": 1,
+      "durationMs": 30,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f apps/web/src/components/ui/sheet.tsx",
+      "exitCode": 1,
+      "durationMs": 30,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

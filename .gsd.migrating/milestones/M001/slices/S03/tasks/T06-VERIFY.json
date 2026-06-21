@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T06",
+  "unitId": "M001/S03/T06",
+  "timestamp": 1781992002716,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f apps/web/src/app/dashboard/page.tsx",
+      "exitCode": 1,
+      "durationMs": 32,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

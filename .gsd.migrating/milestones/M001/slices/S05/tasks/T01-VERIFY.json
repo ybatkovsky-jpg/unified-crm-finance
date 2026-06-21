@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T01",
+  "unitId": "M001/S05/T01",
+  "timestamp": 1782003258859,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "grep -q 'asyncpg' apps/worker/requirements.txt",
+      "exitCode": 1,
+      "durationMs": 32,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f apps/worker/app/config.py",
+      "exitCode": 1,
+      "durationMs": 33,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f apps/worker/app/db.py",
+      "exitCode": 1,
+      "durationMs": 31,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

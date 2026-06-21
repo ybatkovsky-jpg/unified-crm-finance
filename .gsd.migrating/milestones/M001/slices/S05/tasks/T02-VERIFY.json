@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T02",
+  "unitId": "M001/S05/T02",
+  "timestamp": 1782003531026,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f apps/worker/app/consumer.py",
+      "exitCode": 1,
+      "durationMs": 33,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q 'RabbitMQ connected' apps/worker/app/main.py",
+      "exitCode": 1,
+      "durationMs": 34,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

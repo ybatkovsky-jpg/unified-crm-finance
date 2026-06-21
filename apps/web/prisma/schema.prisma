@@ -1,0 +1,189 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// Identity Bounded Context
+// ============================================================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  phone        String?
+  telegramId   String?
+  avatarUrl    String?
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  // Relations
+  userRoles        UserRole[]
+  refreshTokens    RefreshToken[]
+  auditLogs        AuditLog[]
+  notifications    Notification[]
+  contacts         Contact[]         @relation("ContactOwner")
+  deals            Deal[]            @relation("DealManager")
+  projects         Project[]         @relation("ProjectManager")
+  approvalRequests ApprovalRequest[] @relation("ApprovalRequester")
+  approvalDecisions ApprovalRequest[] @relation("ApprovalDecider")
+  interactions     Interaction[]     @relation("InteractionAuthor")
+
+  @@index([email])
+  @@index([isActive])
+  @@index([deletedAt])
+}
+
+model Role {
+  id          String @id @default(uuid())
+  code        String @unique // owner | sales | manager | accountant | storekeeper
+  name        String
+  description String?
+  permissions Json   // array of strings: ["deal:read", "contract:sign", etc.]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users UserRole[]
+
+  @@index([code])
+}
+
+model UserRole {
+  userId String
+  roleId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  userAgent String?
+  ip        String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  entityType String   // contact | deal | contract | project | transaction | ...
+  entityId   String
+  action     String   // create | update | delete | restore | login | logout | sync
+  changes    Json?    // { before: {...}, after: {...} }
+  metadata   Json?    // { ip, userAgent, source }
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// Placeholder relations for entities defined in other bounded contexts
+// ============================================================================
+
+model Contact {
+  id    String @id @default(uuid())
+  email String?
+  phone String?
+
+  ownerId String?
+
+  owner User? @relation("ContactOwner", fields: [ownerId], references: [id])
+
+  @@index([email])
+  @@index([phone])
+  @@index([ownerId])
+}
+
+model Deal {
+  id        String @id @default(uuid())
+  managerId String?
+
+  manager User? @relation("DealManager", fields: [managerId], references: [id])
+
+  @@index([managerId])
+}
+
+model Project {
+  id        String @id @default(uuid())
+  managerId String?
+
+  manager User? @relation("ProjectManager", fields: [managerId], references: [id])
+
+  @@index([managerId])
+}
+
+model ApprovalRequest {
+  id         String   @id @default(uuid())
+  type       String   // purchase | payment | writeoff
+  entityId   String
+  status     String   @default("pending") // pending | approved | rejected | cancelled
+  amount     Float?
+  requestedBy String
+  decidedBy  String?
+  requestedAt DateTime @default(now())
+  decidedAt  DateTime?
+
+  requester User? @relation("ApprovalRequester", fields: [requestedBy], references: [id])
+  decider   User? @relation("ApprovalDecider", fields: [decidedBy], references: [id])
+
+  @@index([status])
+  @@index([requestedBy])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  level     String   @default("info")
+  link      String?
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+model Interaction {
+  id        String   @id @default(uuid())
+  authorId  String
+  contactId String
+
+  author User @relation("InteractionAuthor", fields: [authorId], references: [id])
+
+  @@index([authorId])
+}
