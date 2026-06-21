@@ -1,0 +1,18 @@
+{
+  "id": "42384c55-7306-4b4b-874a-a318bea7894d",
+  "runtime": "bash",
+  "purpose": "Reproduce npx next build verification failure",
+  "script_chars": 45,
+  "started_at": "2026-06-21T07:55:32.025Z",
+  "finished_at": "2026-06-21T07:55:32.154Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 129,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\42384c55-7306-4b4b-874a-a318bea7894d.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\42384c55-7306-4b4b-874a-a318bea7894d.stderr"
+}

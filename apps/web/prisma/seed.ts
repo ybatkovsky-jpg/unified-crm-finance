@@ -11,8 +11,11 @@
  */
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 
 const prisma = new PrismaClient();
+const now = () => new Date();
+const mkId = () => randomUUID();
 
 async function main() {
   console.log('🌱 Seeding...');
@@ -55,7 +58,7 @@ async function main() {
     await prisma.role.upsert({
       where: { code: role.code },
       update: role,
-      create: role,
+      create: { ...role, id: mkId(), updatedAt: now() },
     });
     console.log(`  ✓ Role: ${role.code}`);
   }
@@ -66,10 +69,12 @@ async function main() {
     where: { email: 'admin@local' },
     update: {},
     create: {
+      id: mkId(),
       email: 'admin@local',
       name: 'Администратор',
       passwordHash,
       isActive: true,
+      updatedAt: now(),
     },
   });
   const ownerRole = await prisma.role.findUnique({ where: { code: 'owner' } });
@@ -77,7 +82,7 @@ async function main() {
     await prisma.userRole.upsert({
       where: { userId_roleId: { userId: owner.id, roleId: ownerRole.id } },
       update: {},
-      create: { userId: owner.id, roleId: ownerRole.id },
+      create: { id: mkId(), userId: owner.id, roleId: ownerRole.id, updatedAt: now() },
     });
   }
   console.log('  ✓ Owner user: admin@local / admin123');
@@ -96,7 +101,7 @@ async function main() {
     await prisma.leadSource.upsert({
       where: { code: s.code },
       update: s,
-      create: s,
+      create: { ...s, id: mkId(), updatedAt: now() },
     });
   }
   console.log(`  ✓ Lead sources: ${sources.length}`);
@@ -106,10 +111,12 @@ async function main() {
     where: { code: 'default' },
     update: {},
     create: {
+      id: mkId(),
       code: 'default',
       name: 'Воронка по умолчанию',
       description: 'Стандартная воронка B2B-продаж',
       isActive: true,
+      updatedAt: now(),
     },
   });
 
@@ -127,7 +134,7 @@ async function main() {
     await prisma.dealStage.upsert({
       where: { pipelineId_code: { pipelineId: pipeline.id, code: s.code } },
       update: s,
-      create: { ...s, pipelineId: pipeline.id },
+      create: { ...s, id: mkId(), pipelineId: pipeline.id, updatedAt: now() },
     });
   }
   console.log(`  ✓ Default pipeline with ${stages.length} stages`);
@@ -144,7 +151,7 @@ async function main() {
     { name: 'Прочее', type: 'expense', order: 99 },
   ];
   for (const c of categories) {
-    await prisma.category.create({ data: c }).catch(() => {
+    await prisma.category.create({ data: { ...c, id: mkId(), updatedAt: now() } }).catch(() => {
       // ignore duplicates
     });
   }

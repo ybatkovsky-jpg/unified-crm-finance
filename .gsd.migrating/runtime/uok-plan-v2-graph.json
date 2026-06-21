@@ -1,5 +1,5 @@
 {
-  "compiledAt": "2026-06-21T07:24:57.760Z",
+  "compiledAt": "2026-06-21T08:17:10.849Z",
   "milestoneId": "M002",
   "pipeline": {
     "clarifyRoundLimit": 3,
@@ -102,8 +102,8 @@
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M002.S02.T01",
-        "title": "Bootstrap Tailwind CSS v4 + shadcn/ui + lucide-react",
-        "status": "pending"
+        "title": "Bootstrapped Tailwind CSS v4, shadcn/ui (base-nova), and lucide-react with PostCSS config, CSS variables, and 6 UI components (table, button, input, select, badge, card)",
+        "status": "complete"
       }
     },
     {
@@ -116,8 +116,8 @@
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M002.S02.T02",
-        "title": "Create root layout + home page",
-        "status": "pending"
+        "title": "Created root layout with Russian locale and home page that redirects to /crm/contacts",
+        "status": "complete"
       }
     },
     {
@@ -126,12 +126,17 @@
       "dependsOn": [
         "execute-task:M002:S02:T02"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/app/crm/contacts/page.tsx",
+        "apps/web/src/lib/db/contacts.ts",
+        "apps/web/src/app/api/contacts/route.ts",
+        "apps/web/src/app/api/contacts/[id]/route.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M002.S02.T03",
-        "title": "Build Contact List page with type and status filters",
-        "status": "pending"
+        "title": "Built ContactListPage with type/status filters, loading/error/empty states, and row links to detail page; fixed Prisma type exports blocking build",
+        "status": "complete"
       }
     },
     {
@@ -143,7 +148,74 @@
       "metadata": {
         "unitType": "complete-slice",
         "unitId": "M002.S02",
-        "title": "Contact List UI",
+        "title": "S02",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M002:S03:T01",
+      "kind": "unit",
+      "dependsOn": [],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M002.S03.T01",
+        "title": "Created InteractionRepository with findMany, findUnique, findByContactId, create, update, delete, count — mirroring ContactRepository pattern with manual UUID/updatedAt",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M002:S03:T02",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M002:S03:T01"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M002.S03.T02",
+        "title": "Interaction API routes",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M002:S03:T03",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M002:S03:T02"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M002.S03.T03",
+        "title": "Interaction API client + types",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M002:S03:T04",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M002:S03:T03"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M002.S03.T04",
+        "title": "Interaction UI components",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "complete-slice:M002:S03",
+      "kind": "verification",
+      "dependsOn": [
+        "execute-task:M002:S03:T04"
+      ],
+      "metadata": {
+        "unitType": "complete-slice",
+        "unitId": "M002.S03",
+        "title": "S03",
         "status": "pending"
       }
     }

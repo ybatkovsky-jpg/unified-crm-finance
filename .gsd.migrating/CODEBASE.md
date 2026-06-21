@@ -1,12 +1,15 @@
 # Codebase Map
 
-Generated: 2026-06-21T07:16:16Z | Files: 299 | Described: 0/299
-<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T07:16:16Z","fingerprint":"7f4ece06e1ecfa83dedabdc2baabddeb1db5cdb0","fileCount":299,"truncated":false} -->
+Generated: 2026-06-21T08:00:43Z | Files: 383 | Described: 0/383
+<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T08:00:43Z","fingerprint":"ad787bdac2c0a4aa96d35be1d7ea82f976559bab","fileCount":383,"truncated":false} -->
 
 ### (root)/
+- `.env.example`
 - `.gitignore`
+- `DEVELOPMENT.md`
 - `docker-compose.yml`
 - `LICENSE`
+- `Makefile`
 - `package-lock.json`
 - `package.json`
 - `README.md`
@@ -37,7 +40,7 @@ Generated: 2026-06-21T07:16:16Z | Files: 299 | Described: 0/299
 - `.gsd.migrating/STATE.md`
 
 ### .gsd.migrating/activity/
-- *(38 files: 38 .jsonl)*
+- *(49 files: 49 .jsonl)*
 
 ### .gsd.migrating/adr/
 - `.gsd.migrating/adr/002-data-model.md`
@@ -46,6 +49,18 @@ Generated: 2026-06-21T07:16:16Z | Files: 299 | Described: 0/299
 - `.gsd.migrating/audit/events.jsonl`
 
 ### .gsd.migrating/exec/
+- `.gsd.migrating/exec/383a5b61-1f17-4aa4-925a-04797ef22b0e.meta.json`
+- `.gsd.migrating/exec/383a5b61-1f17-4aa4-925a-04797ef22b0e.stderr`
+- `.gsd.migrating/exec/383a5b61-1f17-4aa4-925a-04797ef22b0e.stdout`
+- `.gsd.migrating/exec/71ec4260-73e8-4295-9b9c-e70d3a9b4956.meta.json`
+- `.gsd.migrating/exec/71ec4260-73e8-4295-9b9c-e70d3a9b4956.stderr`
+- `.gsd.migrating/exec/71ec4260-73e8-4295-9b9c-e70d3a9b4956.stdout`
+- `.gsd.migrating/exec/8018cb4a-2906-46bc-863a-51fabcf5dfce.meta.json`
+- `.gsd.migrating/exec/8018cb4a-2906-46bc-863a-51fabcf5dfce.stderr`
+- `.gsd.migrating/exec/8018cb4a-2906-46bc-863a-51fabcf5dfce.stdout`
+- `.gsd.migrating/exec/a304bf59-bbff-400a-88ed-5022e270004f.meta.json`
+- `.gsd.migrating/exec/a304bf59-bbff-400a-88ed-5022e270004f.stderr`
+- `.gsd.migrating/exec/a304bf59-bbff-400a-88ed-5022e270004f.stdout`
 - `.gsd.migrating/exec/e1a91b13-c4a1-44ac-9f79-051a4fd8865e.meta.json`
 - `.gsd.migrating/exec/e1a91b13-c4a1-44ac-9f79-051a4fd8865e.stderr`
 - `.gsd.migrating/exec/e1a91b13-c4a1-44ac-9f79-051a4fd8865e.stdout`
@@ -186,14 +201,40 @@ Generated: 2026-06-21T07:16:16Z | Files: 299 | Described: 0/299
 - `.gsd.migrating/milestones/M002/M002-CONTEXT.md`
 - `.gsd.migrating/milestones/M002/M002-ROADMAP.md`
 
+### .gsd.migrating/milestones/M002/anchors/
+- `.gsd.migrating/milestones/M002/anchors/plan-slice.json`
+- `.gsd.migrating/milestones/M002/anchors/research-slice.json`
+
 ### .gsd.migrating/milestones/M002/slices/S01/
+- `.gsd.migrating/milestones/M002/slices/S01/S01-CONTINUE.md`
 - `.gsd.migrating/milestones/M002/slices/S01/S01-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S01/S01-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S01/S01-UAT.md`
 
 ### .gsd.migrating/milestones/M002/slices/S01/tasks/
 - `.gsd.migrating/milestones/M002/slices/S01/tasks/T01-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S01/tasks/T01-SUMMARY.md`
 - `.gsd.migrating/milestones/M002/slices/S01/tasks/T02-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S01/tasks/T02-SUMMARY.md`
 - `.gsd.migrating/milestones/M002/slices/S01/tasks/T03-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S01/tasks/T03-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S01/tasks/T03-VERIFY.json`
 - `.gsd.migrating/milestones/M002/slices/S01/tasks/T04-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S01/tasks/T04-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S01/tasks/T04-VERIFY.json`
+
+### .gsd.migrating/milestones/M002/slices/S02/
+- `.gsd.migrating/milestones/M002/slices/S02/S02-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S02/S02-PRE-EXEC-VERIFY.json`
+- `.gsd.migrating/milestones/M002/slices/S02/S02-RESEARCH.md`
+
+### .gsd.migrating/milestones/M002/slices/S02/tasks/
+- `.gsd.migrating/milestones/M002/slices/S02/tasks/T01-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S02/tasks/T02-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S02/tasks/T03-PLAN.md`
+
+### .gsd.migrating/milestones/M002/slices/S03/
+- `.gsd.migrating/milestones/M002/slices/S03/S03-RESEARCH.md`
 
 ### .gsd.migrating/milestones/M003/
 - `.gsd.migrating/milestones/M003/M003-ROADMAP.md`
@@ -214,19 +255,26 @@ Generated: 2026-06-21T07:16:16Z | Files: 299 | Described: 0/299
 - `.gsd.migrating/milestones/M008/M008-ROADMAP.md`
 
 ### .gsd.migrating/runtime/
+- `.gsd.migrating/runtime/M002-S01-reactive.json`
 - `.gsd.migrating/runtime/uok-parity.jsonl`
 - `.gsd.migrating/runtime/uok-plan-v2-graph.json`
 - `.gsd.migrating/runtime/uok-writer-sequence.json`
 - `.gsd.migrating/runtime/write-gate-state.json`
 
 ### .gsd.migrating/runtime/units/
-- *(38 files: 38 .json)*
+- *(45 files: 45 .json)*
 
 ### apps/web/
+- `apps/web/.eslintrc.json`
+- `apps/web/.gitignore`
+- `apps/web/components.json`
+- `apps/web/Dockerfile`
 - `apps/web/next-env.d.ts`
 - `apps/web/next.config.ts`
 - `apps/web/package-lock.json`
 - `apps/web/package.json`
+- `apps/web/postcss.config.mjs`
+- `apps/web/tailwind.config.ts`
 - `apps/web/tsconfig.json`
 
 ### apps/web/prisma/
@@ -235,6 +283,7 @@ Generated: 2026-06-21T07:16:16Z | Files: 299 | Described: 0/299
 - `apps/web/prisma/DOCKER_BLOCKER.md`
 - `apps/web/prisma/MIGRATION_PLAN.md`
 - `apps/web/prisma/schema.prisma`
+- `apps/web/prisma/seed.ts`
 
 ### apps/web/prisma/migrations/
 - `apps/web/prisma/migrations/migration_lock.toml`
@@ -260,6 +309,14 @@ Generated: 2026-06-21T07:16:16Z | Files: 299 | Described: 0/299
 ### apps/web/scripts/
 - `apps/web/scripts/verify-migrations.sh`
 
+### apps/web/src/
+- `apps/web/src/middleware.ts`
+
+### apps/web/src/app/
+- `apps/web/src/app/globals.css`
+- `apps/web/src/app/layout.tsx`
+- `apps/web/src/app/page.tsx`
+
 ### apps/web/src/app/api/contacts/
 - `apps/web/src/app/api/contacts/route.ts`
 
@@ -269,8 +326,25 @@ Generated: 2026-06-21T07:16:16Z | Files: 299 | Described: 0/299
 ### apps/web/src/app/api/health/
 - `apps/web/src/app/api/health/route.ts`
 
+### apps/web/src/app/crm/contacts/
+- `apps/web/src/app/crm/contacts/page.tsx`
+
+### apps/web/src/components/ui/
+- `apps/web/src/components/ui/badge.tsx`
+- `apps/web/src/components/ui/button.tsx`
+- `apps/web/src/components/ui/card.tsx`
+- `apps/web/src/components/ui/input.tsx`
+- `apps/web/src/components/ui/select.tsx`
+- `apps/web/src/components/ui/table.tsx`
+
 ### apps/web/src/lib/
 - `apps/web/src/lib/db.ts`
+- `apps/web/src/lib/utils.ts`
+
+### apps/web/src/lib/api/
+- `apps/web/src/lib/api/contacts.test.ts`
+- `apps/web/src/lib/api/contacts.ts`
+- `apps/web/src/lib/api/types.ts`
 
 ### apps/web/src/lib/db/
 - `apps/web/src/lib/db/contacts.test.ts`
@@ -278,22 +352,31 @@ Generated: 2026-06-21T07:16:16Z | Files: 299 | Described: 0/299
 - `apps/web/src/lib/db/prisma.ts`
 
 ### apps/worker/
+- `apps/worker/.gitignore`
+- `apps/worker/conftest.py`
 - `apps/worker/Dockerfile`
 - `apps/worker/pyproject.toml`
+- `apps/worker/pytest.ini`
 - `apps/worker/requirements.txt`
 
 ### apps/worker/app/
 - `apps/worker/app/__init__.py`
+- `apps/worker/app/celery_app.py`
 - `apps/worker/app/config.py`
 - `apps/worker/app/consumer.py`
+- `apps/worker/app/database.py`
 - `apps/worker/app/db.py`
 - `apps/worker/app/health.py`
 - `apps/worker/app/main.py`
+- `apps/worker/app/tasks.py`
 
 ### apps/worker/tests/
 - `apps/worker/tests/__init__.py`
 - `apps/worker/tests/conftest.py`
 - `apps/worker/tests/test_health.py`
+
+### docker/db/init/
+- `docker/db/init/01-init-roles.sql`
 
 ### docs/
 - `docs/00-executive-summary.md`
@@ -315,3 +398,8 @@ Generated: 2026-06-21T07:16:16Z | Files: 299 | Described: 0/299
 - `docs/16-non-functional.md`
 - `docs/17-risks-mitigations.md`
 - `docs/18-roadmap.md`
+- `docs/19-testing-strategy.md`
+
+### docs/adr/
+- `docs/adr/ADR-01-unified-data-model.md`
+- `docs/adr/ADR-02-hybrid-backend.md`

@@ -21,19 +21,19 @@ Consumes ContactApiClient (S01) for data fetching at /api/contacts. Produces roo
 
 ## Tasks
 
-- [ ] **T01: Bootstrap Tailwind CSS v4 + shadcn/ui + lucide-react** `est:1h`
+- [x] **T01: Bootstrap Tailwind CSS v4 + shadcn/ui + lucide-react** `est:1h`
   ## Why
   The apps/web project has no frontend stack — no CSS, no component library, no layout shell. Before any CRM page can be built, Tailwind CSS v4, shadcn/ui, and lucide-react must be installed and configured. This unblocks all UI work in S02, S03, and S04.
   - Files: `apps/web/package.json`, `apps/web/postcss.config.mjs`, `apps/web/components.json`, `apps/web/src/app/globals.css`, `apps/web/src/lib/utils.ts`, `apps/web/src/components/ui/table.tsx`, `apps/web/src/components/ui/button.tsx`, `apps/web/src/components/ui/input.tsx`, `apps/web/src/components/ui/select.tsx`, `apps/web/src/components/ui/badge.tsx`, `apps/web/src/components/ui/card.tsx`, `apps/web/src/lib/db.ts`, `apps/web/src/app/api/health/route.ts`
   - Verify: npx tsc --noEmit
 
-- [ ] **T02: Create root layout + home page** `est:30m`
+- [x] **T02: Create root layout + home page** `est:30m`
   ## Why
   Every Next.js app needs a root layout (HTML shell, metadata, CSS import) and a home page. Without these, no route renders. The layout provides the shared HTML structure that all pages render into.
   - Files: `apps/web/src/app/layout.tsx`, `apps/web/src/app/page.tsx`
   - Verify: npx next build
 
-- [ ] **T03: Build Contact List page with type and status filters** `est:1h`
+- [x] **T03: Build Contact List page with type and status filters** `est:1h`
   ## Why
   The slice goal is a functional contact list at `/crm/contacts` with filterable table. This is the primary deliverable. Consumes the ContactApiClient from S01 and shadcn/ui components from T01.
   - Files: `apps/web/src/app/crm/contacts/page.tsx`

@@ -1,0 +1,18 @@
+{
+  "id": "d6c338d4-4f0f-4f96-814a-bb778332f946",
+  "runtime": "bash",
+  "purpose": "Verify T02: next build with layout.tsx and page.tsx",
+  "script_chars": 34,
+  "started_at": "2026-06-21T07:38:59.083Z",
+  "finished_at": "2026-06-21T07:38:59.211Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 128,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\d6c338d4-4f0f-4f96-814a-bb778332f946.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\d6c338d4-4f0f-4f96-814a-bb778332f946.stderr"
+}

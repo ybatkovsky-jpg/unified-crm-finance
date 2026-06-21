@@ -1,7 +1,7 @@
 # GSD State
 
 **Active Milestone:** M002: CRM модуль
-**Active Slice:** S02: Contact List UI
+**Active Slice:** S03: S03
 **Phase:** executing
 **Requirements Status:** 18 active · 2 validated · 0 deferred · 0 out of scope
 
@@ -22,4 +22,4 @@
 - None
 
 ## Next Action
-Execute T01: Bootstrap Tailwind CSS v4 + shadcn/ui + lucide-react in slice S02.
+Execute T02: Interaction API routes in slice S03.

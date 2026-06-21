@@ -1,0 +1,18 @@
+{
+  "id": "7f597e49-5a35-4bf9-a1dc-efd20f68887e",
+  "runtime": "bash",
+  "purpose": "Verify npx next build succeeds for T02 interaction API routes",
+  "script_chars": 45,
+  "started_at": "2026-06-21T08:18:45.565Z",
+  "finished_at": "2026-06-21T08:18:45.695Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 130,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\7f597e49-5a35-4bf9-a1dc-efd20f68887e.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\7f597e49-5a35-4bf9-a1dc-efd20f68887e.stderr"
+}

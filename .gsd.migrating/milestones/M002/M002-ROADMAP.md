@@ -17,10 +17,10 @@
 - [x] **S01: S01** `risk:high` `depends:[]`
   > After this: After this: POST /api/contacts создаёт контакт в БД, GET /api/contacts возвращает JSON-массив, Prisma migrations применены
 
-- [ ] **S02: Contact List UI** `risk:medium` `depends:[S01]`
+- [x] **S02: S02** `risk:medium` `depends:[]`
   > After this: After this: /crm/contacts показывает таблицу контактов с фильтрами, можно открыть карточку кликом
 
-- [ ] **S03: Interactions API & UI** `risk:medium` `depends:[S01]`
+- [ ] **S03: S03** `risk:medium` `depends:[]`
   > After this: After this: POST /api/interactions создаёт взаимодействие, GET /api/contacts/[id]/interactions возвращает timeline
 
 - [ ] **S04: Contact Detail & Integration** `risk:low` `depends:[S01,S02,S03]`
