@@ -1,0 +1,18 @@
+{
+  "id": "ace8de23-bcf4-433c-85ad-890b861bf169",
+  "runtime": "bash",
+  "purpose": "Verify next build succeeds for interaction API routes",
+  "script_chars": 74,
+  "started_at": "2026-06-21T08:40:49.996Z",
+  "finished_at": "2026-06-21T08:40:50.070Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 74,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\ace8de23-bcf4-433c-85ad-890b861bf169.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\ace8de23-bcf4-433c-85ad-890b861bf169.stderr"
+}

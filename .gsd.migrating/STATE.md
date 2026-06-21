@@ -22,4 +22,4 @@
 - None
 
 ## Next Action
-Execute T02: Interaction API routes in slice S03.
+Execute T03: Interaction API client + types in slice S03.

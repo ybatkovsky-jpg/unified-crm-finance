@@ -37,7 +37,7 @@
   - Files: `apps/web/src/lib/db/interactions.ts`, `apps/web/src/lib/db/interactions.test.ts`
   - Verify: npx tsx --test src/lib/db/interactions.test.ts
 
-- [ ] **T02: Interaction API routes** `est:30m`
+- [x] **T02: Interaction API routes** `est:30m`
   Why: Expose interaction CRUD as Next.js App Router API endpoints following the exact same pattern as S01's contact routes. Three route files: collection, single-resource, and nested contact timeline.
   - Files: `apps/web/src/app/api/interactions/route.ts`, `apps/web/src/app/api/interactions/[id]/route.ts`, `apps/web/src/app/api/contacts/[id]/interactions/route.ts`
   - Verify: npx next build

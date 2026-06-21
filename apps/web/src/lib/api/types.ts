@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact } from '@prisma/client';
+import type { Contact, Interaction } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -107,6 +107,49 @@ export interface ContactUpdateInput {
   status?: string | null;
   tags?: string[] | null;
   attributes?: Record<string, unknown> | null;
+}
+
+/**
+ * Interaction data (mirrors Prisma Interaction model)
+ */
+export type InteractionData = Interaction;
+
+/**
+ * Interaction filter options for getInteractions
+ */
+export interface InteractionFilters {
+  contactId?: string;
+  type?: string;
+}
+
+/**
+ * Interaction creation input
+ */
+export interface InteractionCreateInput {
+  contactId: string;
+  type: string;
+  direction?: string | null;
+  subject?: string | null;
+  content?: string | null;
+  scheduledAt?: string | null;
+  completedAt?: string | null;
+  authorId: string;
+  eventId?: string | null;
+}
+
+/**
+ * Interaction update input (all fields optional)
+ */
+export interface InteractionUpdateInput {
+  type?: string | null;
+  direction?: string | null;
+  subject?: string | null;
+  content?: string | null;
+  contactId?: string | null;
+  authorId?: string | null;
+  scheduledAt?: string | null;
+  completedAt?: string | null;
+  eventId?: string | null;
 }
 
 /**
