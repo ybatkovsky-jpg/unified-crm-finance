@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-06-21T15:46:58.759Z",
+  "exported_at": "2026-06-21T22:39:51.082Z",
   "milestones": [
     {
       "id": "M001",
@@ -164,21 +164,71 @@
     {
       "id": "M004",
       "title": "Проекты",
-      "status": "queued",
+      "status": "in_progress",
       "depends_on": [],
       "created_at": "2026-06-20T06:52:34.885Z",
       "completed_at": null,
-      "vision": "",
-      "success_criteria": [],
-      "key_risks": [],
-      "proof_strategy": [],
-      "verification_contract": "",
-      "verification_integration": "",
-      "verification_operational": "",
-      "verification_uat": "",
-      "definition_of_done": [],
-      "requirement_coverage": "",
-      "boundary_map_markdown": "",
+      "vision": "Модуль управления проектами — параллельная lifetime со сделкой система для tracking исполнения контрактов. Проект создаётся на этапе \"Подписан контракт\" в сделке и существует независимо от коммерческого pipeline сделки.",
+      "success_criteria": [
+        "Пользователь может создать проект из сделки (на этапе контракта) и увидеть его в списке проектов",
+        "Gantt timeline показывает этапы проекта с корректными датами и цветовой кодировкой по статусу",
+        "Пользователь может создать Production сущность, добавить этапы производства, и tracking процесс до поставки на объект",
+        "File upload работает: drag & drop, preview, удаление. Чертежи прикрепляются к сделке, спецификации к проекту",
+        "Cascade close: акт закрывает проект → сделка закрывается автоматически (или наоборот)"
+      ],
+      "key_risks": [
+        {
+          "risk": "File upload scope — большой компонент. Нужно убедиться, что MinIO настроен корректно в dev",
+          "whyItMatters": "MinIO credential issues can block file upload testing"
+        },
+        {
+          "risk": "Gantt интерактивность — drag & drop timelines может быть сложно тестируемо",
+          "whyItMatters": "Automated testing for drag-drop dates is hard, needs manual verification"
+        },
+        {
+          "risk": "Cascade close — bidirectional dependency может создать race conditions",
+          "whyItMatters": "Transaction safety needed for project↔deal cascade closure"
+        }
+      ],
+      "proof_strategy": [
+        {
+          "riskOrUnknown": "Production schema migration applies correctly",
+          "retireIn": "S01",
+          "whatWillBeProven": "Prisma migrate dev succeeds, Production model accessible via Prisma Client"
+        },
+        {
+          "riskOrUnknown": "Project CRUD works end-to-end",
+          "retireIn": "S02",
+          "whatWillBeProven": "Repository tests pass, API routes return correct data, auto-numbering works"
+        },
+        {
+          "riskOrUnknown": "Gantt drag-drop updates persist",
+          "retireIn": "S05",
+          "whatWillBeProven": "vis-timeline configured, date drag triggers API update, data refreshes after update"
+        },
+        {
+          "riskOrUnknown": "File upload to MinIO works",
+          "retireIn": "S07",
+          "whatWillBeProven": "Upload stores file in MinIO, FileEntity record created, preview retrieves from storage"
+        }
+      ],
+      "verification_contract": "S01: Unit tests for ProductionRepository (CRUD, softDelete, count)\\nS02: Unit tests for ProjectRepository + API integration tests\\nS03: UI smoke test (create project, verify appears in list)\\nS04: UI smoke test (open project detail, verify tabs render)\\nS05: Interactive test (drag Gantt date, verify API update)\\nS06: UI smoke test (create production, verify in project detail)\\nS07: Interactive test (upload file, verify MinIO storage + preview; test cascade close)",
+      "verification_integration": "Integration verification across slices:\\n- S02→S03: API→UI, project list loads from API\\n- S03→S04: List→Detail navigation works\\n- S04→S05: Detail stages→Gantt data sync\\n- S04→S07: Detail→File upload attachment\\n- S06→S07: Production→Cascade close\\n- S02→S07: Deal→Project creation→Cascade close",
+      "verification_operational": "Operational verification:\\n- Prisma migrations re-runnable (dev reset)\\n- MinIO accessible via S3_ENDPOINT\\n- API error handling returns proper error responses\\n- Soft-deleted projects excluded from queries\\n- Cascade close transaction rollback on failure",
+      "verification_uat": "UAT scenarios:\\n1. Менеджер создаёт проект из сделки на этапе контракта\\n2. Менеджер видит проект в списке проектов с фильтрами\\n3. Менеджер открывает деталь проекта, видит Gantt timeline\\n4. Менеджер двигает дату на Gantt, изменения сохраняются\\n5. Менеджер создаёт Production запись (плиты), добавляет этапы\\n6. Менеджер загружает чертёж к сделке через drag-drop\\n7. Менеджер закрывает проект актом — сделка закрывается автоматически",
+      "definition_of_done": [
+        "All slices complete with passing SUMMARY.md",
+        "All acceptance criteria verified",
+        "R013 requirement validated",
+        "Unit tests pass for ProjectRepository, ProductionRepository",
+        "API integration tests pass",
+        "UI components render without errors",
+        "Gantt drag-drop works manually",
+        "File upload stores files in MinIO",
+        "Cascade close works bidirectionally"
+      ],
+      "requirement_coverage": "R013 (Модуль проекты) is the primary owning requirement for M004. All slices contribute to validating R013:\\n- S01: Production schema foundation\\n- S02: Project API + Repository\\n- S03+S04: Project UI\\n- S05: Gantt timeline\\n- S06: Production management\\n- S07: File upload + cascade close\\n\\nNo other Active requirements depend on M004.",
+      "boundary_map_markdown": "## Scope Boundaries\\n\\n### In Scope\\n- Project CRUD (создание из сделки + отдельно)\\n- ProjectStage pipeline (8 стандартных этапов)\\n- ProjectMember management (множественные роли)\\n- Gantt timeline (vis-timeline, drag-drop, цвет по статусу)\\n- Production entity + ProductionStage (PLATE, COUNTERTOP)\\n- File upload UI (drag-drop, preview, delete)\\n- File attachments: чертежи к сделкам, акты к сделкам, спецификации к проектам\\n- Cascade close: акт ↔ проект ↔ сделка\\n\\n### Out of Scope\\n- Task Manager (организационные задачи) — отдельная сущность\\n- Gantt advanced features (critical path, resource leveling, export PDF) — M007\\n- Production planning (BOM optimization) — M005\\n- Финансовая отчетность по проектам — M006\\n\\n### Integration Points\\n- Deal: создание проекта на этапе контракта, cascade close\\n- Contract: привязка проекта к контракту\\n- Contact: клиент проекта\\n- FileEntity: storage для чертежей, актов, спецификаций\\n- User/Role: команда проекта, RBAC\\n- BOM/BOMItem: спецификации проекта (уже существуют)",
       "sequence": 0
     },
     {
@@ -310,6 +360,26 @@
       ],
       "requirement_coverage": "R011 (Модуль сделки) покрывается S01-S03. R012 (Модуль контракты) покрывается S04-S05.",
       "boundary_map_markdown": "Not provided.",
+      "sequence": 0
+    },
+    {
+      "id": "M010",
+      "title": "",
+      "status": "queued",
+      "depends_on": [],
+      "created_at": "2026-06-21T22:15:01.161Z",
+      "completed_at": null,
+      "vision": "",
+      "success_criteria": [],
+      "key_risks": [],
+      "proof_strategy": [],
+      "verification_contract": "",
+      "verification_integration": "",
+      "verification_operational": "",
+      "verification_uat": "",
+      "definition_of_done": [],
+      "requirement_coverage": "",
+      "boundary_map_markdown": "",
       "sequence": 0
     }
   ],
@@ -642,6 +712,173 @@
       "integration_closure": "Страницы используют ContractRepository через API client; tabs используют поисковые параметры URL; модальные окна для создания версий и добавления подписантов",
       "observability_impact": "Empty state для пустого списка; loading skeleton; toast при ошибках создания версий/подписантов; обработка 404 для несуществующего контракта",
       "sequence": 5,
+      "replan_triggered_at": null,
+      "is_sketch": 0,
+      "sketch_scope": ""
+    },
+    {
+      "milestone_id": "M004",
+      "id": "S01",
+      "title": "Production Schema + Repository",
+      "status": "pending",
+      "risk": "high",
+      "depends": [],
+      "demo": "ProductionRepository passes all unit tests (CRUD + softDelete), Prisma migration applies successfully",
+      "created_at": "2026-06-21T22:39:02.961Z",
+      "completed_at": null,
+      "full_summary_md": "",
+      "full_uat_md": "",
+      "goal": "Create Production model schema and Repository layer for production tracking",
+      "success_criteria": "Production model exists with proper relations (1:N to Project, ProductionStage cascade), Repository CRUD operations work, softDelete pattern consistent",
+      "proof_level": "repo_tests_pass",
+      "integration_closure": "Production model ready for API layer",
+      "observability_impact": "none",
+      "sequence": 1,
+      "replan_triggered_at": null,
+      "is_sketch": 0,
+      "sketch_scope": ""
+    },
+    {
+      "milestone_id": "M004",
+      "id": "S02",
+      "title": "Project API + Repository",
+      "status": "pending",
+      "risk": "high",
+      "depends": [],
+      "demo": "ProjectRepository passes unit tests (CRUD, softDelete, count), ProjectApiClient can create/read/update/delete via curl",
+      "created_at": "2026-06-21T22:39:02.962Z",
+      "completed_at": null,
+      "full_summary_md": "",
+      "full_uat_md": "",
+      "goal": "Create ProjectRepository and full REST API (CRUD, stages, members)",
+      "success_criteria": "ProjectRepository with auto-numbering (П-YYYY-NNNNN), API routes for projects CRUD, project stages management, project members with multi-role support",
+      "proof_level": "api_integration",
+      "integration_closure": "API ready for UI layer, Deal→Project creation endpoint available",
+      "observability_impact": "none",
+      "sequence": 2,
+      "replan_triggered_at": null,
+      "is_sketch": 0,
+      "sketch_scope": ""
+    },
+    {
+      "milestone_id": "M004",
+      "id": "S03",
+      "title": "Project List + Create UI",
+      "status": "pending",
+      "risk": "medium",
+      "depends": [
+        "S02"
+      ],
+      "demo": "User can browse /dashboard/projects, filter by status/manager, create project via modal, see project cards in table",
+      "created_at": "2026-06-21T22:39:02.962Z",
+      "completed_at": null,
+      "full_summary_md": "",
+      "full_uat_md": "",
+      "goal": "Build project list page with filters and create modal",
+      "success_criteria": "Project list page renders with filters (status, manager, date range), CreateProjectModal with deal/contract/contact selection, project cards display key info",
+      "proof_level": "ui_smoke",
+      "integration_closure": "List→Create flow works, navigation from Deals page available",
+      "observability_impact": "none",
+      "sequence": 3,
+      "replan_triggered_at": null,
+      "is_sketch": 0,
+      "sketch_scope": ""
+    },
+    {
+      "milestone_id": "M004",
+      "id": "S04",
+      "title": "Project Detail Page",
+      "status": "pending",
+      "risk": "medium",
+      "depends": [
+        "S02",
+        "S03"
+      ],
+      "demo": "User can view /dashboard/projects/[id], see project info, stages list, team members with roles, related deal/contract",
+      "created_at": "2026-06-21T22:39:02.962Z",
+      "completed_at": null,
+      "full_summary_md": "",
+      "full_uat_md": "",
+      "goal": "Build project detail page with tabs (Details, Stages, Team, Related)",
+      "success_criteria": "Project detail page shows project metadata, stages with status/assignee, team members with multi-roles, related deal/contract links, edit capability",
+      "proof_level": "ui_smoke",
+      "integration_closure": "Detail page accessible from list, back-navigation works",
+      "observability_impact": "none",
+      "sequence": 4,
+      "replan_triggered_at": null,
+      "is_sketch": 0,
+      "sketch_scope": ""
+    },
+    {
+      "milestone_id": "M004",
+      "id": "S05",
+      "title": "Gantt Timeline",
+      "status": "pending",
+      "risk": "high",
+      "depends": [
+        "S04"
+      ],
+      "demo": "User can see Gantt chart on project detail, drag dates to update, color coding by status, day-level zoom",
+      "created_at": "2026-06-21T22:39:02.962Z",
+      "completed_at": null,
+      "full_summary_md": "",
+      "full_uat_md": "",
+      "goal": "Implement Gantt timeline visualization with vis-timeline",
+      "success_criteria": "vis-timeline installed, ProjectGantt component renders stages as timeline bars, drag-drop updates stage dates, color coding by status (pending=gray, in_progress=blue, completed=green), date validation",
+      "proof_level": "ui_interactive",
+      "integration_closure": "Gantt syncs with stage data, date updates persist to API",
+      "observability_impact": "none",
+      "sequence": 5,
+      "replan_triggered_at": null,
+      "is_sketch": 0,
+      "sketch_scope": ""
+    },
+    {
+      "milestone_id": "M004",
+      "id": "S06",
+      "title": "Production Management",
+      "status": "pending",
+      "risk": "medium",
+      "depends": [
+        "S01",
+        "S04"
+      ],
+      "demo": "User can create Production records (PLATE/COUNTERTOP), manage production stages, see status in project detail",
+      "created_at": "2026-06-21T22:39:02.962Z",
+      "completed_at": null,
+      "full_summary_md": "",
+      "full_uat_md": "",
+      "goal": "Build Production CRUD UI and stage management",
+      "success_criteria": "Production UI in project detail (tab or section), create production modal with type selection, production stage tracking, status indicators",
+      "proof_level": "ui_smoke",
+      "integration_closure": "Production records linked to project, cascade close works",
+      "observability_impact": "none",
+      "sequence": 6,
+      "replan_triggered_at": null,
+      "is_sketch": 0,
+      "sketch_scope": ""
+    },
+    {
+      "milestone_id": "M004",
+      "id": "S07",
+      "title": "File Upload + Cascade Close",
+      "status": "pending",
+      "risk": "medium",
+      "depends": [
+        "S04",
+        "S06"
+      ],
+      "demo": "User can drag-drop files to attach (drawings to deals, specs to projects), preview works, delete works; closing project with act cascades to deal",
+      "created_at": "2026-06-21T22:39:02.962Z",
+      "completed_at": null,
+      "full_summary_md": "",
+      "full_uat_md": "",
+      "goal": "Implement file upload UI and cascade close logic",
+      "success_criteria": "File upload component with drag-drop, MinIO integration, file preview, file deletion, cascade close (project↔deal via act), bidirectional close",
+      "proof_level": "ui_interactive",
+      "integration_closure": "Files stored in MinIO, cascade close transaction-safe",
+      "observability_impact": "none",
+      "sequence": 7,
       "replan_triggered_at": null,
       "is_sketch": 0,
       "sketch_scope": ""
@@ -3200,6 +3437,124 @@
         "apps/web/src/lib/api/contracts.test.ts"
       ],
       "observability_impact": "Test assertion errors provide descriptive failure messages — no runtime observability changes",
+      "full_plan_md": "",
+      "sequence": 0,
+      "blocker_source": "",
+      "escalation_pending": 0,
+      "escalation_awaiting_review": 0,
+      "escalation_artifact_path": null,
+      "escalation_override_applied_at": null
+    },
+    {
+      "milestone_id": "M004",
+      "slice_id": "S01",
+      "id": "T01",
+      "title": "Create Production and ProductionStage Prisma models",
+      "status": "pending",
+      "one_liner": "",
+      "narrative": "",
+      "verification_result": "",
+      "duration": "",
+      "completed_at": null,
+      "blocker_discovered": false,
+      "deviations": "",
+      "known_issues": "",
+      "key_files": [],
+      "key_decisions": [],
+      "full_summary_md": "",
+      "description": "Add Production and ProductionStage models to schema.prisma with proper relations, indexes, and cascade behavior.",
+      "estimate": "30m",
+      "files": [
+        "apps/web/prisma/schema.prisma"
+      ],
+      "verify": "npx prisma migrate dev --name add_production",
+      "inputs": [
+        "apps/web/prisma/schema.prisma"
+      ],
+      "expected_output": [
+        "Prisma migration applied",
+        "Production model defined",
+        "ProductionStage model defined"
+      ],
+      "observability_impact": "none",
+      "full_plan_md": "",
+      "sequence": 0,
+      "blocker_source": "",
+      "escalation_pending": 0,
+      "escalation_awaiting_review": 0,
+      "escalation_artifact_path": null,
+      "escalation_override_applied_at": null
+    },
+    {
+      "milestone_id": "M004",
+      "slice_id": "S01",
+      "id": "T02",
+      "title": "Create ProductionRepository",
+      "status": "pending",
+      "one_liner": "",
+      "narrative": "",
+      "verification_result": "",
+      "duration": "",
+      "completed_at": null,
+      "blocker_discovered": false,
+      "deviations": "",
+      "known_issues": "",
+      "key_files": [],
+      "key_decisions": [],
+      "full_summary_md": "",
+      "description": "Create ProductionRepository following DealRepository pattern with CRUD, softDelete, findMany with filters.",
+      "estimate": "45m",
+      "files": [
+        "apps/web/src/lib/db/production.ts"
+      ],
+      "verify": "npx tsc --noEmit apps/web/src/lib/db/production.ts",
+      "inputs": [
+        "apps/web/src/lib/db/deals.ts"
+      ],
+      "expected_output": [
+        "ProductionRepository class implemented",
+        "CRUD methods working"
+      ],
+      "observability_impact": "none",
+      "full_plan_md": "",
+      "sequence": 0,
+      "blocker_source": "",
+      "escalation_pending": 0,
+      "escalation_awaiting_review": 0,
+      "escalation_artifact_path": null,
+      "escalation_override_applied_at": null
+    },
+    {
+      "milestone_id": "M004",
+      "slice_id": "S01",
+      "id": "T03",
+      "title": "Write ProductionRepository unit tests",
+      "status": "pending",
+      "one_liner": "",
+      "narrative": "",
+      "verification_result": "",
+      "duration": "",
+      "completed_at": null,
+      "blocker_discovered": false,
+      "deviations": "",
+      "known_issues": "",
+      "key_files": [],
+      "key_decisions": [],
+      "full_summary_md": "",
+      "description": "Write unit tests for ProductionRepository covering CRUD, softDelete, filters.",
+      "estimate": "30m",
+      "files": [
+        "apps/web/src/lib/db/production.test.ts"
+      ],
+      "verify": "tsx apps/web/src/lib/db/production.test.ts",
+      "inputs": [
+        "apps/web/src/lib/db/deals.test.ts"
+      ],
+      "expected_output": [
+        "All unit tests pass",
+        "Coverage achieved"
+      ],
+      "observability_impact": "none",
       "full_plan_md": "",
       "sequence": 0,
       "blocker_source": "",

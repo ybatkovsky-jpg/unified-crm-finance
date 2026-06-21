@@ -716,6 +716,7 @@ model Project {
   Contact         Contact?          @relation(fields: [contactId], references: [id])
   ProjectMember   ProjectMember[]
   ProjectStage    ProjectStage[]
+  Production      Production?
   PurchaseRequest PurchaseRequest[]
   Task            Task[]
   Transaction     Transaction[]
@@ -756,6 +757,49 @@ model ProjectStage {
 
   @@unique([projectId, code])
   @@index([projectId, order])
+}
+
+model Production {
+  id                String            @id
+  projectId         String            @unique
+  status            String            @default("planning")
+  plannedStartDate  DateTime?
+  plannedEndDate    DateTime?
+  actualStartDate   DateTime?
+  actualEndDate     DateTime?
+  progress          Float             @default(0)
+  notes             String?
+  attributes        Json?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime
+  deletedAt         DateTime?
+  Project           Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ProductionStage   ProductionStage[]
+
+  @@index([status])
+  @@index([deletedAt])
+  @@index([projectId])
+}
+
+model ProductionStage {
+  id              String       @id
+  productionId    String
+  code            String
+  name            String
+  order           Int
+  status          String       @default("pending")
+  startDate       DateTime?
+  endDate         DateTime?
+  completedAt     DateTime?
+  assigneeId      String?
+  notes           String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime
+  Production      Production   @relation(fields: [productionId], references: [id], onDelete: Cascade)
+
+  @@unique([productionId, code])
+  @@index([productionId, order])
+  @@index([status])
 }
 
 model PurchaseRequest {

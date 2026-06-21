@@ -1,8 +1,8 @@
 # GSD State
 
 **Active Milestone:** M004: Проекты
-**Active Slice:** None
-**Phase:** pre-planning
+**Active Slice:** S01: Production Schema + Repository
+**Phase:** executing
 **Requirements Status:** 15 active · 5 validated · 0 deferred · 0 out of scope
 
 ## Milestone Registry
@@ -24,4 +24,4 @@
 - None
 
 ## Next Action
-Plan milestone M004.
+Execute T01: Create Production and ProductionStage Prisma models in slice S01.

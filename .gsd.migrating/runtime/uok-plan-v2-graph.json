@@ -1,248 +1,65 @@
 {
-  "compiledAt": "2026-06-21T15:45:20.472Z",
-  "milestoneId": "M003",
+  "compiledAt": "2026-06-21T22:40:19.615Z",
+  "milestoneId": "M004",
   "pipeline": {
     "clarifyRoundLimit": 3,
     "researchSynthesized": true,
     "draftContextIncluded": false,
     "finalizedContextIncluded": true,
-    "sourcePhase": "completing-milestone"
+    "sourcePhase": "executing"
   },
   "nodes": [
     {
-      "id": "execute-task:M003:S01:T01",
+      "id": "execute-task:M004:S01:T01",
       "kind": "unit",
       "dependsOn": [],
-      "writes": [
-        "apps/web/src/lib/db/deals.test.ts"
-      ],
+      "writes": [],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M003.S01.T01",
-        "title": "Added 34 unit tests for DealRepository covering create, findMany, findUnique, update, moveStage, softDelete, getHistory, count, and all helper methods",
-        "status": "complete"
+        "unitId": "M004.S01.T01",
+        "title": "Create Production and ProductionStage Prisma models",
+        "status": "pending"
       }
     },
     {
-      "id": "execute-task:M003:S01:T02",
+      "id": "execute-task:M004:S01:T02",
       "kind": "unit",
       "dependsOn": [
-        "execute-task:M003:S01:T01"
-      ],
-      "writes": [
-        "apps/web/src/lib/api/deals.test.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M003.S01.T02",
-        "title": "Added 44 unit tests for DealApiClient covering all CRUD operations, moveDeal, error handling, network errors, and URL construction with mocked fetch",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "complete-slice:M003:S01",
-      "kind": "verification",
-      "dependsOn": [
-        "execute-task:M003:S01:T02"
-      ],
-      "metadata": {
-        "unitType": "complete-slice",
-        "unitId": "M003.S01",
-        "title": "S01",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M003:S02:T01",
-      "kind": "unit",
-      "dependsOn": [],
-      "writes": [
-        "apps/web/src/app/api/pipelines/route.ts",
-        "apps/web/src/app/api/pipelines/[id]/route.ts",
-        "apps/web/src/lib/api/pipelines.ts",
-        "apps/web/src/lib/api/pipelines.test.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M003.S02.T01",
-        "title": "Created Pipeline API endpoints (GET /api/pipelines list and GET /api/pipelines/[id] with stages), PipelineApiClient with getPipelines/getPipeline methods, and 18 unit tests",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M003:S02:T02",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M003:S02:T01"
+        "execute-task:M004:S01:T01"
       ],
       "writes": [],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M003.S02.T02",
-        "title": "Fixed TypeScript errors in deal-card component - corrected Contact and User name display logic",
-        "status": "complete"
+        "unitId": "M004.S01.T02",
+        "title": "Create ProductionRepository",
+        "status": "pending"
       }
     },
     {
-      "id": "execute-task:M003:S02:T03",
+      "id": "execute-task:M004:S01:T03",
       "kind": "unit",
       "dependsOn": [
-        "execute-task:M003:S02:T02"
+        "execute-task:M004:S01:T02"
       ],
       "writes": [],
       "metadata": {
         "unitType": "execute-task",
-        "unitId": "M003.S02.T03",
-        "title": "Fixed TypeScript errors in CreateDealModal and deal-card component - removed asChild prop (base-ui doesn't support it), fixed onValueChange handler, and corrected Contact/User name display logic",
-        "status": "complete"
+        "unitId": "M004.S01.T03",
+        "title": "Write ProductionRepository unit tests",
+        "status": "pending"
       }
     },
     {
-      "id": "execute-task:M003:S02:T04",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M003:S02:T03"
-      ],
-      "writes": [],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M003.S02.T04",
-        "title": "Fixed TypeScript errors in filter-bar component - corrected onValueChange handler signature",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "complete-slice:M003:S02",
+      "id": "complete-slice:M004:S01",
       "kind": "verification",
       "dependsOn": [
-        "execute-task:M003:S02:T04"
+        "execute-task:M004:S01:T03"
       ],
       "metadata": {
         "unitType": "complete-slice",
-        "unitId": "M003.S02",
-        "title": "S02",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M003:S03:T01",
-      "kind": "unit",
-      "dependsOn": [],
-      "writes": [
-        "apps/web/src/app/api/deals/[id]/route.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M003.S03.T01",
-        "title": "Added fromStage/toStage relations to deals API response for DealHistoryTimeline",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M003:S03:T02",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M003:S03:T01"
-      ],
-      "writes": [
-        "apps/web/src/components/deals/deal-history-timeline.tsx",
-        "apps/web/src/lib/api/types.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M003.S03.T02",
-        "title": "DealHistoryTimeline component already exists with all required functionality",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M003:S03:T03",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M003:S03:T02"
-      ],
-      "writes": [
-        "apps/web/src/app/deals/[id]/page.tsx"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M003.S03.T03",
-        "title": "DealHistoryTimeline integration already existed in deal detail page",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "complete-slice:M003:S03",
-      "kind": "verification",
-      "dependsOn": [
-        "execute-task:M003:S03:T03"
-      ],
-      "metadata": {
-        "unitType": "complete-slice",
-        "unitId": "M003.S03",
-        "title": "S03",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M003:S04:T01",
-      "kind": "unit",
-      "dependsOn": [],
-      "writes": [
-        "apps/web/src/lib/db/contracts.ts",
-        "apps/web/src/app/api/contracts/route.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M003.S04.T01",
-        "title": "Wrapped convertFromDeal in prisma.$transaction for atomic bidirectional linking; fixed import path to use '@/lib/db/contracts' alias",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M003:S04:T02",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M003:S04:T01"
-      ],
-      "writes": [
-        "apps/web/src/lib/db/contracts.test.ts",
-        "apps/web/src/lib/db/contracts.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M003.S04.T02",
-        "title": "Added comprehensive unit tests for ContractRepository covering all 14 methods with node:test",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "execute-task:M003:S04:T03",
-      "kind": "unit",
-      "dependsOn": [
-        "execute-task:M003:S04:T02"
-      ],
-      "writes": [
-        "apps/web/src/lib/api/contracts.test.ts"
-      ],
-      "metadata": {
-        "unitType": "execute-task",
-        "unitId": "M003.S04.T03",
-        "title": "Added comprehensive unit tests for ContractApiClient covering all 11 methods with node:test, including filter params, error handling, and network errors",
-        "status": "complete"
-      }
-    },
-    {
-      "id": "complete-slice:M003:S04",
-      "kind": "verification",
-      "dependsOn": [
-        "execute-task:M003:S04:T03"
-      ],
-      "metadata": {
-        "unitType": "complete-slice",
-        "unitId": "M003.S04",
-        "title": "S04",
-        "status": "complete"
+        "unitId": "M004.S01",
+        "title": "Production Schema + Repository",
+        "status": "pending"
       }
     }
   ]
