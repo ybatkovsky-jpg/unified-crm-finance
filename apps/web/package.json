@@ -4,9 +4,13 @@
   "private": true,
   "dependencies": {
     "@prisma/client": "6.6.0",
-    "prisma": "6.6.0"
+    "next": "^16.2.9",
+    "prisma": "6.6.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
-    "tsx": "^4.22.4"
+    "tsx": "^4.22.4",
+    "typescript": "6.0.3"
   }
 }
