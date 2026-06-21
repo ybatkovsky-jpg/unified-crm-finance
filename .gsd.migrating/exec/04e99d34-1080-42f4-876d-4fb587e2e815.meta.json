@@ -1,0 +1,18 @@
+{
+  "id": "04e99d34-1080-42f4-876d-4fb587e2e815",
+  "runtime": "bash",
+  "purpose": "Run interaction repository tests",
+  "script_chars": 66,
+  "started_at": "2026-06-21T09:10:00.611Z",
+  "finished_at": "2026-06-21T09:10:00.775Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 164,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\04e99d34-1080-42f4-876d-4fb587e2e815.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\04e99d34-1080-42f4-876d-4fb587e2e815.stderr"
+}

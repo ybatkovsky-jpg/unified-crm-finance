@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "projectName": "unified-crm-finance",
+  "projectPath": "D:\\CLAUDE\\Project\\unified-crm-finance",
+  "gsdVersion": "3.0.0",
+  "entries": [
+    {
+      "filename": "M002-2026-06-21T10-48-01.html",
+      "generatedAt": "2026-06-21T10:48:01.174Z",
+      "milestoneId": "M002",
+      "milestoneTitle": "CRM модуль",
+      "label": "M002: CRM модуль",
+      "kind": "milestone",
+      "totalCost": 87.02706600000002,
+      "totalTokens": 4093304,
+      "totalDuration": 16978029,
+      "doneSlices": 13,
+      "totalSlices": 15,
+      "doneMilestones": 2,
+      "totalMilestones": 9,
+      "phase": "planning"
+    }
+  ]
+}

@@ -20,10 +20,10 @@
 - [x] **S02: S02** `risk:medium` `depends:[]`
   > After this: After this: /crm/contacts показывает таблицу контактов с фильтрами, можно открыть карточку кликом
 
-- [ ] **S03: S03** `risk:medium` `depends:[]`
+- [x] **S03: S03** `risk:medium` `depends:[]`
   > After this: After this: POST /api/interactions создаёт взаимодействие, GET /api/contacts/[id]/interactions возвращает timeline
 
-- [ ] **S04: Contact Detail & Integration** `risk:low` `depends:[S01,S02,S03]`
+- [x] **S04: S04** `risk:low` `depends:[]`
   > After this: After this: /crm/contacts/[id] показывает карточку контакта с обзором, interactions timeline, связанными сделками
 
 ## Boundary Map

@@ -61,14 +61,6 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M001/S02
 
-### R010 — CRM модуль: компании, контакты, задачи, события
-- Class: core-capability
-- Status: active
-- Description: CRM модуль: компании, контакты, задачи, события
-- Why it matters: Базовая CRM функциональность для работы с клиентами
-- Source: inferred
-- Primary owning slice: M002
-
 ### R011 — Модуль сделки: pipeline, этапы, статусы
 - Class: core-capability
 - Status: active
@@ -175,6 +167,15 @@ This file is the explicit capability and coverage contract for the project.
 - Primary owning slice: M001/S06
 - Validation: GitHub Actions workflows created at .github/workflows/ci.yml and .github/workflows/deploy.yml; pytest tests pass (5/5); ruff lint passes clean; deployment documentation complete
 
+### R010 — CRM модуль: компании, контакты, задачи, события
+- Class: core-capability
+- Status: validated
+- Description: CRM модуль: компании, контакты, задачи, события
+- Why it matters: Базовая CRM функциональность для работы с клиентами
+- Source: inferred
+- Primary owning slice: M002
+- Validation: Contact CRUD API (S01), Contact List UI (S02), Interactions API & UI (S03), Contact Detail Page (S04) — 100+ тестов pass, zero build errors, dev server verified
+
 ## Deferred
 
 ## Out of Scope
@@ -192,7 +193,7 @@ This file is the explicit capability and coverage contract for the project.
 | R007 | operability | validated | M001/S06 | none | GitHub Actions workflows created at .github/workflows/ci.yml and .github/workflows/deploy.yml; pytest tests pass (5/5); ruff lint passes clean; deployment documentation complete |
 | R008 | constraint | active | M001/S01 | none | unmapped |
 | R009 | constraint | active | M001/S02 | none | unmapped |
-| R010 | core-capability | active | M002 | none | unmapped |
+| R010 | core-capability | validated | M002 | none | Contact CRUD API (S01), Contact List UI (S02), Interactions API & UI (S03), Contact Detail Page (S04) — 100+ тестов pass, zero build errors, dev server verified |
 | R011 | core-capability | active | M003 | none | unmapped |
 | R012 | core-capability | active | M003 | none | unmapped |
 | R013 | core-capability | active | M004 | none | unmapped |
@@ -206,7 +207,7 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Coverage Summary
 
-- Active requirements: 18
-- Mapped to slices: 18
-- Validated: 2 (R004, R007)
+- Active requirements: 17
+- Mapped to slices: 17
+- Validated: 3 (R004, R007, R010)
 - Unmapped active requirements: 0

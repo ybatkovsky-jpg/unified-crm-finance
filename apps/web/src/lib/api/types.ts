@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Interaction } from '@prisma/client';
+import type { Contact, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -159,4 +159,205 @@ export interface ApiClientConfig {
   baseUrl?: string;
   fetch?: typeof globalThis.fetch;
   headers?: Record<string, string>;
+}
+
+/**
+ * Deal history data with stage relations
+ */
+export interface DealHistoryData {
+  id: string;
+  dealId: string;
+  fromStageId: string | null;
+  toStageId: string | null;
+  comment: string | null;
+  changedBy: string;
+  changedAt: Date;
+  fromStage?: DealStageData | null;
+  toStage?: DealStageData | null;
+  changedByUser?: UserData | null;
+}
+
+/**
+ * Deal data with relations
+ */
+export interface DealData extends Omit<Deal, 'deletedAt'> {
+  stage: DealStageData;
+  pipeline: PipelineData;
+  contact?: ContactData | null;
+  manager?: UserData | null;
+  history?: DealHistoryData[];
+}
+
+/**
+ * Deal stage data
+ */
+export interface DealStageData extends Omit<DealStage, 'pipelineId'> {}
+
+/**
+ * Pipeline data
+ */
+export interface PipelineData extends Omit<Pipeline, 'createdAt'> {}
+
+/**
+ * User data
+ */
+export interface UserData extends Omit<User, 'passwordHash' | 'deletedAt'> {}
+
+/**
+ * Deal filter options
+ */
+export interface DealFilters {
+  pipelineId?: string;
+  stageId?: string;
+  managerId?: string;
+  contactId?: string;
+  status?: 'open' | 'closed';
+}
+
+/**
+ * Deal list params
+ */
+export interface DealListParams extends DealFilters, PaginationOptions {}
+
+/**
+ * Deal creation input
+ */
+export interface DealCreateInput {
+  title: string;
+  pipelineId: string;
+  stageId: string;
+  contactId?: string | null;
+  amount?: number | null;
+  currency?: string | null;
+  expectedCloseDate?: string | null;
+  managerId?: string | null;
+  description?: string | null;
+  lossReason?: string | null;
+  attributes?: Record<string, unknown> | null;
+}
+
+/**
+ * Deal update input
+ */
+export interface DealUpdateInput {
+  title?: string | null;
+  amount?: number | null;
+  currency?: string | null;
+  expectedCloseDate?: string | null;
+  description?: string | null;
+  lossReason?: string | null;
+  attributes?: Record<string, unknown> | null;
+  contactId?: string | null;
+  managerId?: string | null;
+}
+
+/**
+ * Deal move stage input
+ */
+export interface DealMoveInput {
+  stageId: string;
+  changedBy: string;
+  comment?: string | null;
+}
+
+/**
+ * Contract data with relations
+ */
+export interface ContractData extends Omit<Contract, 'deletedAt'> {
+  contact?: ContactData | null;
+  deal?: DealData | null;
+  template?: ContractTemplateData | null;
+  versions?: ContractVersionData[];
+  signers?: ContractSignerData[];
+}
+
+/**
+ * Contract version data
+ */
+export interface ContractVersionData extends Omit<ContractVersion, 'contractId'> {}
+
+/**
+ * Contract signer data
+ */
+export interface ContractSignerData extends Omit<ContractSigner, 'contractId'> {}
+
+/**
+ * Contract template data
+ */
+export interface ContractTemplateData extends Omit<ContractTemplate, 'createdBy'> {}
+
+/**
+ * Contract filter options
+ */
+export interface ContractFilters {
+  status?: string;
+  contactId?: string;
+  dealId?: string;
+}
+
+/**
+ * Contract list params
+ */
+export interface ContractListParams extends ContractFilters, PaginationOptions {}
+
+/**
+ * Contract creation input
+ */
+export interface ContractCreateInput {
+  title: string;
+  contactId: string;
+  dealId?: string | null;
+  templateId?: string | null;
+  amount?: number | null;
+  currency?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  status?: string | null;
+  notes?: string | null;
+  attributes?: Record<string, unknown> | null;
+}
+
+/**
+ * Contract update input
+ */
+export interface ContractUpdateInput {
+  title?: string | null;
+  amount?: number | null;
+  currency?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  status?: string | null;
+  notes?: string | null;
+  attributes?: Record<string, unknown> | null;
+  signedAt?: string | null;
+}
+
+/**
+ * Contract version creation input
+ */
+export interface ContractVersionCreateInput {
+  contentMd: string;
+  createdBy: string;
+  generatedPdfFileId?: string | null;
+}
+
+/**
+ * Contract signer creation input
+ */
+export interface ContractSignerCreateInput {
+  name: string;
+  position?: string | null;
+  signatureFileId?: string | null;
+}
+
+/**
+ * Deal convert to contract input
+ */
+export interface DealConvertInput {
+  title?: string | null;
+  amount?: number | null;
+  currency?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  notes?: string | null;
 }

@@ -1,7 +1,7 @@
 # Codebase Map
 
-Generated: 2026-06-21T08:00:43Z | Files: 383 | Described: 0/383
-<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T08:00:43Z","fingerprint":"ad787bdac2c0a4aa96d35be1d7ea82f976559bab","fileCount":383,"truncated":false} -->
+Generated: 2026-06-21T12:01:27Z | Files: 438 | Described: 0/438
+<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T12:01:27Z","fingerprint":"c64e4120c55912b3be3fa0d616c4813e7d1080ca","fileCount":438,"truncated":false} -->
 
 ### (root)/
 - `.env.example`
@@ -40,7 +40,7 @@ Generated: 2026-06-21T08:00:43Z | Files: 383 | Described: 0/383
 - `.gsd.migrating/STATE.md`
 
 ### .gsd.migrating/activity/
-- *(49 files: 49 .jsonl)*
+- *(59 files: 59 .jsonl)*
 
 ### .gsd.migrating/adr/
 - `.gsd.migrating/adr/002-data-model.md`
@@ -49,21 +49,7 @@ Generated: 2026-06-21T08:00:43Z | Files: 383 | Described: 0/383
 - `.gsd.migrating/audit/events.jsonl`
 
 ### .gsd.migrating/exec/
-- `.gsd.migrating/exec/383a5b61-1f17-4aa4-925a-04797ef22b0e.meta.json`
-- `.gsd.migrating/exec/383a5b61-1f17-4aa4-925a-04797ef22b0e.stderr`
-- `.gsd.migrating/exec/383a5b61-1f17-4aa4-925a-04797ef22b0e.stdout`
-- `.gsd.migrating/exec/71ec4260-73e8-4295-9b9c-e70d3a9b4956.meta.json`
-- `.gsd.migrating/exec/71ec4260-73e8-4295-9b9c-e70d3a9b4956.stderr`
-- `.gsd.migrating/exec/71ec4260-73e8-4295-9b9c-e70d3a9b4956.stdout`
-- `.gsd.migrating/exec/8018cb4a-2906-46bc-863a-51fabcf5dfce.meta.json`
-- `.gsd.migrating/exec/8018cb4a-2906-46bc-863a-51fabcf5dfce.stderr`
-- `.gsd.migrating/exec/8018cb4a-2906-46bc-863a-51fabcf5dfce.stdout`
-- `.gsd.migrating/exec/a304bf59-bbff-400a-88ed-5022e270004f.meta.json`
-- `.gsd.migrating/exec/a304bf59-bbff-400a-88ed-5022e270004f.stderr`
-- `.gsd.migrating/exec/a304bf59-bbff-400a-88ed-5022e270004f.stdout`
-- `.gsd.migrating/exec/e1a91b13-c4a1-44ac-9f79-051a4fd8865e.meta.json`
-- `.gsd.migrating/exec/e1a91b13-c4a1-44ac-9f79-051a4fd8865e.stderr`
-- `.gsd.migrating/exec/e1a91b13-c4a1-44ac-9f79-051a4fd8865e.stdout`
+- *(27 files: 9 .json, 9 .stderr, 9 .stdout)*
 
 ### .gsd.migrating/graphs/
 - `.gsd.migrating/graphs/graph.json`
@@ -227,14 +213,34 @@ Generated: 2026-06-21T08:00:43Z | Files: 383 | Described: 0/383
 - `.gsd.migrating/milestones/M002/slices/S02/S02-PLAN.md`
 - `.gsd.migrating/milestones/M002/slices/S02/S02-PRE-EXEC-VERIFY.json`
 - `.gsd.migrating/milestones/M002/slices/S02/S02-RESEARCH.md`
+- `.gsd.migrating/milestones/M002/slices/S02/S02-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S02/S02-UAT.md`
 
 ### .gsd.migrating/milestones/M002/slices/S02/tasks/
 - `.gsd.migrating/milestones/M002/slices/S02/tasks/T01-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S02/tasks/T01-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S02/tasks/T01-VERIFY.json`
 - `.gsd.migrating/milestones/M002/slices/S02/tasks/T02-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S02/tasks/T02-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S02/tasks/T02-VERIFY.json`
 - `.gsd.migrating/milestones/M002/slices/S02/tasks/T03-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S02/tasks/T03-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S02/tasks/T03-VERIFY.json`
 
 ### .gsd.migrating/milestones/M002/slices/S03/
+- `.gsd.migrating/milestones/M002/slices/S03/S03-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S03/S03-PRE-EXEC-VERIFY.json`
 - `.gsd.migrating/milestones/M002/slices/S03/S03-RESEARCH.md`
+
+### .gsd.migrating/milestones/M002/slices/S03/tasks/
+- `.gsd.migrating/milestones/M002/slices/S03/tasks/T01-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S03/tasks/T01-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S03/tasks/T01-VERIFY.json`
+- `.gsd.migrating/milestones/M002/slices/S03/tasks/T02-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S03/tasks/T02-SUMMARY.md`
+- `.gsd.migrating/milestones/M002/slices/S03/tasks/T02-VERIFY.json`
+- `.gsd.migrating/milestones/M002/slices/S03/tasks/T03-PLAN.md`
+- `.gsd.migrating/milestones/M002/slices/S03/tasks/T04-PLAN.md`
 
 ### .gsd.migrating/milestones/M003/
 - `.gsd.migrating/milestones/M003/M003-ROADMAP.md`
@@ -262,7 +268,7 @@ Generated: 2026-06-21T08:00:43Z | Files: 383 | Described: 0/383
 - `.gsd.migrating/runtime/write-gate-state.json`
 
 ### .gsd.migrating/runtime/units/
-- *(45 files: 45 .json)*
+- *(52 files: 52 .json)*
 
 ### apps/web/
 - `apps/web/.eslintrc.json`
@@ -323,8 +329,17 @@ Generated: 2026-06-21T08:00:43Z | Files: 383 | Described: 0/383
 ### apps/web/src/app/api/contacts/[id]/
 - `apps/web/src/app/api/contacts/[id]/route.ts`
 
+### apps/web/src/app/api/contacts/[id]/interactions/
+- `apps/web/src/app/api/contacts/[id]/interactions/route.ts`
+
 ### apps/web/src/app/api/health/
 - `apps/web/src/app/api/health/route.ts`
+
+### apps/web/src/app/api/interactions/
+- `apps/web/src/app/api/interactions/route.ts`
+
+### apps/web/src/app/api/interactions/[id]/
+- `apps/web/src/app/api/interactions/[id]/route.ts`
 
 ### apps/web/src/app/crm/contacts/
 - `apps/web/src/app/crm/contacts/page.tsx`
@@ -344,11 +359,16 @@ Generated: 2026-06-21T08:00:43Z | Files: 383 | Described: 0/383
 ### apps/web/src/lib/api/
 - `apps/web/src/lib/api/contacts.test.ts`
 - `apps/web/src/lib/api/contacts.ts`
+- `apps/web/src/lib/api/interactions.test.ts`
+- `apps/web/src/lib/api/interactions.ts`
+- `apps/web/src/lib/api/shared.ts`
 - `apps/web/src/lib/api/types.ts`
 
 ### apps/web/src/lib/db/
 - `apps/web/src/lib/db/contacts.test.ts`
 - `apps/web/src/lib/db/contacts.ts`
+- `apps/web/src/lib/db/interactions.test.ts`
+- `apps/web/src/lib/db/interactions.ts`
 - `apps/web/src/lib/db/prisma.ts`
 
 ### apps/worker/

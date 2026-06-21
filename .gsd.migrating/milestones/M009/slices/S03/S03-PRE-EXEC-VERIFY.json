@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "milestoneId": "M009",
+  "sliceId": "S03",
+  "timestamp": 1782039053489,
+  "status": "fail",
+  "durationMs": 4,
+  "checks": [
+    {
+      "category": "tool",
+      "target": "T04 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: Manual review — navigate to /deals/[id] and verify history timeline displays correctly (does not look like a runnable command)",
+      "blocking": true
+    }
+  ]
+}

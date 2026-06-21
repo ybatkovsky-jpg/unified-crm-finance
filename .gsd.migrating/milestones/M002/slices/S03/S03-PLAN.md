@@ -42,12 +42,12 @@
   - Files: `apps/web/src/app/api/interactions/route.ts`, `apps/web/src/app/api/interactions/[id]/route.ts`, `apps/web/src/app/api/contacts/[id]/interactions/route.ts`
   - Verify: npx next build
 
-- [ ] **T03: Interaction API client + types** `est:25m`
+- [x] **T03: Interaction API client + types** `est:25m`
   Why: Frontend needs a typed API client for interactions like the ContactApiClient from S01. Types must be added to the shared types.ts for InteractionData, create/update inputs.
   - Files: `apps/web/src/lib/api/interactions.ts`, `apps/web/src/lib/api/interactions.test.ts`, `apps/web/src/lib/api/types.ts`
   - Verify: npx tsx --test src/lib/api/interactions.test.ts
 
-- [ ] **T04: Interaction UI components** `est:25m`
+- [x] **T04: Interaction UI components** `est:25m`
   Why: S04 Contact Detail page will embed interaction form and timeline. S03 must build these reusable components now. Depends on shadcn/ui Dialog and Textarea (not yet installed).
   - Files: `apps/web/src/components/crm/interaction-form.tsx`, `apps/web/src/components/crm/interaction-timeline.tsx`, `apps/web/src/components/ui/dialog.tsx`, `apps/web/src/components/ui/textarea.tsx`
   - Verify: npx next build
