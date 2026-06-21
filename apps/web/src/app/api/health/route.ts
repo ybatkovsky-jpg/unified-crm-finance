@@ -8,7 +8,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { getPrismaClient } from '@/lib/db'
+import { prisma } from '@/lib/db/prisma'
 
 interface HealthStatus {
   status: 'UP' | 'DEGRADED' | 'DOWN'
@@ -26,7 +26,6 @@ interface HealthStatus {
  * Checks database connectivity and returns system health status.
  */
 export async function GET(): Promise<NextResponse> {
-  const prisma = getPrismaClient()
   const services: HealthStatus['services'] = {
     db: 'OK',
   }

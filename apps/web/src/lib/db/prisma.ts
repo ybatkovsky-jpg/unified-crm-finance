@@ -6,20 +6,10 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import { PrismaClientOptions } from '@prisma/client/runtime/library';
 
 // Global singleton pattern
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
-};
-
-/**
- * Prisma client configuration with development logging
- */
-const prismaOptions: PrismaClientOptions = {
-  log: process.env.NODE_ENV === 'development'
-    ? ['query', 'error', 'warn'] as const
-    : ['error'] as const,
 };
 
 /**
@@ -28,7 +18,11 @@ const prismaOptions: PrismaClientOptions = {
  */
 export const prisma =
   globalForPrisma.prisma ??
-  new PrismaClient(prismaOptions);
+  new PrismaClient({
+    log: process.env.NODE_ENV === 'development'
+      ? ['query', 'error', 'warn']
+      : ['error'],
+  });
 
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;

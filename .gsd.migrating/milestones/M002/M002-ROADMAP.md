@@ -14,7 +14,7 @@
 
 ## Slices
 
-- [ ] **S01: S01** `risk:high` `depends:[]`
+- [x] **S01: S01** `risk:high` `depends:[]`
   > After this: After this: POST /api/contacts создаёт контакт в БД, GET /api/contacts возвращает JSON-массив, Prisma migrations применены
 
 - [ ] **S02: Contact List UI** `risk:medium` `depends:[S01]`

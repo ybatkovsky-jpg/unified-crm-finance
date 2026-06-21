@@ -1,0 +1,3 @@
+
+Prisma schema warning:
+- Preview feature "fullTextSearch" is deprecated. The functionality can be used without specifying it as a preview feature.

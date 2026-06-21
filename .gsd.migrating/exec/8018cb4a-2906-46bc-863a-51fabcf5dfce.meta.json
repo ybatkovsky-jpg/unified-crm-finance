@@ -1,0 +1,18 @@
+{
+  "id": "8018cb4a-2906-46bc-863a-51fabcf5dfce",
+  "runtime": "node",
+  "purpose": "Run API client test suite T04",
+  "script_chars": 359,
+  "started_at": "2026-06-21T07:15:12.222Z",
+  "finished_at": "2026-06-21T07:15:14.770Z",
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 2548,
+  "stdout_bytes": 2734,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\8018cb4a-2906-46bc-863a-51fabcf5dfce.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\8018cb4a-2906-46bc-863a-51fabcf5dfce.stderr"
+}

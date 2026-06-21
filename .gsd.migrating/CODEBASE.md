@@ -1,7 +1,7 @@
 # Codebase Map
 
-Generated: 2026-06-21T06:04:28Z | Files: 298 | Described: 0/298
-<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T06:04:28Z","fingerprint":"6dd969366847a61ab0e51e067e25cbeb6c65d4fb","fileCount":298,"truncated":false} -->
+Generated: 2026-06-21T07:16:16Z | Files: 299 | Described: 0/299
+<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T07:16:16Z","fingerprint":"7f4ece06e1ecfa83dedabdc2baabddeb1db5cdb0","fileCount":299,"truncated":false} -->
 
 ### (root)/
 - `.gitignore`
@@ -223,6 +223,7 @@ Generated: 2026-06-21T06:04:28Z | Files: 298 | Described: 0/298
 - *(38 files: 38 .json)*
 
 ### apps/web/
+- `apps/web/next-env.d.ts`
 - `apps/web/next.config.ts`
 - `apps/web/package-lock.json`
 - `apps/web/package.json`

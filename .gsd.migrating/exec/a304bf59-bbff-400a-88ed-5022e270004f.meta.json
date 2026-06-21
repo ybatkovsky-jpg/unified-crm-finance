@@ -1,0 +1,18 @@
+{
+  "id": "a304bf59-bbff-400a-88ed-5022e270004f",
+  "runtime": "node",
+  "purpose": "Check Prisma validate and migrate status for M002 S01",
+  "script_chars": 645,
+  "started_at": "2026-06-21T07:15:01.403Z",
+  "finished_at": "2026-06-21T07:15:09.087Z",
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 7684,
+  "stdout_bytes": 397,
+  "stderr_bytes": 148,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\a304bf59-bbff-400a-88ed-5022e270004f.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\a304bf59-bbff-400a-88ed-5022e270004f.stderr"
+}

@@ -1,0 +1,20 @@
+▶ ContactRepository
+  ✔ should create a new contact (50.5926ms)
+  ✔ should find contact by ID (2.1988ms)
+  ✔ should find contact by email (2.1701ms)
+  ✔ should find many contacts (2.1689ms)
+  ✔ should update a contact (7.0203ms)
+  ✔ should soft delete a contact (12.8896ms)
+  ✔ should check email existence (22.5461ms)
+  ✔ should count contacts (1.932ms)
+  ✔ cleanup test data (14.8514ms)
+✔ ContactRepository (119.0192ms)
+ℹ tests 9
+ℹ suites 1
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 851.7996
+

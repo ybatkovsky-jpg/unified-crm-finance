@@ -1,0 +1,75 @@
+API request failed: 500 {
+  error: 'Failed to fetch contacts',
+  message: 'Database connection error'
+}
+API request failed: 404 {
+  error: 'Not found',
+  message: 'Contact with id 550e8400-e29b-41d4-a716-446655440000 not found'
+}
+API request failed: 400 {
+  error: 'Validation failed',
+  message: 'firstName is required for person contacts'
+}
+API request failed: 400 {
+  error: 'Validation failed',
+  message: 'companyName is required for company contacts'
+}
+API request failed: 400 { error: 'Validation failed', message: 'phone is required' }
+API request failed: 404 {
+  error: 'Not found',
+  message: 'Contact with id 550e8400-e29b-41d4-a716-446655440000 not found'
+}
+API request failed: 404 {
+  error: 'Not found',
+  message: 'Contact with id 550e8400-e29b-41d4-a716-446655440000 not found'
+}
+▶ ContactApiClient
+  ▶ getContacts
+    ✔ should return contacts list (1.8791ms)
+    ✔ should pass type filter in query params (0.6116ms)
+    ✔ should pass status filter in query params (0.541ms)
+    ✔ should handle API error response (2.3689ms)
+    ✔ should handle empty response (1.9586ms)
+  ✔ getContacts (8.8225ms)
+  ▶ getContact
+    ✔ should return single contact by ID (0.6343ms)
+    ✔ should throw error when ID is empty (0.4144ms)
+    ✔ should handle 404 response (0.6706ms)
+    ✔ should build correct URL for contact ID (0.4476ms)
+  ✔ getContact (2.6625ms)
+  ▶ createContact
+    ✔ should create new contact and return it (0.5574ms)
+    ✔ should handle validation error (missing firstName for person) (0.6578ms)
+    ✔ should handle validation error (missing companyName for company) (0.6149ms)
+    ✔ should handle missing phone error (0.669ms)
+    ✔ should send POST request (0.4004ms)
+  ✔ createContact (3.2338ms)
+  ▶ updateContact
+    ✔ should update contact and return updated data (0.4622ms)
+    ✔ should throw error when ID is empty (0.3739ms)
+    ✔ should handle 404 when contact not found (0.5122ms)
+    ✔ should send PUT request (0.4616ms)
+  ✔ updateContact (2.0496ms)
+  ▶ deleteContact
+    ✔ should soft-delete contact and return message (1.4622ms)
+    ✔ should throw error when ID is empty (0.4415ms)
+    ✔ should handle 404 when contact not found (0.5987ms)
+    ✔ should send DELETE request (0.3345ms)
+  ✔ deleteContact (3.0633ms)
+  ▶ ApiClientError
+    ✔ should have correct error properties (0.2078ms)
+  ✔ ApiClientError (0.3039ms)
+  ▶ singleton instance
+    ✔ should export default singleton (0.2309ms)
+    ✔ should export convenience methods (0.1703ms)
+  ✔ singleton instance (0.5423ms)
+✔ ContactApiClient (21.9586ms)
+ℹ tests 25
+ℹ suites 8
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 407.0983
+

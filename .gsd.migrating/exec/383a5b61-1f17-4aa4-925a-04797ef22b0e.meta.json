@@ -1,0 +1,18 @@
+{
+  "id": "383a5b61-1f17-4aa4-925a-04797ef22b0e",
+  "runtime": "node",
+  "purpose": "Run contacts DB test suite T02",
+  "script_chars": 358,
+  "started_at": "2026-06-21T07:15:09.110Z",
+  "finished_at": "2026-06-21T07:15:12.206Z",
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 3096,
+  "stdout_bytes": 558,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\383a5b61-1f17-4aa4-925a-04797ef22b0e.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\383a5b61-1f17-4aa4-925a-04797ef22b0e.stderr"
+}

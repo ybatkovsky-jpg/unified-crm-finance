@@ -1,17 +1,25 @@
 # GSD State
 
-**Active Milestone:** None
-**Active Slice:** None
-**Phase:** pre-planning
-**Requirements Status:** 0 active · 0 validated · 0 deferred · 0 out of scope
+**Active Milestone:** M002: CRM модуль
+**Active Slice:** S02: Contact List UI
+**Phase:** executing
+**Requirements Status:** 18 active · 2 validated · 0 deferred · 0 out of scope
 
 ## Milestone Registry
+- ✅ **M001:** Инфраструктура и модель данных
+- 🔄 **M002:** CRM модуль
+- ⬜ **M003:** Сделки и контракты
+- ⬜ **M004:** Проекты
+- ⬜ **M005:** Закупки
+- ⬜ **M006:** Финансы
+- ⬜ **M007:** Аналитика
+- ⬜ **M008:** Уведомления
 
 ## Recent Decisions
 - None recorded
 
 ## Blockers
-- DB unavailable — runtime markdown state derivation is disabled
+- None
 
 ## Next Action
-Open or create the canonical GSD database before deriving workflow state.
+Execute T01: Bootstrap Tailwind CSS v4 + shadcn/ui + lucide-react in slice S02.

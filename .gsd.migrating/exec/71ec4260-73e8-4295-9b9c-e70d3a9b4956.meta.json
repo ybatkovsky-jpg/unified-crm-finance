@@ -1,0 +1,18 @@
+{
+  "id": "71ec4260-73e8-4295-9b9c-e70d3a9b4956",
+  "runtime": "bash",
+  "purpose": "Prisma validate and migrate status for M002 S01",
+  "script_chars": 63,
+  "started_at": "2026-06-21T07:14:51.518Z",
+  "finished_at": "2026-06-21T07:14:51.601Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 83,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\71ec4260-73e8-4295-9b9c-e70d3a9b4956.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\71ec4260-73e8-4295-9b9c-e70d3a9b4956.stderr"
+}
