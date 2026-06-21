@@ -1,7 +1,7 @@
 # Codebase Map
 
-Generated: 2026-06-21T15:11:50Z | Files: 500 | Described: 0/500
-<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T15:11:50Z","fingerprint":"d0ea020af3db249e3f079196fa45932118746878","fileCount":500,"truncated":true} -->
+Generated: 2026-06-21T22:30:23Z | Files: 500 | Described: 0/500
+<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T22:30:23Z","fingerprint":"40e2ba7482eea76ee4e30dfe81af2f361272a74d","fileCount":500,"truncated":true} -->
 Note: Truncated to first 500 files. Run with higher --max-files to include all.
 
 ### (root)/
@@ -35,7 +35,7 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 - `.gsd.migrating/STATE.md.tmp.467ae258`
 
 ### .gsd.migrating/activity/
-- *(102 files: 102 .jsonl)*
+- *(109 files: 109 .jsonl)*
 
 ### .gsd.migrating/adr/
 - `.gsd.migrating/adr/002-data-model.md`
@@ -44,7 +44,7 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 - `.gsd.migrating/audit/events.jsonl`
 
 ### .gsd.migrating/exec/
-- *(57 files: 19 .json, 19 .stderr, 19 .stdout)*
+- *(69 files: 23 .json, 23 .stderr, 23 .stdout)*
 
 ### .gsd.migrating/graphs/
 - `.gsd.migrating/graphs/graph.json`
@@ -301,7 +301,10 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 - `.gsd.migrating/milestones/M003/slices/S02/tasks/T02-SUMMARY.md`
 - `.gsd.migrating/milestones/M003/slices/S02/tasks/T03-PLAN.md`
 - `.gsd.migrating/milestones/M003/slices/S02/tasks/T03-SUMMARY.md`
+- `.gsd.migrating/milestones/M003/slices/S02/tasks/T03-VERIFY.json`
 - `.gsd.migrating/milestones/M003/slices/S02/tasks/T04-PLAN.md`
+- `.gsd.migrating/milestones/M003/slices/S02/tasks/T04-SUMMARY.md`
+- `.gsd.migrating/milestones/M003/slices/S02/tasks/T04-VERIFY.json`
 
 ### .gsd.migrating/milestones/M003/slices/S03/
 - `.gsd.migrating/milestones/M003/slices/S03/S03-PLAN.md`
@@ -379,4 +382,4 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 - `.gsd.migrating/runtime/M002-S01-reactive.json`
 
 ### .gsd.migrating/runtime/units/
-- *(55 files: 55 .json)*
+- *(33 files: 33 .json)*

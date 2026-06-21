@@ -1,6 +1,10 @@
 {
-  "verifiedDepthMilestones": [],
-  "verifiedApprovalGates": [],
+  "verifiedDepthMilestones": [
+    "M004"
+  ],
+  "verifiedApprovalGates": [
+    "depth_verification_M004_confirm"
+  ],
   "activeQueuePhase": false,
   "pendingGateId": null
 }

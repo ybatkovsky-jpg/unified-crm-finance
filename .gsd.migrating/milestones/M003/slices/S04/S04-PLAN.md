@@ -1,46 +1,47 @@
-# S04: Contract API
+# S04: Contract Repository, API, and Deal Conversion
 
-**Goal:** Создать полный API для работы с договорами: CRUD, шаблоны, версии, подписанты, конвертация из сделки
-**Demo:** CRUD для контрактов, шаблонов, версий, подписантов. Конвертация сделки в контракт.
+**Goal:** Contract Repository, API, and Deal Conversion — Fix critical issues in ContractRepository (transaction safety, import consistency), add comprehensive unit tests for ContractRepository (14 methods) and ContractApiClient (11 methods) using node:test pattern established in S01/M002
+**Demo:** POST /api/deals/[id]/convert создаёт Contract из Deal, устанавливает bidirectional link; ContractRepository.addVersion инкрементирует номер версии; ContractRepository.addSigner добавляет подписанта
 
 ## Must-Haves
 
-- GET /api/contracts возвращает список с фильтрами. POST создаёт контракт с автонумерацией Д-YYYY-NNNNN. GET /api/contracts/[id] с include versions/signers. POST /api/contracts/[id]/versions создаёт версию. POST /api/contracts/[id]/signers добавляет подписанта. POST /api/deals/[id]/convert конвертирует сделку в контракт.
+- ContractRepository.convertFromDeal wrapped in prisma.$transaction() for atomic bidirectional link creation\n- All contract API routes use consistent @/lib/db/contracts import style\n- ContractRepository tests pass: cd apps/web && npx tsx --test src/lib/db/contracts.test.ts (0 failures)\n- ContractApiClient tests pass: cd apps/web && npx tsx --test src/lib/api/contracts.test.ts (0 failures)\n- All 14 repository methods covered: findMany, findUnique, findByContact, findByDeal, create, update, softDelete, count, addVersion, getVersions, addSigner, getSigners, convertFromDeal\n- All 11 client methods covered: getContracts, getContract, createContract, updateContract, deleteContract, getVersions, addVersion, getSigners, addSigner, convertDeal
 
 ## Proof Level
 
-- This slice proves: API tests pass, конвертация Deal→Contract работает корректно, версии записываются
+- This slice proves: contract
 
 ## Integration Closure
 
-ContractRepository использует Prisma, связывается с Deal (dealId), Contact (contactId), ContractTemplate (templateId)
+- ContractRepository wraps convertFromDeal in transaction for atomic bidirectional link creation (deal.contractId + contract.dealId)\n- ContractApiClient follows established pattern with mockable fetch and typed methods\n- Test coverage mirrors S01 pattern: repository tests use real Prisma, client tests use mocked fetch\n- API routes (/api/contracts/*, /api/deals/[id]/convert) ready for S05 contract pages
 
 ## Verification
 
-- Structured logs для CRUD операций, ошибки логируются с контекстом (entityType, entityId, action)
+- Test assertion errors provide descriptive failure messages for debugging\n- No runtime observability changes in this slice (test coverage only)
 
 ## Tasks
 
-- [x] **T01: ContractRepository с версионностью** `est:3h`
-  Создать apps/web/src/lib/db/contracts.ts с ContractRepository. Методы: findMany, findUnique, findById, create (генерация номера Д-YYYY-NNNNN), update, softDelete. Методы для версий: addVersion, getVersions. Методы для подписантов: addSigner, getSigners. Метод convertFromDeal для конвертации сделки в контракт.
-  - Files: `apps/web/src/lib/db/contracts.ts`
-  - Verify: npm run test -- contracts.test.ts
+- [x] **T01: Fix ContractRepository critical issues: transaction safety and import consistency** `est:30m`
+  ## Why
+  ConvertFromDeal creates a contract then updates the deal in two separate steps without transaction wrapping. If the deal update fails, an orphaned contract exists. Also, contracts/route.ts uses relative imports while other routes use @/ aliases.
+  - Files: `apps/web/src/lib/db/contracts.ts`, `apps/web/src/app/api/contracts/route.ts`
+  - Verify: grep -q "prisma.\$transaction" apps/web/src/lib/db/contracts.ts && grep -q "from '@/lib/db/contracts'" apps/web/src/app/api/contracts/route.ts && echo '✅ T01 fixes verified'
 
-- [x] **T02: Contract API routes** `est:2h`
-  Создать API route handlers: apps/web/src/app/api/contracts/route.ts (GET list, POST create), apps/web/src/app/api/contracts/[id]/route.ts (GET one, PATCH update, DELETE soft delete), apps/web/src/app/api/contracts/[id]/versions/route.ts (GET list, POST create), apps/web/src/app/api/contracts/[id]/signers/route.ts (GET list, POST add).
-  - Files: `apps/web/src/app/api/contracts/route.ts`, `apps/web/src/app/api/contracts/[id]/route.ts`, `apps/web/src/app/api/contracts/[id]/versions/route.ts`, `apps/web/src/app/api/contracts/[id]/signers/route.ts`
-  - Verify: Тестирование curl командами
+- [x] **T02: Add ContractRepository unit tests (14 methods)** `est:1h`
+  ## Why
+  ContractRepository has zero test coverage. Following S01/M002 pattern, comprehensive unit tests verify each method works correctly with real Prisma.
+  - Files: `apps/web/src/lib/db/contracts.test.ts`
+  - Verify: cd apps/web && npx tsx --test src/lib/db/contracts.test.ts
 
-- [x] **T03: Convert Deal to Contract** `est:1h`
-  Добавить POST /api/deals/[id]/convert endpoint для конвертации сделки в контракт. Создаёт Contract с данными из Deal, связывает dealId, выставляет status='draft'.
-  - Files: `apps/web/src/app/api/deals/[id]/convert/route.ts`
-  - Verify: curl тест: создать сделку, конвертировать, проверить связку
+- [x] **T03: Add ContractApiClient unit tests (11 methods)** `est:45m`
+  ## Why
+  ContractApiClient has zero test coverage. Following S01/M002 pattern, unit tests with mocked fetch verify correct HTTP requests, URLs, methods, and error handling.
+  - Files: `apps/web/src/lib/api/contracts.test.ts`
+  - Verify: cd apps/web && npx tsx --test src/lib/api/contracts.test.ts
 
 ## Files Likely Touched
 
 - apps/web/src/lib/db/contracts.ts
 - apps/web/src/app/api/contracts/route.ts
-- apps/web/src/app/api/contracts/[id]/route.ts
-- apps/web/src/app/api/contracts/[id]/versions/route.ts
-- apps/web/src/app/api/contracts/[id]/signers/route.ts
-- apps/web/src/app/api/deals/[id]/convert/route.ts
+- apps/web/src/lib/db/contracts.test.ts
+- apps/web/src/lib/api/contracts.test.ts

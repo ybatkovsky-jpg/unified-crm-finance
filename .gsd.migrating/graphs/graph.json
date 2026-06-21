@@ -416,26 +416,26 @@
     },
     {
       "id": "slice:M003:S04",
-      "label": "S04: Contract API",
+      "label": "S04: Contract Repository, API, and Deal Conversion",
       "type": "slice",
       "confidence": "EXTRACTED",
       "sourceFile": "milestones/M003/slices/S04/S04-PLAN.md"
     },
     {
       "id": "task:M003:S04:T01",
-      "label": "T01: ContractRepository с версионностью",
+      "label": "T01: Fix ContractRepository critical issues: transaction safety and import consistency",
       "type": "task",
       "confidence": "EXTRACTED"
     },
     {
       "id": "task:M003:S04:T02",
-      "label": "T02: Contract API routes",
+      "label": "T02: Add ContractRepository unit tests (14 methods)",
       "type": "task",
       "confidence": "EXTRACTED"
     },
     {
       "id": "task:M003:S04:T03",
-      "label": "T03: Convert Deal to Contract",
+      "label": "T03: Add ContractApiClient unit tests (11 methods)",
       "type": "task",
       "confidence": "EXTRACTED"
     },
@@ -922,5 +922,5 @@
       "confidence": "EXTRACTED"
     }
   ],
-  "builtAt": "2026-06-21T15:15:31.681Z"
+  "builtAt": "2026-06-21T15:41:42.643Z"
 }

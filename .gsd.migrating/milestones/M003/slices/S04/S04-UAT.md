@@ -1,49 +1,61 @@
-# S04: Contract API — UAT
+# S04: Contract Repository, API, and Deal Conversion — UAT
 
-**Milestone:** M009
-**Written:** 2026-06-21T09:39:02.346Z
+**Milestone:** M003
+**Written:** 2026-06-21T15:41:42.525Z
 
-## UAT: Contract API
+# UAT: Contract Repository, API, and Deal Conversion
 
-### 1. Create Contract
-```bash
-curl -X POST http://localhost:3000/api/contracts \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Test Contract","contactId":"contact-id","amount":500000}'
-```
+## Preconditions
+- Dev server running or API routes accessible
+- Database initialized with test data (contacts, deals)
+- User has access to API testing tools (curl, Postman, or similar)
 
-Expected: 201 response, contract with number Д-2026-XXXXX
+## Test Cases
 
-### 2. List Contracts
-```bash
-curl http://localhost:3000/api/contracts?status=draft
-```
+### 1. Deal Conversion Creates Contract with Bidirectional Link
+**Steps:**
+1. Create a test deal via POST /api/deals with contactId and amount
+2. Call POST /api/deals/[dealId]/convert
+3. Verify response contains contract with Д-YYYY-NNNNN number format
+4. Query the deal via GET /api/deals/[dealId] — confirm contractId is set
+5. Query the contract via GET /api/contracts/[contractId] — confirm dealId is set
 
-Expected: 200 response with contracts array
+**Expected Outcome:** Contract created with auto-numbered Д-YYYY-NNNNN format; both deal.contractId and contract.dealId reference each other
 
-### 3. Add Version
-```bash
-curl -X POST http://localhost:3000/api/contracts/{id}/versions \
-  -H "Content-Type: application/json" \
-  -d '{"contentMd":"# Contract v1\nTerms...","createdBy":"user-id"}'
-```
+**Edge Cases:**
+- Converting already-converted deal returns 409 error
+- Converting non-existent deal returns 404 error
 
-Expected: 201 response, version.number = 1
+### 2. Contract Version Management
+**Steps:**
+1. Create a contract via POST /api/contracts
+2. Call POST /api/contracts/[contractId]/versions with fileUrl and changes
+3. Call GET /api/contracts/[contractId]/versions
 
-### 4. Add Signer
-```bash
-curl -X POST http://localhost:3000/api/contracts/{id}/signers \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Ivan Ivanov","position":"Director"}'
-```
+**Expected Outcome:** Version number auto-increments (v1, v2, v3...); versions returned in descending order
 
-Expected: 201 response, signer created
+### 3. Contract Signer Management
+**Steps:**
+1. Create a contract via POST /api/contracts
+2. Call POST /api/contracts/[contractId]/signers with name and optional position
+3. Call GET /api/contracts/[contractId]/signers
 
-### 5. Convert Deal to Contract
-```bash
-curl -X POST http://localhost:3000/api/deals/{id}/convert \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Contract from Deal"}'
-```
+**Expected Outcome:** Signers created with name/position; returned in ascending ID order
 
-Expected: 201 response, contract created, deal.contractId set
+### 4. Contract Filtering
+**Steps:**
+1. Create multiple contracts with different statuses (draft, active, signed)
+2. Call GET /api/contracts?status=active
+3. Call GET /api/contracts?contactId=[someContactId]
+
+**Expected Outcome:** Filter parameters correctly subset results; soft-deleted contracts excluded from default queries
+
+---
+
+## UAT Type
+Functional Testing — Verifies business logic for contract lifecycle, deal conversion, versioning, and signer management
+
+## Not Proven By This UAT
+- UI integration (covered by S05 contract pages)
+- Concurrent transaction scenarios (single-threaded test environment)
+- Performance under load (no stress testing performed)

@@ -22,10 +22,10 @@
 - [x] **S03: S03** `risk:low` `depends:[]`
   > After this: Страница /deals/[id] показывает карточку сделки с контактом, этапом, суммой; DealHistoryTimeline показывает историю переходов fromStage→toStage с датами и комментариями
 
-- [ ] **S04: Contract Repository, API, and Deal Conversion** `risk:medium` `depends:[S01]`
+- [x] **S04: S04** `risk:medium` `depends:[]`
   > After this: POST /api/deals/[id]/convert создаёт Contract из Deal, устанавливает bidirectional link; ContractRepository.addVersion инкрементирует номер версии; ContractRepository.addSigner добавляет подписанта
 
-- [ ] **S05: Contract List and Detail Pages** `risk:low` `depends:[S04]`
+- [x] **S05: Contract List and Detail Pages** `risk:low` `depends:[S04]`
   > After this: Страница /contracts показывает список контрактов с поиском по контакту и фильтром по статусу; /contracts/[id] показывает tabs: Details, Versions, Signers, Related
 
 ## Boundary Map

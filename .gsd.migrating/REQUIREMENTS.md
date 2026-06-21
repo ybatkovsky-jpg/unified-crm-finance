@@ -166,8 +166,8 @@ This file is the explicit capability and coverage contract for the project.
 - Description: Модуль сделки: pipeline, этапы, статусы
 - Why it matters: Управление продажами от лида до закрытия
 - Source: inferred
-- Primary owning slice: M003
-- Validation: M003实现了完整的Deals模块：CRUD API (S01), Kanban board с drag-and-drop (S02), Deal detail page с history timeline (S03)。Pipeline с 8 стадиями, DealHistory запись при перемещении этапов。
+- Primary owning slice: M009
+- Validation: S01: 78 tests passed (34 repo + 44 API); S02: Kanban Board with 8 stages, drag-drop; S03: DealHistoryTimeline integrated; S04: Transaction-safe deal→contract conversion
 
 ### R012 — Модуль контракты: документы, этапы, подписи
 - Class: core-capability
@@ -175,8 +175,8 @@ This file is the explicit capability and coverage contract for the project.
 - Description: Модуль контракты: документы, этапы, подписи
 - Why it matters: Юридическое оформление сделок
 - Source: inferred
-- Primary owning slice: M003
-- Validation: M003实现了完整的Contracts模块：Contract API с версионностью и подписантами (S04), Contracts list и detail pages с tabs (S05)。Конвертация Deal→Contract с одним кликом, автонумерация Д-YYYY-NNNNN。
+- Primary owning slice: M009
+- Validation: S04: ContractRepository with transaction safety, 57 tests (16 repo + 41 API); versioning with MAX+1 pattern; signer management; bidirectional deal→contract link
 
 ## Deferred
 
@@ -196,8 +196,8 @@ This file is the explicit capability and coverage contract for the project.
 | R008 | constraint | active | M001/S01 | none | unmapped |
 | R009 | constraint | active | M001/S02 | none | unmapped |
 | R010 | core-capability | validated | M002 | none | Contact CRUD API (S01), Contact List UI (S02), Interactions API & UI (S03), Contact Detail Page (S04) — 100+ тестов pass, zero build errors, dev server verified |
-| R011 | core-capability | validated | M003 | none | M003实现了完整的Deals模块：CRUD API (S01), Kanban board с drag-and-drop (S02), Deal detail page с history timeline (S03)。Pipeline с 8 стадиями, DealHistory запись при перемещении этапов。 |
-| R012 | core-capability | validated | M003 | none | M003实现了完整的Contracts模块：Contract API с версионностью и подписантами (S04), Contracts list и detail pages с tabs (S05)。Конвертация Deal→Contract с одним кликом, автонумерация Д-YYYY-NNNNN。 |
+| R011 | core-capability | validated | M009 | none | S01: 78 tests passed (34 repo + 44 API); S02: Kanban Board with 8 stages, drag-drop; S03: DealHistoryTimeline integrated; S04: Transaction-safe deal→contract conversion |
+| R012 | core-capability | validated | M009 | none | S04: ContractRepository with transaction safety, 57 tests (16 repo + 41 API); versioning with MAX+1 pattern; signer management; bidirectional deal→contract link |
 | R013 | core-capability | active | M004 | none | unmapped |
 | R014 | core-capability | active | M005 | none | unmapped |
 | R015 | core-capability | active | M006 | none | unmapped |

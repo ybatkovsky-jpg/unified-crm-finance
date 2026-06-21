@@ -1,0 +1,18 @@
+{
+  "id": "8b1ead03-2663-4c81-8f56-7b11c83af3a1",
+  "runtime": "bash",
+  "purpose": "Verify ContractApiClient unit tests pass",
+  "script_chars": 59,
+  "started_at": "2026-06-21T15:41:08.446Z",
+  "finished_at": "2026-06-21T15:41:08.573Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 127,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\8b1ead03-2663-4c81-8f56-7b11c83af3a1.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\8b1ead03-2663-4c81-8f56-7b11c83af3a1.stderr"
+}

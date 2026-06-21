@@ -1,48 +1,56 @@
 ---
 id: S04
-parent: M009
-milestone: M009
+parent: M003
+milestone: M003
 provides:
-  - []
+  - ["Transaction-safe deal→contract conversion", "Comprehensive test coverage for contracts module (57 tests)", "ContractApiClient ready for S05 contract pages"]
 requires:
   []
 affects:
   []
 key_files:
-  - ["apps/web/src/lib/db/contracts.ts", "apps/web/src/app/api/contracts/route.ts", "apps/web/src/app/api/contracts/[id]/route.ts", "apps/web/src/app/api/contracts/[id]/versions/route.ts", "apps/web/src/app/api/contracts/[id]/signers/route.ts", "apps/web/src/app/api/deals/[id]/convert/route.ts"]
+  - ["apps/web/src/lib/db/contracts.ts", "apps/web/src/lib/api/contracts.ts", "apps/web/src/lib/db/contracts.test.ts", "apps/web/src/lib/api/contracts.test.ts", "apps/web/src/app/api/contracts/route.ts"]
 key_decisions:
-  - ["Версионность контрактов через отдельную таблицу ContractVersion с инкрементом", "Подписи через ContractSigner (много подписантов на один контракт)", "Конвертация Deal→Contract в отдельном endpoint для явного действия"]
+  - ["Use prisma.\$transaction for atomic bidirectional link creation in convertFromDeal", "Follow S01 pattern: repository tests use real Prisma, client tests use mocked fetch", "Auto-increment contract versions using MAX+1 pattern per contract", "Use '@/lib/db/contracts' import alias for API route consistency"]
 patterns_established:
-  - ["Repository паттерн для всех сущностей", "Nested routes для sub-entities (versions, signers)", "Конвертация сущностей через отдельный endpoint"]
+  - ["node:test pattern with describe/it nested suites, before/after hooks for setup/teardown, mock fetch for API client tests"]
 observability_surfaces:
-  - ["console.error для API errors", "404/409/500 статусы с понятными сообщениями", "createdAt/updatedAt для аудита"]
+  - none
 drill_down_paths:
   []
 duration: ""
 verification_result: passed
-completed_at: 2026-06-21T09:39:02.344Z
+completed_at: 2026-06-21T15:41:42.520Z
 blocker_discovered: false
 ---
 
-# S04: Contract API
+# S04: Contract Repository, API, and Deal Conversion
 
-**Contract API с версионностью, подписантами, конвертацией из сделки**
+**Fixed ContractRepository transaction safety for atomic deal→contract conversion; added comprehensive unit tests for ContractRepository (16 tests) and ContractApiClient (41 tests) using node:test pattern**
 
 ## What Happened
 
-Создан полный API для контрактов с версионностью и подписантами.
+Slice S04 completed with three tasks focused on fixing critical issues and adding comprehensive test coverage for the contracts module.
 
-ContractRepository (apps/web/src/lib/db/contracts.ts): методы findMany, findUnique, findByContact, findByDeal, create (автонумерация Д-YYYY-NNNNN), update, softDelete. addVersion (автоинкремент версии), getVersions. addSigner, getSigners. convertFromDeal (конвертация сделки в контракт, связывает dealId).
+**T01: Fixed ContractRepository critical issues** — Wrapped `convertFromDeal` in `prisma.$transaction()` to ensure atomic bidirectional link creation (deal.contractId + contract.dealId). Previously, if the deal update failed after contract creation, an orphaned contract would exist. Fixed import path in contracts API route from relative to `@/lib/db/contracts` alias for consistency with other routes.
 
-API endpoints: GET/POST /api/contracts, GET/PATCH/DELETE /api/contracts/[id], GET/POST /api/contracts/[id]/versions, GET/POST /api/contracts/[id]/signers. POST /api/deals/[id]/convert для конвертации.
+**T02: Added ContractRepository unit tests** — Created comprehensive test suite with 16 tests covering all 14 repository methods using real Prisma. Tests verify CRUD operations, filtering, soft-delete behavior, version auto-increment (MAX+1 pattern), signer management, and transaction-based deal conversion with bidirectional linking. All tests pass with zero failures.
+
+**T03: Added ContractApiClient unit tests** — Created test suite with 41 tests covering all 11 client methods using mocked fetch. Tests verify HTTP methods, URL construction, query parameter passing, validation errors (400/404/500), and network edge cases (fetch rejection, non-JSON responses). All tests pass with zero failures.
+
+Both test suites follow the S01/M002 pattern established for deals: repository tests use real Prisma, client tests use mocked fetch, and both use node:test with descriptive test names.
 
 ## Verification
 
-ContractRepository создан с методами CRUD, версионностью, подписантами. API endpoints работают, конвертация Deal→Contract создана.
+All verification checks passed:
+- ContractRepository tests: 16/16 passed (cd apps/web && npx tsx --test src/lib/db/contracts.test.ts)
+- ContractApiClient tests: 41/41 passed (cd apps/web && npx tsx --test src/lib/api/contracts.test.ts)
+- Transaction wrapping verified: grep confirms `prisma.$transaction` in contracts.ts
+- Import consistency verified: grep confirms `@/lib/db/contracts` in contracts/route.ts
 
 ## Requirements Advanced
 
-None.
+- R012 — ContractRepository.transaction safety for convertFromDeal ensures atomic bidirectional linking; comprehensive test coverage (57 tests total) verifies all CRUD operations, versioning, and signer management
 
 ## Requirements Validated
 
