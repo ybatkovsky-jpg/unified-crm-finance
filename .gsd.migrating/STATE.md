@@ -1,13 +1,13 @@
 # GSD State
 
-**Active Milestone:** M001: Инфраструктура и модель данных
-**Active Slice:** S02: S02
-**Phase:** executing
-**Requirements Status:** 15 active · 2 validated · 0 deferred · 0 out of scope
+**Active Milestone:** M002: CRM модуль
+**Active Slice:** S01: Contact CRUD API
+**Phase:** evaluating-gates
+**Requirements Status:** 18 active · 2 validated · 0 deferred · 0 out of scope
 
 ## Milestone Registry
-- 🔄 **M001:** Инфраструктура и модель данных
-- ⬜ **M002:** CRM модуль
+- ✅ **M001:** Инфраструктура и модель данных
+- 🔄 **M002:** CRM модуль
 - ⬜ **M003:** Сделки и контракты
 - ⬜ **M004:** Проекты
 - ⬜ **M005:** Закупки
@@ -22,4 +22,4 @@
 - None
 
 ## Next Action
-Execute T03: Verified schema contains all 13 models (Identity + Shared + CRM) with proper relations and indexes; implementation uses unified Contact model per specification in slice S02.
+Evaluate 2 quality gate(s) for S01 before execution.

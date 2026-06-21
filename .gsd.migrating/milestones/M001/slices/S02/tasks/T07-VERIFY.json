@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T07",
+  "unitId": "M001/S02/T07",
+  "timestamp": 1782016208254,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f .gsd/adr/002-data-model.md",
+      "exitCode": 1,
+      "durationMs": 32,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q \"## Context\" .gsd/adr/002-data-model.md",
+      "exitCode": 1,
+      "durationMs": 50,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q \"## Decision\" .gsd/adr/002-data-model.md",
+      "exitCode": 1,
+      "durationMs": 41,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q \"Prisma\" .gsd/adr/002-data-model.md",
+      "exitCode": 1,
+      "durationMs": 42,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

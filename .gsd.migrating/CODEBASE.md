@@ -1,7 +1,7 @@
 # Codebase Map
 
-Generated: 2026-06-21T04:21:27Z | Files: 256 | Described: 0/256
-<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T04:21:27Z","fingerprint":"747f794a6f841cee842a2833dcd1d5af1a936395","fileCount":256,"truncated":false} -->
+Generated: 2026-06-21T05:20:49Z | Files: 263 | Described: 0/263
+<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T05:20:49Z","fingerprint":"6f700afa1a4b1fa99218694a81d3f6b291fd0fcb","fileCount":263,"truncated":false} -->
 
 ### (root)/
 - `.gitignore`
@@ -37,7 +37,7 @@ Generated: 2026-06-21T04:21:27Z | Files: 256 | Described: 0/256
 - `.gsd.migrating/STATE.md`
 
 ### .gsd.migrating/activity/
-- *(25 files: 25 .jsonl)*
+- *(28 files: 28 .jsonl)*
 
 ### .gsd.migrating/audit/
 - `.gsd.migrating/audit/events.jsonl`
@@ -229,6 +229,8 @@ Generated: 2026-06-21T04:21:27Z | Files: 256 | Described: 0/256
 - `apps/web/prisma/.keep`
 - `apps/web/prisma/dev.db`
 - `apps/web/prisma/dev.db-journal`
+- `apps/web/prisma/DOCKER_BLOCKER.md`
+- `apps/web/prisma/MIGRATION_PLAN.md`
 - `apps/web/prisma/schema.prisma`
 
 ### apps/web/prisma/migrations/
@@ -236,6 +238,12 @@ Generated: 2026-06-21T04:21:27Z | Files: 256 | Described: 0/256
 
 ### apps/web/prisma/migrations/20260621041233_001_identity/
 - `apps/web/prisma/migrations/20260621041233_001_identity/migration.sql`
+
+### apps/web/prisma/migrations/20260621042334_shared_and_crm/
+- `apps/web/prisma/migrations/20260621042334_shared_and_crm/migration.sql`
+
+### apps/web/scripts/
+- `apps/web/scripts/verify-migrations.sh`
 
 ### apps/worker/
 - `apps/worker/Dockerfile`

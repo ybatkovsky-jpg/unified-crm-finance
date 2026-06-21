@@ -2,26 +2,26 @@
   "schemaVersion": 1,
   "taskId": "T08",
   "unitId": "M001/S02/T08",
-  "timestamp": 1781962336361,
+  "timestamp": 1782016267172,
   "passed": false,
   "discoverySource": "task-plan",
   "checks": [
     {
       "command": "test -f apps/web/src/lib/db.ts",
       "exitCode": 1,
-      "durationMs": 161,
+      "durationMs": 30,
       "verdict": "fail"
     },
     {
       "command": "grep -q \"PrismaClient\" apps/web/src/lib/db.ts",
       "exitCode": 1,
-      "durationMs": 36,
+      "durationMs": 30,
       "verdict": "fail"
     },
     {
       "command": "grep -q \"db:\" apps/web/src/app/api/health/route.ts",
       "exitCode": 1,
-      "durationMs": 32,
+      "durationMs": 31,
       "verdict": "fail"
     }
   ],

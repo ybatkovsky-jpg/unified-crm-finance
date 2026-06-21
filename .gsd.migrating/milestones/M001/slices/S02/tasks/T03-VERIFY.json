@@ -2,20 +2,20 @@
   "schemaVersion": 1,
   "taskId": "T03",
   "unitId": "M001/S02/T03",
-  "timestamp": 1781964189099,
+  "timestamp": 1782016783215,
   "passed": false,
   "discoverySource": "task-plan",
   "checks": [
     {
       "command": "grep -q \"model FinancialReport\" apps/web/prisma/schema.prisma",
       "exitCode": 1,
-      "durationMs": 23,
+      "durationMs": 41,
       "verdict": "fail"
     },
     {
       "command": "grep -q \"relation(\\\"Contract\\\")\" apps/web/prisma/schema.prisma",
       "exitCode": 1,
-      "durationMs": 22,
+      "durationMs": 27,
       "verdict": "fail"
     }
   ],

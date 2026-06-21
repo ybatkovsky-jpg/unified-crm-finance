@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch"]
@@ -11,309 +8,983 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================================================
-// Identity Bounded Context
-// ============================================================================
+model ApprovalRequest {
+  id                                     String    @id
+  type                                   String
+  entityId                               String
+  status                                 String    @default("pending")
+  amount                                 Float?
+  requestedBy                            String
+  decidedBy                              String?
+  requestedAt                            DateTime  @default(now())
+  decidedAt                              DateTime?
+  comment                                String?
+  User_ApprovalRequest_decidedByToUser   User?     @relation("ApprovalRequest_decidedByToUser", fields: [decidedBy], references: [id])
+  User_ApprovalRequest_requestedByToUser User      @relation("ApprovalRequest_requestedByToUser", fields: [requestedBy], references: [id])
 
-model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  name         String
-  passwordHash String
-  phone        String?
-  telegramId   String?
-  avatarUrl    String?
-  isActive     Boolean  @default(true)
-  lastLoginAt  DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  deletedAt    DateTime?
-
-  // Relations
-  userRoles        UserRole[]
-  refreshTokens    RefreshToken[]
-  auditLogs        AuditLog[]
-  notifications    Notification[]
-  contacts         Contact[]         @relation("ContactOwner")
-  deals            Deal[]            @relation("DealManager")
-  projects         Project[]         @relation("ProjectManager")
-  approvalRequests ApprovalRequest[] @relation("ApprovalRequester")
-  approvalDecisions ApprovalRequest[] @relation("ApprovalDecider")
-  interactions     Interaction[]     @relation("InteractionAuthor")
-  uploadedFiles    FileEntity[]
-  comments         Comment[]
-
-  @@index([email])
-  @@index([isActive])
-  @@index([deletedAt])
-}
-
-model Role {
-  id          String @id @default(uuid())
-  code        String @unique // owner | sales | manager | accountant | storekeeper
-  name        String
-  description String?
-  permissions Json   // array of strings: ["deal:read", "contract:sign", etc.]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  users UserRole[]
-
-  @@index([code])
-}
-
-model UserRole {
-  userId String
-  roleId String
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  @@id([userId, roleId])
-  @@index([userId])
-  @@index([roleId])
-}
-
-model RefreshToken {
-  id        String   @id @default(uuid())
-  token     String   @unique
-  userId    String
-  userAgent String?
-  ip        String?
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  revokedAt DateTime?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([token])
-  @@index([expiresAt])
+  @@index([requestedBy])
+  @@index([status])
 }
 
 model AuditLog {
-  id         String   @id @default(uuid())
+  id         String   @id
   userId     String?
-  entityType String   // contact | deal | contract | project | transaction | ...
+  entityType String
   entityId   String
-  action     String   // create | update | delete | restore | login | logout | sync
-  changes    Json?    // { before: {...}, after: {...} }
-  metadata   Json?    // { ip, userAgent, source }
+  action     String
+  changes    Json?
+  metadata   Json?
   createdAt  DateTime @default(now())
+  User       User?    @relation(fields: [userId], references: [id])
 
-  user User? @relation(fields: [userId], references: [id])
-
-  @@index([entityType, entityId])
-  @@index([userId, createdAt])
   @@index([createdAt])
+  @@index([userId, createdAt])
+  @@index([entityType, entityId])
 }
 
-// ============================================================================
-// Placeholder relations for entities defined in other bounded contexts
-// ============================================================================
+model AutomationRule {
+  id        String    @id
+  name      String
+  type      String
+  enabled   Boolean   @default(false)
+  config    Json
+  lastRunAt DateTime?
+  runCount  Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+
+  @@index([enabled])
+}
+
+model BOM {
+  id           String      @id
+  projectId    String      @unique
+  sourceFileId String?     @unique
+  status       String      @default("draft")
+  version      Int         @default(1)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime
+  FileEntity   FileEntity? @relation(fields: [sourceFileId], references: [id])
+  Project      Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  BOMItem      BOMItem[]
+
+  @@index([projectId])
+}
+
+model BOMItem {
+  id                   String                 @id
+  bomId                String
+  rowNumber            Int
+  name                 String
+  article              String?
+  category             String?
+  quantity             Float
+  unit                 String                 @default("шт")
+  price                Float                  @default(0)
+  supplierId           String?
+  status               String                 @default("pending")
+  isFromWarehouse      Boolean                @default(false)
+  notes                String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime
+  Counterparty         Counterparty?          @relation(fields: [supplierId], references: [id])
+  BOM                  BOM                    @relation(fields: [bomId], references: [id], onDelete: Cascade)
+  InvoiceItem          InvoiceItem[]
+  PurchaseRequestItem  PurchaseRequestItem[]
+  WarehouseTransaction WarehouseTransaction[]
+
+  @@index([status])
+  @@index([supplierId])
+  @@index([bomId])
+}
+
+model Budget {
+  id         String   @id
+  projectId  String
+  categoryId String
+  amount     Float
+  period     String
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  Category   Category @relation(fields: [categoryId], references: [id])
+  Project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, categoryId, period])
+}
+
+model CashFlowPayment {
+  id             String        @id
+  date           DateTime
+  amount         Float
+  type           String
+  counterpartyId String?
+  projectId      String?
+  invoiceId      String?
+  description    String?
+  status         String        @default("planned")
+  dueDate        DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime
+  Project        Project?      @relation(fields: [projectId], references: [id])
+  Counterparty   Counterparty? @relation(fields: [counterpartyId], references: [id])
+
+  @@index([status, date])
+  @@index([projectId, date])
+}
+
+model Category {
+  id                 String               @id
+  name               String
+  type               String
+  parentId           String?
+  order              Int                  @default(0)
+  isActive           Boolean              @default(true)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime
+  Budget             Budget[]
+  Category           Category?            @relation("CategoryToCategory", fields: [parentId], references: [id])
+  other_Category     Category[]           @relation("CategoryToCategory")
+  ClassificationRule ClassificationRule[]
+  Transaction        Transaction[]
+
+  @@index([parentId])
+  @@index([type])
+}
+
+model ClassificationRule {
+  id                  String   @id
+  keyword             String
+  categoryId          String
+  counterpartyKeyword String?
+  projectId           String?
+  priority            Int      @default(0)
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime
+  Category            Category @relation(fields: [categoryId], references: [id])
+}
+
+model Comment {
+  id                String       @id
+  content           String
+  authorId          String
+  relatedEntityType String
+  relatedEntityId   String
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime
+  User              User         @relation(fields: [authorId], references: [id])
+  FileEntity        FileEntity[]
+
+  @@index([relatedEntityType, relatedEntityId])
+  @@index([authorId])
+}
 
 model Contact {
-  id          String   @id @default(uuid())
-  type        String   // person | company
-  // Person fields
-  firstName   String?
-  lastName    String?
-  middleName  String?
-  // Company fields
-  companyName String?
-  inn         String?
-  kpp         String?
-  ogrn        String?
-  // Common fields
-  email       String?
-  phone       String?
-  address     String?
+  id              String        @id
+  type            String
+  firstName       String?
+  lastName        String?
+  middleName      String?
+  companyName     String?
+  inn             String?
+  kpp             String?
+  ogrn            String?
+  email           String?
+  phone           String?
+  address         String?
   physicalAddress String?
-  position    String?  // for person contact at company
-  notes       String?
-  // Relations
-  sourceId    String?  // LeadSource.id
-  ownerId     String?  // User.id
-  status      String   @default("active") // active | blacklisted | archived
-  tags        Json?    @default("[]")  // JSON array for SQLite compatibility
-  attributes  Json?    // additional custom fields
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
+  position        String?
+  notes           String?
+  sourceId        String?
+  ownerId         String?
+  status          String        @default("active")
+  tags            Json?         @default("[]")
+  attributes      Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime
+  deletedAt       DateTime?
+  LeadSource      LeadSource?   @relation(fields: [sourceId], references: [id])
+  User            User?         @relation(fields: [ownerId], references: [id])
+  Contract        Contract[]
+  Deal            Deal[]
+  Event           Event[]
+  Interaction     Interaction[]
+  Lead            Lead[]
+  Project         Project[]
+  Task            Task[]
 
-  owner  User?       @relation("ContactOwner", fields: [ownerId], references: [id])
-  source LeadSource? @relation(fields: [sourceId], references: [id])
-  leads  Lead[]
-  interactions Interaction[]
-
-  @@index([email])
-  @@index([phone])
-  @@index([inn])
-  @@index([ownerId])
-  @@index([status])
   @@index([deletedAt])
+  @@index([status])
+  @@index([ownerId])
+  @@index([inn])
+  @@index([phone])
+  @@index([email])
+}
+
+model Contract {
+  id               String            @id
+  number           String            @unique
+  dealId           String?           @unique
+  contactId        String
+  templateId       String?
+  title            String
+  amount           Float             @default(0)
+  currency         String            @default("RUB")
+  startDate        DateTime?
+  endDate          DateTime?
+  signedAt         DateTime?
+  status           String            @default("draft")
+  signedFileId     String?
+  notes            String?
+  attributes       Json?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime
+  deletedAt        DateTime?
+  FileEntity       FileEntity?       @relation(fields: [signedFileId], references: [id])
+  ContractTemplate ContractTemplate? @relation(fields: [templateId], references: [id])
+  Contact          Contact           @relation(fields: [contactId], references: [id])
+  ContractSigner   ContractSigner[]
+  ContractVersion  ContractVersion[]
+
+  @@index([dealId])
+  @@index([status])
+  @@index([contactId])
+}
+
+model ContractSigner {
+  id              String    @id
+  contractId      String
+  name            String
+  position        String?
+  signedAt        DateTime?
+  signatureFileId String?
+  Contract        Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@index([contractId])
+}
+
+model ContractTemplate {
+  id          String     @id
+  code        String     @unique
+  name        String
+  description String?
+  contentMd   String
+  variables   Json
+  isActive    Boolean    @default(true)
+  version     Int        @default(1)
+  createdBy   String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
+  Contract    Contract[]
+}
+
+model ContractVersion {
+  id                 String      @id
+  contractId         String
+  version            Int
+  contentMd          String
+  generatedPdfFileId String?
+  createdBy          String
+  createdAt          DateTime    @default(now())
+  FileEntity         FileEntity? @relation(fields: [generatedPdfFileId], references: [id])
+  Contract           Contract    @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@unique([contractId, version])
+}
+
+model Counterparty {
+  id              String            @id
+  name            String
+  type            String
+  types           Json              @default("[]")
+  inn             String?
+  kpp             String?
+  email           String?
+  phone           String?
+  contactPerson   String?
+  address         String?
+  bankName        String?
+  bankAccount     String?
+  korAccount      String?
+  bik             String?
+  notes           String?
+  rating          Int?
+  attributes      Json?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  deletedAt       DateTime?
+  BOMItem         BOMItem[]
+  CashFlowPayment CashFlowPayment[]
+  Delivery        Delivery[]
+  EmailLog        EmailLog[]
+  Invoice         Invoice[]
+  PurchaseRequest PurchaseRequest[]
+  Transaction     Transaction[]
+
+  @@index([type])
+  @@index([inn])
 }
 
 model Deal {
-  id        String @id @default(uuid())
-  managerId String?
+  id                String        @id
+  number            String        @unique
+  title             String
+  pipelineId        String
+  stageId           String
+  contactId         String?
+  amount            Float         @default(0)
+  currency          String        @default("RUB")
+  expectedCloseDate DateTime?
+  actualCloseDate   DateTime?
+  managerId         String?
+  description       String?
+  lossReason        String?
+  attributes        Json?
+  contractId        String?       @unique
+  projectId         String?       @unique
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime
+  closedAt          DateTime?
+  deletedAt         DateTime?
+  User              User?         @relation(fields: [managerId], references: [id])
+  Contact           Contact?      @relation(fields: [contactId], references: [id])
+  DealStage         DealStage     @relation(fields: [stageId], references: [id])
+  Pipeline          Pipeline      @relation(fields: [pipelineId], references: [id])
+  DealHistory       DealHistory[]
+  Event             Event[]
+  Task              Task[]
 
-  manager User? @relation("DealManager", fields: [managerId], references: [id])
-
+  @@index([projectId])
+  @@index([contractId])
+  @@index([expectedCloseDate])
   @@index([managerId])
+  @@index([stageId])
 }
 
-model Project {
-  id        String @id @default(uuid())
-  managerId String?
+model DealHistory {
+  id          String   @id
+  dealId      String
+  fromStageId String?
+  toStageId   String?
+  comment     String?
+  changedBy   String
+  changedAt   DateTime @default(now())
+  Deal        Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
 
-  manager User? @relation("ProjectManager", fields: [managerId], references: [id])
-
-  @@index([managerId])
+  @@index([dealId, changedAt])
 }
 
-model ApprovalRequest {
-  id         String   @id @default(uuid())
-  type       String   // purchase | payment | writeoff
-  entityId   String
-  status     String   @default("pending") // pending | approved | rejected | cancelled
-  amount     Float?
-  requestedBy String
-  decidedBy  String?
-  requestedAt DateTime @default(now())
-  decidedAt  DateTime?
+model DealStage {
+  id          String   @id
+  pipelineId  String
+  code        String
+  name        String
+  order       Int
+  probability Float    @default(0)
+  isWonStage  Boolean  @default(false)
+  isLostStage Boolean  @default(false)
+  color       String?
+  Deal        Deal[]
+  Pipeline    Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
 
-  requester User? @relation("ApprovalRequester", fields: [requestedBy], references: [id])
-  decider   User? @relation("ApprovalDecider", fields: [decidedBy], references: [id])
+  @@unique([pipelineId, code])
+  @@index([pipelineId, order])
+}
 
+model Delivery {
+  id             String       @id
+  projectId      String
+  supplierId     String
+  invoiceId      String?      @unique
+  status         String       @default("pending")
+  trackingNumber String?
+  carrier        String?
+  estimatedDate  DateTime?
+  actualDate     DateTime?
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime
+  Invoice        Invoice?     @relation(fields: [invoiceId], references: [id])
+  Counterparty   Counterparty @relation(fields: [supplierId], references: [id])
+  Project        Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model EmailLog {
+  id           String        @id
+  projectId    String?
+  supplierId   String?
+  direction    String
+  subject      String
+  body         String
+  from         String
+  to           String
+  attachments  Json?
+  sentAt       DateTime      @default(now())
+  createdAt    DateTime      @default(now())
+  Counterparty Counterparty? @relation(fields: [supplierId], references: [id])
+  Project      Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([sentAt])
+  @@index([supplierId])
+  @@index([projectId])
+}
+
+model Event {
+  id              String           @id
+  googleEventId   String?          @unique
+  title           String
+  description     String?
+  location        String?
+  isAllDay        Boolean          @default(false)
+  startAt         DateTime
+  endAt           DateTime
+  status          String           @default("confirmed")
+  eventType       String           @default("meeting")
+  recurrenceId    String?
+  recurrenceRule  String?
+  contactId       String?
+  projectId       String?
+  dealId          String?
+  createdBy       String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime
+  deletedAt       DateTime?
+  EventRecurrence EventRecurrence? @relation(fields: [recurrenceId], references: [id])
+  Deal            Deal?            @relation(fields: [dealId], references: [id])
+  Project         Project?         @relation(fields: [projectId], references: [id])
+  Contact         Contact?         @relation(fields: [contactId], references: [id])
+  EventAttendee   EventAttendee[]
+  Interaction     Interaction?
+
+  @@index([deletedAt])
+  @@index([projectId])
+  @@index([contactId])
   @@index([status])
-  @@index([requestedBy])
+  @@index([endAt])
+  @@index([startAt])
 }
 
-model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  type      String
-  title     String
-  message   String
-  level     String   @default("info")
-  link      String?
-  isRead    Boolean  @default(false)
-  readAt    DateTime?
-  metadata  Json?
-  createdAt DateTime @default(now())
+model EventAttendee {
+  id         String    @id
+  eventId    String
+  userId     String?
+  email      String
+  name       String?
+  status     String    @default("needs_action")
+  responseAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime
+  Event      Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([eventId])
+}
 
-  @@index([userId, isRead])
-  @@index([createdAt])
+model EventRecurrence {
+  id         String    @id
+  frequency  String
+  interval   Int       @default(1)
+  until      DateTime?
+  count      Int?
+  byDay      String?
+  byMonthDay String?
+  createdBy  String
+  createdAt  DateTime  @default(now())
+  Event      Event[]
+
+  @@index([frequency])
+}
+
+model FileEntity {
+  id              String            @id
+  fileName        String
+  storageKey      String
+  mimeType        String?
+  size            Int
+  bucket          String            @default("default")
+  uploadedBy      String?
+  createdAt       DateTime          @default(now())
+  BOM             BOM?
+  Contract        Contract[]
+  ContractVersion ContractVersion[]
+  User            User?             @relation(fields: [uploadedBy], references: [id])
+  Invoice         Invoice?
+  Comment         Comment[]
+  Interaction     Interaction[]
+
+  @@index([uploadedBy])
+}
+
+model GoogleAccount {
+  id             String    @id
+  userId         String
+  email          String
+  refreshToken   String
+  accessToken    String?
+  tokenExpiresAt DateTime?
+  calendarId     String    @default("primary")
+  syncEnabled    Boolean   @default(true)
+  lastSyncAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+
+  @@unique([userId, calendarId])
+  @@index([userId])
+}
+
+model GoogleSyncLog {
+  id            String   @id
+  accountId     String
+  direction     String
+  entityType    String
+  entityId      String
+  googleEventId String?
+  status        String
+  error         String?
+  syncedAt      DateTime @default(now())
+
+  @@index([syncedAt])
+  @@index([entityId])
+  @@index([accountId])
 }
 
 model Interaction {
-  id          String    @id @default(uuid())
+  id          String       @id
   contactId   String
-  type        String    // call | meeting | email | telegram | note | visit
-  direction   String?   // incoming | outgoing
+  type        String
+  direction   String?
   subject     String?
   content     String?
   scheduledAt DateTime?
   completedAt DateTime?
   authorId    String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  eventId     String?      @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime
+  Event       Event?       @relation(fields: [eventId], references: [id])
+  Contact     Contact      @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  User        User         @relation(fields: [authorId], references: [id])
+  FileEntity  FileEntity[]
 
-  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  author  User    @relation("InteractionAuthor", fields: [authorId], references: [id])
-
-  @@index([contactId, completedAt])
-  @@index([authorId])
   @@index([scheduledAt])
-}
-
-// ============================================================================
-// Shared Bounded Context
-// ============================================================================
-
-model FileEntity {
-  id         String   @id @default(uuid())
-  fileName   String
-  storageKey String   // S3/MinIO key
-  mimeType   String?
-  size       Int
-  bucket     String   @default("default")
-  uploadedBy String?
-  createdAt  DateTime @default(now())
-
-  user User? @relation(fields: [uploadedBy], references: [id])
-
-  @@index([uploadedBy])
-}
-
-model Comment {
-  id              String   @id @default(uuid())
-  content         String
-  authorId        String
-  relatedEntityType String  // contact | deal | contract | project | etc.
-  relatedEntityId String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  author User @relation(fields: [authorId], references: [id])
-
   @@index([authorId])
-  @@index([relatedEntityType, relatedEntityId])
+  @@index([contactId, completedAt])
 }
 
-model Tag {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  color     String?
-  createdAt DateTime @default(now())
+model Invoice {
+  id            String        @id
+  number        String        @unique
+  projectId     String
+  supplierId    String
+  invoiceNumber String?
+  totalAmount   Float         @default(0)
+  status        String        @default("received")
+  receivedAt    DateTime      @default(now())
+  paidAt        DateTime?
+  dueDate       DateTime?
+  notes         String?
+  sourceFileId  String?       @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime
+  Delivery      Delivery?
+  FileEntity    FileEntity?   @relation(fields: [sourceFileId], references: [id])
+  Counterparty  Counterparty  @relation(fields: [supplierId], references: [id])
+  Project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  InvoiceItem   InvoiceItem[]
+  Transaction   Transaction[]
+
+  @@index([status])
+  @@index([supplierId])
+  @@index([projectId])
 }
 
-model Category {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  parentId  String?
-  order     Int      @default(0)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model InvoiceItem {
+  id             String   @id
+  invoiceId      String
+  bomItemId      String?
+  name           String
+  quantity       Float
+  price          Float    @default(0)
+  isMatch        Boolean  @default(false)
+  mismatchReason String?
+  BOMItem        BOMItem? @relation(fields: [bomItemId], references: [id])
+  Invoice        Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
-  parent   Category?   @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children Category[]  @relation("CategoryHierarchy")
-
-  @@index([parentId])
+  @@index([invoiceId])
 }
 
-// ============================================================================
-// CRM Bounded Context
-// ============================================================================
+model Lead {
+  id                String    @id
+  contactId         String
+  status            String    @default("new")
+  value             Float?
+  currency          String    @default("RUB")
+  expectedCloseDate DateTime?
+  notes             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime
+  Contact           Contact   @relation(fields: [contactId], references: [id])
+
+  @@index([expectedCloseDate])
+  @@index([status])
+  @@index([contactId])
+}
 
 model LeadSource {
-  id          String    @id @default(uuid())
-  code        String    @unique  // call | office | website | email | telegram | referral | other
+  id          String    @id
+  code        String    @unique
   name        String
   description String?
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
-
-  contacts Contact[]
+  Contact     Contact[]
 }
 
-model Lead {
-  id          String   @id @default(uuid())
-  contactId   String
-  status      String   @default("new") // new | contacted | qualified | converted | lost
-  value       Float?
-  currency    String   @default("RUB")
-  expectedCloseDate DateTime?
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Notification {
+  id        String    @id
+  userId    String
+  type      String
+  title     String
+  message   String
+  level     String    @default("info")
+  link      String?
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  metadata  Json?
+  createdAt DateTime  @default(now())
+  User      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  contact Contact @relation(fields: [contactId], references: [id])
+  @@index([createdAt])
+  @@index([userId, isRead])
+}
 
-  @@index([contactId])
+model PeriodClose {
+  id         String   @id
+  period     String   @unique
+  closedBy   String
+  closedAt   DateTime @default(now())
+  note       String?
+  isReopened Boolean  @default(false)
+}
+
+model Pipeline {
+  id          String      @id
+  code        String      @unique
+  name        String
+  description String?
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  Deal        Deal[]
+  DealStage   DealStage[]
+
+  @@index([isActive])
+}
+
+model Project {
+  id              String            @id
+  externalNumber  String            @unique
+  name            String
+  description     String?
+  dealId          String?           @unique
+  contractId      String?           @unique
+  contactId       String?
+  status          String            @default("lead")
+  contractAmount  Float             @default(0)
+  currency        String            @default("RUB")
+  startDate       DateTime?
+  endDate         DateTime?
+  completedAt     DateTime?
+  marginTarget    Float             @default(0.25)
+  qualityRating   String?
+  deadlineStatus  String            @default("on_track")
+  managerId       String?
+  attributes      Json?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  deletedAt       DateTime?
+  BOM             BOM?
+  Budget          Budget[]
+  CashFlowPayment CashFlowPayment[]
+  Delivery        Delivery[]
+  EmailLog        EmailLog[]
+  Event           Event[]
+  Invoice         Invoice[]
+  User            User?             @relation(fields: [managerId], references: [id])
+  Contact         Contact?          @relation(fields: [contactId], references: [id])
+  ProjectMember   ProjectMember[]
+  ProjectStage    ProjectStage[]
+  PurchaseRequest PurchaseRequest[]
+  Task            Task[]
+  Transaction     Transaction[]
+
+  @@index([contractId])
+  @@index([dealId])
+  @@index([managerId])
   @@index([status])
-  @@index([expectedCloseDate])
+}
+
+model ProjectMember {
+  id        String    @id
+  projectId String
+  userId    String
+  role      String
+  joinedAt  DateTime  @default(now())
+  leftAt    DateTime?
+  User      User      @relation(fields: [userId], references: [id])
+  Project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([userId])
+}
+
+model ProjectStage {
+  id          String    @id
+  projectId   String
+  code        String
+  name        String
+  order       Int
+  status      String    @default("pending")
+  startDate   DateTime?
+  endDate     DateTime?
+  completedAt DateTime?
+  assigneeId  String?
+  notes       String?
+  Project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, code])
+  @@index([projectId, order])
+}
+
+model PurchaseRequest {
+  id                  String                @id
+  number              String                @unique
+  projectId           String
+  supplierId          String
+  status              String                @default("draft")
+  emailTo             String?
+  emailSubject        String?
+  emailBody           String?
+  sentAt              DateTime?
+  responseAt          DateTime?
+  notes               String?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime
+  Counterparty        Counterparty          @relation(fields: [supplierId], references: [id])
+  Project             Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  PurchaseRequestItem PurchaseRequestItem[]
+
+  @@index([status])
+  @@index([supplierId])
+  @@index([projectId])
+}
+
+model PurchaseRequestItem {
+  id              String          @id
+  requestId       String
+  bomItemId       String
+  quantity        Float
+  price           Float           @default(0)
+  available       Boolean         @default(false)
+  availableQty    Float           @default(0)
+  deliveryDays    Int             @default(0)
+  notes           String?
+  BOMItem         BOMItem         @relation(fields: [bomItemId], references: [id])
+  PurchaseRequest PurchaseRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId])
+}
+
+model RefreshToken {
+  id        String    @id
+  token     String    @unique
+  userId    String
+  userAgent String?
+  ip        String?
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+  User      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+  @@index([token])
+  @@index([userId])
+}
+
+model Role {
+  id          String     @id
+  code        String     @unique
+  name        String
+  description String?
+  permissions Json
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
+  UserRole    UserRole[]
+
+  @@index([code])
+}
+
+model Setting {
+  id    String @id
+  key   String @unique
+  value String
+  type  String @default("string")
+}
+
+model SyncLog {
+  id            String    @id
+  source        String
+  status        String
+  recordsTotal  Int       @default(0)
+  recordsSynced Int       @default(0)
+  errors        String?
+  startedAt     DateTime  @default(now())
+  completedAt   DateTime?
+
+  @@index([startedAt])
+  @@index([status])
+  @@index([source])
+}
+
+model Task {
+  id                         String    @id
+  title                      String
+  description                String?
+  type                       String    @default("client")
+  status                     String    @default("todo")
+  priority                   String    @default("medium")
+  dueDate                    DateTime?
+  completedAt                DateTime?
+  contactId                  String?
+  projectId                  String?
+  dealId                     String?
+  assigneeId                 String?
+  createdBy                  String
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime
+  deletedAt                  DateTime?
+  User_Task_createdByToUser  User      @relation("Task_createdByToUser", fields: [createdBy], references: [id])
+  User_Task_assigneeIdToUser User?     @relation("Task_assigneeIdToUser", fields: [assigneeId], references: [id])
+  Deal                       Deal?     @relation(fields: [dealId], references: [id])
+  Project                    Project?  @relation(fields: [projectId], references: [id])
+  Contact                    Contact?  @relation(fields: [contactId], references: [id])
+
+  @@index([deletedAt])
+  @@index([projectId])
+  @@index([contactId])
+  @@index([assigneeId])
+  @@index([dueDate])
+  @@index([priority])
+  @@index([status])
+}
+
+model Transaction {
+  id             String        @id
+  projectId      String?
+  categoryId     String
+  counterpartyId String?
+  invoiceId      String?
+  createdBy      String
+  date           DateTime
+  amount         Float
+  type           String
+  description    String?
+  source         String        @default("manual")
+  externalId     String?
+  status         String        @default("confirmed")
+  fileIds        Json          @default("[]")
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime
+  deletedAt      DateTime?
+  Invoice        Invoice?      @relation(fields: [invoiceId], references: [id])
+  Counterparty   Counterparty? @relation(fields: [counterpartyId], references: [id])
+  Category       Category      @relation(fields: [categoryId], references: [id])
+  Project        Project?      @relation(fields: [projectId], references: [id])
+
+  @@unique([externalId, source, date])
+  @@index([invoiceId])
+  @@index([source])
+  @@index([type, date])
+  @@index([categoryId])
+  @@index([projectId, date])
+}
+
+model User {
+  id                                                String            @id
+  email                                             String            @unique
+  name                                              String
+  passwordHash                                      String
+  phone                                             String?
+  telegramId                                        String?
+  avatarUrl                                         String?
+  isActive                                          Boolean           @default(true)
+  lastLoginAt                                       DateTime?
+  createdAt                                         DateTime          @default(now())
+  updatedAt                                         DateTime
+  deletedAt                                         DateTime?
+  ApprovalRequest_ApprovalRequest_decidedByToUser   ApprovalRequest[] @relation("ApprovalRequest_decidedByToUser")
+  ApprovalRequest_ApprovalRequest_requestedByToUser ApprovalRequest[] @relation("ApprovalRequest_requestedByToUser")
+  AuditLog                                          AuditLog[]
+  Comment                                           Comment[]
+  Contact                                           Contact[]
+  Deal                                              Deal[]
+  FileEntity                                        FileEntity[]
+  Interaction                                       Interaction[]
+  Notification                                      Notification[]
+  Project                                           Project[]
+  ProjectMember                                     ProjectMember[]
+  RefreshToken                                      RefreshToken[]
+  Task_Task_createdByToUser                         Task[]            @relation("Task_createdByToUser")
+  Task_Task_assigneeIdToUser                        Task[]            @relation("Task_assigneeIdToUser")
+  UserRole                                          UserRole[]
+
+  @@index([deletedAt])
+  @@index([isActive])
+  @@index([email])
+}
+
+model UserRole {
+  userId String
+  roleId String
+  Role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+  @@index([userId])
+}
+
+model WarehouseItem {
+  id                   String                 @id
+  name                 String
+  article              String?
+  category             String?
+  quantity             Float                  @default(0)
+  reservedQty          Float                  @default(0)
+  availableQty         Float                  @default(0)
+  minQuantity          Float                  @default(0)
+  unit                 String                 @default("шт")
+  location             String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime
+  WarehouseTransaction WarehouseTransaction[]
+
+  @@index([name])
+  @@index([article])
+}
+
+model WarehouseTransaction {
+  id              String        @id
+  warehouseItemId String
+  bomItemId       String?
+  type            String
+  quantity        Float
+  notes           String?
+  createdAt       DateTime      @default(now())
+  BOMItem         BOMItem?      @relation(fields: [bomItemId], references: [id])
+  WarehouseItem   WarehouseItem @relation(fields: [warehouseItemId], references: [id], onDelete: Cascade)
+
+  @@index([warehouseItemId])
 }

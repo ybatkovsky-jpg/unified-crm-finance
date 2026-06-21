@@ -2,20 +2,20 @@
   "schemaVersion": 1,
   "taskId": "T09",
   "unitId": "M001/S02/T09",
-  "timestamp": 1781963035377,
+  "timestamp": 1782016930217,
   "passed": false,
   "discoverySource": "task-plan",
   "checks": [
     {
       "command": "test -d apps/web/prisma/migrations",
       "exitCode": 1,
-      "durationMs": 34,
+      "durationMs": 23,
       "verdict": "fail"
     },
     {
       "command": "grep -q \"export type FinancialReport\" node_modules/.prisma/client/index.d.ts",
       "exitCode": 1,
-      "durationMs": 34,
+      "durationMs": 21,
       "verdict": "fail"
     }
   ],

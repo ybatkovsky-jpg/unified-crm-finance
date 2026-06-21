@@ -125,6 +125,36 @@ This file is the explicit capability and coverage contract for the project.
 - Source: inferred
 - Primary owning slice: M008
 
+### R018 — Google Calendar two-way sync: события CRM ↔ Google Calendar
+- Class: integration
+- Status: active
+- Description: Google Calendar two-way sync: события CRM ↔ Google Calendar
+- Why it matters: Пользователи работают в Google Calendar — нужна双向 синхронизация встреч, напоминаний, задач с deadline
+- Source: User requirement
+- Primary owning slice: M001
+- Supporting slices: []
+- Validation: Создание встречи в CRM отображается в Google Calendar и наоборот
+
+### R019 — События: история взаимодействий и календарь встреч
+- Class: core-capability
+- Status: active
+- Description: События: история взаимодействий и календарь встреч
+- Why it matters: CRM без истории взаимодействий бесполезен — нельзя отследить коммуникацию с клиентом
+- Source: User requirement
+- Primary owning slice: M001
+- Supporting slices: []
+- Validation: Создание события привязано к контакту, отображается в календаре, есть фильтры по типу и дате
+
+### R020 — Задачи: задачи на взаимодействия с клиентом + внутренние задачи компании
+- Class: core-capability
+- Status: active
+- Description: Задачи: задачи на взаимодействия с клиентом + внутренние задачи компании
+- Why it matters: Нужно разделять клиентские задачи (перезвонить, отправить КП) и внутренние (подготовить отчёт, approve закупку)
+- Source: User requirement
+- Primary owning slice: M001
+- Supporting slices: []
+- Validation: Есть два типа задач с разными вью-списками, фильтрами и workflow
+
 ## Validated
 
 ### R004 — NextAuth + JWT для аутентификации (login/logout/refresh token)
@@ -170,10 +200,13 @@ This file is the explicit capability and coverage contract for the project.
 | R015 | core-capability | active | M006 | none | unmapped |
 | R016 | differentiator | active | M007 | none | unmapped |
 | R017 | failure-visibility | active | M008 | none | unmapped |
+| R018 | integration | active | M001 | [] | Создание встречи в CRM отображается в Google Calendar и наоборот |
+| R019 | core-capability | active | M001 | [] | Создание события привязано к контакту, отображается в календаре, есть фильтры по типу и дате |
+| R020 | core-capability | active | M001 | [] | Есть два типа задач с разными вью-списками, фильтрами и workflow |
 
 ## Coverage Summary
 
-- Active requirements: 15
-- Mapped to slices: 15
+- Active requirements: 18
+- Mapped to slices: 18
 - Validated: 2 (R004, R007)
 - Unmapped active requirements: 0

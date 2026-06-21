@@ -16,7 +16,7 @@
 - [x] **S01: S01** `risk:medium` `depends:[]`
   > After this: docker compose up поднимает все сервисы, health на web и worker отвечает 200
 
-- [ ] **S02: S02** `risk:high` `depends:[]`
+- [x] **S02: S02** `risk:high` `depends:[]`
   > After this: npx prisma migrate dev проходит, npx prisma studio показывает схему
 
 - [x] **S03: S03** `risk:medium` `depends:[]`

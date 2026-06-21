@@ -1,3 +1,8 @@
+# S02: Data Model Specification — UAT
+
+**Milestone:** M001
+**Written:** 2026-06-21T05:07:36.976Z
+
 # S02: S02: Data Model Specification — UAT
 
 **Milestone:** M001
