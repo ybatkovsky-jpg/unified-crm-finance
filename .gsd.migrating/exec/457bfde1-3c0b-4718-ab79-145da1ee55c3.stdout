@@ -1,0 +1,45 @@
+▶ DealRepository
+  ✔ should create a deal with auto-generated UUID and С-YYYY-NNNNN number (41.7649ms)
+  ✔ should create a deal with provided values overriding defaults (6.8379ms)
+  ✔ should generate unique numbers for each deal (13.8431ms)
+  ✔ should findMany returning all non-deleted deals (4.1299ms)
+  ✔ should findMany filtered by pipelineId (5.6258ms)
+  ✔ should findMany filtered by stageId (1.8692ms)
+  ✔ should findMany with status=open (closedAt=null) (5.7079ms)
+  ✔ should findMany with status=closed (closedAt not null) (39.5608ms)
+  ✔ should exclude soft-deleted deals from findMany (44.3616ms)
+  ✔ should findUnique by ID (2.0974ms)
+  ✔ should return null for non-existent ID (18.2922ms)
+  ✔ should return null for soft-deleted deal (45.9477ms)
+  ✔ should findUnique with includes (DealStage, Pipeline, Contact) (7.0747ms)
+  ✔ should findUnique with history include (2.6978ms)
+  ✔ should update valid fields (12.6197ms)
+  ✔ should throw when updating non-existent deal (14.3901ms)
+  ✔ should throw when updating soft-deleted deal (13.6455ms)
+  ✔ should move deal to a new stage and create DealHistory record (39.6696ms)
+  ✔ should allow same-stage move (records history without rejection) (32.7975ms)
+  ✔ should set closedAt and actualCloseDate when moving to won stage (35.2252ms)
+  ✔ should set closedAt and actualCloseDate when moving to lost stage (25.8557ms)
+  ✔ should throw when moving non-existent deal (3.0447ms)
+  ✔ should soft delete a deal (sets deletedAt, excludes from queries) (17.5688ms)
+  ✔ should throw when soft-deleting already deleted deal (14.2024ms)
+  ✔ should return history entries ordered by changedAt desc (69.7762ms)
+  ✔ should return empty array for deal with no history (9.838ms)
+  ✔ should count deals excluding soft-deleted (16.8814ms)
+  ✔ should count with where filter (1.6068ms)
+  ✔ findByPipeline returns deals for pipeline ordered by createdAt desc (2.2957ms)
+  ✔ findByStage returns deals for stage ordered by createdAt desc (2.1654ms)
+  ✔ findByManager returns deals for manager (8.1671ms)
+  ✔ findByManager returns empty array for manager with no deals (1.7348ms)
+  ✔ findByContact returns deals for contact (10.9218ms)
+  ✔ findByContact returns empty array for contact with no deals (1.5163ms)
+✔ DealRepository (822.3997ms)
+ℹ tests 34
+ℹ suites 1
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1373.2224
+

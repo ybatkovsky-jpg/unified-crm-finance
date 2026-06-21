@@ -38,6 +38,10 @@ export async function GET(
         manager: true,
         history: {
           orderBy: { changedAt: 'desc' },
+          include: {
+            fromStage: true,
+            toStage: true,
+          },
         },
       },
     })

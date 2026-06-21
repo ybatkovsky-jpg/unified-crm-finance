@@ -61,22 +61,6 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M001/S02
 
-### R011 — Модуль сделки: pipeline, этапы, статусы
-- Class: core-capability
-- Status: active
-- Description: Модуль сделки: pipeline, этапы, статусы
-- Why it matters: Управление продажами от лида до закрытия
-- Source: inferred
-- Primary owning slice: M003
-
-### R012 — Модуль контракты: документы, этапы, подписи
-- Class: core-capability
-- Status: active
-- Description: Модуль контракты: документы, этапы, подписи
-- Why it matters: Юридическое оформление сделок
-- Source: inferred
-- Primary owning slice: M003
-
 ### R013 — Модуль проекты: задачи, этапы, timelines, Gantt
 - Class: core-capability
 - Status: active
@@ -176,6 +160,24 @@ This file is the explicit capability and coverage contract for the project.
 - Primary owning slice: M002
 - Validation: Contact CRUD API (S01), Contact List UI (S02), Interactions API & UI (S03), Contact Detail Page (S04) — 100+ тестов pass, zero build errors, dev server verified
 
+### R011 — Модуль сделки: pipeline, этапы, статусы
+- Class: core-capability
+- Status: validated
+- Description: Модуль сделки: pipeline, этапы, статусы
+- Why it matters: Управление продажами от лида до закрытия
+- Source: inferred
+- Primary owning slice: M003
+- Validation: M003实现了完整的Deals模块：CRUD API (S01), Kanban board с drag-and-drop (S02), Deal detail page с history timeline (S03)。Pipeline с 8 стадиями, DealHistory запись при перемещении этапов。
+
+### R012 — Модуль контракты: документы, этапы, подписи
+- Class: core-capability
+- Status: validated
+- Description: Модуль контракты: документы, этапы, подписи
+- Why it matters: Юридическое оформление сделок
+- Source: inferred
+- Primary owning slice: M003
+- Validation: M003实现了完整的Contracts模块：Contract API с версионностью и подписантами (S04), Contracts list и detail pages с tabs (S05)。Конвертация Deal→Contract с одним кликом, автонумерация Д-YYYY-NNNNN。
+
 ## Deferred
 
 ## Out of Scope
@@ -194,8 +196,8 @@ This file is the explicit capability and coverage contract for the project.
 | R008 | constraint | active | M001/S01 | none | unmapped |
 | R009 | constraint | active | M001/S02 | none | unmapped |
 | R010 | core-capability | validated | M002 | none | Contact CRUD API (S01), Contact List UI (S02), Interactions API & UI (S03), Contact Detail Page (S04) — 100+ тестов pass, zero build errors, dev server verified |
-| R011 | core-capability | active | M003 | none | unmapped |
-| R012 | core-capability | active | M003 | none | unmapped |
+| R011 | core-capability | validated | M003 | none | M003实现了完整的Deals模块：CRUD API (S01), Kanban board с drag-and-drop (S02), Deal detail page с history timeline (S03)。Pipeline с 8 стадиями, DealHistory запись при перемещении этапов。 |
+| R012 | core-capability | validated | M003 | none | M003实现了完整的Contracts模块：Contract API с версионностью и подписантами (S04), Contracts list и detail pages с tabs (S05)。Конвертация Deal→Contract с одним кликом, автонумерация Д-YYYY-NNNNN。 |
 | R013 | core-capability | active | M004 | none | unmapped |
 | R014 | core-capability | active | M005 | none | unmapped |
 | R015 | core-capability | active | M006 | none | unmapped |
@@ -207,7 +209,7 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Coverage Summary
 
-- Active requirements: 17
-- Mapped to slices: 17
-- Validated: 3 (R004, R007, R010)
+- Active requirements: 15
+- Mapped to slices: 15
+- Validated: 5 (R004, R007, R010, R011, R012)
 - Unmapped active requirements: 0

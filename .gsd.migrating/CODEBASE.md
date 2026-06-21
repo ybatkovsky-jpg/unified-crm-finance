@@ -1,7 +1,7 @@
 # Codebase Map
 
-Generated: 2026-06-21T13:11:22Z | Files: 500 | Described: 0/500
-<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T13:11:22Z","fingerprint":"e1a37ee2855065457dad41018729ffe9cf1213cd","fileCount":500,"truncated":true} -->
+Generated: 2026-06-21T14:38:58Z | Files: 500 | Described: 0/500
+<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T14:38:58Z","fingerprint":"d578b871c9c18703ab58612c3c24af8a2e387fc6","fileCount":500,"truncated":true} -->
 Note: Truncated to first 500 files. Run with higher --max-files to include all.
 
 ### (root)/
@@ -39,7 +39,7 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 - `.gsd.migrating/STATE.md`
 
 ### .gsd.migrating/activity/
-- *(76 files: 76 .jsonl)*
+- *(87 files: 87 .jsonl)*
 
 ### .gsd.migrating/adr/
 - `.gsd.migrating/adr/002-data-model.md`
@@ -48,7 +48,7 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 - `.gsd.migrating/audit/events.jsonl`
 
 ### .gsd.migrating/exec/
-- *(33 files: 11 .json, 11 .stderr, 11 .stdout)*
+- *(45 files: 15 .json, 15 .stderr, 15 .stdout)*
 
 ### .gsd.migrating/graphs/
 - `.gsd.migrating/graphs/graph.json`
@@ -282,6 +282,7 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 ### .gsd.migrating/milestones/M009/
 - `.gsd.migrating/milestones/M009/M009-CONTEXT.md`
 - `.gsd.migrating/milestones/M009/M009-ROADMAP.md`
+- `.gsd.migrating/milestones/M009/M009-VALIDATION.md`
 
 ### .gsd.migrating/milestones/M009/anchors/
 - `.gsd.migrating/milestones/M009/anchors/plan-slice.json`
@@ -317,12 +318,22 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 - `.gsd.migrating/milestones/M009/slices/S03/S03-PLAN.md`
 - `.gsd.migrating/milestones/M009/slices/S03/S03-PRE-EXEC-VERIFY.json`
 - `.gsd.migrating/milestones/M009/slices/S03/S03-RESEARCH.md`
+- `.gsd.migrating/milestones/M009/slices/S03/S03-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S03/S03-UAT.md`
 
 ### .gsd.migrating/milestones/M009/slices/S03/tasks/
 - `.gsd.migrating/milestones/M009/slices/S03/tasks/T01-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S03/tasks/T01-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S03/tasks/T01-VERIFY.json`
 - `.gsd.migrating/milestones/M009/slices/S03/tasks/T02-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S03/tasks/T02-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S03/tasks/T02-VERIFY.json`
 - `.gsd.migrating/milestones/M009/slices/S03/tasks/T03-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S03/tasks/T03-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S03/tasks/T03-VERIFY.json`
 - `.gsd.migrating/milestones/M009/slices/S03/tasks/T04-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S03/tasks/T04-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S03/tasks/T04-VERIFY.json`
 
 ### .gsd.migrating/milestones/M009/slices/S04/
 - `.gsd.migrating/milestones/M009/slices/S04/S04-PLAN.md`
@@ -339,12 +350,20 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 
 ### .gsd.migrating/milestones/M009/slices/S05/
 - `.gsd.migrating/milestones/M009/slices/S05/S05-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S05/S05-REPLAN.md`
 - `.gsd.migrating/milestones/M009/slices/S05/S05-RESEARCH.md`
+- `.gsd.migrating/milestones/M009/slices/S05/S05-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S05/S05-UAT.md`
 
 ### .gsd.migrating/milestones/M009/slices/S05/tasks/
 - `.gsd.migrating/milestones/M009/slices/S05/tasks/T01-PLAN.md`
 - `.gsd.migrating/milestones/M009/slices/S05/tasks/T01-SUMMARY.md`
 - `.gsd.migrating/milestones/M009/slices/S05/tasks/T02-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S05/tasks/T02-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S05/tasks/T02-VERIFY.json`
+- `.gsd.migrating/milestones/M009/slices/S05/tasks/T03-PLAN.md`
+- `.gsd.migrating/milestones/M009/slices/S05/tasks/T03-SUMMARY.md`
+- `.gsd.migrating/milestones/M009/slices/S05/tasks/T03-VERIFY.json`
 
 ### .gsd.migrating/reports/
 - `.gsd.migrating/reports/index.html`
@@ -359,7 +378,7 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 - `.gsd.migrating/runtime/write-gate-state.json`
 
 ### .gsd.migrating/runtime/units/
-- *(62 files: 62 .json)*
+- *(71 files: 71 .json)*
 
 ### apps/web/
 - `apps/web/.eslintrc.json`
@@ -378,116 +397,5 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 
 ### apps/web/prisma/
 - `apps/web/prisma/.keep`
-- `apps/web/prisma/dev.db`
 - `apps/web/prisma/DOCKER_BLOCKER.md`
 - `apps/web/prisma/MIGRATION_PLAN.md`
-- `apps/web/prisma/schema.prisma`
-- `apps/web/prisma/seed-deals.ts`
-- `apps/web/prisma/seed.ts`
-
-### apps/web/prisma/migrations/
-- `apps/web/prisma/migrations/migration_lock.toml`
-
-### apps/web/prisma/migrations/20260621041233_001_identity/
-- `apps/web/prisma/migrations/20260621041233_001_identity/migration.sql`
-
-### apps/web/prisma/migrations/20260621042334_shared_and_crm/
-- `apps/web/prisma/migrations/20260621042334_shared_and_crm/migration.sql`
-
-### apps/web/prisma/migrations/20260621043700_002_shared_and_crm/
-- `apps/web/prisma/migrations/20260621043700_002_shared_and_crm/migration.sql`
-
-### apps/web/prisma/migrations/20260621045822_003_complete_schema/
-- `apps/web/prisma/migrations/20260621045822_003_complete_schema/migration.sql`
-
-### apps/web/prisma/migrations/20260621052837_add_events_tasks_modules/
-- `apps/web/prisma/migrations/20260621052837_add_events_tasks_modules/migration.sql`
-
-### apps/web/prisma/migrations/20260621053938_add_crm_models/
-- `apps/web/prisma/migrations/20260621053938_add_crm_models/migration.sql`
-
-### apps/web/scripts/
-- `apps/web/scripts/verify-migrations.sh`
-
-### apps/web/src/app/
-- `apps/web/src/app/globals.css`
-- `apps/web/src/app/layout.tsx`
-- `apps/web/src/app/page.tsx`
-
-### apps/web/src/app/api/contacts/
-- `apps/web/src/app/api/contacts/route.ts`
-
-### apps/web/src/app/api/contacts/[id]/
-- `apps/web/src/app/api/contacts/[id]/route.ts`
-
-### apps/web/src/app/api/contacts/[id]/interactions/
-- `apps/web/src/app/api/contacts/[id]/interactions/route.ts`
-
-### apps/web/src/app/api/contracts/
-- `apps/web/src/app/api/contracts/route.ts`
-
-### apps/web/src/app/api/contracts/[id]/
-- `apps/web/src/app/api/contracts/[id]/route.ts`
-
-### apps/web/src/app/api/contracts/[id]/signers/
-- `apps/web/src/app/api/contracts/[id]/signers/route.ts`
-
-### apps/web/src/app/api/contracts/[id]/versions/
-- `apps/web/src/app/api/contracts/[id]/versions/route.ts`
-
-### apps/web/src/app/api/deals/
-- `apps/web/src/app/api/deals/route.ts`
-
-### apps/web/src/app/api/deals/[id]/
-- `apps/web/src/app/api/deals/[id]/route.ts`
-
-### apps/web/src/app/api/deals/[id]/convert/
-- `apps/web/src/app/api/deals/[id]/convert/route.ts`
-
-### apps/web/src/app/api/deals/[id]/move/
-- `apps/web/src/app/api/deals/[id]/move/route.ts`
-
-### apps/web/src/app/api/health/
-- `apps/web/src/app/api/health/route.ts`
-
-### apps/web/src/app/api/interactions/
-- `apps/web/src/app/api/interactions/route.ts`
-
-### apps/web/src/app/api/interactions/[id]/
-- `apps/web/src/app/api/interactions/[id]/route.ts`
-
-### apps/web/src/app/crm/contacts/
-- `apps/web/src/app/crm/contacts/page.tsx`
-
-### apps/web/src/app/crm/contacts/[id]/
-- `apps/web/src/app/crm/contacts/[id]/page.tsx`
-
-### apps/web/src/app/deals/
-- `apps/web/src/app/deals/page.tsx`
-
-### apps/web/src/app/deals/[id]/
-- `apps/web/src/app/deals/[id]/page.tsx`
-
-### apps/web/src/components/crm/
-- `apps/web/src/components/crm/interaction-form.tsx`
-- `apps/web/src/components/crm/interaction-timeline.tsx`
-
-### apps/web/src/components/deals/
-- `apps/web/src/components/deals/create-deal-modal.tsx`
-- `apps/web/src/components/deals/deal-card-draggable.tsx`
-- `apps/web/src/components/deals/deal-card.tsx`
-- `apps/web/src/components/deals/deal-history-timeline.tsx`
-- `apps/web/src/components/deals/filter-bar.tsx`
-- `apps/web/src/components/deals/kanban-board.tsx`
-- `apps/web/src/components/deals/kanban-column.tsx`
-
-### apps/web/src/components/ui/
-- `apps/web/src/components/ui/badge.tsx`
-- `apps/web/src/components/ui/button.tsx`
-- `apps/web/src/components/ui/card.tsx`
-- `apps/web/src/components/ui/dialog.tsx`
-- `apps/web/src/components/ui/input.tsx`
-- `apps/web/src/components/ui/label.tsx`
-- `apps/web/src/components/ui/select.tsx`
-- `apps/web/src/components/ui/table.tsx`
-- `apps/web/src/components/ui/textarea.tsx`

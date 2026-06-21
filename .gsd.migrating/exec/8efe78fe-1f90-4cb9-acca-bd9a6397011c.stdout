@@ -1,0 +1,89 @@
+API request failed: 500 {
+  error: 'Failed to fetch deals',
+  message: 'Database connection error'
+}
+API request failed: 404 { error: 'Not found', message: 'Deal with id non-existent not found' }
+API request failed: 400 { error: 'Validation failed', message: 'title is required' }
+API request failed: 400 { error: 'Validation failed', message: 'pipelineId is required' }
+API request failed: 404 { error: 'Not found', message: 'Deal with id missing not found' }
+API request failed: 404 { error: 'Not found', message: 'Deal with id missing not found' }
+API request failed: 400 { error: 'Validation failed', message: 'stageId is required' }
+API request failed: 409 { error: 'Conflict', message: 'Deal is already in stage same-stage' }
+API request failed: 404 { error: 'Not found', message: 'Deal not found' }
+API request failed: 502 { error: 'Unknown error', message: 'Bad Gateway' }
+API request failed: 500 { error: 'Unknown error', message: 'Failed to parse error response' }
+▶ DealApiClient
+  ▶ getDeals
+    ✔ should return deals list with count (2.1713ms)
+    ✔ should apply pipelineId filter (1.8092ms)
+    ✔ should apply stageId filter (0.7724ms)
+    ✔ should apply status filter (0.6387ms)
+    ✔ should apply managerId filter (0.6799ms)
+    ✔ should apply contactId filter (0.5203ms)
+    ✔ should skip undefined filter params (0.4722ms)
+    ✔ should handle API error response (2.0544ms)
+    ✔ should handle empty response (1.2432ms)
+  ✔ getDeals (12.201ms)
+  ▶ getDeal
+    ✔ should return single deal by ID (0.5992ms)
+    ✔ should return deal with nested relations (0.5267ms)
+    ✔ should throw ApiClientError when ID is empty (0.3785ms)
+    ✔ should handle 404 response (0.648ms)
+    ✔ should build correct URL for deal ID (0.4355ms)
+  ✔ getDeal (2.9795ms)
+  ▶ createDeal
+    ✔ should create new deal and return it with 201 (0.4847ms)
+    ✔ should send POST request with JSON body (0.4322ms)
+    ✔ should create deal with optional fields (0.615ms)
+    ✔ should handle validation error (400, missing title) (0.7107ms)
+    ✔ should handle validation error (missing pipelineId) (0.6001ms)
+  ✔ createDeal (3.1342ms)
+  ▶ updateDeal
+    ✔ should update deal and return updated data (0.4213ms)
+    ✔ should send PATCH request with JSON body (0.4742ms)
+    ✔ should throw error when ID is empty (0.3216ms)
+    ✔ should handle 404 when deal not found (0.5947ms)
+  ✔ updateDeal (2.0414ms)
+  ▶ deleteDeal
+    ✔ should soft-delete deal and return deal data (0.3878ms)
+    ✔ should throw error when ID is empty (0.3764ms)
+    ✔ should handle 404 when deal not found (0.5526ms)
+    ✔ should send DELETE request (0.36ms)
+  ✔ deleteDeal (1.9085ms)
+  ▶ moveDeal
+    ✔ should move deal to new stage and return updated deal (0.5155ms)
+    ✔ should send POST to /deals/[id]/move (1.5514ms)
+    ✔ should throw error when ID is empty (0.4589ms)
+    ✔ should handle validation error (missing stageId from server) (0.6918ms)
+    ✔ should handle no-change error from server (0.864ms)
+    ✔ should include comment in move payload (0.4984ms)
+    ✔ should handle 404 when deal not found for move (0.7096ms)
+  ✔ moveDeal (5.9318ms)
+  ▶ network errors
+    ✔ should propagate fetch rejection (0.607ms)
+    ✔ should handle non-JSON error response body (0.7526ms)
+    ✔ should handle non-JSON with empty statusText (0.6208ms)
+  ✔ network errors (2.2116ms)
+  ▶ ApiClientError
+    ✔ should have correct error properties (0.2301ms)
+    ✔ should be instance of Error (0.1865ms)
+  ✔ ApiClientError (0.5483ms)
+  ▶ singleton instance
+    ✔ should export default singleton (0.2165ms)
+    ✔ should export convenience methods (0.1869ms)
+  ✔ singleton instance (0.5451ms)
+  ▶ URL construction
+    ✔ should use custom baseUrl from config (0.4762ms)
+    ✔ should combine multiple filter params in URL (0.3846ms)
+    ✔ should omit pagination params not in query mapping (0.366ms)
+  ✔ URL construction (1.4221ms)
+✔ DealApiClient (34.681ms)
+ℹ tests 44
+ℹ suites 11
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 447.9661
+

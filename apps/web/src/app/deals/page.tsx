@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { RefreshCwIcon } from "lucide-react"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
+import { pipelinesApi } from "@/lib/api/pipelines"
 import type { DealData, DealStageData } from "@/lib/api/types"
 import { KanbanBoard } from "@/components/deals/kanban-board"
 import { FilterBar } from "@/components/deals/filter-bar"
@@ -12,50 +13,73 @@ import { Card, CardContent } from "@/components/ui/card"
 
 type StatusFilter = "all" | "open" | "closed"
 
-// Extract stages from deals (they come with pipeline/stage included)
-function extractStagesFromDeals(deals: DealData[]): DealStageData[] {
-  const stagesMap = new Map<string, DealStageData>()
-
-  deals.forEach((deal) => {
-    if (!stagesMap.has(deal.stage.id)) {
-      stagesMap.set(deal.stage.id, deal.stage)
-    }
-  })
-
-  // Convert to array and sort by order
-  return Array.from(stagesMap.values()).sort((a, b) => a.order - b.order)
-}
-
 export default function DealsPage() {
   const [deals, setDeals] = useState<DealData[]>([])
   const [stages, setStages] = useState<DealStageData[]>([])
+  const [pipelineId, setPipelineId] = useState<string>("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
   const [movingDealId, setMovingDealId] = useState<string | null>(null)
 
-  const fetchDeals = useCallback(async (status: StatusFilter) => {
-    setLoading(true)
-    setError(null)
+  // Fetch pipeline and its stages from the pipeline API
+  const fetchPipeline = useCallback(async () => {
     try {
-      const params: Record<string, string> = {}
-      if (status !== "all") params.status = status
-
-      const response = await dealsApi.getDeals(
-        Object.keys(params).length > 0 ? params : undefined
-      )
-      setDeals(response.data)
-      setStages(extractStagesFromDeals(response.data))
-    } catch (err) {
-      if (err instanceof ApiClientError) {
-        setError(err.message)
-      } else {
-        setError("Failed to load deals. Please try again.")
+      const pipelinesResponse = await pipelinesApi.getPipelines()
+      if (pipelinesResponse.data.length === 0) {
+        console.warn("No active pipelines found")
+        return null
       }
-    } finally {
-      setLoading(false)
+
+      // Use the first active pipeline
+      const pipeline = pipelinesResponse.data[0]
+      setPipelineId(pipeline.id)
+
+      // Fetch pipeline with stages
+      const pipelineWithStages = await pipelinesApi.getPipeline(pipeline.id)
+      setStages(pipelineWithStages.data.DealStage)
+
+      return pipeline.id
+    } catch (err) {
+      console.warn("Failed to fetch pipeline, falling back to default:", err)
+      // Fallback to hardcoded ID if API fails
+      setPipelineId("default-pipeline-id")
+      return null
     }
   }, [])
+
+  const fetchDeals = useCallback(
+    async (status: StatusFilter) => {
+      setLoading(true)
+      setError(null)
+      try {
+        // First fetch pipeline to get stages
+        const fetchedPipelineId = await fetchPipeline()
+        if (!fetchedPipelineId && !pipelineId) {
+          // If pipeline fetch failed, still try to load deals
+          console.warn("Pipeline not loaded, loading deals anyway")
+        }
+
+        // Then fetch deals
+        const params: Record<string, string> = {}
+        if (status !== "all") params.status = status
+
+        const response = await dealsApi.getDeals(
+          Object.keys(params).length > 0 ? params : undefined
+        )
+        setDeals(response.data)
+      } catch (err) {
+        if (err instanceof ApiClientError) {
+          setError(err.message)
+        } else {
+          setError("Failed to load deals. Please try again.")
+        }
+      } finally {
+        setLoading(false)
+      }
+    },
+    [fetchPipeline, pipelineId]
+  )
 
   useEffect(() => {
     fetchDeals(statusFilter)
@@ -67,19 +91,19 @@ export default function DealsPage() {
       // For now, use a dummy user ID - in real app this comes from session
       const response = await dealsApi.moveDeal(dealId, {
         stageId: toStageId,
-        changedBy: "current-user-id", // TODO: Get from auth session
+        changedBy: currentUserId, // TODO: Get from auth session
       })
 
-      // Update local state
+      // Update local state with the full deal from API (includes relations)
       setDeals((prev) =>
         prev.map((deal) =>
-          deal.id === dealId ? { ...response.data, stageId: toStageId } : deal
+          deal.id === dealId ? response.data : deal
         )
       )
     } catch (err) {
       console.error("Failed to move deal:", err)
-      // Revert optimistic update or show error
-      alert("Failed to move deal. Please try again.")
+      // Refetch to restore correct state from server
+      fetchDeals(statusFilter)
     } finally {
       setMovingDealId(null)
     }
@@ -91,7 +115,8 @@ export default function DealsPage() {
 
   // Get first stage for creating new deals
   const firstStageId = stages.length > 0 ? stages[0].id : ""
-  const pipelineId = "default-pipeline-id" // TODO: Get from API or config
+  // TODO: Get from auth session when implemented
+  const currentUserId = "current-user-id"
 
   return (
     <div className="container mx-auto p-6 space-y-6">

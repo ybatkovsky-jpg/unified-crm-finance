@@ -30,7 +30,7 @@ export function FilterBar({
         <label className="text-sm text-muted-foreground">Статус</label>
         <Select
           value={statusFilter}
-          onValueChange={onStatusChange}
+          onValueChange={(value) => onStatusChange(value ?? "all")}
         >
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Все" />

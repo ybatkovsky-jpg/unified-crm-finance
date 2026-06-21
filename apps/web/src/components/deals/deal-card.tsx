@@ -41,7 +41,11 @@ export function DealCard({ deal, isDragging }: DealCardProps) {
           {deal.contact && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <User className="size-3" />
-              <span className="line-clamp-1">{deal.contact.name || "\u2014"}</span>
+              <span className="line-clamp-1">
+                {deal.contact.type === 'company'
+                  ? deal.contact.companyName || '\u2014'
+                  : [deal.contact.firstName, deal.contact.lastName].filter(Boolean).join(' ') || '\u2014'}
+              </span>
             </div>
           )}
 
@@ -56,7 +60,7 @@ export function DealCard({ deal, isDragging }: DealCardProps) {
 
           {deal.manager && (
             <Badge variant="outline" className="text-xs w-fit">
-              {deal.manager.name || "\u2014"}
+              {deal.manager.name || deal.manager.email || '\u2014'}
             </Badge>
           )}
         </CardContent>

@@ -1,16 +1,16 @@
 {
   "nodes": [
     {
-      "id": "milestone:M009",
-      "label": "M009: Сделки и контракты",
+      "id": "milestone:M003",
+      "label": "M003: Сделки и контракты",
       "type": "milestone",
-      "description": "Active milestone: M009",
+      "description": "Active milestone: M003",
       "confidence": "EXTRACTED",
       "sourceFile": "STATE.md"
     },
     {
-      "id": "concept:phase:validating-milestone",
-      "label": "Phase: validating-milestone",
+      "id": "concept:phase:planning",
+      "label": "Phase: planning",
       "type": "concept",
       "confidence": "EXTRACTED",
       "sourceFile": "STATE.md"
@@ -340,11 +340,129 @@
       "confidence": "EXTRACTED"
     },
     {
-      "id": "milestone:M003",
-      "label": "M003: Сделки и контракты",
-      "type": "milestone",
+      "id": "slice:M003:S01",
+      "label": "S01: Deal Repository and API",
+      "type": "slice",
       "confidence": "EXTRACTED",
-      "sourceFile": "milestones/M003/M003-ROADMAP.md"
+      "sourceFile": "milestones/M003/slices/S01/S01-PLAN.md"
+    },
+    {
+      "id": "task:M003:S01:T01",
+      "label": "T01: Write DealRepository unit tests",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M003:S01:T02",
+      "label": "T02: Write DealApiClient unit tests with mocked fetch",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "slice:M003:S02",
+      "label": "S02: Deals UI",
+      "type": "slice",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/slices/S02/S02-PLAN.md"
+    },
+    {
+      "id": "task:M003:S02:T01",
+      "label": "T01: Kanban board компонент",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M003:S02:T02",
+      "label": "T02: Filters и Create Deal Modal",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M003:S02:T03",
+      "label": "T03: Deal Detail Page",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "slice:M003:S03",
+      "label": "S03: Deal Detail Page",
+      "type": "slice",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/slices/S03/S03-PLAN.md"
+    },
+    {
+      "id": "task:M003:S03:T01",
+      "label": "T01: Add DealHistory to API types",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M003:S03:T02",
+      "label": "T02: Create DealHistoryTimeline component",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M003:S03:T03",
+      "label": "T03: Integrate DealHistoryTimeline into deal detail page",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M003:S03:T04",
+      "label": "T04: Verify deal detail page with history",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "slice:M003:S04",
+      "label": "S04: Contract API",
+      "type": "slice",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/slices/S04/S04-PLAN.md"
+    },
+    {
+      "id": "task:M003:S04:T01",
+      "label": "T01: ContractRepository с версионностью",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M003:S04:T02",
+      "label": "T02: Contract API routes",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M003:S04:T03",
+      "label": "T03: Convert Deal to Contract",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "slice:M003:S05",
+      "label": "S05: S05",
+      "type": "slice",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/slices/S05/S05-PLAN.md"
+    },
+    {
+      "id": "task:M003:S05:T01",
+      "label": "T01: ContractRepository и contractsApi клиент созданы; API endpoints готовы",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M003:S05:T02",
+      "label": "T02: Contract detail page with tabs already implemented: Details, Versions, Signers, Related",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M003:S05:T03",
+      "label": "T03: Contracts list page with table and filters",
+      "type": "task",
+      "confidence": "EXTRACTED"
     },
     {
       "id": "milestone:M004",
@@ -380,6 +498,13 @@
       "type": "milestone",
       "confidence": "EXTRACTED",
       "sourceFile": "milestones/M008/M008-ROADMAP.md"
+    },
+    {
+      "id": "milestone:M009",
+      "label": "M009: Сделки и контракты",
+      "type": "milestone",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-ROADMAP.md"
     },
     {
       "id": "slice:M009:S01",
@@ -511,6 +636,104 @@
       "label": "T03: Contracts list page with table and filters",
       "type": "task",
       "confidence": "EXTRACTED"
+    },
+    {
+      "id": "decision:M009:1",
+      "label": "**Repository pattern for all domain entities** — Using Repository classes (DealRepository, ContractRepository) with singleton exports provides clean separation between business logic and data access, making testing and future refactoring easier. Source: S01-SUMMARY.md/key_decisions",
+      "type": "decision",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "decision:M009:2",
+      "label": "**Auto-numbering schemes for business entities** — Deals use С-YYYY-NNNNN format, contracts use Д-YYYY-NNNNN. This provides user-friendly identifiers and makes cross-referencing easier than UUIDs alone. Source: S01-SUMMARY.md/key_decisions",
+      "type": "decision",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "decision:M009:3",
+      "label": "**Separate endpoint for state transitions** — POST /api/deals/[id]/move endpoint explicitly handles stage changes with DealHistory recording, rather than burying logic in generic PATCH. This makes the action explicit and auditable. Source: S01-SUMMARY.md/key_decisions",
+      "type": "decision",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "decision:M009:4",
+      "label": "**@dnd-kit for drag-and-drop** — Chose @dnd-kit/core over alternatives (react-beautiful-dnd, react-dnd) as the modern standard for React drag-and-drop with better accessibility and smaller bundle. Source: S02-SUMMARY.md/key_decisions",
+      "type": "decision",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "decision:M009:5",
+      "label": "**Separate tables for versioning and signers** — ContractVersion and ContractSigner as separate entities with one-to-many relationships provides better query flexibility and audit trails than embedding JSON in the contract record. Source: S04-SUMMARY.md/key_decisions",
+      "type": "decision",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "decision:M009:6",
+      "label": "**Dedicated convert endpoint for Deal→Contract** — POST /api/deals/[id]/convert makes the conversion action explicit and traceable, linking dealId to the new contract. Source: S04-SUMMARY.md/key_decisions",
+      "type": "decision",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "lesson:M009:1",
+      "label": "**Post-validation integration gaps are common** — The Deal→Contract UI trigger was missing after initial validation (S05 only had API, not the button). A post-validation fix added the \"В контракт\" button to close the gap. Source: M009-VALIDATION.md/Cross-Slice Integration",
+      "type": "lesson",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "lesson:M009:2",
+      "label": "**Timeline components should follow established patterns** — DealHistoryTimeline reused the InteractionTimeline pattern from M002 for consistency, demonstrating that early pattern establishment pays dividends across features. Source: S03-SUMMARY.md/Patterns Established",
+      "type": "lesson",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "pattern:M009:1",
+      "label": "**Repository pattern with singleton export** — Repository classes export a singleton instance rather than the class itself, simplifying import and usage patterns across the codebase. Source: S01-SUMMARY.md/patterns_established",
+      "type": "pattern",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "pattern:M009:2",
+      "label": "**API routes with standard CRUD structure** — GET/PATCH/DELETE /api/resource/[id] for single resources, GET/POST /api/resource for collections. Nested routes for sub-entities (versions, signers). Source: S01-SUMMARY.md/patterns_established",
+      "type": "pattern",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "pattern:M009:3",
+      "label": "**List + detail page structure** — /deals lists items with filters, /deals/[id] shows details. This pattern repeats across contacts, deals, and contracts for UX consistency. Source: S02-SUMMARY.md/patterns_established",
+      "type": "pattern",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "pattern:M009:4",
+      "label": "**Loading/error/empty state pattern for async UI** — All async components (KanbanBoard, DealHistoryTimeline, ContractsList) handle three states: loading spinner, error message with retry, empty state. Source: S03-SUMMARY.md/patterns_established",
+      "type": "pattern",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "pattern:M009:5",
+      "label": "**History data as optional array on data types** — DealData extends with optional history?: DealHistoryData[]. This keeps history data lightweight while maintaining type safety. Source: S03-SUMMARY.md/patterns_established",
+      "type": "pattern",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
+    },
+    {
+      "id": "surprise:M009:1",
+      "label": "**Task plan deviation in S05** — T01 was planned to create the /contracts page, but implementation created ContractRepository and contractsApi client first. The page was actually created in T03. Despite plan reordering, the slice delivered successfully. Source: S05-SUMMARY.md/Deviations",
+      "type": "lesson",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M009/M009-LEARNINGS.md"
     }
   ],
   "edges": [
@@ -815,6 +1038,126 @@
       "confidence": "EXTRACTED"
     },
     {
+      "from": "milestone:M003",
+      "to": "slice:M003:S01",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S01",
+      "to": "task:M003:S01:T01",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S01",
+      "to": "task:M003:S01:T02",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "slice:M003:S02",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S02",
+      "to": "task:M003:S02:T01",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S02",
+      "to": "task:M003:S02:T02",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S02",
+      "to": "task:M003:S02:T03",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "slice:M003:S03",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S03",
+      "to": "task:M003:S03:T01",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S03",
+      "to": "task:M003:S03:T02",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S03",
+      "to": "task:M003:S03:T03",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S03",
+      "to": "task:M003:S03:T04",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "slice:M003:S04",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S04",
+      "to": "task:M003:S04:T01",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S04",
+      "to": "task:M003:S04:T02",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S04",
+      "to": "task:M003:S04:T03",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "slice:M003:S05",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S05",
+      "to": "task:M003:S05:T01",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S05",
+      "to": "task:M003:S05:T02",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M003:S05",
+      "to": "task:M003:S05:T03",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
       "from": "milestone:M009",
       "to": "slice:M009:S01",
       "type": "contains",
@@ -939,7 +1282,91 @@
       "to": "task:M009:S05:T03",
       "type": "contains",
       "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "decision:M009:1",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "decision:M009:2",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "decision:M009:3",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "decision:M009:4",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "decision:M009:5",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "decision:M009:6",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "lesson:M009:1",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "lesson:M009:2",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "pattern:M009:1",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "pattern:M009:2",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "pattern:M009:3",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "pattern:M009:4",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "pattern:M009:5",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M009",
+      "to": "surprise:M009:1",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
     }
   ],
-  "builtAt": "2026-06-21T13:13:39.485Z"
+  "builtAt": "2026-06-21T14:38:17.145Z"
 }

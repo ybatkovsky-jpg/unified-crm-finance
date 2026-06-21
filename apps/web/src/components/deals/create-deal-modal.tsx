@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Plus } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Plus, X, Search, User, Building2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -22,8 +22,18 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
-import type { DealCreateInput } from "@/lib/api/types"
+import { contactsApi } from "@/lib/api/contacts"
+import type { DealCreateInput, ContactData } from "@/lib/api/types"
+
+function getContactDisplayName(contact: ContactData): string {
+  if (contact.type === "person") {
+    const parts = [contact.firstName, contact.lastName].filter(Boolean)
+    return parts.length > 0 ? parts.join(" ") : contact.id
+  }
+  return contact.companyName || contact.id
+}
 
 interface CreateDealModalProps {
   pipelineId: string
@@ -44,6 +54,35 @@ export function CreateDealModal({
   const [currency, setCurrency] = useState("RUB")
   const [expectedCloseDate, setExpectedCloseDate] = useState("")
   const [description, setDescription] = useState("")
+  const [contacts, setContacts] = useState<ContactData[]>([])
+  const [contactSearch, setContactSearch] = useState("")
+  const [selectedContact, setSelectedContact] = useState<ContactData | null>(null)
+
+  // Fetch contacts when modal opens
+  useEffect(() => {
+    if (open) {
+      contactsApi
+        .getContacts({})
+        .then((res) => setContacts(res.data.slice(0, 50)))
+        .catch((err) => console.error("Failed to fetch contacts:", err))
+    }
+  }, [open])
+
+  const filteredContacts = contacts.filter((c) =>
+    getContactDisplayName(c).toLowerCase().includes(contactSearch.toLowerCase())
+  )
+
+  const resetContactSelection = () => {
+    setSelectedContact(null)
+    setContactSearch("")
+  }
+
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen)
+    if (!isOpen) {
+      resetContactSelection()
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,6 +94,7 @@ export function CreateDealModal({
         title,
         pipelineId,
         stageId: firstStageId,
+        contactId: selectedContact?.id || undefined,
         amount: amount ? parseFloat(amount) : 0,
         currency,
         expectedCloseDate: expectedCloseDate || undefined,
@@ -71,6 +111,7 @@ export function CreateDealModal({
       setCurrency("RUB")
       setExpectedCloseDate("")
       setDescription("")
+      resetContactSelection()
     } catch (err) {
       if (err instanceof ApiClientError) {
         setError(err.message)
@@ -83,8 +124,8 @@ export function CreateDealModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger>
         <Button>
           <Plus className="size-4" />
           <span className="ml-1.5">Создать сделку</span>
@@ -131,7 +172,7 @@ export function CreateDealModal({
 
               <div className="grid gap-2">
                 <Label htmlFor="currency">Валюта</Label>
-                <Select value={currency} onValueChange={setCurrency}>
+                <Select value={currency} onValueChange={(value) => setCurrency(value ?? "RUB")}>
                   <SelectTrigger id="currency">
                     <SelectValue />
                   </SelectTrigger>
@@ -163,6 +204,76 @@ export function CreateDealModal({
                 placeholder="Дополнительная информация о сделке..."
                 rows={3}
               />
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Контакт</Label>
+              {selectedContact ? (
+                <div className="flex items-center gap-2 p-2 border rounded-md">
+                  {selectedContact.type === "person" ? (
+                    <User className="size-4 text-muted-foreground shrink-0" />
+                  ) : (
+                    <Building2 className="size-4 text-muted-foreground shrink-0" />
+                  )}
+                  <span className="text-sm flex-1 truncate">
+                    {getContactDisplayName(selectedContact)}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-6"
+                    onClick={() => resetContactSelection()}
+                  >
+                    <X className="size-3" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Поиск контакта..."
+                      value={contactSearch}
+                      onChange={(e) => setContactSearch(e.target.value)}
+                      className="pl-8"
+                    />
+                  </div>
+                  <div className="max-h-40 overflow-y-auto border rounded-md">
+                    {filteredContacts.length === 0 ? (
+                      <p className="text-sm text-muted-foreground p-2 text-center">
+                        {contacts.length === 0
+                          ? "Загрузка..."
+                          : "Контакты не найдены"}
+                      </p>
+                    ) : (
+                      filteredContacts.map((contact) => (
+                        <button
+                          key={contact.id}
+                          type="button"
+                          className="w-full text-left px-3 py-2 hover:bg-muted flex items-center gap-2 text-sm border-b last:border-b-0"
+                          onClick={() => {
+                            setSelectedContact(contact)
+                            setContactSearch("")
+                          }}
+                        >
+                          {contact.type === "person" ? (
+                            <User className="size-3 text-muted-foreground shrink-0" />
+                          ) : (
+                            <Building2 className="size-3 text-muted-foreground shrink-0" />
+                          )}
+                          <span className="flex-1 truncate">
+                            {getContactDisplayName(contact)}
+                          </span>
+                          <Badge variant="outline" className="text-[10px] shrink-0">
+                            {contact.type === "person" ? "Физ" : "Юр"}
+                          </Badge>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

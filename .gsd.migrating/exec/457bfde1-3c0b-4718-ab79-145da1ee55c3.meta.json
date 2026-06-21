@@ -1,0 +1,18 @@
+{
+  "id": "457bfde1-3c0b-4718-ab79-145da1ee55c3",
+  "runtime": "node",
+  "purpose": "Run DealRepository tests via node",
+  "script_chars": 252,
+  "started_at": "2026-06-21T14:37:08.927Z",
+  "finished_at": "2026-06-21T14:37:13.130Z",
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 4203,
+  "stdout_bytes": 2469,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\457bfde1-3c0b-4718-ab79-145da1ee55c3.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\457bfde1-3c0b-4718-ab79-145da1ee55c3.stderr"
+}

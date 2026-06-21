@@ -25,7 +25,7 @@ export function KanbanColumn({
   isWonStage,
   isLostStage,
 }: KanbanColumnProps) {
-  const { setNodeRef } = useDroppable({
+  const { setNodeRef, isOver } = useDroppable({
     id,
     data: {
       stageId: id,
@@ -35,11 +35,15 @@ export function KanbanColumn({
   const totalAmount = deals.reduce((sum, deal) => sum + (deal.amount || 0), 0)
 
   return (
-    <div className="flex flex-col w-80 min-w-80">
+    <div
+      ref={setNodeRef}
+      className={`flex flex-col w-80 min-w-80 transition-all duration-200 ${
+        isOver ? "ring-2 ring-primary/50 bg-accent/30 rounded-lg" : ""
+      }`}
+    >
       <Card className="h-full">
         <CardHeader
           className="pb-3"
-          ref={setNodeRef}
           style={{
             borderTopColor: color || undefined,
             borderTopWidth: "4px",

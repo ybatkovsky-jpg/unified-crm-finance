@@ -272,7 +272,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                       <Label htmlFor="currency">Валюта</Label>
                       <Select
                         value={editForm.currency}
-                        onValueChange={(value) => setEditForm({ ...editForm, currency: value })}
+                        onValueChange={(value) => setEditForm({ ...editForm, currency: value ?? "RUB" })}
                       >
                         <SelectTrigger id="currency">
                           <SelectValue />

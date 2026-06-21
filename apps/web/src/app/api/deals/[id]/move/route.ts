@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { deals } from '@/lib/db/deals'
+import { prisma } from '@/lib/db/prisma'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -64,14 +65,43 @@ export async function POST(
     }
 
     // Move stage and record history
-    const updatedDeal = await deals.moveStage(
+    await deals.moveStage(
       id,
       body.stageId,
       body.changedBy,
       body.comment
     )
 
-    return NextResponse.json({ data: updatedDeal })
+    // Fetch full deal with relations for the response (kanban card needs stage/contact/manager)
+    const fullDeal = await prisma.deal.findUnique({
+      where: { id },
+      include: {
+        DealStage: true,
+        Pipeline: true,
+        Contact: true,
+        User: true,
+      },
+    })
+
+    if (!fullDeal) {
+      return NextResponse.json(
+        { error: 'Deal not found', message: `Deal with id ${id} not found` },
+        { status: 404 }
+      )
+    }
+
+    // Map Prisma relation names to API shape (DealData expects stage/pipeline/contact/manager)
+    const { DealStage, Pipeline, Contact, User, ...dealFields } = fullDeal
+
+    return NextResponse.json({
+      data: {
+        ...dealFields,
+        stage: DealStage,
+        pipeline: Pipeline,
+        contact: Contact,
+        manager: User,
+      },
+    })
   } catch (error) {
     console.error('Failed to move deal:', error)
     return NextResponse.json(

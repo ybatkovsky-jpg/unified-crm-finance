@@ -4,7 +4,7 @@
 
 Объединённая CRM-система для управления закупками, финансами, сделками, проектами и контрактами. Система заменяет два разрозненных приложения (zakuppro и finpro) и обеспечивает единое пространство для бизнес-процессов.
 
-**Текущее состояние:** Спецификация (Draft v0.1.0) готова. Начало разработки — M001 (Инфраструктура и модель данных).
+**Текущее состояние:** M003 (Сделки и контракты) завершён. Активна разработка модулей CRM, Deals, Contracts.
 
 ## Core Value
 
@@ -18,17 +18,22 @@
 ## Current State
 
 **Что существует:**
-- Спецификация в docs/ (19 файлов)
-- Репозитории-предшественники: zakuppro (Python/FastAPI + Next.js), finpro (Next.js + Prisma)
-- Сервер: 64.188.56.25 (пустой, готов к деплою)
+- Монорепозиторий с npm workspaces (apps/web, apps/worker)
+- Next.js 16 + React 19 + shadcn/ui UI framework
+- Prisma 6 схема с 42+ сущностями
+- Базовый UI: layout, sidebar, header, тема
+- CRM модуль: контакты, взаимодействия (история, календарь)
+- **Deals модуль:** pipeline с 8 стадиями, Kanban board с drag-and-drop, DealHistory timeline
+- **Contracts модуль:** версионность, подписанты, конвертация из сделки
+- NextAuth аутентификация
+- CI/CD pipeline (GitHub Actions)
 
 **Что нужно построить:**
-- Монорепозиторий с feature-sliced структурой
-- Docker Compose окружение
-- Единая модель данных на PostgreSQL
-- Web-интерфейс на Next.js с shadcn/ui
-- Python worker для фоновой обработки
-- CI/CD и автодеплой
+- Проекты модуль (Gantt, timelines)
+- Закупки модуль (заявки, позиции, утверждения)
+- Финансы модуль (бюджеты, транзакции, отчеты)
+- Аналитика (дашборды, метрики)
+- Уведомления (email, in-app, webhook)
 
 ## Architecture / Key Patterns
 
@@ -48,21 +53,19 @@ apps/
 packages/
   ui/               # Общие UI компоненты
   config/           # Общие конфиги
-  db/               # Prisma client и типы
 features/           # Бизнес-модули (в web/)
   auth/
   crm/
   deals/
-  finance/
-  ...
+  contracts/
 ```
 
 **Ключевые паттерны:**
-- Feature-sliced дизайн для модульности
-- Docker Compose для локальной разработки и проды
-- Health checks для всех сервисов
-- CI/CD через GitHub Actions
-- Autodeploy через Coolify
+- Repository паттерн для domain entities (DealRepository, ContractRepository)
+- API routes: GET/PATCH/DELETE /api/resource/[id], GET/POST /api/resource
+- List + detail page структура для UX консистентности
+- Loading/error/empty state паттерн для async компонентов
+- Timeline компоненты следуют установленному patterns (InteractionTimeline, DealHistoryTimeline)
 
 ## Capability Contract
 
@@ -70,9 +73,9 @@ See `.gsd/REQUIREMENTS.md` for the explicit capability contract, requirement sta
 
 ## Milestone Sequence
 
-- [ ] M001: Инфраструктура и модель данных — Монорепозиторий, Docker Compose, Prisma схема, NextAuth, базовый UI, CI/CD
-- [ ] M002: CRM модуль — Компании, контакты, задачи, события
-- [ ] M003: Сделки и контракты — Pipeline, этапы, документы
+- [x] M001: Инфраструктура и модель данных — Монорепозиторий, Docker Compose, Prisma схема, NextAuth, базовый UI, CI/CD
+- [x] M002: CRM модуль — Компании, контакты, задачи, события
+- [x] M003: Сделки и контракты — Pipeline, этапы, документы, версионность, подписанты
 - [ ] M004: Проекты — Задачи, этапы, timelines
 - [ ] M005: Закупки — Заявки, позиции, утверждения
 - [ ] M006: Финансы — Бюджеты, транзакции, отчеты

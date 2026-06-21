@@ -1,0 +1,18 @@
+{
+  "id": "e73f0c1b-6998-4a4c-96a8-7cef2290197d",
+  "runtime": "bash",
+  "purpose": "Run DealRepository tests with node --test",
+  "script_chars": 70,
+  "started_at": "2026-06-21T14:37:01.280Z",
+  "finished_at": "2026-06-21T14:37:01.401Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 121,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\e73f0c1b-6998-4a4c-96a8-7cef2290197d.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\e73f0c1b-6998-4a4c-96a8-7cef2290197d.stderr"
+}

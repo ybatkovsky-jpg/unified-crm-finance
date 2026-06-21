@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "unitType": "plan-milestone",
+  "unitId": "M003",
+  "startedAt": 1782050470444,
+  "updatedAt": 1782050784461,
+  "phase": "finalized",
+  "wrapupWarningSent": false,
+  "continueHereFired": false,
+  "timeoutAt": null,
+  "lastProgressAt": 1782050784459,
+  "progressCount": 0,
+  "lastProgressKind": "finalize-success",
+  "recoveryAttempts": 0
+}
