@@ -11,7 +11,6 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { contacts } from '../../../lib/db/contacts'
-import type { ContactCreateInput } from '../../../lib/db/contacts'
 
 /**
  * GET /api/contacts
@@ -87,8 +86,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // Prepare creation data
-    const createData: ContactCreateInput = {
+    // Prepare creation data (id/updatedAt filled by repository)
+    const createData = {
       type: body.type,
       phone: body.phone,
       firstName: body.firstName || null,

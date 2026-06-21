@@ -15,12 +15,12 @@ import { randomUUID } from 'node:crypto';
 /**
  * Contact creation input type
  */
-export type ContactCreateInput = Prisma.ContactCreateInput;
+export type ContactCreateInput = Omit<Prisma.ContactUncheckedCreateInput, 'id' | 'updatedAt'> & Partial<Pick<Prisma.ContactUncheckedCreateInput, 'id' | 'updatedAt'>>;
 
 /**
  * Contact update input type
  */
-export type ContactUpdateInput = Prisma.ContactUpdateInput;
+export type ContactUpdateInput = Prisma.ContactUncheckedUpdateInput;
 
 /**
  * Contact findMany params type
