@@ -24,4 +24,4 @@
 - None
 
 ## Next Action
-Execute T03: File Upload API Routes in slice S07.
+Execute T08: Cascade Close API + UI in slice S07.

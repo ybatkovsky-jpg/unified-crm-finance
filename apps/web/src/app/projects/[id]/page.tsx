@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Edit2, Save, X, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, Users, Layers, Package, Upload } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, Users, Layers, Package, Upload, CheckCircle2 } from "lucide-react"
 import { projectsApi, ApiClientError } from "@/lib/api/projects"
 import { filesApi } from "@/lib/api/files"
 import type { ProjectData, FileUploadFile } from "@/lib/api/types"
@@ -22,6 +22,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { FileUpload } from "@/components/shared/file-upload"
 import { FilePreview, useFilePreview } from "@/components/shared/file-preview"
 
@@ -90,6 +101,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   })
   const [specFiles, setSpecFiles] = useState<FileUploadFile[]>([])
   const [uploadingSpec, setUploadingSpec] = useState(false)
+  const [completingProject, setCompletingProject] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const filePreview = useFilePreview()
 
   const unwrapParams = useCallback(async () => {
@@ -250,6 +263,46 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     setSpecFiles([])
   }
 
+  // Check if all project stages are completed
+  const allStagesCompleted = project?.stages?.every(
+    (stage) => stage.status === "completed"
+  ) ?? false
+
+  // Check if project can be completed (all stages done and not already completed)
+  const canCompleteProject = allStagesCompleted && project?.status !== "completed"
+
+  const handleCompleteProject = async () => {
+    if (!project) return
+
+    setCompletingProject(true)
+    setError(null)
+    setSuccessMessage(null)
+
+    try {
+      // Use a hardcoded user ID for now - in a real app this would come from auth
+      const userId = "system"
+
+      const response = await projectsApi.completeProject(project.id, userId)
+
+      // Show success message
+      setSuccessMessage("Проект успешно закрыт. Связанная сделка также закрыта.")
+
+      // Refresh project data
+      await fetchProject(project.id)
+
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccessMessage(null), 5000)
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(err.message)
+      } else {
+        setError("Не удалось закрыть проект. Пожалуйста, попробуйте снова.")
+      }
+    } finally {
+      setCompletingProject(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -302,10 +355,41 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         </div>
         <div className="flex gap-2">
           {!isEditing ? (
-            <Button onClick={() => setIsEditing(true)}>
-              <Edit2 className="size-4" />
-              <span className="ml-1.5">\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C</span>
-            </Button>
+            <>
+              <Button onClick={() => setIsEditing(true)}>
+                <Edit2 className="size-4" />
+                <span className="ml-1.5">\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C</span>
+              </Button>
+
+              {canCompleteProject && (
+                <AlertDialog>
+                  <AlertDialogTrigger
+                    render={<Button variant="default" className="bg-green-600 hover:bg-green-700">
+                      <CheckCircle2 className="size-4" />
+                      <span className="ml-1.5">\u041F\u043E\u0434\u043F\u0438\u0441\u0430\u0442\u044C \u0430\u043A\u0442 \u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u044C \u043F\u0440\u043E\u0435\u043A\u0442</span>
+                    </Button>}
+                  />
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>\u0417\u0430\u043A\u0440\u044B\u0442\u044C \u043F\u0440\u043E\u0435\u043A\u0442?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        \u0412\u044B \u0443\u0432\u0435\u0440\u0435\u043D\u044B, \u0447\u0442\u043E \u0445\u043E\u0442\u0438\u0442\u0435 \u043F\u043E\u0434\u043F\u0438\u0441\u0430\u0442\u044C \u0430\u043A\u0442 \u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u044C \u043F\u0440\u043E\u0435\u043A\u0442? \u0412\u0441\u0435 \u044D\u0442\u0430\u043F\u044B \u043F\u0440\u043E\u0435\u043A\u0442\u0430 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u044B. \u0421\u0432\u044F\u0437\u0430\u043D\u043D\u0430\u044F \u0441\u0434\u0435\u043B\u043A\u0430 \u0442\u0430\u043A\u0436\u0435 \u0431\u0443\u0434\u0435\u0442 \u0437\u0430\u043A\u0440\u044B\u0442\u0430.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel
+                        render={<Button variant="outline">\u041E\u0442\u043C\u0435\u043D\u0430</Button>}
+                      />
+                      <AlertDialogAction
+                        render={<Button onClick={handleCompleteProject} disabled={completingProject} className="bg-green-600 hover:bg-green-700">
+                          {completingProject ? "\u0417\u0430\u043A\u0440\u044B\u0442\u0438\u0435..." : "\u041F\u043E\u0434\u043F\u0438\u0441\u0430\u0442\u044C \u0430\u043A\u0442"}
+                        </Button>}
+                      />
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </>
           ) : (
             <div className="flex gap-2">
               <Button onClick={handleSave} disabled={saving}>
@@ -325,6 +409,17 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <p className="text-destructive">{error}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {successMessage && (
+        <Card className="border-green-500 bg-green-50 dark:bg-green-950/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="size-4 text-green-600 dark:text-green-400" />
+              <p className="text-green-700 dark:text-green-300">{successMessage}</p>
+            </div>
           </CardContent>
         </Card>
       )}

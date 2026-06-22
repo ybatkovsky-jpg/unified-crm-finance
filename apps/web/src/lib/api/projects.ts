@@ -210,6 +210,36 @@ export class ProjectApiClient {
 
     return parseJson<ApiResponse<ProjectStageData>>(response);
   }
+
+  /**
+   * POST /api/projects/[id]/complete
+   *
+   * Complete a project and cascade the completion to the related Deal.
+   * Validates all project stages are completed first.
+   */
+  async completeProject(
+    id: string,
+    userId: string
+  ): Promise<ApiResponse<{ project: ProjectData; deal: ProjectData['deal'] | null }>> {
+    if (!id) {
+      throw new ApiClientError(400, 'Validation failed', 'id is required');
+    }
+    if (!userId) {
+      throw new ApiClientError(400, 'Validation failed', 'userId is required');
+    }
+
+    const response = await this.fetchFn(this.url(`/projects/${id}/complete`), {
+      method: 'POST',
+      headers: this.defaultHeaders,
+      body: JSON.stringify({ userId }),
+    });
+
+    if (!response.ok) {
+      return parseApiError(response);
+    }
+
+    return parseJson<ApiResponse<{ project: ProjectData; deal: ProjectData['deal'] | null }>>(response);
+  }
 }
 
 /**
@@ -227,6 +257,7 @@ export const {
   updateProject,
   deleteProject,
   updateStage,
+  completeProject,
 } = projectsApi;
 
 export default projectsApi;

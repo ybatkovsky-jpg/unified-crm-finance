@@ -40,27 +40,27 @@
   - Files: `apps/web/package.json`, `apps/web/src/lib/storage/s3.ts`
   - Verify: test -f apps/web/src/lib/storage/s3.ts && grep -q '@aws-sdk/client-s3' apps/web/package.json
 
-- [ ] **T03: File Upload API Routes** `est:1h`
+- [x] **T03: File Upload API Routes** `est:1h`
   Create POST /api/files/route.ts for file upload (multipart form data, validates size/type using MAX_UPLOAD_SIZE_MB, uploads via S3 utility, creates FileEntity record, returns file ID). Create GET /api/files/[id]/route.ts for download (generates presigned URL) and DELETE for removal (soft-deletes FileEntity, optionally removes from MinIO).
   - Files: `apps/web/src/app/api/files/route.ts`, `apps/web/src/app/api/files/[id]/route.ts`
   - Verify: test -f apps/web/src/app/api/files/route.ts && test -f apps/web/src/app/api/files/[id]/route.ts
 
-- [ ] **T04: File Upload Components** `est:1h`
+- [x] **T04: File Upload Components** `est:1h`
   Create reusable FileUpload component (apps/web/src/components/shared/file-upload.tsx) with drag-drop zone, progress indicator, file preview (image/PDF icons), delete button with confirmation. Create FilePreview component (apps/web/src/components/shared/file-preview.tsx) for modal preview of supported formats. Both use shadcn/ui patterns matching existing modals.
   - Files: `apps/web/src/components/shared/file-upload.tsx`, `apps/web/src/components/shared/file-preview.tsx`
   - Verify: test -f apps/web/src/components/shared/file-upload.tsx && test -f apps/web/src/components/shared/file-preview.tsx
 
-- [ ] **T05: File Attachments Integration - Deal Detail** `est:1h`
+- [x] **T05: File Attachments Integration - Deal Detail** `est:1h`
   Add file attachments section to Deal detail page. Two attachment fields: Drawings (drawingFileId) and Acceptance Act (actFileId). Integrate FileUpload component for each. Fetch related FileEntity data via Deal API. Add update logic to PATCH /api/deals/[id] to handle drawingFileId and actFileId fields.
   - Files: `apps/web/src/app/api/deals/[id]/route.ts`, `apps/web/src/app/deals/[id]/page.tsx`
   - Verify: grep -q 'FileUpload' apps/web/src/app/deals/[id]/page.tsx
 
-- [ ] **T06: File Attachments Integration - Project Detail** `est:45m`
+- [x] **T06: File Attachments Integration - Project Detail** `est:45m`
   Add file attachments section to Project detail page. Single attachment field: Specifications (specFileId). Integrate FileUpload component. Fetch related FileEntity via Project API (include specFile relation). Add update logic to PATCH /api/projects/[id] to handle specFileId field.
   - Files: `apps/web/src/app/api/projects/[id]/route.ts`, `apps/web/src/app/projects/[id]/page.tsx`
   - Verify: grep -q 'FileUpload' apps/web/src/app/projects/[id]/page.tsx
 
-- [ ] **T07: Cascade Close Logic - Repository** `est:45m`
+- [x] **T07: Cascade Close Logic - Repository** `est:45m`
   Add completeWithCascade(projectId: string, userId: string) method to ProjectRepository in apps/web/src/lib/db/projects.ts. Uses Prisma transaction to: (1) set Project.status='completed' and completedAt=now(), (2) find related Deal via dealId, (3) move Deal to won stage and set closedAt=now. Validates all project stages are completed first. Returns updated Project and Deal.
   - Files: `apps/web/src/lib/db/projects.ts`
   - Verify: grep -q 'completeWithCascade' apps/web/src/lib/db/projects.ts
