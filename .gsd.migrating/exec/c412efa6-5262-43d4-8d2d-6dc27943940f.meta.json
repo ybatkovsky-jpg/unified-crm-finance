@@ -1,0 +1,18 @@
+{
+  "id": "c412efa6-5262-43d4-8d2d-6dc27943940f",
+  "runtime": "bash",
+  "purpose": "Run ProjectRepository tests with node test",
+  "script_chars": 88,
+  "started_at": "2026-06-22T08:30:53.739Z",
+  "finished_at": "2026-06-22T08:30:53.828Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 89,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\c412efa6-5262-43d4-8d2d-6dc27943940f.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\c412efa6-5262-43d4-8d2d-6dc27943940f.stderr"
+}

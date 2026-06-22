@@ -1,7 +1,7 @@
 # Codebase Map
 
-Generated: 2026-06-21T22:40:08Z | Files: 500 | Described: 0/500
-<!-- gsd:codebase-meta {"generatedAt":"2026-06-21T22:40:08Z","fingerprint":"40e2ba7482eea76ee4e30dfe81af2f361272a74d","fileCount":500,"truncated":true} -->
+Generated: 2026-06-22T07:34:44Z | Files: 500 | Described: 0/500
+<!-- gsd:codebase-meta {"generatedAt":"2026-06-22T07:34:44Z","fingerprint":"e8b022cc5fb141acc307132481c6bd720615541b","fileCount":500,"truncated":true} -->
 Note: Truncated to first 500 files. Run with higher --max-files to include all.
 
 ### (root)/
@@ -35,7 +35,7 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 - `.gsd.migrating/STATE.md.tmp.467ae258`
 
 ### .gsd.migrating/activity/
-- *(109 files: 109 .jsonl)*
+- *(120 files: 120 .jsonl)*
 
 ### .gsd.migrating/adr/
 - `.gsd.migrating/adr/002-data-model.md`
@@ -44,7 +44,7 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 - `.gsd.migrating/audit/events.jsonl`
 
 ### .gsd.migrating/exec/
-- *(69 files: 23 .json, 23 .stderr, 23 .stdout)*
+- *(72 files: 24 .json, 24 .stderr, 24 .stdout)*
 
 ### .gsd.migrating/graphs/
 - `.gsd.migrating/graphs/graph.json`
@@ -259,6 +259,7 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 
 ### .gsd.migrating/milestones/M003/
 - `.gsd.migrating/milestones/M003/M003-CONTEXT.md`
+- `.gsd.migrating/milestones/M003/M003-LEARNINGS.md`
 - `.gsd.migrating/milestones/M003/M003-RESEARCH.md`
 - `.gsd.migrating/milestones/M003/M003-ROADMAP.md`
 - `.gsd.migrating/milestones/M003/M003-SUMMARY.md`
@@ -329,6 +330,7 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 
 ### .gsd.migrating/milestones/M003/slices/S04/
 - `.gsd.migrating/milestones/M003/slices/S04/S04-PLAN.md`
+- `.gsd.migrating/milestones/M003/slices/S04/S04-PRE-EXEC-VERIFY.json`
 - `.gsd.migrating/milestones/M003/slices/S04/S04-RESEARCH.md`
 - `.gsd.migrating/milestones/M003/slices/S04/S04-SUMMARY.md`
 - `.gsd.migrating/milestones/M003/slices/S04/S04-UAT.md`
@@ -336,10 +338,13 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 ### .gsd.migrating/milestones/M003/slices/S04/tasks/
 - `.gsd.migrating/milestones/M003/slices/S04/tasks/T01-PLAN.md`
 - `.gsd.migrating/milestones/M003/slices/S04/tasks/T01-SUMMARY.md`
+- `.gsd.migrating/milestones/M003/slices/S04/tasks/T01-VERIFY.json`
 - `.gsd.migrating/milestones/M003/slices/S04/tasks/T02-PLAN.md`
 - `.gsd.migrating/milestones/M003/slices/S04/tasks/T02-SUMMARY.md`
+- `.gsd.migrating/milestones/M003/slices/S04/tasks/T02-VERIFY.json`
 - `.gsd.migrating/milestones/M003/slices/S04/tasks/T03-PLAN.md`
 - `.gsd.migrating/milestones/M003/slices/S04/tasks/T03-SUMMARY.md`
+- `.gsd.migrating/milestones/M003/slices/S04/tasks/T03-VERIFY.json`
 
 ### .gsd.migrating/milestones/M003/slices/S05/
 - `.gsd.migrating/milestones/M003/slices/S05/S05-PLAN.md`
@@ -359,7 +364,20 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 - `.gsd.migrating/milestones/M003/slices/S05/tasks/T03-VERIFY.json`
 
 ### .gsd.migrating/milestones/M004/
+- `.gsd.migrating/milestones/M004/M004-CONTEXT.md`
+- `.gsd.migrating/milestones/M004/M004-RESEARCH.md`
 - `.gsd.migrating/milestones/M004/M004-ROADMAP.md`
+
+### .gsd.migrating/milestones/M004/anchors/
+- `.gsd.migrating/milestones/M004/anchors/plan-milestone.json`
+
+### .gsd.migrating/milestones/M004/slices/S01/
+- `.gsd.migrating/milestones/M004/slices/S01/S01-PLAN.md`
+
+### .gsd.migrating/milestones/M004/slices/S01/tasks/
+- `.gsd.migrating/milestones/M004/slices/S01/tasks/T01-PLAN.md`
+- `.gsd.migrating/milestones/M004/slices/S01/tasks/T02-PLAN.md`
+- `.gsd.migrating/milestones/M004/slices/S01/tasks/T03-PLAN.md`
 
 ### .gsd.migrating/milestones/M005/
 - `.gsd.migrating/milestones/M005/M005-ROADMAP.md`
@@ -373,6 +391,9 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 ### .gsd.migrating/milestones/M008/
 - `.gsd.migrating/milestones/M008/M008-ROADMAP.md`
 
+### .gsd.migrating/milestones/M010/
+- `.gsd.migrating/milestones/M010/M010-ROADMAP.md`
+
 ### .gsd.migrating/reports/
 - `.gsd.migrating/reports/index.html`
 - `.gsd.migrating/reports/M002-2026-06-21T10-48-01.html`
@@ -380,6 +401,11 @@ Note: Truncated to first 500 files. Run with higher --max-files to include all.
 
 ### .gsd.migrating/runtime/
 - `.gsd.migrating/runtime/M002-S01-reactive.json`
+- `.gsd.migrating/runtime/M004-S01-reactive.json`
 
 ### .gsd.migrating/runtime/units/
-- *(33 files: 33 .json)*
+- `.gsd.migrating/runtime/units/complete-milestone-M003.json`
+- `.gsd.migrating/runtime/units/complete-milestone-M009.json`
+- `.gsd.migrating/runtime/units/complete-slice-M001-S02.json`
+- `.gsd.migrating/runtime/units/complete-slice-M001-S03.json`
+- `.gsd.migrating/runtime/units/complete-slice-M001-S04.json`

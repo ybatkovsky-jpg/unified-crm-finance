@@ -1,0 +1,18 @@
+{
+  "id": "0685576f-e9a5-4325-9af9-e766db95c7bd",
+  "runtime": "bash",
+  "purpose": "Check types.ts compiles without errors",
+  "script_chars": 76,
+  "started_at": "2026-06-22T08:32:42.377Z",
+  "finished_at": "2026-06-22T08:32:42.451Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 74,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\0685576f-e9a5-4325-9af9-e766db95c7bd.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\0685576f-e9a5-4325-9af9-e766db95c7bd.stderr"
+}

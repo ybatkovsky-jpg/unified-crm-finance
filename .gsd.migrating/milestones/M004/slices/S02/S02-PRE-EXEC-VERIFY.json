@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "milestoneId": "M004",
+  "sliceId": "S02",
+  "timestamp": 1782113684048,
+  "status": "fail",
+  "durationMs": 6,
+  "checks": [
+    {
+      "category": "tool",
+      "target": "T03 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: grep -c 'export.*Project' src/lib/api/types.ts returns >= 8 (contains shell control syntax such as pipes, redirects, semicolons, backticks, or command substitution)",
+      "blocking": true
+    },
+    {
+      "category": "tool",
+      "target": "T05 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: grep -c 'export.*Project' src/lib/api/projects.ts returns >= 5 (contains shell control syntax such as pipes, redirects, semicolons, backticks, or command substitution)",
+      "blocking": true
+    }
+  ]
+}

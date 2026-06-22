@@ -21,17 +21,17 @@ Production model ready for API layer
 
 ## Tasks
 
-- [ ] **T01: Create Production and ProductionStage Prisma models** `est:30m`
+- [x] **T01: Create Production and ProductionStage Prisma models** `est:30m`
   Add Production and ProductionStage models to schema.prisma with proper relations, indexes, and cascade behavior.
   - Files: `apps/web/prisma/schema.prisma`
   - Verify: npx prisma migrate dev --name add_production
 
-- [ ] **T02: Create ProductionRepository** `est:45m`
+- [x] **T02: Create ProductionRepository** `est:45m`
   Create ProductionRepository following DealRepository pattern with CRUD, softDelete, findMany with filters.
   - Files: `apps/web/src/lib/db/production.ts`
   - Verify: npx tsc --noEmit apps/web/src/lib/db/production.ts
 
-- [ ] **T03: Write ProductionRepository unit tests** `est:30m`
+- [x] **T03: Write ProductionRepository unit tests** `est:30m`
   Write unit tests for ProductionRepository covering CRUD, softDelete, filters.
   - Files: `apps/web/src/lib/db/production.test.ts`
   - Verify: tsx apps/web/src/lib/db/production.test.ts

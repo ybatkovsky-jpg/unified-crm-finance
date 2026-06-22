@@ -12,10 +12,10 @@
 
 ## Slices
 
-- [ ] **S01: Production Schema + Repository** `risk:high` `depends:[]`
+- [x] **S01: S01** `risk:high` `depends:[]`
   > After this: ProductionRepository passes all unit tests (CRUD + softDelete), Prisma migration applies successfully
 
-- [ ] **S02: Project API + Repository** `risk:high` `depends:[]`
+- [ ] **S02: S02** `risk:high` `depends:[]`
   > After this: ProjectRepository passes unit tests (CRUD, softDelete, count), ProjectApiClient can create/read/update/delete via curl
 
 - [ ] **S03: Project List + Create UI** `risk:medium` `depends:[S02]`

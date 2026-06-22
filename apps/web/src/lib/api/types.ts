@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate } from '@prisma/client';
+import type { Contact, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -360,4 +360,121 @@ export interface DealConvertInput {
   startDate?: string | null;
   endDate?: string | null;
   notes?: string | null;
+}
+
+/**
+ * Project data with relations
+ */
+export interface ProjectData extends Omit<Project, 'deletedAt'> {
+  manager?: UserData | null;
+  contact?: ContactData | null;
+  deal?: DealData | null;
+  contract?: ContractData | null;
+  stages?: ProjectStageData[];
+  members?: ProjectMemberData[];
+}
+
+/**
+ * Project stage data
+ */
+export interface ProjectStageData extends Omit<ProjectStage, 'projectId'> {}
+
+/**
+ * Project member data with User relation
+ */
+export interface ProjectMemberData extends Omit<ProjectMember, 'projectId'> {
+  User?: UserData | null;
+}
+
+/**
+ * Project filter options
+ */
+export interface ProjectFilters {
+  status?: string;
+  managerId?: string;
+  contactId?: string;
+  dealId?: string;
+}
+
+/**
+ * Project list params
+ */
+export interface ProjectListParams extends ProjectFilters, PaginationOptions {}
+
+/**
+ * Project creation input
+ */
+export interface ProjectCreateInput {
+  name: string;
+  description?: string | null;
+  dealId?: string | null;
+  contractId?: string | null;
+  contactId?: string | null;
+  status?: string | null;
+  contractAmount?: number | null;
+  currency?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  marginTarget?: number | null;
+  managerId?: string | null;
+  attributes?: Record<string, unknown> | null;
+}
+
+/**
+ * Project update input
+ */
+export interface ProjectUpdateInput {
+  name?: string | null;
+  description?: string | null;
+  dealId?: string | null;
+  contractId?: string | null;
+  contactId?: string | null;
+  status?: string | null;
+  contractAmount?: number | null;
+  currency?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  completedAt?: string | null;
+  marginTarget?: number | null;
+  qualityRating?: string | null;
+  deadlineStatus?: string | null;
+  managerId?: string | null;
+  attributes?: Record<string, unknown> | null;
+}
+
+/**
+ * Project stage creation input
+ */
+export interface ProjectStageCreateInput {
+  code: string;
+  name: string;
+  order: number;
+  status?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  assigneeId?: string | null;
+  notes?: string | null;
+}
+
+/**
+ * Project stage update input
+ */
+export interface ProjectStageUpdateInput {
+  code?: string | null;
+  name?: string | null;
+  order?: number | null;
+  status?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  completedAt?: string | null;
+  assigneeId?: string | null;
+  notes?: string | null;
+}
+
+/**
+ * Project member creation input
+ */
+export interface ProjectMemberCreateInput {
+  userId: string;
+  role: string;
 }

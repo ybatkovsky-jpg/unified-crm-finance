@@ -1,5 +1,5 @@
 {
-  "compiledAt": "2026-06-21T22:40:19.615Z",
+  "compiledAt": "2026-06-22T08:29:17.239Z",
   "milestoneId": "M004",
   "pipeline": {
     "clarifyRoundLimit": 3,
@@ -13,12 +13,15 @@
       "id": "execute-task:M004:S01:T01",
       "kind": "unit",
       "dependsOn": [],
-      "writes": [],
+      "writes": [
+        "apps/web/prisma/schema.prisma",
+        "apps/web/prisma/migrations/20260621224244_add_production/migration.sql"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S01.T01",
-        "title": "Create Production and ProductionStage Prisma models",
-        "status": "pending"
+        "title": "Added Production and ProductionStage Prisma models with 1:N relation, cascade delete, soft delete support, and proper indexes",
+        "status": "complete"
       }
     },
     {
@@ -27,12 +30,14 @@
       "dependsOn": [
         "execute-task:M004:S01:T01"
       ],
-      "writes": [],
+      "writes": [
+        "D:/CLAUDE/Project/unified-crm-finance/apps/web/src/lib/db/production.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S01.T02",
-        "title": "Create ProductionRepository",
-        "status": "pending"
+        "title": "Created ProductionRepository with full CRUD operations, soft-delete support, and ProductionStage management methods following the established DealRepository/ContactRepository pattern",
+        "status": "complete"
       }
     },
     {
@@ -41,12 +46,14 @@
       "dependsOn": [
         "execute-task:M004:S01:T02"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/lib/db/production.test.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S01.T03",
-        "title": "Write ProductionRepository unit tests",
-        "status": "pending"
+        "title": "Created comprehensive ProductionRepository unit tests covering CRUD, soft-delete, status workflows, and ProductionStage management",
+        "status": "complete"
       }
     },
     {
@@ -58,7 +65,105 @@
       "metadata": {
         "unitType": "complete-slice",
         "unitId": "M004.S01",
-        "title": "Production Schema + Repository",
+        "title": "S01",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M004:S02:T01",
+      "kind": "unit",
+      "dependsOn": [],
+      "writes": [
+        "apps/web/src/lib/db/projects.ts",
+        "apps/web/src/lib/db/projects.test.ts"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S02.T01",
+        "title": "Created ProjectRepository with CRUD operations, stage management, member management, and comprehensive tests (34/34 passing)",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M004:S02:T02",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S02:T01"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S02.T02",
+        "title": "Write ProjectRepository unit tests",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S02:T03",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S02:T02"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S02.T03",
+        "title": "Add Project types to API types",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S02:T04",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S02:T03"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S02.T04",
+        "title": "Create Project API routes",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S02:T05",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S02:T04"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S02.T05",
+        "title": "Create ProjectApiClient",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S02:T06",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S02:T05"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S02.T06",
+        "title": "Write ProjectApiClient tests",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "complete-slice:M004:S02",
+      "kind": "verification",
+      "dependsOn": [
+        "execute-task:M004:S02:T06"
+      ],
+      "metadata": {
+        "unitType": "complete-slice",
+        "unitId": "M004.S02",
+        "title": "S02",
         "status": "pending"
       }
     }

@@ -1,0 +1,18 @@
+{
+  "id": "660194fe-39b8-4d7f-a11f-167aa751c168",
+  "runtime": "bash",
+  "purpose": "Run ProjectRepository tests to verify T02 completion",
+  "script_chars": 74,
+  "started_at": "2026-06-22T08:30:34.517Z",
+  "finished_at": "2026-06-22T08:30:34.598Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 81,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\660194fe-39b8-4d7f-a11f-167aa751c168.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\660194fe-39b8-4d7f-a11f-167aa751c168.stderr"
+}

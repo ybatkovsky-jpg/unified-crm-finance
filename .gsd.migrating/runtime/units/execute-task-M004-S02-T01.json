@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "unitType": "execute-task",
+  "unitId": "M004/S02/T01",
+  "startedAt": 1782115025428,
+  "updatedAt": 1782116825462,
+  "phase": "timeout",
+  "wrapupWarningSent": true,
+  "continueHereFired": false,
+  "timeoutAt": 1782116825460,
+  "lastProgressAt": 1782116226415,
+  "progressCount": 0,
+  "lastProgressKind": "filesystem-activity",
+  "recoveryAttempts": 0
+}

@@ -1,10 +1,10 @@
 {
   "nodes": [
     {
-      "id": "milestone:M003",
-      "label": "M003: Сделки и контракты",
+      "id": "milestone:M004",
+      "label": "M004: Проекты",
       "type": "milestone",
-      "description": "Active milestone: M003",
+      "description": "Active milestone: M004",
       "confidence": "EXTRACTED",
       "sourceFile": "STATE.md"
     },
@@ -340,6 +340,13 @@
       "confidence": "EXTRACTED"
     },
     {
+      "id": "milestone:M003",
+      "label": "M003: Сделки и контракты",
+      "type": "milestone",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-ROADMAP.md"
+    },
+    {
       "id": "slice:M003:S01",
       "label": "S01: Deal Repository and API",
       "type": "slice",
@@ -465,11 +472,29 @@
       "confidence": "EXTRACTED"
     },
     {
-      "id": "milestone:M004",
-      "label": "M004: Проекты",
-      "type": "milestone",
+      "id": "slice:M004:S01",
+      "label": "S01: Production Schema + Repository",
+      "type": "slice",
       "confidence": "EXTRACTED",
-      "sourceFile": "milestones/M004/M004-ROADMAP.md"
+      "sourceFile": "milestones/M004/slices/S01/S01-PLAN.md"
+    },
+    {
+      "id": "task:M004:S01:T01",
+      "label": "T01: Create Production and ProductionStage Prisma models",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M004:S01:T02",
+      "label": "T02: Create ProductionRepository",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M004:S01:T03",
+      "label": "T03: Write ProductionRepository unit tests",
+      "type": "task",
+      "confidence": "EXTRACTED"
     },
     {
       "id": "milestone:M005",
@@ -498,6 +523,111 @@
       "type": "milestone",
       "confidence": "EXTRACTED",
       "sourceFile": "milestones/M008/M008-ROADMAP.md"
+    },
+    {
+      "id": "milestone:M010",
+      "label": "M010: M010",
+      "type": "milestone",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M010/M010-ROADMAP.md"
+    },
+    {
+      "id": "decision:M003:1",
+      "label": "**Repository pattern for Deal and Contract entities** — Chose Repository pattern to separate business logic from data access, enable testing, and provide consistent API across domain models - Source: M003-ROADMAP.md/Architecture Decisions",
+      "type": "decision",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "decision:M003:2",
+      "label": "**Deal to Contract conversion with bidirectional link** — Chose convertFromDeal method in ContractRepository that creates Contract from Deal data and sets both deal.contractId and contract.dealId. Throws if contract already exists for deal. - Source: S04-SUMMARY.md/Key Decisions",
+      "type": "decision",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "decision:M003:3",
+      "label": "**Contract versioning via separate ContractVersion table** — Chose separate ContractVersion table with incremental version numbers. addVersion queries latest version number and increments by 1. - Source: S04-SUMMARY.md/Key Decisions",
+      "type": "decision",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "decision:M003:4",
+      "label": "**Soft-delete pattern for Deal and Contract** — Chose deletedAt nullable timestamp instead of physical row deletion. Repositories filter where deletedAt IS NULL by default; softDelete sets deletedAt = now() - Source: S04-SUMMARY.md/Key Decisions",
+      "type": "decision",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "decision:M003:5",
+      "label": "**Auto-numbering schemes for deals and contracts** — Chose С-YYYY-NNNNN for deals and Д-YYYY-NNNNN for contracts to provide user-friendly identifiers for cross-referencing - Source: S01-SUMMARY.md/What Happened",
+      "type": "decision",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "lesson:M003:1",
+      "label": "**Transaction safety required for bidirectional link creation** — convertFromDeal must wrap deal and contract updates in prisma.$transaction to prevent orphaned contracts if deal update fails after contract creation - Source: S04-SUMMARY.md/What Happened",
+      "type": "lesson",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "lesson:M003:2",
+      "label": "**Same-stage move behavior documented deviation** — moveStage implementation records DealHistory entry with fromStageId==toStageId instead of rejecting. Tests verify actual behavior; not a blocker but different from original plan - Source: S01-SUMMARY.md/Deviations",
+      "type": "lesson",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "lesson:M003:3",
+      "label": "**Pagination gap in DealApiClient** — Pagination params (skip/take) declared in DealListParams type but not serialized by DealApiClient.url() method — deferred to future work - Source: S01-SUMMARY.md/Known Limitations",
+      "type": "lesson",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "pattern:M003:1",
+      "label": "**node:test pattern for unit tests** — Repository tests use real Prisma with in-memory setup (seed pipeline + stages + contact before each test); client tests use mocked fetch via undici MockAgent - Source: S01-SUMMARY.md/Patterns Established",
+      "type": "pattern",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "pattern:M003:2",
+      "label": "**Pipeline API for stage list** — Use pipeline API (GET /api/pipelines/[id]) for stage list instead of deriving from deals; ensures all 8 stages render even when empty - Source: S02-SUMMARY.md/Patterns Established",
+      "type": "pattern",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "pattern:M003:3",
+      "label": "**Return full relations from mutation APIs** — Return complete object with relations (stage, contact, manager, pipeline) from mutations to avoid stale UI state - Source: S02-SUMMARY.md/Patterns Established",
+      "type": "pattern",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "pattern:M003:4",
+      "label": "**onValueChange for Select components** — Use @base-ui/react Select with onValueChange prop instead of onChange; handle null values properly - Source: S02-SUMMARY.md/Key Decisions",
+      "type": "pattern",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "pattern:M003:5",
+      "label": "**Conditional display for Contact names** — Show firstName + lastName for person contacts, companyName for company contacts; type badge distinguishes entity type - Source: S02-SUMMARY.md/Key Decisions",
+      "type": "pattern",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
+    },
+    {
+      "id": "surprise:M003:1",
+      "label": "**@base-ui/react component API differences** — TypeScript compilation revealed Select component uses onValueChange not onChange, and DialogTrigger doesn't support asChild prop — had to fix during S02 completion - Source: S02-SUMMARY.md/Deviations",
+      "type": "lesson",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M003/M003-LEARNINGS.md"
     }
   ],
   "edges": [
@@ -920,7 +1050,115 @@
       "to": "task:M003:S05:T03",
       "type": "contains",
       "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M004",
+      "to": "slice:M004:S01",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M004:S01",
+      "to": "task:M004:S01:T01",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M004:S01",
+      "to": "task:M004:S01:T02",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M004:S01",
+      "to": "task:M004:S01:T03",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "decision:M003:1",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "decision:M003:2",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "decision:M003:3",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "decision:M003:4",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "decision:M003:5",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "lesson:M003:1",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "lesson:M003:2",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "lesson:M003:3",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "pattern:M003:1",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "pattern:M003:2",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "pattern:M003:3",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "pattern:M003:4",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "pattern:M003:5",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "milestone:M003",
+      "to": "surprise:M003:1",
+      "type": "relates_to",
+      "confidence": "EXTRACTED"
     }
   ],
-  "builtAt": "2026-06-21T15:41:42.643Z"
+  "builtAt": "2026-06-21T22:48:42.434Z"
 }

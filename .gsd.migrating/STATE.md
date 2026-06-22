@@ -1,7 +1,7 @@
 # GSD State
 
 **Active Milestone:** M004: Проекты
-**Active Slice:** S01: Production Schema + Repository
+**Active Slice:** S02: S02
 **Phase:** executing
 **Requirements Status:** 15 active · 5 validated · 0 deferred · 0 out of scope
 
@@ -24,4 +24,4 @@
 - None
 
 ## Next Action
-Execute T01: Create Production and ProductionStage Prisma models in slice S01.
+Execute T02: Write ProjectRepository unit tests in slice S02.

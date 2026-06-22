@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "unitType": "research-slice",
+  "unitId": "M004/S02",
+  "startedAt": 1782083874782,
+  "updatedAt": 1782083874803,
+  "phase": "dispatched",
+  "wrapupWarningSent": false,
+  "continueHereFired": false,
+  "timeoutAt": null,
+  "lastProgressAt": 1782083874782,
+  "progressCount": 0,
+  "lastProgressKind": "dispatch",
+  "recoveryAttempts": 0
+}
