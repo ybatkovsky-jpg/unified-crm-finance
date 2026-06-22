@@ -1,5 +1,5 @@
 {
-  "compiledAt": "2026-06-22T08:29:17.239Z",
+  "compiledAt": "2026-06-22T09:32:16.968Z",
   "milestoneId": "M004",
   "pipeline": {
     "clarifyRoundLimit": 3,
@@ -90,12 +90,14 @@
       "dependsOn": [
         "execute-task:M004:S02:T01"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/lib/db/projects.test.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S02.T02",
-        "title": "Write ProjectRepository unit tests",
-        "status": "pending"
+        "title": "ProjectRepository unit tests already created with T01 (34 tests passing)",
+        "status": "complete"
       }
     },
     {
@@ -104,12 +106,14 @@
       "dependsOn": [
         "execute-task:M004:S02:T02"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/lib/api/types.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S02.T03",
-        "title": "Add Project types to API types",
-        "status": "pending"
+        "title": "Project types already added to API types (ProjectData, ProjectStageData, ProjectMemberData, filters and inputs)",
+        "status": "complete"
       }
     },
     {
@@ -118,12 +122,15 @@
       "dependsOn": [
         "execute-task:M004:S02:T03"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/app/api/projects/route.ts",
+        "apps/web/src/app/api/projects/[id]/route.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S02.T04",
-        "title": "Create Project API routes",
-        "status": "pending"
+        "title": "Created Project API routes (collection and single resource) with GET/POST/PATCH/DELETE handlers, filtering support, and error logging",
+        "status": "complete"
       }
     },
     {

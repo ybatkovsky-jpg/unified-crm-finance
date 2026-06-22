@@ -24,4 +24,4 @@
 - None
 
 ## Next Action
-Execute T02: Write ProjectRepository unit tests in slice S02.
+Execute T05: Create ProjectApiClient in slice S02.

@@ -26,17 +26,17 @@ Upstream: Uses Prisma schema (Project, ProjectStage, ProjectMember models alread
   - Files: `apps/web/src/lib/db/projects.ts`, `apps/web/prisma/schema.prisma`
   - Verify: node --test src/lib/db/projects.test.ts
 
-- [ ] **T02: Write ProjectRepository unit tests** `est:45m`
+- [x] **T02: Write ProjectRepository unit tests** `est:45m`
   Create unit tests for ProjectRepository in apps/web/src/lib/db/projects.test.ts. Test CRUD operations (create, findMany, findUnique, update, softDelete), soft-delete behavior (excluded from queries), count accuracy, and query methods (findByStatus, findByManager, findByContact, findByDeal). Use test fixtures and cleanup between tests. Follow DealRepository.test pattern.
   - Files: `apps/web/src/lib/db/projects.test.ts`, `apps/web/src/lib/db/projects.ts`
   - Verify: node --test src/lib/db/projects.test.ts
 
-- [ ] **T03: Add Project types to API types** `est:30m`
+- [x] **T03: Add Project types to API types** `est:30m`
   Add Project types to apps/web/src/lib/api/types.ts. Add ProjectData (with ProjectStage, ProjectMember, manager, contact, deal, contract relations), ProjectStageData, ProjectMemberData, ProjectFilters, ProjectListParams, ProjectCreateInput, ProjectUpdateInput, ProjectStageCreateInput, ProjectMemberCreateInput. Follow existing DealData, ContactData patterns.
   - Files: `apps/web/src/lib/api/types.ts`
   - Verify: test -f src/lib/api/types.ts
 
-- [ ] **T04: Create Project API routes** `est:1h`
+- [x] **T04: Create Project API routes** `est:1h`
   Create Project API routes. Collection endpoint at apps/web/src/app/api/projects/route.ts with GET (list with filters: status, managerId, contactId, dealId) and POST (create with validation: name, externalNumber required). Single resource at apps/web/src/app/api/projects/[id]/route.ts with GET (include stages, members, relations), PATCH (update with existence check), DELETE (soft delete). Follow deals route pattern with NextResponse.json({ data }) success and { error, message } errors.
   - Files: `apps/web/src/app/api/projects/route.ts`, `apps/web/src/app/api/projects/[id]/route.ts`, `apps/web/src/lib/db/projects.ts`
   - Verify: test -f src/app/api/projects/route.ts && test -f src/app/api/projects/[id]/route.ts

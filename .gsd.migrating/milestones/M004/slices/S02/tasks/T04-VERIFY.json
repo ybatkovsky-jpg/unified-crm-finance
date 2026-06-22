@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T04",
+  "unitId": "M004/S02/T04",
+  "timestamp": 1782120729080,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f src/app/api/projects/route.ts",
+      "exitCode": 1,
+      "durationMs": 325,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f src/app/api/projects/[id]/route.ts",
+      "exitCode": 1,
+      "durationMs": 29,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

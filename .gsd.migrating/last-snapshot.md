@@ -1,4 +1,7 @@
-# GSD context snapshot (2026-06-21T23:19:33.948Z)
+# GSD context snapshot (2026-06-22T09:32:06.648Z)
+
+## Active context
+Active: M004 / S02 / T05 - Create ProjectApiClient
 
 ## Top project memories
 - [MEM019] (gotcha) Prisma 7.x breaks Prisma 6.x schema format: datasource `url` property moved to prisma.config.ts. Task specified Prisma 6.x, so locked apps/web to Prisma 6.6.0 to avoid breaking changes.
