@@ -1,5 +1,5 @@
 {
-  "compiledAt": "2026-06-22T14:35:25.937Z",
+  "compiledAt": "2026-06-22T22:10:03.030Z",
   "milestoneId": "M004",
   "pipeline": {
     "clarifyRoundLimit": 3,
@@ -522,12 +522,15 @@
       "id": "execute-task:M004:S07:T01",
       "kind": "unit",
       "dependsOn": [],
-      "writes": [],
+      "writes": [
+        "apps/web/prisma/schema.prisma",
+        "apps/web/prisma/migrations/20260622220849_add_file_attachment_fields/migration.sql"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S07.T01",
-        "title": "Schema Extensions: File Attachments",
-        "status": "pending"
+        "title": "Added drawingFileId, actFileId to Deal and specFileId to Project with FileEntity relations; applied migration",
+        "status": "complete"
       }
     },
     {
@@ -536,12 +539,15 @@
       "dependsOn": [
         "execute-task:M004:S07:T01"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/package.json",
+        "apps/web/src/lib/storage/s3.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S07.T02",
-        "title": "S3/MinIO Upload Utility",
-        "status": "pending"
+        "title": "Created S3/MinIO client wrapper with upload, delete, presigned URL, and key generation utilities",
+        "status": "complete"
       }
     },
     {
@@ -651,7 +657,7 @@
       "metadata": {
         "unitType": "complete-slice",
         "unitId": "M004.S07",
-        "title": "File Upload + Cascade Close",
+        "title": "S07",
         "status": "pending"
       }
     }

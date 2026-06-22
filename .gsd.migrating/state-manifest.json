@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-06-22T14:34:59.607Z",
+  "exported_at": "2026-06-22T22:09:48.710Z",
   "milestones": [
     {
       "id": "M001",
@@ -851,13 +851,10 @@
     {
       "milestone_id": "M004",
       "id": "S07",
-      "title": "File Upload + Cascade Close",
+      "title": "S07",
       "status": "pending",
       "risk": "medium",
-      "depends": [
-        "S04",
-        "S06"
-      ],
+      "depends": [],
       "demo": "User can drag-drop files to attach (drawings to deals, specs to projects), preview works, delete works; closing project with act cascades to deal",
       "created_at": "2026-06-21T22:39:02.962Z",
       "completed_at": null,
@@ -4602,19 +4599,22 @@
       "milestone_id": "M004",
       "slice_id": "S07",
       "id": "T01",
-      "title": "Schema Extensions: File Attachments",
-      "status": "pending",
-      "one_liner": "",
-      "narrative": "",
-      "verification_result": "",
+      "title": "Added drawingFileId, actFileId to Deal and specFileId to Project with FileEntity relations; applied migration",
+      "status": "complete",
+      "one_liner": "Added drawingFileId, actFileId to Deal and specFileId to Project with FileEntity relations; applied migration",
+      "narrative": "Added nullable foreign key fields to Deal (drawingFileId, actFileId) and Project (specFileId) following Contract.signedFileId pattern. Added back-relations to FileEntity model (DealAsActFile, DealAsDrawingFile, ProjectAsSpecFile). Created and applied Prisma migration 20260622220849_add_file_attachment_fields.",
+      "verification_result": "Verified with grep: drawingFileId, actFileId, and specFileId all present in schema.prisma. Migration created at apps/web/prisma/migrations/20260622220849_add_file_attachment_fields/.",
       "duration": "",
-      "completed_at": null,
+      "completed_at": "2026-06-22T22:09:48.490Z",
       "blocker_discovered": false,
-      "deviations": "",
-      "known_issues": "",
-      "key_files": [],
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "apps/web/prisma/schema.prisma",
+        "apps/web/prisma/migrations/20260622220849_add_file_attachment_fields/migration.sql"
+      ],
       "key_decisions": [],
-      "full_summary_md": "",
+      "full_summary_md": "---\nid: T01\nparent: S07\nmilestone: M004\nkey_files:\n  - apps/web/prisma/schema.prisma\n  - apps/web/prisma/migrations/20260622220849_add_file_attachment_fields/migration.sql\nkey_decisions: []\nduration: \nverification_result: passed\ncompleted_at: 2026-06-22T22:09:48.483Z\nblocker_discovered: false\n---\n\n# T01: Added drawingFileId, actFileId to Deal and specFileId to Project with FileEntity relations; applied migration\n\n**Added drawingFileId, actFileId to Deal and specFileId to Project with FileEntity relations; applied migration**\n\n## What Happened\n\nAdded nullable foreign key fields to Deal (drawingFileId, actFileId) and Project (specFileId) following Contract.signedFileId pattern. Added back-relations to FileEntity model (DealAsActFile, DealAsDrawingFile, ProjectAsSpecFile). Created and applied Prisma migration 20260622220849_add_file_attachment_fields.\n\n## Verification\n\nVerified with grep: drawingFileId, actFileId, and specFileId all present in schema.prisma. Migration created at apps/web/prisma/migrations/20260622220849_add_file_attachment_fields/.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `grep -q 'drawingFileId' apps/web/prisma/schema.prisma && grep -q 'actFileId' apps/web/prisma/schema.prisma && grep -q 'specFileId' apps/web/prisma/schema.prisma` | 0 | PASS | 500ms |\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `apps/web/prisma/schema.prisma`\n- `apps/web/prisma/migrations/20260622220849_add_file_attachment_fields/migration.sql`\n",
       "description": "Add file attachment foreign keys to Deal and Project models. Deal gets drawingFileId and actFileId (nullable) following Contract.signedFileId pattern. Project gets specFileId (nullable). Run Prisma migration to apply changes.",
       "estimate": "30m",
       "files": [
@@ -4642,19 +4642,22 @@
       "milestone_id": "M004",
       "slice_id": "S07",
       "id": "T02",
-      "title": "S3/MinIO Upload Utility",
-      "status": "pending",
-      "one_liner": "",
-      "narrative": "",
-      "verification_result": "",
+      "title": "Created S3/MinIO client wrapper with upload, delete, presigned URL, and key generation utilities",
+      "status": "complete",
+      "one_liner": "Created S3/MinIO client wrapper with upload, delete, presigned URL, and key generation utilities",
+      "narrative": "Installed @aws-sdk/client-s3 dependency. Created apps/web/src/lib/storage/s3.ts with S3Client singleton, uploadFile(), deleteFile(), getPresignedUrl(), and generateStorageKey() helper. Configured from S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY, S3_BUCKET, S3_FORCE_PATH_STYLE env vars (already defined in .env.example).",
+      "verification_result": "Verified: s3.ts file exists and @aws-sdk/client-s3 present in package.json dependencies.",
       "duration": "",
-      "completed_at": null,
+      "completed_at": "2026-06-22T22:09:48.614Z",
       "blocker_discovered": false,
-      "deviations": "",
-      "known_issues": "",
-      "key_files": [],
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "apps/web/package.json",
+        "apps/web/src/lib/storage/s3.ts"
+      ],
       "key_decisions": [],
-      "full_summary_md": "",
+      "full_summary_md": "---\nid: T02\nparent: S07\nmilestone: M004\nkey_files:\n  - apps/web/package.json\n  - apps/web/src/lib/storage/s3.ts\nkey_decisions: []\nduration: \nverification_result: passed\ncompleted_at: 2026-06-22T22:09:48.614Z\nblocker_discovered: false\n---\n\n# T02: Created S3/MinIO client wrapper with upload, delete, presigned URL, and key generation utilities\n\n**Created S3/MinIO client wrapper with upload, delete, presigned URL, and key generation utilities**\n\n## What Happened\n\nInstalled @aws-sdk/client-s3 dependency. Created apps/web/src/lib/storage/s3.ts with S3Client singleton, uploadFile(), deleteFile(), getPresignedUrl(), and generateStorageKey() helper. Configured from S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY, S3_BUCKET, S3_FORCE_PATH_STYLE env vars (already defined in .env.example).\n\n## Verification\n\nVerified: s3.ts file exists and @aws-sdk/client-s3 present in package.json dependencies.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `test -f apps/web/src/lib/storage/s3.ts && grep -q '@aws-sdk/client-s3' apps/web/package.json` | 0 | PASS | 300ms |\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `apps/web/package.json`\n- `apps/web/src/lib/storage/s3.ts`\n",
       "description": "Install @aws-sdk/client-s3 dependency. Create S3 client wrapper utility at apps/web/src/lib/storage/s3.ts that initializes MinIO client from env vars (S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY, S3_BUCKET, S3_FORCE_PATH_STYLE). Implements uploadFile(key, stream, mimeType), deleteFile(key), and getPresignedUrl(key) methods.",
       "estimate": "45m",
       "files": [
@@ -7938,6 +7941,28 @@
       "verdict": "pass",
       "duration_ms": 500,
       "created_at": "2026-06-22T13:57:43.505Z"
+    },
+    {
+      "id": 206,
+      "task_id": "T01",
+      "slice_id": "S07",
+      "milestone_id": "M004",
+      "command": "grep -q 'drawingFileId' apps/web/prisma/schema.prisma && grep -q 'actFileId' apps/web/prisma/schema.prisma && grep -q 'specFileId' apps/web/prisma/schema.prisma",
+      "exit_code": 0,
+      "verdict": "PASS",
+      "duration_ms": 500,
+      "created_at": "2026-06-22T22:09:48.491Z"
+    },
+    {
+      "id": 207,
+      "task_id": "T02",
+      "slice_id": "S07",
+      "milestone_id": "M004",
+      "command": "test -f apps/web/src/lib/storage/s3.ts && grep -q '@aws-sdk/client-s3' apps/web/package.json",
+      "exit_code": 0,
+      "verdict": "PASS",
+      "duration_ms": 300,
+      "created_at": "2026-06-22T22:09:48.614Z"
     }
   ]
 }

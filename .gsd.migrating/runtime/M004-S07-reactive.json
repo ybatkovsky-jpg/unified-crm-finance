@@ -1,9 +1,12 @@
 {
   "sliceId": "S07",
-  "completed": [],
-  "dispatched": [
+  "completed": [
     "T01",
     "T02"
+  ],
+  "dispatched": [
+    "T03",
+    "T04"
   ],
   "graphSnapshot": {
     "taskCount": 9,
@@ -11,5 +14,5 @@
     "readySetSize": 4,
     "ambiguous": false
   },
-  "updatedAt": "2026-06-22T22:06:06.450Z"
+  "updatedAt": "2026-06-22T22:15:14.099Z"
 }

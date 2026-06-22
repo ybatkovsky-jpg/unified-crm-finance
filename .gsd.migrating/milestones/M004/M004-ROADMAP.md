@@ -30,7 +30,7 @@
 - [x] **S06: S06** `risk:medium` `depends:[]`
   > After this: User can create Production records (PLATE/COUNTERTOP), manage production stages, see status in project detail
 
-- [ ] **S07: File Upload + Cascade Close** `risk:medium` `depends:[S04,S06]`
+- [ ] **S07: S07** `risk:medium` `depends:[]`
   > After this: User can drag-drop files to attach (drawings to deals, specs to projects), preview works, delete works; closing project with act cascades to deal
 
 ## Boundary Map

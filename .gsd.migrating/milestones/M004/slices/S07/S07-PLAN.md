@@ -30,12 +30,12 @@
 
 ## Tasks
 
-- [ ] **T01: Schema Extensions: File Attachments** `est:30m`
+- [x] **T01: Schema Extensions: File Attachments** `est:30m`
   Add file attachment foreign keys to Deal and Project models. Deal gets drawingFileId and actFileId (nullable) following Contract.signedFileId pattern. Project gets specFileId (nullable). Run Prisma migration to apply changes.
   - Files: `apps/web/prisma/schema.prisma`, `apps/web/prisma/migrations/*/migration.sql`
   - Verify: grep -q 'drawingFileId' apps/web/prisma/schema.prisma && grep -q 'actFileId' apps/web/prisma/schema.prisma && grep -q 'specFileId' apps/web/prisma/schema.prisma
 
-- [ ] **T02: S3/MinIO Upload Utility** `est:45m`
+- [x] **T02: S3/MinIO Upload Utility** `est:45m`
   Install @aws-sdk/client-s3 dependency. Create S3 client wrapper utility at apps/web/src/lib/storage/s3.ts that initializes MinIO client from env vars (S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY, S3_BUCKET, S3_FORCE_PATH_STYLE). Implements uploadFile(key, stream, mimeType), deleteFile(key), and getPresignedUrl(key) methods.
   - Files: `apps/web/package.json`, `apps/web/src/lib/storage/s3.ts`
   - Verify: test -f apps/web/src/lib/storage/s3.ts && grep -q '@aws-sdk/client-s3' apps/web/package.json

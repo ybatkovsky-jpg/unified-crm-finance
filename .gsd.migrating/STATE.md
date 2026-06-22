@@ -1,7 +1,7 @@
 # GSD State
 
 **Active Milestone:** M004: Проекты
-**Active Slice:** S07: File Upload + Cascade Close
+**Active Slice:** S07: S07
 **Phase:** executing
 **Requirements Status:** 15 active · 5 validated · 0 deferred · 0 out of scope
 
@@ -24,4 +24,4 @@
 - None
 
 ## Next Action
-Execute T01: Schema Extensions: File Attachments in slice S07.
+Execute T03: File Upload API Routes in slice S07.
