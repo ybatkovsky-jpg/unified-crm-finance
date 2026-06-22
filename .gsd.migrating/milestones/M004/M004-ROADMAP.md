@@ -24,10 +24,10 @@
 - [x] **S04: S04** `risk:medium` `depends:[]`
   > After this: User can view /dashboard/projects/[id], see project info, stages list, team members with roles, related deal/contract
 
-- [ ] **S05: Gantt Timeline** `risk:high` `depends:[S04]`
+- [x] **S05: S05** `risk:high` `depends:[]`
   > After this: User can see Gantt chart on project detail, drag dates to update, color coding by status, day-level zoom
 
-- [ ] **S06: Production Management** `risk:medium` `depends:[S01,S04]`
+- [x] **S06: S06** `risk:medium` `depends:[]`
   > After this: User can create Production records (PLATE/COUNTERTOP), manage production stages, see status in project detail
 
 - [ ] **S07: File Upload + Cascade Close** `risk:medium` `depends:[S04,S06]`

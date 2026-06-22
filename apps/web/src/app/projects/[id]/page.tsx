@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Edit2, Save, X, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, Users, Layers } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, Users, Layers, Package } from "lucide-react"
 import { projectsApi, ApiClientError } from "@/lib/api/projects"
 import type { ProjectData } from "@/lib/api/types"
 import { ProjectGantt } from "@/components/projects/project-gantt"
+import { ProductionList } from "@/components/projects/production-list"
+import { CreateProductionModal } from "@/components/projects/create-production-modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -70,6 +72,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
+  const [productionRefresh, setProductionRefresh] = useState(0)
   const [saving, setSaving] = useState(false)
   const [editForm, setEditForm] = useState({
     name: "",
@@ -449,6 +452,29 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             </CardHeader>
             <CardContent>
               <ProjectGantt projectId={project.id} stages={project.stages || []} />
+            </CardContent>
+          </Card>
+
+          {/* Production */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Package className="size-4" />
+                  \u041F\u0440\u043E\u0438\u0437\u0432\u043E\u0434\u0441\u0442\u0432\u043E
+                </div>
+                <CreateProductionModal
+                  projectId={project.id}
+                  onCreate={() => setProductionRefresh((prev) => prev + 1)}
+                />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProductionList
+                key={productionRefresh}
+                projectId={project.id}
+                onUpdate={() => setProductionRefresh((prev) => prev + 1)}
+              />
             </CardContent>
           </Card>
 

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "milestoneId": "M004",
+  "sliceId": "S06",
+  "timestamp": 1782135791482,
+  "status": "fail",
+  "durationMs": 3,
+  "checks": [
+    {
+      "category": "tool",
+      "target": "T01 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: npx tsc --noEmit 2>&1 | grep -q 'productions' || echo 'TypeScript OK' (contains shell control syntax such as pipes, redirects, semicolons, backticks, or command substitution)",
+      "blocking": true
+    },
+    {
+      "category": "tool",
+      "target": "T02 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: npx tsc --noEmit 2>&1 | grep -q 'stages' || echo 'TypeScript OK' (contains shell control syntax such as pipes, redirects, semicolons, backticks, or command substitution)",
+      "blocking": true
+    },
+    {
+      "category": "tool",
+      "target": "T03 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: npx tsc --noEmit 2>&1 | grep -q 'productions' || echo 'TypeScript OK' (contains shell control syntax such as pipes, redirects, semicolons, backticks, or command substitution)",
+      "blocking": true
+    },
+    {
+      "category": "tool",
+      "target": "T04 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: npx tsc --noEmit 2>&1 | grep -q 'create-production-modal' || echo 'TypeScript OK' (contains shell control syntax such as pipes, redirects, semicolons, backticks, or command substitution)",
+      "blocking": true
+    },
+    {
+      "category": "tool",
+      "target": "T05 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: npx tsc --noEmit 2>&1 | grep -q 'production-list' || echo 'TypeScript OK' (contains shell control syntax such as pipes, redirects, semicolons, backticks, or command substitution)",
+      "blocking": true
+    },
+    {
+      "category": "tool",
+      "target": "T06 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: npx tsc --noEmit 2>&1 | grep -q 'production-detail-card' || echo 'TypeScript OK' (contains shell control syntax such as pipes, redirects, semicolons, backticks, or command substitution)",
+      "blocking": true
+    }
+  ]
+}

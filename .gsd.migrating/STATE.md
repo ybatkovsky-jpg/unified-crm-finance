@@ -1,7 +1,7 @@
 # GSD State
 
 **Active Milestone:** M004: Проекты
-**Active Slice:** S05: Gantt Timeline
+**Active Slice:** S07: File Upload + Cascade Close
 **Phase:** planning
 **Requirements Status:** 15 active · 5 validated · 0 deferred · 0 out of scope
 
@@ -24,4 +24,4 @@
 - None
 
 ## Next Action
-Slice S05 has no DB tasks. Plan slice tasks before execution.
+Slice S07 has no DB tasks. Plan slice tasks before execution.

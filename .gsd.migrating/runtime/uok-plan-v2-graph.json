@@ -1,5 +1,5 @@
 {
-  "compiledAt": "2026-06-22T12:50:36.746Z",
+  "compiledAt": "2026-06-22T13:43:47.590Z",
   "milestoneId": "M004",
   "pipeline": {
     "clarifyRoundLimit": 3,
@@ -242,12 +242,14 @@
       "id": "execute-task:M004:S04:T01",
       "kind": "unit",
       "dependsOn": [],
-      "writes": [],
+      "writes": [
+        "apps/web/src/app/api/projects/[id]/route.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S04.T01",
-        "title": "Fix API route to include Deal and Contract relations",
-        "status": "pending"
+        "title": "Added manual Deal and Contract relation fetching to GET /api/projects/[id] endpoint",
+        "status": "complete"
       }
     },
     {
@@ -256,12 +258,14 @@
       "dependsOn": [
         "execute-task:M004:S04:T01"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/app/projects/[id]/page.tsx"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S04.T02",
-        "title": "Create Project Detail Page with stages, members, and related entities",
-        "status": "pending"
+        "title": "Created Project Detail Page at /projects/[id] with stages, members, and related entities display",
+        "status": "complete"
       }
     },
     {
@@ -273,7 +277,227 @@
       "metadata": {
         "unitType": "complete-slice",
         "unitId": "M004.S04",
-        "title": "Project Detail Page",
+        "title": "S04",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M004:S05:T01",
+      "kind": "unit",
+      "dependsOn": [],
+      "writes": [
+        "apps/web/package.json"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S05.T01",
+        "title": "Installed vis-timeline@8.5.1 and vis-data@8.0.4 packages for Gantt chart visualization",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M004:S05:T02",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S05:T01"
+      ],
+      "writes": [
+        "apps/web/src/app/api/projects/[id]/stages/[stageId]/route.ts"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S05.T02",
+        "title": "Created PATCH API route for updating project stage dates via drag-drop",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M004:S05:T03",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S05:T02"
+      ],
+      "writes": [
+        "apps/web/src/lib/api/projects.ts"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S05.T03",
+        "title": "Added updateStage method to ProjectApiClient for stage date updates",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M004:S05:T04",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S05:T03"
+      ],
+      "writes": [
+        "apps/web/src/components/projects/project-gantt.tsx"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S05.T04",
+        "title": "Created ProjectGantt component with vis-timeline, drag-drop, and status color coding",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M004:S05:T05",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S05:T04"
+      ],
+      "writes": [
+        "apps/web/src/app/projects/[id]/page.tsx",
+        "apps/web/src/lib/api/types.ts"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S05.T05",
+        "title": "Integrated ProjectGantt component into project detail page, replacing stages list",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M004:S05:T06",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S05:T05"
+      ],
+      "writes": [
+        "apps/web/src/components/projects/project-gantt.tsx",
+        "apps/web/src/lib/api/projects.ts",
+        "apps/web/src/app/projects/[id]/page.tsx",
+        "apps/web/src/lib/api/types.ts"
+      ],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S05.T06",
+        "title": "TypeScript compilation check passes for all slice files",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "complete-slice:M004:S05",
+      "kind": "verification",
+      "dependsOn": [
+        "execute-task:M004:S05:T06"
+      ],
+      "metadata": {
+        "unitType": "complete-slice",
+        "unitId": "M004.S05",
+        "title": "S05",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M004:S06:T01",
+      "kind": "unit",
+      "dependsOn": [],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S06.T01",
+        "title": "API Routes - Production Endpoints",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S06:T02",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S06:T01"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S06.T02",
+        "title": "API Routes - ProductionStage Endpoints",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S06:T03",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S06:T02"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S06.T03",
+        "title": "API Client + Types - Production",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S06:T04",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S06:T03"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S06.T04",
+        "title": "Create Production Modal Component",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S06:T05",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S06:T04"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S06.T05",
+        "title": "Production List Component",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S06:T06",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S06:T05"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S06.T06",
+        "title": "Production Detail Card Component",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S06:T07",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S06:T06"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S06.T07",
+        "title": "Project Detail Page Integration",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "complete-slice:M004:S06",
+      "kind": "verification",
+      "dependsOn": [
+        "execute-task:M004:S06:T07"
+      ],
+      "metadata": {
+        "unitType": "complete-slice",
+        "unitId": "M004.S06",
+        "title": "Production Management",
         "status": "pending"
       }
     }

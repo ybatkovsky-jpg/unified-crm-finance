@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember } from '@prisma/client';
+import type { Contact, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -479,4 +479,95 @@ export interface ProjectStageUpdateInput {
 export interface ProjectMemberCreateInput {
   userId: string;
   role: string;
+}
+
+/**
+ * Production data with relations
+ */
+export interface ProductionData extends Omit<Production, 'deletedAt'> {
+  ProductionStage?: ProductionStageData[];
+}
+
+/**
+ * Production stage data
+ */
+export interface ProductionStageData extends Omit<ProductionStage, 'productionId'> {}
+
+/**
+ * Production filter options
+ */
+export interface ProductionFilters {
+  status?: string;
+}
+
+/**
+ * Production list params
+ */
+export interface ProductionListParams extends ProductionFilters, PaginationOptions {}
+
+/**
+ * Production creation input
+ */
+export interface ProductionCreateInput {
+  projectId: string;
+  status?: string | null;
+  plannedStartDate?: string | null;
+  plannedEndDate?: string | null;
+  actualStartDate?: string | null;
+  actualEndDate?: string | null;
+  progress?: number | null;
+  notes?: string | null;
+  attributes?: Record<string, unknown> | null;
+}
+
+/**
+ * Production update input
+ */
+export interface ProductionUpdateInput {
+  status?: string | null;
+  plannedStartDate?: string | null;
+  plannedEndDate?: string | null;
+  actualStartDate?: string | null;
+  actualEndDate?: string | null;
+  progress?: number | null;
+  notes?: string | null;
+  attributes?: Record<string, unknown> | null;
+}
+
+/**
+ * Production stage creation input
+ */
+export interface ProductionStageCreateInput {
+  productionId: string;
+  code: string;
+  name: string;
+  order: number;
+  status?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  completedAt?: string | null;
+  assigneeId?: string | null;
+  notes?: string | null;
+}
+
+/**
+ * Production stage update input
+ */
+export interface ProductionStageUpdateInput {
+  name?: string | null;
+  order?: number | null;
+  status?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  completedAt?: string | null;
+  assigneeId?: string | null;
+  notes?: string | null;
+}
+
+/**
+ * Production stage move status input
+ */
+export interface ProductionStageMoveInput {
+  status: string;
+  completedAt?: string | null;
 }
