@@ -1,5 +1,5 @@
 {
-  "compiledAt": "2026-06-22T10:47:34.285Z",
+  "compiledAt": "2026-06-22T12:50:36.746Z",
   "milestoneId": "M004",
   "pipeline": {
     "clarifyRoundLimit": 3,
@@ -198,12 +198,15 @@
       "dependsOn": [
         "execute-task:M004:S03:T01"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/components/projects/create-project-modal.tsx",
+        "apps/web/src/lib/api/types.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S03.T02",
-        "title": "Create CreateProjectModal Component",
-        "status": "pending"
+        "title": "Created CreateProjectModal component with all required fields including externalNumber, searchable dropdowns for contacts/deals/contracts, and form validation",
+        "status": "complete"
       }
     },
     {
@@ -212,12 +215,14 @@
       "dependsOn": [
         "execute-task:M004:S03:T02"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/app/projects/page.tsx"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S03.T03",
-        "title": "Integration: Wire Modal to Projects Page",
-        "status": "pending"
+        "title": "Integrated CreateProjectModal into Projects page with refresh callback",
+        "status": "complete"
       }
     },
     {
@@ -230,6 +235,45 @@
         "unitType": "complete-slice",
         "unitId": "M004.S03",
         "title": "S03",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M004:S04:T01",
+      "kind": "unit",
+      "dependsOn": [],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S04.T01",
+        "title": "Fix API route to include Deal and Contract relations",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S04:T02",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S04:T01"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S04.T02",
+        "title": "Create Project Detail Page with stages, members, and related entities",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "complete-slice:M004:S04",
+      "kind": "verification",
+      "dependsOn": [
+        "execute-task:M004:S04:T02"
+      ],
+      "metadata": {
+        "unitType": "complete-slice",
+        "unitId": "M004.S04",
+        "title": "Project Detail Page",
         "status": "pending"
       }
     }

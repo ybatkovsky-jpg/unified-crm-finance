@@ -7,9 +7,11 @@
 
 import type {
   ProjectData,
+  ProjectStageData,
   ProjectListParams,
   ProjectCreateInput,
   ProjectUpdateInput,
+  ProjectStageUpdateInput,
   ApiListResponse,
   ApiResponse,
   ApiClientConfig,
@@ -178,6 +180,36 @@ export class ProjectApiClient {
 
     return parseJson<ApiResponse<ProjectData>>(response);
   }
+
+  /**
+   * PATCH /api/projects/[id]/stages/[stageId]
+   *
+   * Update a project stage's dates via drag-drop.
+   */
+  async updateStage(
+    projectId: string,
+    stageId: string,
+    data: ProjectStageUpdateInput
+  ): Promise<ApiResponse<ProjectStageData>> {
+    if (!projectId || !stageId) {
+      throw new ApiClientError(400, 'Validation failed', 'projectId and stageId are required');
+    }
+
+    const response = await this.fetchFn(
+      this.url(`/projects/${projectId}/stages/${stageId}`),
+      {
+        method: 'PATCH',
+        headers: this.defaultHeaders,
+        body: JSON.stringify(data),
+      }
+    );
+
+    if (!response.ok) {
+      return parseApiError(response);
+    }
+
+    return parseJson<ApiResponse<ProjectStageData>>(response);
+  }
 }
 
 /**
@@ -194,6 +226,7 @@ export const {
   createProject,
   updateProject,
   deleteProject,
+  updateStage,
 } = projectsApi;
 
 export default projectsApi;

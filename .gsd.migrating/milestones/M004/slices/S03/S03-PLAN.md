@@ -19,13 +19,13 @@
   - Files: `apps/web/src/app/projects/page.tsx`
   - Verify: npx tsc --noEmit --skipLibCheck apps/web/src/app/projects/page.tsx
 
-- [ ] **T02: Create CreateProjectModal Component** `est:2h`
+- [x] **T02: Create CreateProjectModal Component** `est:2h`
   ## Why
   User needs a UI to create new projects with optional links to contacts, deals, and contracts.
   - Files: `apps/web/src/components/projects/create-project-modal.tsx`
   - Verify: npx tsc --noEmit --skipLibCheck apps/web/src/components/projects/create-project-modal.tsx
 
-- [ ] **T03: Integration: Wire Modal to Projects Page** `est:30m`
+- [x] **T03: Integration: Wire Modal to Projects Page** `est:30m`
   ## Why
   Users need to access the create project modal from the projects list page.
   - Files: `apps/web/src/app/projects/page.tsx`

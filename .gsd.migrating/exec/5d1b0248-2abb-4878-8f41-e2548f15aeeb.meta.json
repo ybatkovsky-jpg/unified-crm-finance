@@ -1,0 +1,18 @@
+{
+  "id": "5d1b0248-2abb-4878-8f41-e2548f15aeeb",
+  "runtime": "bash",
+  "purpose": "TypeScript verification for projects page",
+  "script_chars": 77,
+  "started_at": "2026-06-22T11:13:02.358Z",
+  "finished_at": "2026-06-22T11:13:02.478Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 120,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\5d1b0248-2abb-4878-8f41-e2548f15aeeb.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\5d1b0248-2abb-4878-8f41-e2548f15aeeb.stderr"
+}

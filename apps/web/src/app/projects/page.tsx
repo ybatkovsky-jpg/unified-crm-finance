@@ -25,6 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { CreateProjectModal } from "@/components/projects/create-project-modal"
 
 type StatusFilter = "all" | "lead" | "active" | "completed" | "paused"
 
@@ -140,9 +141,17 @@ export default function ProjectsPage() {
     fetchProjects(statusFilter, managerFilter)
   }
 
+  const handleProjectCreated = (project: any) => {
+    console.log("[Projects] Project created:", project)
+    fetchProjects(statusFilter, managerFilter)
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">\u041F\u0440\u043E\u0435\u043A\u0442\u044B</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">\u041F\u0440\u043E\u0435\u043A\u0442\u044B</h1>
+        <CreateProjectModal onCreate={handleProjectCreated} />
+      </div>
 
       <Card>
         <CardContent className="pt-6">

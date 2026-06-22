@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { projects } from '@/lib/db/projects'
+import { prisma } from '@/lib/db/prisma'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -23,6 +24,7 @@ interface RouteParams {
  *
  * Returns a single project by ID (if not soft-deleted).
  * Includes stages, members, and relations.
+ * Also manually fetches Deal and Contract since Prisma schema lacks proper relations.
  */
 export async function GET(
   request: NextRequest,
@@ -61,7 +63,38 @@ export async function GET(
       )
     }
 
-    return NextResponse.json({ data: project })
+    // Manually fetch Deal if dealId exists (no @relation back to Project in schema)
+    let deal = null
+    if (project.dealId) {
+      deal = await prisma.deal.findUnique({
+        where: { id: project.dealId },
+        include: {
+          Contact: true,
+          Pipeline: true,
+        },
+      })
+    }
+
+    // Manually fetch Contract if contractId exists
+    // Contract has no projectId field, so we fetch directly by ID
+    let contract = null
+    if (project.contractId) {
+      contract = await prisma.contract.findUnique({
+        where: { id: project.contractId },
+        include: {
+          Contact: true,
+          Deal: true,
+        },
+      })
+    }
+
+    return NextResponse.json({
+      data: {
+        ...project,
+        deal,
+        contract,
+      },
+    })
   } catch (error) {
     console.error('Failed to fetch project:', error)
     return NextResponse.json(

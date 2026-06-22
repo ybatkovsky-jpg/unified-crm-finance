@@ -426,6 +426,7 @@ export interface ProjectCreateInput {
  */
 export interface ProjectUpdateInput {
   name?: string | null;
+  externalNumber?: string | null;
   description?: string | null;
   dealId?: string | null;
   contractId?: string | null;

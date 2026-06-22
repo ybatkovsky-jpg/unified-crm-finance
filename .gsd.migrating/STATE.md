@@ -1,8 +1,8 @@
 # GSD State
 
 **Active Milestone:** M004: Проекты
-**Active Slice:** S03: S03
-**Phase:** executing
+**Active Slice:** S05: Gantt Timeline
+**Phase:** planning
 **Requirements Status:** 15 active · 5 validated · 0 deferred · 0 out of scope
 
 ## Milestone Registry
@@ -24,4 +24,4 @@
 - None
 
 ## Next Action
-Execute T02: Create CreateProjectModal Component in slice S03.
+Slice S05 has no DB tasks. Plan slice tasks before execution.

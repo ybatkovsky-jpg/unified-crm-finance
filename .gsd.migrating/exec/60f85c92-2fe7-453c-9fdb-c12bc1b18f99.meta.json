@@ -1,0 +1,18 @@
+{
+  "id": "60f85c92-2fe7-453c-9fdb-c12bc1b18f99",
+  "runtime": "bash",
+  "purpose": "TypeScript check for projects page",
+  "script_chars": 82,
+  "started_at": "2026-06-22T11:13:11.866Z",
+  "finished_at": "2026-06-22T11:13:11.930Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 64,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\60f85c92-2fe7-453c-9fdb-c12bc1b18f99.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\60f85c92-2fe7-453c-9fdb-c12bc1b18f99.stderr"
+}
