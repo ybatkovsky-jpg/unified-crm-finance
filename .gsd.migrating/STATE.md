@@ -2,7 +2,7 @@
 
 **Active Milestone:** M004: Проекты
 **Active Slice:** S07: File Upload + Cascade Close
-**Phase:** planning
+**Phase:** executing
 **Requirements Status:** 15 active · 5 validated · 0 deferred · 0 out of scope
 
 ## Milestone Registry
@@ -24,4 +24,4 @@
 - None
 
 ## Next Action
-Slice S07 has no DB tasks. Plan slice tasks before execution.
+Execute T01: Schema Extensions: File Attachments in slice S07.

@@ -343,17 +343,21 @@ model Deal {
   attributes        Json?
   contractId        String?       @unique
   projectId         String?       @unique
+  drawingFileId     String?
+  actFileId         String?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime
   closedAt          DateTime?
   deletedAt         DateTime?
-  User              User?         @relation(fields: [managerId], references: [id])
+  ActFile           FileEntity?   @relation("Deal_ActFile", fields: [actFileId], references: [id])
   Contact           Contact?      @relation(fields: [contactId], references: [id])
   DealStage         DealStage     @relation(fields: [stageId], references: [id])
+  DrawingFile       FileEntity?   @relation("Deal_DrawingFile", fields: [drawingFileId], references: [id])
   Pipeline          Pipeline      @relation(fields: [pipelineId], references: [id])
   DealHistory       DealHistory[]
   Event             Event[]
   Task              Task[]
+  User              User?         @relation(fields: [managerId], references: [id])
 
   @@index([projectId])
   @@index([contractId])
@@ -499,21 +503,24 @@ model EventRecurrence {
 }
 
 model FileEntity {
-  id              String            @id
-  fileName        String
-  storageKey      String
-  mimeType        String?
-  size            Int
-  bucket          String            @default("default")
-  uploadedBy      String?
-  createdAt       DateTime          @default(now())
-  BOM             BOM?
-  Contract        Contract[]
-  ContractVersion ContractVersion[]
-  User            User?             @relation(fields: [uploadedBy], references: [id])
-  Invoice         Invoice?
-  Comment         Comment[]
-  Interaction     Interaction[]
+  id                 String            @id
+  fileName           String
+  storageKey         String
+  mimeType           String?
+  size               Int
+  bucket             String            @default("default")
+  uploadedBy         String?
+  createdAt          DateTime          @default(now())
+  BOM                BOM?
+  Contract           Contract[]
+  ContractVersion    ContractVersion[]
+  DealAsActFile      Deal[]            @relation("Deal_ActFile")
+  DealAsDrawingFile  Deal[]            @relation("Deal_DrawingFile")
+  Invoice            Invoice?
+  ProjectAsSpecFile  Project[]         @relation("Project_SpecFile")
+  User               User?             @relation(fields: [uploadedBy], references: [id])
+  Comment            Comment[]
+  Interaction        Interaction[]
 
   @@index([uploadedBy])
 }
@@ -691,6 +698,7 @@ model Project {
   dealId          String?           @unique
   contractId      String?           @unique
   contactId       String?
+  specFileId      String?
   status          String            @default("lead")
   contractAmount  Float             @default(0)
   currency        String            @default("RUB")
@@ -712,6 +720,7 @@ model Project {
   EmailLog        EmailLog[]
   Event           Event[]
   Invoice         Invoice[]
+  SpecFile        FileEntity?       @relation("Project_SpecFile", fields: [specFileId], references: [id])
   User            User?             @relation(fields: [managerId], references: [id])
   Contact         Contact?          @relation(fields: [contactId], references: [id])
   ProjectMember   ProjectMember[]

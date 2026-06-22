@@ -1,5 +1,5 @@
 {
-  "compiledAt": "2026-06-22T13:43:47.590Z",
+  "compiledAt": "2026-06-22T14:35:25.937Z",
   "milestoneId": "M004",
   "pipeline": {
     "clarifyRoundLimit": 3,
@@ -396,12 +396,15 @@
       "id": "execute-task:M004:S06:T01",
       "kind": "unit",
       "dependsOn": [],
-      "writes": [],
+      "writes": [
+        "apps/web/src/app/api/projects/[id]/productions/route.ts",
+        "apps/web/src/app/api/productions/[id]/route.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S06.T01",
-        "title": "API Routes - Production Endpoints",
-        "status": "pending"
+        "title": "Created Next.js API routes for Production CRUD operations with full stage support",
+        "status": "complete"
       }
     },
     {
@@ -410,12 +413,15 @@
       "dependsOn": [
         "execute-task:M004:S06:T01"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/app/api/productions/[id]/stages/route.ts",
+        "apps/web/src/app/api/stages/[id]/route.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S06.T02",
-        "title": "API Routes - ProductionStage Endpoints",
-        "status": "pending"
+        "title": "ProductionStage API endpoints created - GET/POST for production stages, PATCH/DELETE for individual stages",
+        "status": "complete"
       }
     },
     {
@@ -424,12 +430,15 @@
       "dependsOn": [
         "execute-task:M004:S06:T02"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/lib/api/types.ts",
+        "apps/web/src/lib/api/productions.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S06.T03",
-        "title": "API Client + Types - Production",
-        "status": "pending"
+        "title": "Production API client and types created - ProductionApiClient with 11 methods matching API routes",
+        "status": "complete"
       }
     },
     {
@@ -438,12 +447,14 @@
       "dependsOn": [
         "execute-task:M004:S06:T03"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/components/projects/create-production-modal.tsx"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S06.T04",
-        "title": "Create Production Modal Component",
-        "status": "pending"
+        "title": "CreateProductionModal component created - form with type selection, date fields, notes, and auto-creation of 8 standard stages",
+        "status": "complete"
       }
     },
     {
@@ -452,12 +463,14 @@
       "dependsOn": [
         "execute-task:M004:S06:T04"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/components/projects/production-list.tsx"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S06.T05",
-        "title": "Production List Component",
-        "status": "pending"
+        "title": "ProductionList component created - card-based list with type/status badges, progress bar, stage indicators, and delete confirmation",
+        "status": "complete"
       }
     },
     {
@@ -466,12 +479,14 @@
       "dependsOn": [
         "execute-task:M004:S06:T05"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/components/projects/production-detail-card.tsx"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S06.T06",
-        "title": "Production Detail Card Component",
-        "status": "pending"
+        "title": "ProductionDetailCard component created - expandable card with details, stages list, edit mode, and quick actions",
+        "status": "complete"
       }
     },
     {
@@ -480,12 +495,14 @@
       "dependsOn": [
         "execute-task:M004:S06:T06"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/app/projects/[id]/page.tsx"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S06.T07",
-        "title": "Project Detail Page Integration",
-        "status": "pending"
+        "title": "Production section integrated into project detail page - with Add button, ProductionList, and state management for refresh",
+        "status": "complete"
       }
     },
     {
@@ -497,7 +514,144 @@
       "metadata": {
         "unitType": "complete-slice",
         "unitId": "M004.S06",
-        "title": "Production Management",
+        "title": "S06",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M004:S07:T01",
+      "kind": "unit",
+      "dependsOn": [],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S07.T01",
+        "title": "Schema Extensions: File Attachments",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S07:T02",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S07:T01"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S07.T02",
+        "title": "S3/MinIO Upload Utility",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S07:T03",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S07:T02"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S07.T03",
+        "title": "File Upload API Routes",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S07:T04",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S07:T03"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S07.T04",
+        "title": "File Upload Components",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S07:T05",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S07:T04"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S07.T05",
+        "title": "File Attachments Integration - Deal Detail",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S07:T06",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S07:T05"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S07.T06",
+        "title": "File Attachments Integration - Project Detail",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S07:T07",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S07:T06"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S07.T07",
+        "title": "Cascade Close Logic - Repository",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S07:T08",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S07:T07"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S07.T08",
+        "title": "Cascade Close API + UI",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S07:T09",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S07:T08"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S07.T09",
+        "title": "API Types Extension",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "complete-slice:M004:S07",
+      "kind": "verification",
+      "dependsOn": [
+        "execute-task:M004:S07:T09"
+      ],
+      "metadata": {
+        "unitType": "complete-slice",
+        "unitId": "M004.S07",
+        "title": "File Upload + Cascade Close",
         "status": "pending"
       }
     }
