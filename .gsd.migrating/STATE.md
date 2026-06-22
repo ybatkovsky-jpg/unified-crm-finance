@@ -1,7 +1,7 @@
 # GSD State
 
 **Active Milestone:** M004: Проекты
-**Active Slice:** S02: S02
+**Active Slice:** S03: Project List + Create UI
 **Phase:** executing
 **Requirements Status:** 15 active · 5 validated · 0 deferred · 0 out of scope
 
@@ -24,4 +24,4 @@
 - None
 
 ## Next Action
-Execute T05: Create ProjectApiClient in slice S02.
+Execute T01: Create Projects List Page at /projects in slice S03.

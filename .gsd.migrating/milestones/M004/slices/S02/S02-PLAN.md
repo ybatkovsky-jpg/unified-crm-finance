@@ -41,12 +41,12 @@ Upstream: Uses Prisma schema (Project, ProjectStage, ProjectMember models alread
   - Files: `apps/web/src/app/api/projects/route.ts`, `apps/web/src/app/api/projects/[id]/route.ts`, `apps/web/src/lib/db/projects.ts`
   - Verify: test -f src/app/api/projects/route.ts && test -f src/app/api/projects/[id]/route.ts
 
-- [ ] **T05: Create ProjectApiClient** `est:45m`
+- [x] **T05: Create ProjectApiClient** `est:45m`
   Create ProjectApiClient class in apps/web/src/lib/api/projects.ts following DealApiClient pattern. Include: url() helper, getProjects (with DealListParams-style query), getProject, createProject, updateProject, deleteProject. Use parseApiError, parseJson, ApiClientError from shared.ts. Export singleton 'projectsApi' and convenience exports.
   - Files: `apps/web/src/lib/api/projects.ts`
   - Verify: test -f src/lib/api/projects.ts
 
-- [ ] **T06: Write ProjectApiClient tests** `est:30m`
+- [x] **T06: Write ProjectApiClient tests** `est:30m`
   Create API client tests in apps/web/src/lib/api/projects.test.ts. Mock fetch for each method (getProjects, getProject, createProject, updateProject, deleteProject). Test successful responses and error handling (404, 400, 500). Follow DealApiClient.test pattern with vi.fn() mocks.
   - Files: `apps/web/src/lib/api/projects.test.ts`
   - Verify: node --test src/lib/api/projects.test.ts

@@ -1,5 +1,5 @@
 {
-  "compiledAt": "2026-06-22T09:32:16.968Z",
+  "compiledAt": "2026-06-22T10:40:52.358Z",
   "milestoneId": "M004",
   "pipeline": {
     "clarifyRoundLimit": 3,
@@ -139,12 +139,14 @@
       "dependsOn": [
         "execute-task:M004:S02:T04"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/lib/api/projects.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S02.T05",
-        "title": "Create ProjectApiClient",
-        "status": "pending"
+        "title": "Created ProjectApiClient class with CRUD operations following DealApiClient pattern",
+        "status": "complete"
       }
     },
     {
@@ -153,12 +155,14 @@
       "dependsOn": [
         "execute-task:M004:S02:T05"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/lib/api/projects.test.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S02.T06",
-        "title": "Write ProjectApiClient tests",
-        "status": "pending"
+        "title": "Created ProjectApiClient tests with 44 passing tests covering all CRUD methods, error handling, URL construction, and network failures",
+        "status": "complete"
       }
     },
     {
@@ -171,6 +175,59 @@
         "unitType": "complete-slice",
         "unitId": "M004.S02",
         "title": "S02",
+        "status": "complete"
+      }
+    },
+    {
+      "id": "execute-task:M004:S03:T01",
+      "kind": "unit",
+      "dependsOn": [],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S03.T01",
+        "title": "Create Projects List Page at /projects",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S03:T02",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S03:T01"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S03.T02",
+        "title": "Create CreateProjectModal Component",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "execute-task:M004:S03:T03",
+      "kind": "unit",
+      "dependsOn": [
+        "execute-task:M004:S03:T02"
+      ],
+      "writes": [],
+      "metadata": {
+        "unitType": "execute-task",
+        "unitId": "M004.S03.T03",
+        "title": "Integration: Wire Modal to Projects Page",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "complete-slice:M004:S03",
+      "kind": "verification",
+      "dependsOn": [
+        "execute-task:M004:S03:T03"
+      ],
+      "metadata": {
+        "unitType": "complete-slice",
+        "unitId": "M004.S03",
+        "title": "Project List + Create UI",
         "status": "pending"
       }
     }

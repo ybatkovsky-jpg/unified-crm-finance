@@ -1,0 +1,18 @@
+{
+  "id": "59584f19-aa88-40e7-a835-ebe844335085",
+  "runtime": "bash",
+  "purpose": "Check if /dashboard directory exists",
+  "script_chars": 74,
+  "started_at": "2026-06-22T10:09:12.806Z",
+  "finished_at": "2026-06-22T10:09:12.945Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 139,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\59584f19-aa88-40e7-a835-ebe844335085.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\59584f19-aa88-40e7-a835-ebe844335085.stderr"
+}
