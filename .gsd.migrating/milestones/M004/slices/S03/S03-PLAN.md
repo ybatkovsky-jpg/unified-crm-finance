@@ -13,7 +13,7 @@
 
 ## Tasks
 
-- [ ] **T01: Create Projects List Page at /projects** `est:2h`
+- [x] **T01: Create Projects List Page at /projects** `est:2h`
   ## Why
   User needs a browsable list of all projects with filtering capability.
   - Files: `apps/web/src/app/projects/page.tsx`

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T01",
+  "unitId": "M004/S03/T01",
+  "timestamp": 1782125139543,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "npx tsc --noEmit --skipLibCheck apps/web/src/app/projects/page.tsx",
+      "exitCode": 1,
+      "durationMs": 107036,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

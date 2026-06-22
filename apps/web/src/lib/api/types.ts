@@ -405,6 +405,7 @@ export interface ProjectListParams extends ProjectFilters, PaginationOptions {}
  * Project creation input
  */
 export interface ProjectCreateInput {
+  externalNumber: string;
   name: string;
   description?: string | null;
   dealId?: string | null;

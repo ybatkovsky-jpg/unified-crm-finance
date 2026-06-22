@@ -18,7 +18,7 @@
 - [x] **S02: S02** `risk:high` `depends:[]`
   > After this: ProjectRepository passes unit tests (CRUD, softDelete, count), ProjectApiClient can create/read/update/delete via curl
 
-- [ ] **S03: Project List + Create UI** `risk:medium` `depends:[S02]`
+- [ ] **S03: S03** `risk:medium` `depends:[]`
   > After this: User can browse /dashboard/projects, filter by status/manager, create project via modal, see project cards in table
 
 - [ ] **S04: Project Detail Page** `risk:medium` `depends:[S02,S03]`

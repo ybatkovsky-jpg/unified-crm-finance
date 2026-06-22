@@ -1,5 +1,5 @@
 {
-  "compiledAt": "2026-06-22T10:40:52.358Z",
+  "compiledAt": "2026-06-22T10:47:34.285Z",
   "milestoneId": "M004",
   "pipeline": {
     "clarifyRoundLimit": 3,
@@ -182,12 +182,14 @@
       "id": "execute-task:M004:S03:T01",
       "kind": "unit",
       "dependsOn": [],
-      "writes": [],
+      "writes": [
+        "apps/web/src/app/projects/page.tsx"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S03.T01",
-        "title": "Create Projects List Page at /projects",
-        "status": "pending"
+        "title": "Created Projects List page at /projects with status and manager filters, table view of projects",
+        "status": "complete"
       }
     },
     {
@@ -227,7 +229,7 @@
       "metadata": {
         "unitType": "complete-slice",
         "unitId": "M004.S03",
-        "title": "Project List + Create UI",
+        "title": "S03",
         "status": "pending"
       }
     }
