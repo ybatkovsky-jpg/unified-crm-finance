@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage } from '@prisma/client';
+import type { Contact, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -185,6 +185,8 @@ export interface DealData extends Omit<Deal, 'deletedAt'> {
   pipeline: PipelineData;
   contact?: ContactData | null;
   manager?: UserData | null;
+  drawingFile?: FileEntityData | null;
+  actFile?: FileEntityData | null;
   history?: DealHistoryData[];
 }
 
@@ -202,6 +204,20 @@ export interface PipelineData extends Omit<Pipeline, 'createdAt'> {}
  * User data
  */
 export interface UserData extends Omit<User, 'passwordHash' | 'deletedAt'> {}
+
+/**
+ * File entity data
+ */
+export interface FileEntityData extends Omit<FileEntity, 'deletedAt'> {}
+
+/**
+ * File data with download URL
+ */
+export interface FileUploadResponse {
+  file: FileEntityData;
+  downloadUrl?: string;
+  expiresIn?: number;
+}
 
 /**
  * Deal filter options
@@ -249,6 +265,8 @@ export interface DealUpdateInput {
   attributes?: Record<string, unknown> | null;
   contactId?: string | null;
   managerId?: string | null;
+  drawingFileId?: string | null;
+  actFileId?: string | null;
 }
 
 /**
@@ -570,4 +588,16 @@ export interface ProductionStageUpdateInput {
 export interface ProductionStageMoveInput {
   status: string;
   completedAt?: string | null;
+}
+
+/**
+ * File upload file state (mirrors FileUpload component)
+ */
+export interface FileUploadFile {
+  id: string;
+  file: File;
+  preview?: string;
+  progress: number;
+  status: "pending" | "uploading" | "success" | "error";
+  error?: string;
 }

@@ -36,6 +36,8 @@ export async function GET(
         pipeline: true,
         contact: true,
         manager: true,
+        drawingFile: true,
+        actFile: true,
         history: {
           orderBy: { changedAt: 'desc' },
           include: {
@@ -96,6 +98,8 @@ export async function PATCH(
     if (body.attributes !== undefined) updateData.attributes = body.attributes
     if (body.contactId !== undefined) updateData.contactId = body.contactId
     if (body.managerId !== undefined) updateData.managerId = body.managerId
+    if (body.drawingFileId !== undefined) updateData.drawingFileId = body.drawingFileId
+    if (body.actFileId !== undefined) updateData.actFileId = body.actFileId
 
     // If stageId is provided, use moveStage instead (to record history)
     if (body.stageId && body.stageId !== existing.stageId) {

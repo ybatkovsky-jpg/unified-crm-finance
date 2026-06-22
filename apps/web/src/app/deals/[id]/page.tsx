@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, File, Download, Trash2, Upload } from "lucide-react"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
+import { filesApi } from "@/lib/api/files"
 import { contractsApi } from "@/lib/api/contracts"
-import type { DealData } from "@/lib/api/types"
+import type { DealData, FileUploadFile } from "@/lib/api/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -20,6 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { DealHistoryTimeline } from "@/components/deals/deal-history-timeline"
+import { FileUpload } from "@/components/shared/file-upload"
+import { FilePreview, useFilePreview } from "@/components/shared/file-preview"
 
 export default function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -37,6 +40,11 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     description: "",
     lossReason: "",
   })
+  const [drawingFiles, setDrawingFiles] = useState<FileUploadFile[]>([])
+  const [actFiles, setActFiles] = useState<FileUploadFile[]>([])
+  const [uploadingDrawing, setUploadingDrawing] = useState(false)
+  const [uploadingAct, setUploadingAct] = useState(false)
+  const filePreview = useFilePreview()
 
   const unwrapParams = useCallback(async () => {
     return await params
@@ -58,6 +66,26 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         description: response.data.description || "",
         lossReason: response.data.lossReason || "",
       })
+
+      // Load file data for attachments
+      if (response.data.drawingFile) {
+        const fileResponse = await filesApi.getFile(response.data.drawingFile.id)
+        setDrawingFiles([{
+          id: response.data.drawingFile.id,
+          file: new File([], response.data.drawingFile.fileName, { type: response.data.drawingFile.mimeType || 'application/octet-stream' }),
+          progress: 100,
+          status: 'success',
+        }])
+      }
+      if (response.data.actFile) {
+        const fileResponse = await filesApi.getFile(response.data.actFile.id)
+        setActFiles([{
+          id: response.data.actFile.id,
+          file: new File([], response.data.actFile.fileName, { type: response.data.actFile.mimeType || 'application/octet-stream' }),
+          progress: 100,
+          status: 'success',
+        }])
+      }
     } catch (err) {
       if (err instanceof ApiClientError) {
         setError(err.message)
@@ -145,6 +173,109 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
       }
     } finally {
       setConverting(false)
+    }
+  }
+
+  const handleUploadDrawing = async (fileItem: FileUploadFile) => {
+    setUploadingDrawing(true)
+    try {
+      const response = await filesApi.uploadFile({
+        file: fileItem.file,
+        entityType: 'deal',
+        entityId: deal?.id || 'temp',
+      })
+
+      // Update deal with new drawing file ID
+      if (deal) {
+        await dealsApi.updateDeal(deal.id, { drawingFileId: response.data.id })
+        // Refresh deal data
+        const updatedResponse = await dealsApi.getDeal(deal.id)
+        setDeal(updatedResponse.data)
+      }
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(err.message)
+      } else {
+        setError("Failed to upload drawing file.")
+      }
+      throw err
+    } finally {
+      setUploadingDrawing(false)
+    }
+  }
+
+  const handleUploadAct = async (fileItem: FileUploadFile) => {
+    setUploadingAct(true)
+    try {
+      const response = await filesApi.uploadFile({
+        file: fileItem.file,
+        entityType: 'deal',
+        entityId: deal?.id || 'temp',
+      })
+
+      // Update deal with new act file ID
+      if (deal) {
+        await dealsApi.updateDeal(deal.id, { actFileId: response.data.id })
+        // Refresh deal data
+        const updatedResponse = await dealsApi.getDeal(deal.id)
+        setDeal(updatedResponse.data)
+      }
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(err.message)
+      } else {
+        setError("Failed to upload act file.")
+      }
+      throw err
+    } finally {
+      setUploadingAct(false)
+    }
+  }
+
+  const handleRemoveDrawing = async () => {
+    if (!deal) return
+    try {
+      await dealsApi.updateDeal(deal.id, { drawingFileId: null })
+      setDrawingFiles([])
+      // Refresh deal data
+      const updatedResponse = await dealsApi.getDeal(deal.id)
+      setDeal(updatedResponse.data)
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(err.message)
+      } else {
+        setError("Failed to remove drawing file.")
+      }
+    }
+  }
+
+  const handleRemoveAct = async () => {
+    if (!deal) return
+    try {
+      await dealsApi.updateDeal(deal.id, { actFileId: null })
+      setActFiles([])
+      // Refresh deal data
+      const updatedResponse = await dealsApi.getDeal(deal.id)
+      setDeal(updatedResponse.data)
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(err.message)
+      } else {
+        setError("Failed to remove act file.")
+      }
+    }
+  }
+
+  const handlePreviewFile = async (fileId: string, fileName: string) => {
+    try {
+      const response = await filesApi.getFile(fileId)
+      filePreview.openPreview({
+        fileName,
+        fileUrl: response.data.downloadUrl,
+        mimeType: response.data.file.mimeType || undefined,
+      })
+    } catch (err) {
+      setError("Failed to load file for preview.")
     }
   }
 
@@ -441,6 +572,115 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
               <DealHistoryTimeline history={deal.history} />
             </CardContent>
           </Card>
+
+          {/* File Attachments */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <File className="size-4" />
+                Файлы
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Drawing File */}
+              <div>
+                <Label className="text-sm font-medium">Чертеж (Drawing)</Label>
+                <p className="text-xs text-muted-foreground mb-3">Прикрепите файл чертежа к сделке</p>
+
+                {deal.drawingFile ? (
+                  <div className="flex items-center justify-between rounded-lg border bg-card p-3">
+                    <div className="flex items-center gap-3">
+                      <File className="size-8 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium">{deal.drawingFile.fileName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {(deal.drawingFile.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => handlePreviewFile(deal.drawingFile!.id, deal.drawingFile!.fileName)}
+                        title="Preview"
+                      >
+                        <Download className="size-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={handleRemoveDrawing}
+                        disabled={uploadingDrawing}
+                        title="Remove"
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <FileUpload
+                    accept=".pdf,.dwg,.dxf,image/*"
+                    multiple={false}
+                    maxFiles={1}
+                    files={drawingFiles}
+                    onFilesChange={setDrawingFiles}
+                    onUpload={handleUploadDrawing}
+                    disabled={uploadingDrawing}
+                  />
+                )}
+              </div>
+
+              {/* Acceptance Act File */}
+              <div>
+                <Label className="text-sm font-medium">Акт приема-сдачи (Acceptance Act)</Label>
+                <p className="text-xs text-muted-foreground mb-3">Прикрепите акт приема-сдачи к сделке</p>
+
+                {deal.actFile ? (
+                  <div className="flex items-center justify-between rounded-lg border bg-card p-3">
+                    <div className="flex items-center gap-3">
+                      <File className="size-8 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium">{deal.actFile.fileName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {(deal.actFile.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => handlePreviewFile(deal.actFile!.id, deal.actFile!.fileName)}
+                        title="Preview"
+                      >
+                        <Download className="size-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={handleRemoveAct}
+                        disabled={uploadingAct}
+                        title="Remove"
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <FileUpload
+                    accept=".pdf,.doc,.docx,image/*"
+                    multiple={false}
+                    maxFiles={1}
+                    files={actFiles}
+                    onFilesChange={setActFiles}
+                    onUpload={handleUploadAct}
+                    disabled={uploadingAct}
+                  />
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Sidebar */}
@@ -483,6 +723,15 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           </Card>
         </div>
       </div>
+
+      {/* File Preview Dialog */}
+      <FilePreview
+        open={filePreview.open}
+        onOpenChange={filePreview.setOpen}
+        fileName={filePreview.file?.fileName}
+        fileUrl={filePreview.file?.fileUrl}
+        mimeType={filePreview.file?.mimeType}
+      />
     </div>
   )
 }

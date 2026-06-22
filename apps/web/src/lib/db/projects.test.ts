@@ -470,4 +470,153 @@ describe('ProjectRepository', { concurrency: false }, () => {
     const results = await projects.findByDeal(`${TEST}no-such-deal`);
     assert.deepStrictEqual(results, []);
   });
+
+  // ── completeWithCascade ───────────────────────────────────────────────────
+
+  it('should complete project and cascade to deal when all stages are completed', async () => {
+    // Create a test pipeline with a won stage
+    const cascadePipelineId = `${TEST}cascade-pipeline`;
+    await prisma.pipeline.create({
+      data: { id: cascadePipelineId, code: `${TEST}cascade`, name: 'Cascade Pipeline', createdAt: new Date() },
+    });
+
+    const cascadeNewStageId = `${TEST}cascade-new`;
+    const cascadeWonStageId = `${TEST}cascade-won`;
+    await prisma.dealStage.create({
+      data: { id: cascadeNewStageId, code: `${TEST}cn`, name: 'New', order: 1, probability: 10, pipelineId: cascadePipelineId, color: '#888888' },
+    });
+    await prisma.dealStage.create({
+      data: { id: cascadeWonStageId, code: `${TEST}cw`, name: 'Won', order: 2, probability: 100, isWonStage: true, pipelineId: cascadePipelineId, color: '#00cc00' },
+    });
+
+    // Create a deal in this pipeline
+    const cascadeDealId = `${TEST}cascade-deal`;
+    const now = new Date();
+    const cascadeDeal = await prisma.deal.create({
+      data: {
+        id: cascadeDealId,
+        number: `${TEST}cascade-deal-num`,
+        title: 'Cascade Test Deal',
+        pipelineId: cascadePipelineId,
+        stageId: cascadeNewStageId,
+        createdAt: now,
+        updatedAt: now,
+      },
+    });
+
+    // Create a project linked to this deal
+    const cascadeProjectId = `${TEST}cascade-project`;
+    const cascadeProject = await prisma.project.create({
+      data: {
+        id: cascadeProjectId,
+        externalNumber: `${TEST}cascade-prj-num`,
+        name: 'Cascade Test Project',
+        dealId: cascadeDealId,
+        status: 'in_progress',
+        createdAt: now,
+        updatedAt: now,
+      },
+    });
+
+    // Create and complete all stages for the project
+    const stage1 = await prisma.projectStage.create({
+      data: { id: `${TEST}cs-1`, projectId: cascadeProjectId, code: 'design', name: 'Design', order: 1, status: 'completed', completedAt: now },
+    });
+    const stage2 = await prisma.projectStage.create({
+      data: { id: `${TEST}cs-2`, projectId: cascadeProjectId, code: 'dev', name: 'Development', order: 2, status: 'completed', completedAt: now },
+    });
+
+    // Execute completeWithCascade
+    const result = await projects.completeWithCascade(cascadeProjectId, userId);
+
+    // Verify project is completed
+    assert.strictEqual(result.project.status, 'completed', 'Project status should be completed');
+    assert.ok(result.project.completedAt, 'Project completedAt should be set');
+
+    // Verify deal is moved to won stage and closed
+    assert.ok(result.deal, 'Deal should be returned');
+    assert.strictEqual(result.deal!.id, cascadeDealId, 'Returned deal should match');
+    assert.strictEqual(result.deal!.stageId, cascadeWonStageId, 'Deal should be moved to won stage');
+    assert.ok(result.deal!.closedAt, 'Deal closedAt should be set');
+    assert.ok(result.deal!.actualCloseDate, 'Deal actualCloseDate should be set');
+
+    // Verify deal history was created
+    const history = await prisma.dealHistory.findMany({
+      where: { dealId: cascadeDealId },
+      orderBy: { changedAt: 'desc' },
+    });
+    assert.ok(history.length >= 1, 'Deal history should have at least one entry');
+    assert.strictEqual(history[0].toStageId, cascadeWonStageId, 'History should record move to won stage');
+    assert.strictEqual(history[0].changedBy, userId, 'History should record user who made the change');
+  });
+
+  it('should throw when completing project with incomplete stages', async () => {
+    // Create a project with incomplete stages
+    const incompleteProjectId = `${TEST}incomplete-project`;
+    const now = new Date();
+    const incompleteProject = await prisma.project.create({
+      data: {
+        id: incompleteProjectId,
+        externalNumber: `${TEST}inc-prj-num`,
+        name: 'Incomplete Project',
+        status: 'in_progress',
+        createdAt: now,
+        updatedAt: now,
+      },
+    });
+
+    // Create one completed and one incomplete stage
+    await prisma.projectStage.create({
+      data: { id: `${TEST}inc-s1`, projectId: incompleteProjectId, code: 'done', name: 'Done', order: 1, status: 'completed', completedAt: now },
+    });
+    await prisma.projectStage.create({
+      data: { id: `${TEST}inc-s2`, projectId: incompleteProjectId, code: 'todo', name: 'To Do', order: 2, status: 'pending' },
+    });
+
+    // Should throw because stages are not all completed
+    await assert.rejects(
+      () => projects.completeWithCascade(incompleteProjectId, userId),
+      /Cannot complete project: incomplete stages/,
+      'Should throw when stages are incomplete',
+    );
+  });
+
+  it('should complete project without deal when no deal is linked', async () => {
+    // Create a project without a linked deal
+    const noDealProjectId = `${TEST}no-deal-project`;
+    const now = new Date();
+    const noDealProject = await prisma.project.create({
+      data: {
+        id: noDealProjectId,
+        externalNumber: `${TEST}nd-prj-num`,
+        name: 'No Deal Project',
+        status: 'in_progress',
+        createdAt: now,
+        updatedAt: now,
+      },
+    });
+
+    // Create completed stage
+    await prisma.projectStage.create({
+      data: { id: `${TEST}nd-s1`, projectId: noDealProjectId, code: 'done', name: 'Done', order: 1, status: 'completed', completedAt: now },
+    });
+
+    // Execute completeWithCascade
+    const result = await projects.completeWithCascade(noDealProjectId, userId);
+
+    // Verify project is completed
+    assert.strictEqual(result.project.status, 'completed', 'Project status should be completed');
+    assert.ok(result.project.completedAt, 'Project completedAt should be set');
+
+    // Verify no deal is returned
+    assert.strictEqual(result.deal, null, 'Deal should be null when no deal is linked');
+  });
+
+  it('should throw when completing non-existent project', async () => {
+    await assert.rejects(
+      () => projects.completeWithCascade(`${TEST}nonexistent-project`, userId),
+      /Project with id .+ not found/,
+      'Should throw for non-existent project',
+    );
+  });
 });

@@ -7,6 +7,7 @@
 
 import { prisma } from './prisma';
 import type {
+  Deal,
   Project,
   ProjectMember,
   ProjectStage,
@@ -282,6 +283,128 @@ export class ProjectRepository {
           },
         },
       },
+    });
+  }
+
+  /**
+   * Complete a project and cascade the completion to the related Deal.
+   * Validates all project stages are completed first.
+   * Uses Prisma transaction to atomically update both Project and Deal.
+   *
+   * @param projectId - The project ID to complete
+   * @param userId - The user ID performing the completion (for DealHistory)
+   * @returns Object containing updated Project and Deal (if exists)
+   * @throws Error if project not found, stages not completed, or deal won stage not found
+   */
+  async completeWithCascade(
+    projectId: string,
+    userId: string
+  ): Promise<{ project: Project; deal: Deal | null }> {
+    const now = new Date();
+
+    // Use transaction to ensure atomic updates
+    return prisma.$transaction(async (tx) => {
+      // 1. Fetch project with stages to validate completion
+      const project = await tx.project.findFirst({
+        where: { id: projectId, deletedAt: null },
+        include: {
+          ProjectStage: {
+            orderBy: { order: 'asc' },
+          },
+        },
+      });
+
+      if (!project) {
+        throw new Error(`Project with id ${projectId} not found`);
+      }
+
+      // 2. Validate all stages are completed
+      const incompleteStages = project.ProjectStage.filter(
+        (stage) => stage.status !== 'completed'
+      );
+      if (incompleteStages.length > 0) {
+        const stageNames = incompleteStages.map((s) => s.name).join(', ');
+        throw new Error(
+          `Cannot complete project: incomplete stages: ${stageNames}`
+        );
+      }
+
+      // 3. Find the won stage for the deal's pipeline
+      let wonStageId: string | null = null;
+      let deal: Deal | null = null;
+
+      if (project.dealId) {
+        // Fetch the deal to get its pipeline
+        const existingDeal = await tx.deal.findFirst({
+          where: { id: project.dealId, deletedAt: null },
+          include: { DealStage: true },
+        });
+
+        if (!existingDeal) {
+          throw new Error(`Deal with id ${project.dealId} not found`);
+        }
+
+        // Find the won stage in the same pipeline
+        const wonStage = await tx.dealStage.findFirst({
+          where: {
+            pipelineId: existingDeal.pipelineId,
+            isWonStage: true,
+          },
+        });
+
+        if (!wonStage) {
+          throw new Error(
+            `No won stage found in pipeline ${existingDeal.pipelineId}`
+          );
+        }
+
+        wonStageId = wonStage.id;
+        deal = existingDeal;
+      }
+
+      // 4. Update project status to completed
+      const updatedProject = await tx.project.update({
+        where: { id: projectId },
+        data: {
+          status: 'completed',
+          completedAt: now,
+          updatedAt: now,
+        },
+      });
+
+      // 5. If deal exists, move it to won stage and set closedAt
+      let updatedDeal: Deal | null = null;
+      if (deal && wonStageId) {
+        const fromStageId = deal.stageId;
+
+        // Record deal history for the stage move
+        await tx.dealHistory.create({
+          data: {
+            id: randomUUID(),
+            dealId: deal.id,
+            fromStageId,
+            toStageId: wonStageId,
+            changedBy: userId,
+            changedAt: now,
+          },
+        });
+
+        // Update deal to won stage and set closed timestamps
+        updatedDeal = await tx.deal.update({
+          where: { id: deal.id },
+          data: {
+            stageId: wonStageId,
+            actualCloseDate: now,
+            closedAt: now,
+            updatedAt: now,
+          },
+        });
+      }
+
+      return {
+        project: updatedProject,
+        deal: updatedDeal,
+      };
     });
   }
 }
