@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Edit2, Save, X, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, Users, Layers, Package } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, Users, Layers, Package, Upload } from "lucide-react"
 import { projectsApi, ApiClientError } from "@/lib/api/projects"
-import type { ProjectData } from "@/lib/api/types"
+import { filesApi } from "@/lib/api/files"
+import type { ProjectData, FileUploadFile } from "@/lib/api/types"
 import { ProjectGantt } from "@/components/projects/project-gantt"
 import { ProductionList } from "@/components/projects/production-list"
 import { CreateProductionModal } from "@/components/projects/create-production-modal"
@@ -21,6 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { FileUpload } from "@/components/shared/file-upload"
+import { FilePreview, useFilePreview } from "@/components/shared/file-preview"
 
 function formatDate(date: Date | string | null | undefined): string {
   if (!date) return "\u2014"
@@ -85,6 +88,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     endDate: "",
     marginTarget: "",
   })
+  const [specFiles, setSpecFiles] = useState<FileUploadFile[]>([])
+  const [uploadingSpec, setUploadingSpec] = useState(false)
+  const filePreview = useFilePreview()
 
   const unwrapParams = useCallback(async () => {
     return await params
@@ -116,6 +122,16 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           : "",
         marginTarget: response.data.marginTarget?.toString() || "",
       })
+
+      // Load spec file data if attached
+      if (response.data.specFile) {
+        setSpecFiles([{
+          id: response.data.specFile.id,
+          file: new File([], response.data.specFile.fileName, { type: response.data.specFile.mimeType || 'application/octet-stream' }),
+          progress: 100,
+          status: 'success',
+        }])
+      }
     } catch (err) {
       if (err instanceof ApiClientError) {
         console.error("[ProjectDetail] API error:", err.message)
@@ -142,6 +158,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     setError(null)
 
     try {
+      const specFileId = specFiles.length > 0 && specFiles[0].status === 'success'
+        ? specFiles[0].id
+        : null
+
       const response = await projectsApi.updateProject(project.id, {
         name: editForm.name,
         externalNumber: editForm.externalNumber || undefined,
@@ -152,6 +172,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         startDate: editForm.startDate || undefined,
         endDate: editForm.endDate || undefined,
         marginTarget: parseFloat(editForm.marginTarget) || undefined,
+        specFileId: specFileId || undefined,
       })
 
       setProject(response.data)
@@ -184,9 +205,49 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           : "",
         marginTarget: project.marginTarget?.toString() || "",
       })
+      // Reset spec files to current project state
+      if (project.specFile) {
+        setSpecFiles([{
+          id: project.specFile.id,
+          file: new File([], project.specFile.fileName, { type: project.specFile.mimeType || 'application/octet-stream' }),
+          progress: 100,
+          status: 'success',
+        }])
+      } else {
+        setSpecFiles([])
+      }
     }
     setIsEditing(false)
     setError(null)
+  }
+
+  const handleUploadSpec = async (fileItem: FileUploadFile) => {
+    setUploadingSpec(true)
+    try {
+      const response = await filesApi.uploadFile({
+        file: fileItem.file,
+        entityType: 'project',
+        entityId: project?.id || 'temp',
+      })
+
+      // Update the file item with the actual file ID
+      setSpecFiles(prev => prev.map(f =>
+        f.id === fileItem.id ? { ...f, id: response.data.id, status: 'success' as const, progress: 100 } : f
+      ))
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(err.message)
+      } else {
+        setError("Failed to upload specification file.")
+      }
+      throw err
+    } finally {
+      setUploadingSpec(false)
+    }
+  }
+
+  const handleRemoveSpec = () => {
+    setSpecFiles([])
   }
 
   if (loading) {
@@ -475,6 +536,61 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 projectId={project.id}
                 onUpdate={() => setProductionRefresh((prev) => prev + 1)}
               />
+            </CardContent>
+          </Card>
+
+          {/* File Attachments */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="size-4" />
+                \u0424\u0430\u0439\u043B\u044B \u043F\u0440\u043E\u0435\u043A\u0442\u0430
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isEditing ? (
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm">\u0422\u0435\u0445\u043D\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u0441\u043F\u0435\u0446\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438</Label>
+                    <div className="mt-2">
+                      <FileUpload
+                        accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.dwg,.dxf"
+                        multiple={false}
+                        maxFiles={1}
+                        files={specFiles}
+                        onFilesChange={setSpecFiles}
+                        onUpload={handleUploadSpec}
+                        onDelete={handleRemoveSpec}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {project.specFile ? (
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                      <div className="flex items-center gap-2">
+                        <FileText className="size-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium">{project.specFile.fileName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {project.specFile.mimeType || 'Unknown type'} • {(project.specFile.size / 1024).toFixed(1)} KB
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() => filePreview.open(project.specFile.id, project.specFile.fileName)}
+                      >
+                        <FileText className="size-3.5" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">\u0424\u0430\u0439\u043B\u044B \u043D\u0435 \u043F\u0440\u0438\u043A\u0440\u0435\u043F\u043B\u0435\u043D\u044B</p>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
 

@@ -388,6 +388,7 @@ export interface ProjectData extends Omit<Project, 'deletedAt'> {
   contact?: ContactData | null;
   deal?: DealData | null;
   contract?: ContractData | null;
+  specFile?: FileEntityData | null;
   stages?: ProjectStageData[];
   members?: ProjectMemberData[];
 }
@@ -459,6 +460,7 @@ export interface ProjectUpdateInput {
   qualityRating?: string | null;
   deadlineStatus?: string | null;
   managerId?: string | null;
+  specFileId?: string | null;
   attributes?: Record<string, unknown> | null;
 }
 

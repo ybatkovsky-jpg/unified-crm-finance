@@ -53,6 +53,7 @@ export async function GET(
         },
         Contact: true,
         User: true,
+        SpecFile: true,
       } as const,
     )
 
@@ -144,6 +145,7 @@ export async function PATCH(
     if (body.deadlineStatus !== undefined) updateData.deadlineStatus = body.deadlineStatus
     if (body.completedAt !== undefined) updateData.completedAt = body.completedAt
     if (body.attributes !== undefined) updateData.attributes = body.attributes
+    if (body.specFileId !== undefined) updateData.specFileId = body.specFileId
 
     const updatedProject = await projects.update(id, updateData)
 
