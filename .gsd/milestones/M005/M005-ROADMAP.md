@@ -31,7 +31,7 @@
 - [x] **S06: Склад** `risk:medium` `depends:[]`
   > After this: Кладовщик видит список складских позиций с цветовой индикацией остатков, выполняет приход/расход/резерв, получает alert при минимальном остатке
 
-- [ ] **S07: Поставки** `risk:medium` `depends:[S04,S06]`
+- [x] **S07: Поставки** `risk:medium` `depends:[S04,S06]`
   > After this: Логист создаёт поставку из счёта, отслеживает статусы (pending→shipped→in_transit→delivered), при delivered — автообновление склада
 
 ## Boundary Map
