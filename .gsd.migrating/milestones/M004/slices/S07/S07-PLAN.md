@@ -65,7 +65,7 @@
   - Files: `apps/web/src/lib/db/projects.ts`
   - Verify: grep -q 'completeWithCascade' apps/web/src/lib/db/projects.ts
 
-- [ ] **T08: Cascade Close API + UI** `est:1h`
+- [x] **T08: Cascade Close API + UI** `est:1h`
   Create POST /api/projects/[id]/complete/route.ts endpoint that calls ProjectRepository.completeWithCascade. Add 'Подписать акт и закрыть проект' button to Project detail page (shows when all stages are completed). Button triggers confirmation dialog explaining cascade effect ('Сделка также будет закрыта'). On success, show toast and refresh project data. Russian UI labels.
   - Files: `apps/web/src/app/api/projects/[id]/complete/route.ts`, `apps/web/src/app/projects/[id]/page.tsx`, `apps/web/src/lib/api/projects.ts`
   - Verify: test -f apps/web/src/app/api/projects/[id]/complete/route.ts && grep -q 'completeProject' apps/web/src/lib/api/projects.ts

@@ -1,7 +1,7 @@
-# GSD context snapshot (2026-06-22T22:43:00.102Z)
+# GSD context snapshot (2026-06-22T23:05:38.683Z)
 
 ## Active context
-Active: M004 / S07 / T08 - Cascade Close API + UI
+Active: M004 / S07 / T09 - API Types Extension
 
 ## Top project memories
 - [MEM019] (gotcha) Prisma 7.x breaks Prisma 6.x schema format: datasource `url` property moved to prisma.config.ts. Task specified Prisma 6.x, so locked apps/web to Prisma 6.6.0 to avoid breaking changes.

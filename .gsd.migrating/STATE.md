@@ -24,4 +24,4 @@
 - None
 
 ## Next Action
-Execute T08: Cascade Close API + UI in slice S07.
+Execute T09: API Types Extension in slice S07.
