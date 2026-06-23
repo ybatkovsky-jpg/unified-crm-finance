@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem } from '@prisma/client';
+import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -813,6 +813,60 @@ export interface PurchaseRequestUpdateInput {
   emailSubject?: string | null;
   emailBody?: string | null;
   notes?: string | null;
+}
+
+// ─── Invoice ───────────────────────────────────────────────
+
+/** Status machine (PROC-23/25): received → verified | discrepancy → approved */
+export type InvoiceStatus = 'received' | 'verified' | 'discrepancy' | 'approved';
+
+/** Invoice data with optional relations */
+export interface InvoiceData extends Omit<Invoice, 'InvoiceItem'> {
+  supplier?: CounterpartyData | null;
+  project?: ProjectData | null;
+  items?: InvoiceItemData[];
+}
+
+/** Invoice line data (mirrors Prisma InvoiceItem without heavy relations) */
+export type InvoiceItemData = Omit<InvoiceItem, 'BOMItem' | 'Invoice'> & {
+  bomItem?: BOMItemData | null;
+};
+
+/** Invoice list params */
+export interface InvoiceListParams {
+  projectId?: string;
+  supplierId?: string;
+  status?: InvoiceStatus;
+}
+
+/** Invoice creation input */
+export interface InvoiceCreateInput {
+  projectId: string;
+  supplierId: string;
+  number?: string;
+  invoiceNumber?: string | null;
+  totalAmount?: number;
+  dueDate?: string | null;
+  notes?: string | null;
+  sourceFileId?: string;
+  items?: InvoiceItemCreateInput[];
+}
+
+/** Invoice item creation input */
+export interface InvoiceItemCreateInput {
+  bomItemId?: string | null;
+  name: string;
+  quantity: number;
+  price?: number;
+  isMatch?: boolean;
+  mismatchReason?: string | null;
+}
+
+/** Invoice item update input */
+export interface InvoiceItemUpdateInput {
+  name?: string;
+  quantity?: number;
+  price?: number;
 }
 
 /**
