@@ -1,0 +1,18 @@
+{
+  "id": "7e164858-d62a-428f-8329-b5d4ef1172a9",
+  "runtime": "bash",
+  "purpose": "Verify FileEntityData exists in types.ts",
+  "script_chars": 90,
+  "started_at": "2026-06-23T05:51:51.173Z",
+  "finished_at": "2026-06-23T05:51:51.312Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 139,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\7e164858-d62a-428f-8329-b5d4ef1172a9.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\7e164858-d62a-428f-8329-b5d4ef1172a9.stderr"
+}

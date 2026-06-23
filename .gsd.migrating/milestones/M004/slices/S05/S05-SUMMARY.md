@@ -5,7 +5,7 @@ milestone: M004
 provides:
   - ["Gantt timeline visualization component", "Stage update API endpoint", "Drag-drop date editing for stages"]
 requires:
-  - slice: S03
+  - slice: S04
     provides: project detail page with stages display
 affects:
   []

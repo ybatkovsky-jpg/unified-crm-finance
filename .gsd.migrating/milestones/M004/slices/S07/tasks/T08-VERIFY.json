@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T08",
+  "unitId": "M004/S07/T08",
+  "timestamp": 1782169540810,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f apps/web/src/app/api/projects/[id]/complete/route.ts",
+      "exitCode": 1,
+      "durationMs": 32,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q 'completeProject' apps/web/src/lib/api/projects.ts",
+      "exitCode": 1,
+      "durationMs": 42,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}
