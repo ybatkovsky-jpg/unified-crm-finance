@@ -250,6 +250,8 @@ export interface DealCreateInput {
   description?: string | null;
   lossReason?: string | null;
   attributes?: Record<string, unknown> | null;
+  drawingFileId?: string | null;
+  actFileId?: string | null;
 }
 
 /**
@@ -437,6 +439,7 @@ export interface ProjectCreateInput {
   endDate?: string | null;
   marginTarget?: number | null;
   managerId?: string | null;
+  specFileId?: string | null;
   attributes?: Record<string, unknown> | null;
 }
 
