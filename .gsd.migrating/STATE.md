@@ -1,8 +1,8 @@
 # GSD State
 
 **Active Milestone:** M004: Проекты
-**Active Slice:** S07: S07
-**Phase:** executing
+**Active Slice:** None
+**Phase:** completing-milestone
 **Requirements Status:** 15 active · 5 validated · 0 deferred · 0 out of scope
 
 ## Milestone Registry
@@ -24,4 +24,4 @@
 - None
 
 ## Next Action
-Execute T09: API Types Extension in slice S07.
+All slices complete in M004. Write milestone summary.

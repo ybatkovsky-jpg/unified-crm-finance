@@ -9,8 +9,8 @@
       "sourceFile": "STATE.md"
     },
     {
-      "id": "concept:phase:planning",
-      "label": "Phase: planning",
+      "id": "concept:phase:validating-milestone",
+      "label": "Phase: validating-milestone",
       "type": "concept",
       "confidence": "EXTRACTED",
       "sourceFile": "STATE.md"
@@ -672,6 +672,67 @@
     {
       "id": "task:M004:S06:T07",
       "label": "T07: Project Detail Page Integration",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "slice:M004:S07",
+      "label": "S07: File Upload + Cascade Close",
+      "type": "slice",
+      "confidence": "EXTRACTED",
+      "sourceFile": "milestones/M004/slices/S07/S07-PLAN.md"
+    },
+    {
+      "id": "task:M004:S07:T01",
+      "label": "T01: Schema Extensions: File Attachments",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M004:S07:T02",
+      "label": "T02: S3/MinIO Upload Utility",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M004:S07:T03",
+      "label": "T03: File Upload API Routes",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M004:S07:T04",
+      "label": "T04: File Upload Components",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M004:S07:T05",
+      "label": "T05: File Attachments Integration - Deal Detail",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M004:S07:T06",
+      "label": "T06: File Attachments Integration - Project Detail",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M004:S07:T07",
+      "label": "T07: Cascade Close Logic - Repository",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M004:S07:T08",
+      "label": "T08: Cascade Close API + UI",
+      "type": "task",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "id": "task:M004:S07:T09",
+      "label": "T09: API Types Extension",
       "type": "task",
       "confidence": "EXTRACTED"
     },
@@ -1429,6 +1490,66 @@
       "confidence": "EXTRACTED"
     },
     {
+      "from": "milestone:M004",
+      "to": "slice:M004:S07",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M004:S07",
+      "to": "task:M004:S07:T01",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M004:S07",
+      "to": "task:M004:S07:T02",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M004:S07",
+      "to": "task:M004:S07:T03",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M004:S07",
+      "to": "task:M004:S07:T04",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M004:S07",
+      "to": "task:M004:S07:T05",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M004:S07",
+      "to": "task:M004:S07:T06",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M004:S07",
+      "to": "task:M004:S07:T07",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M004:S07",
+      "to": "task:M004:S07:T08",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "from": "slice:M004:S07",
+      "to": "task:M004:S07:T09",
+      "type": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
       "from": "milestone:M003",
       "to": "decision:M003:1",
       "type": "relates_to",
@@ -1513,5 +1634,5 @@
       "confidence": "EXTRACTED"
     }
   ],
-  "builtAt": "2026-06-22T13:58:04.902Z"
+  "builtAt": "2026-06-23T05:54:54.591Z"
 }

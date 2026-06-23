@@ -1,12 +1,12 @@
 {
-  "compiledAt": "2026-06-22T23:05:48.877Z",
+  "compiledAt": "2026-06-23T08:03:51.477Z",
   "milestoneId": "M004",
   "pipeline": {
     "clarifyRoundLimit": 3,
     "researchSynthesized": true,
     "draftContextIncluded": false,
     "finalizedContextIncluded": true,
-    "sourcePhase": "executing"
+    "sourcePhase": "completing-milestone"
   },
   "nodes": [
     {
@@ -663,12 +663,14 @@
       "dependsOn": [
         "execute-task:M004:S07:T08"
       ],
-      "writes": [],
+      "writes": [
+        "apps/web/src/lib/api/types.ts"
+      ],
       "metadata": {
         "unitType": "execute-task",
         "unitId": "M004.S07.T09",
-        "title": "API Types Extension",
-        "status": "pending"
+        "title": "Added specFileId to ProjectCreateInput and drawingFileId, actFileId to DealCreateInput for file attachment support",
+        "status": "complete"
       }
     },
     {
@@ -681,7 +683,7 @@
         "unitType": "complete-slice",
         "unitId": "M004.S07",
         "title": "S07",
-        "status": "pending"
+        "status": "complete"
       }
     }
   ]

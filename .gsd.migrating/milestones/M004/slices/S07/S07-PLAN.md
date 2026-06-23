@@ -70,7 +70,7 @@
   - Files: `apps/web/src/app/api/projects/[id]/complete/route.ts`, `apps/web/src/app/projects/[id]/page.tsx`, `apps/web/src/lib/api/projects.ts`
   - Verify: test -f apps/web/src/app/api/projects/[id]/complete/route.ts && grep -q 'completeProject' apps/web/src/lib/api/projects.ts
 
-- [ ] **T09: API Types Extension** `est:20m`
+- [x] **T09: API Types Extension** `est:20m`
   Add FileEntityData type to apps/web/src/lib/api/types.ts for API responses. Extend ProjectData and DealData interfaces to include specFile, drawingFile, and actFile relations (nullable FileEntityData). Add ProjectCreateInput and ProjectUpdateInput extensions for file attachment fields.
   - Files: `apps/web/src/lib/api/types.ts`
   - Verify: grep -q 'FileEntityData' apps/web/src/lib/api/types.ts
