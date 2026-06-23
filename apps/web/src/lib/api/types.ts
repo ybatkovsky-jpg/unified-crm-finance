@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity } from '@prisma/client';
+import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -651,6 +651,83 @@ export interface ProductionStageUpdateInput {
 export interface ProductionStageMoveInput {
   status: string;
   completedAt?: string | null;
+}
+
+/**
+ * BOM data with relations
+ */
+export interface BOMData extends Omit<BOM, 'BOMItem'> {
+  items?: BOMItemData[];
+  sourceFile?: FileEntityData | null;
+  project?: ProjectData;
+}
+
+/**
+ * BOM item data (mirrors Prisma BOMItem model without heavy relations)
+ */
+export type BOMItemData = Omit<BOMItem, 'BOM' | 'InvoiceItem' | 'PurchaseRequestItem' | 'WarehouseTransaction'> & {
+  supplier?: CounterpartyData | null;
+};
+
+/**
+ * BOM filter options
+ */
+export interface BOMFilters {
+  projectId?: string;
+}
+
+/**
+ * BOM list params
+ */
+export interface BOMListParams extends BOMFilters, PaginationOptions {}
+
+/**
+ * BOM creation input
+ */
+export interface BOMCreateInput {
+  projectId: string;
+  sourceFileId?: string | null;
+  items?: BOMItemCreateInput[];
+}
+
+/**
+ * BOM update input
+ */
+export interface BOMUpdateInput {
+  status?: string | null;
+  sourceFileId?: string | null;
+}
+
+/**
+ * BOM item creation input
+ */
+export interface BOMItemCreateInput {
+  rowNumber: number;
+  name: string;
+  article?: string | null;
+  category?: string | null;
+  quantity: number;
+  unit?: string | null;
+  price?: number | null;
+  supplierId?: string | null;
+  notes?: string | null;
+}
+
+/**
+ * BOM item update input (all fields optional)
+ */
+export interface BOMItemUpdateInput {
+  rowNumber?: number | null;
+  name?: string | null;
+  article?: string | null;
+  category?: string | null;
+  quantity?: number | null;
+  unit?: string | null;
+  price?: number | null;
+  supplierId?: string | null;
+  status?: string | null;
+  isFromWarehouse?: boolean | null;
+  notes?: string | null;
 }
 
 /**
