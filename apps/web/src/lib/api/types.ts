@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity } from '@prisma/client';
+import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -107,6 +107,64 @@ export interface ContactUpdateInput {
   status?: string | null;
   tags?: string[] | null;
   attributes?: Record<string, unknown> | null;
+}
+
+/**
+ * Counterparty data (mirrors Prisma Counterparty model)
+ */
+export type CounterpartyData = Omit<Counterparty, 'deletedAt'>;
+
+/**
+ * Counterparty filter options for getCounterparties
+ */
+export interface CounterpartyFilters {
+  type?: string;
+  search?: string;
+}
+
+/**
+ * Combined query parameters for listing counterparties
+ */
+export interface CounterpartyListParams extends CounterpartyFilters, PaginationOptions {}
+
+/**
+ * Counterparty creation input
+ */
+export interface CounterpartyCreateInput {
+  name: string;
+  type: string;
+  inn?: string | null;
+  kpp?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  contactPerson?: string | null;
+  address?: string | null;
+  bankName?: string | null;
+  bankAccount?: string | null;
+  korAccount?: string | null;
+  bik?: string | null;
+  notes?: string | null;
+  rating?: number | null;
+}
+
+/**
+ * Counterparty update input (all fields optional)
+ */
+export interface CounterpartyUpdateInput {
+  name?: string | null;
+  type?: string | null;
+  inn?: string | null;
+  kpp?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  contactPerson?: string | null;
+  address?: string | null;
+  bankName?: string | null;
+  bankAccount?: string | null;
+  korAccount?: string | null;
+  bik?: string | null;
+  notes?: string | null;
+  rating?: number | null;
 }
 
 /**
