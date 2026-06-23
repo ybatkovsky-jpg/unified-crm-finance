@@ -6,8 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { purchaseRequests } from '../../../../lib/db/purchase-requests'
-import type { PurchaseRequestStatus } from '../../../../lib/db/purchase-requests'
+import { purchaseRequests } from '../../../../../lib/db/purchase-requests'
+import type { PurchaseRequestStatus } from '../../../../../lib/db/purchase-requests'
 
 const VALID_STATUSES: PurchaseRequestStatus[] = [
   'draft',

@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { purchaseRequests } from '../../../../lib/db/purchase-requests'
+import { purchaseRequests } from '../../../../../lib/db/purchase-requests'
 
 interface RouteParams {
   params: Promise<{ id: string }>
