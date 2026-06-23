@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem } from '@prisma/client';
+import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -867,6 +867,48 @@ export interface InvoiceItemUpdateInput {
   name?: string;
   quantity?: number;
   price?: number;
+}
+
+// ─── Approval Request ──────────────────────────────────────
+
+/** Decision / status */
+export type ApprovalDecision = 'approved' | 'rejected';
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
+
+/** Minimal user shape for approval relations */
+export interface ApprovalUserData {
+  id: string;
+  name: string;
+  email: string;
+}
+
+/** ApprovalRequest data with resolved requester/decider users */
+export interface ApprovalRequestData extends Omit<ApprovalRequest, never> {
+  requester?: ApprovalUserData | null;
+  decider?: ApprovalUserData | null;
+}
+
+/** Approval list params */
+export interface ApprovalListParams {
+  status?: ApprovalStatus;
+  type?: string;
+}
+
+/** Approval creation input (PROC-28 — type='payment' from an approved invoice) */
+export interface ApprovalCreateInput {
+  type: string;
+  entityId: string;
+  amount?: number;
+  requestedBy: string;
+  comment?: string;
+  notifyUserId?: string;
+}
+
+/** Approval decision input (PROC-30) */
+export interface ApprovalDecisionInput {
+  decision: ApprovalDecision;
+  decidedBy: string;
+  comment?: string;
 }
 
 /**
