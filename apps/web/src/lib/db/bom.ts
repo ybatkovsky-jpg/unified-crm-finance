@@ -75,7 +75,10 @@ export class BOMRepository {
   /**
    * Find a BOM by ID, optionally including its items
    */
-  async findById(id: string, includeItems = false): Promise<BOM | null> {
+  async findById(
+    id: string,
+    includeItems = false
+  ): Promise<(BOM & { BOMItem?: BOMItem[] }) | null> {
     return prisma.bOM.findUnique({
       where: { id },
       include: { BOMItem: includeItems },
