@@ -12,6 +12,7 @@ const navItems = [
   { label: "Projects", href: "/projects" },
   { label: "Contracts", href: "/contracts" },
   { label: "Procurement", href: "/procurement/counterparties" },
+  { label: "Requests", href: "/procurement/purchase-requests" },
 ]
 
 export function NavBar() {
