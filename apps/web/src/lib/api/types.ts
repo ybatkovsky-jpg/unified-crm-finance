@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest } from '@prisma/client';
+import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -909,6 +909,57 @@ export interface ApprovalDecisionInput {
   decision: ApprovalDecision;
   decidedBy: string;
   comment?: string;
+}
+
+// ─── Warehouse ─────────────────────────────────────────────
+
+export type WarehouseTransactionType = 'in' | 'out' | 'reserve' | 'release';
+
+/** Warehouse item data (mirrors Prisma WarehouseItem without relation list) */
+export type WarehouseItemData = Omit<WarehouseItem, 'WarehouseTransaction'>;
+
+/** Transaction data (mirrors Prisma WarehouseTransaction without relations) */
+export type WarehouseTransactionData = Omit<WarehouseTransaction, 'BOMItem' | 'WarehouseItem'>;
+
+/** Warehouse item with transaction history */
+export interface WarehouseItemDetail extends WarehouseItemData {
+  transactions?: WarehouseTransactionData[];
+}
+
+/** Warehouse list params */
+export interface WarehouseListParams {
+  search?: string;
+  lowStockOnly?: boolean;
+}
+
+/** Warehouse item creation input */
+export interface WarehouseItemCreateInput {
+  name: string;
+  article?: string | null;
+  category?: string | null;
+  quantity?: number;
+  reservedQty?: number;
+  minQuantity?: number;
+  unit?: string;
+  location?: string | null;
+}
+
+/** Warehouse item update input */
+export interface WarehouseItemUpdateInput {
+  name?: string;
+  article?: string | null;
+  category?: string | null;
+  minQuantity?: number;
+  unit?: string;
+  location?: string | null;
+}
+
+/** Stock transaction input */
+export interface WarehouseTransactionInput {
+  type: WarehouseTransactionType;
+  quantity: number;
+  bomItemId?: string;
+  notes?: string;
 }
 
 /**
