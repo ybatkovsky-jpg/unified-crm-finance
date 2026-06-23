@@ -47,7 +47,7 @@ function createMockFetch(responseData: unknown, status = 200, ok = true) {
       headers: {
         get: (name: string) => (name === 'content-type' ? 'application/json' : null),
       },
-    } as Response;
+    } as unknown as Response;
   };
 }
 
@@ -65,7 +65,7 @@ describe('CounterpartyApiClient', () => {
         count: 1,
       };
 
-      client.fetchFn = createMockFetch(mockData);
+      (client as any).fetchFn =createMockFetch(mockData);
 
       const result = await client.getCounterparties();
 
@@ -78,14 +78,14 @@ describe('CounterpartyApiClient', () => {
       const mockData = { data: [mockCounterparty], count: 1 };
       let capturedUrl = '';
 
-      client.fetchFn = async (url) => {
+      (client as any).fetchFn = async (url: string) => {
         capturedUrl = url.toString();
         return {
           ok: true,
           status: 200,
           json: async () => mockData,
           headers: { get: () => 'application/json' },
-        } as Response;
+        } as unknown as Response;
       };
 
       await client.getCounterparties({ type: 'client' });
@@ -97,14 +97,14 @@ describe('CounterpartyApiClient', () => {
       const mockData = { data: [mockCounterparty], count: 1 };
       let capturedUrl = '';
 
-      client.fetchFn = async (url) => {
+      (client as any).fetchFn = async (url: string) => {
         capturedUrl = url.toString();
         return {
           ok: true,
           status: 200,
           json: async () => mockData,
           headers: { get: () => 'application/json' },
-        } as Response;
+        } as unknown as Response;
       };
 
       await client.getCounterparties({ search: 'пример' });
@@ -118,7 +118,7 @@ describe('CounterpartyApiClient', () => {
         message: 'Database connection error',
       };
 
-      client.fetchFn = createMockFetch(mockError, 500, false);
+      (client as any).fetchFn =createMockFetch(mockError, 500, false);
 
       await assert.rejects(
         async () => client.getCounterparties(),
@@ -134,7 +134,7 @@ describe('CounterpartyApiClient', () => {
 
     it('should handle empty response', async () => {
       const mockData = { data: [], count: 0 };
-      client.fetchFn = createMockFetch(mockData);
+      (client as any).fetchFn =createMockFetch(mockData);
 
       const result = await client.getCounterparties();
 
@@ -146,7 +146,7 @@ describe('CounterpartyApiClient', () => {
   describe('getCounterparty', () => {
     it('should return single counterparty by ID', async () => {
       const mockData = { data: mockCounterparty };
-      client.fetchFn = createMockFetch(mockData);
+      (client as any).fetchFn =createMockFetch(mockData);
 
       const result = await client.getCounterparty(mockCounterparty.id);
 
@@ -171,7 +171,7 @@ describe('CounterpartyApiClient', () => {
         message: `Counterparty with id ${mockCounterparty.id} not found`,
       };
 
-      client.fetchFn = createMockFetch(mockError, 404, false);
+      (client as any).fetchFn =createMockFetch(mockError, 404, false);
 
       await assert.rejects(
         async () => client.getCounterparty(mockCounterparty.id),
@@ -189,14 +189,14 @@ describe('CounterpartyApiClient', () => {
       const mockData = { data: mockCounterparty };
       let capturedUrl = '';
 
-      client.fetchFn = async (url) => {
+      (client as any).fetchFn = async (url: string) => {
         capturedUrl = url.toString();
         return {
           ok: true,
           status: 200,
           json: async () => mockData,
           headers: { get: () => 'application/json' },
-        } as Response;
+        } as unknown as Response;
       };
 
       await client.getCounterparty('test-id-123');
@@ -214,7 +214,7 @@ describe('CounterpartyApiClient', () => {
       };
 
       const mockResponse = { data: { ...mockCounterparty, ...createData } };
-      client.fetchFn = createMockFetch(mockResponse, 201);
+      (client as any).fetchFn =createMockFetch(mockResponse, 201);
 
       const result = await client.createCounterparty(createData);
 
@@ -233,7 +233,7 @@ describe('CounterpartyApiClient', () => {
         message: 'name is required',
       };
 
-      client.fetchFn = createMockFetch(mockError, 400, false);
+      (client as any).fetchFn =createMockFetch(mockError, 400, false);
 
       await assert.rejects(
         async () => client.createCounterparty(invalidData),
@@ -256,7 +256,7 @@ describe('CounterpartyApiClient', () => {
         message: 'type is required',
       };
 
-      client.fetchFn = createMockFetch(mockError, 400, false);
+      (client as any).fetchFn =createMockFetch(mockError, 400, false);
 
       await assert.rejects(
         async () => client.createCounterparty(invalidData),
@@ -276,14 +276,14 @@ describe('CounterpartyApiClient', () => {
 
       let capturedOptions: RequestInit | undefined;
 
-      client.fetchFn = async (_url, options) => {
+      (client as any).fetchFn = async (_url: string, options: RequestInit) => {
         capturedOptions = options;
         return {
           ok: true,
           status: 201,
           json: async () => ({ data: mockCounterparty }),
           headers: { get: () => 'application/json' },
-        } as Response;
+        } as unknown as Response;
       };
 
       await client.createCounterparty(createData);
@@ -303,7 +303,7 @@ describe('CounterpartyApiClient', () => {
         data: { ...mockCounterparty, ...updateData },
       };
 
-      client.fetchFn = createMockFetch(mockResponse);
+      (client as any).fetchFn =createMockFetch(mockResponse);
 
       const result = await client.updateCounterparty(mockCounterparty.id, updateData);
 
@@ -328,7 +328,7 @@ describe('CounterpartyApiClient', () => {
         message: `Counterparty with id ${mockCounterparty.id} not found`,
       };
 
-      client.fetchFn = createMockFetch(mockError, 404, false);
+      (client as any).fetchFn =createMockFetch(mockError, 404, false);
 
       await assert.rejects(
         async () => client.updateCounterparty(mockCounterparty.id, { name: 'Test' }),
@@ -343,14 +343,14 @@ describe('CounterpartyApiClient', () => {
     it('should send PUT request', async () => {
       let capturedOptions: RequestInit | undefined;
 
-      client.fetchFn = async (_url, options) => {
+      (client as any).fetchFn = async (_url: string, options: RequestInit) => {
         capturedOptions = options;
         return {
           ok: true,
           status: 200,
           json: async () => ({ data: mockCounterparty }),
           headers: { get: () => 'application/json' },
-        } as Response;
+        } as unknown as Response;
       };
 
       await client.updateCounterparty(mockCounterparty.id, { name: 'Test' });
@@ -366,7 +366,7 @@ describe('CounterpartyApiClient', () => {
         message: 'Counterparty soft-deleted successfully',
       };
 
-      client.fetchFn = createMockFetch(mockResponse);
+      (client as any).fetchFn =createMockFetch(mockResponse);
 
       const result = await client.deleteCounterparty(mockCounterparty.id);
 
@@ -391,7 +391,7 @@ describe('CounterpartyApiClient', () => {
         message: `Counterparty with id ${mockCounterparty.id} not found`,
       };
 
-      client.fetchFn = createMockFetch(mockError, 404, false);
+      (client as any).fetchFn =createMockFetch(mockError, 404, false);
 
       await assert.rejects(
         async () => client.deleteCounterparty(mockCounterparty.id),
@@ -406,7 +406,7 @@ describe('CounterpartyApiClient', () => {
     it('should send DELETE request', async () => {
       let capturedOptions: RequestInit | undefined;
 
-      client.fetchFn = async (_url, options) => {
+      (client as any).fetchFn = async (_url: string, options: RequestInit) => {
         capturedOptions = options;
         return {
           ok: true,
@@ -416,7 +416,7 @@ describe('CounterpartyApiClient', () => {
             message: 'Counterparty soft-deleted successfully',
           }),
           headers: { get: () => 'application/json' },
-        } as Response;
+        } as unknown as Response;
       };
 
       await client.deleteCounterparty(mockCounterparty.id);
