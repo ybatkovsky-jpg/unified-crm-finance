@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction } from '@prisma/client';
+import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction, Delivery } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -960,6 +960,44 @@ export interface WarehouseTransactionInput {
   quantity: number;
   bomItemId?: string;
   notes?: string;
+}
+
+// ─── Delivery ──────────────────────────────────────────────
+
+/** Status machine: pending → shipped → in_transit → delivered (+ cancelled) */
+export type DeliveryStatus = 'pending' | 'shipped' | 'in_transit' | 'delivered' | 'cancelled';
+
+/** Delivery data with optional relations */
+export interface DeliveryData extends Omit<Delivery, never> {
+  supplier?: CounterpartyData | null;
+  project?: ProjectData | null;
+  invoice?: InvoiceData | null;
+}
+
+/** Delivery list params */
+export interface DeliveryListParams {
+  projectId?: string;
+  supplierId?: string;
+  status?: DeliveryStatus;
+}
+
+/** Delivery creation input */
+export interface DeliveryCreateInput {
+  projectId: string;
+  supplierId: string;
+  invoiceId?: string;
+  trackingNumber?: string;
+  carrier?: string;
+  estimatedDate?: string | null;
+  notes?: string | null;
+}
+
+/** Delivery update input */
+export interface DeliveryUpdateInput {
+  trackingNumber?: string | null;
+  carrier?: string | null;
+  estimatedDate?: string | null;
+  notes?: string | null;
 }
 
 /**
