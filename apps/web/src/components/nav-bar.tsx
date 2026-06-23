@@ -15,6 +15,7 @@ const navItems = [
   { label: "Requests", href: "/procurement/purchase-requests" },
   { label: "Invoices", href: "/procurement/invoices" },
   { label: "Approvals", href: "/procurement/approvals" },
+  { label: "Warehouse", href: "/procurement/warehouse" },
 ]
 
 export function NavBar() {
