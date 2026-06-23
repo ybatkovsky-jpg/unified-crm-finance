@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem } from '@prisma/client';
+import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -727,6 +727,91 @@ export interface BOMItemUpdateInput {
   supplierId?: string | null;
   status?: string | null;
   isFromWarehouse?: boolean | null;
+  notes?: string | null;
+}
+
+// ─── Purchase Request ─────────────────────────────────────
+
+/** Status machine (PROC-17): draft → sent → responded → partial / closed / cancelled */
+export type PurchaseRequestStatus =
+  | 'draft'
+  | 'sent'
+  | 'responded'
+  | 'partial'
+  | 'closed'
+  | 'cancelled';
+
+/**
+ * PurchaseRequest data with optional relations (mirrors Prisma model)
+ */
+export interface PurchaseRequestData extends Omit<PurchaseRequest, 'PurchaseRequestItem'> {
+  supplier?: CounterpartyData | null;
+  project?: ProjectData | null;
+  items?: PurchaseRequestItemData[];
+}
+
+/**
+ * PurchaseRequest item data (mirrors Prisma PurchaseRequestItem without heavy relations)
+ */
+export type PurchaseRequestItemData = Omit<
+  PurchaseRequestItem,
+  'BOMItem' | 'PurchaseRequest'
+> & {
+  bomItem?: BOMItemData | null;
+};
+
+/**
+ * A supplier group produced by grouping a locked BOM (PROC-07/11)
+ */
+export interface SupplierGroupData {
+  supplierId: string;
+  supplier: CounterpartyData;
+  items: BOMItemData[];
+}
+
+/**
+ * PurchaseRequest list params
+ */
+export interface PurchaseRequestListParams {
+  projectId?: string;
+  supplierId?: string;
+  status?: PurchaseRequestStatus;
+}
+
+/**
+ * PurchaseRequest creation input
+ */
+export interface PurchaseRequestCreateInput {
+  projectId: string;
+  supplierId: string;
+  number?: string;
+  emailTo?: string | null;
+  emailSubject?: string | null;
+  emailBody?: string | null;
+  notes?: string | null;
+  items?: PurchaseRequestItemCreateInput[];
+}
+
+/**
+ * PurchaseRequest item creation input
+ */
+export interface PurchaseRequestItemCreateInput {
+  bomItemId: string;
+  quantity: number;
+  price?: number;
+  available?: boolean;
+  availableQty?: number;
+  deliveryDays?: number;
+  notes?: string | null;
+}
+
+/**
+ * PurchaseRequest update input (metadata only — status via dedicated endpoints)
+ */
+export interface PurchaseRequestUpdateInput {
+  emailTo?: string | null;
+  emailSubject?: string | null;
+  emailBody?: string | null;
   notes?: string | null;
 }
 
