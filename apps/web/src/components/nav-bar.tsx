@@ -17,6 +17,7 @@ const navItems = [
   { label: "Approvals", href: "/procurement/approvals" },
   { label: "Warehouse", href: "/procurement/warehouse" },
   { label: "Deliveries", href: "/procurement/deliveries" },
+  { label: "Finance", href: "/finance" },
   { label: "Categories", href: "/finance/categories" },
   { label: "Transactions", href: "/finance/transactions" },
   { label: "Payments", href: "/finance/payments" },
