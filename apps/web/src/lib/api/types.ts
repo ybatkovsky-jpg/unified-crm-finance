@@ -1000,6 +1000,44 @@ export interface DeliveryUpdateInput {
   notes?: string | null;
 }
 
+// ─── Category ──────────────────────────────────────────────
+
+/**
+ * Category data (mirrors Prisma Category model)
+ */
+export type CategoryData = Category;
+
+/**
+ * Category list filter params
+ */
+export interface CategoryListParams {
+  type?: string;
+  isActive?: boolean;
+  includeInactive?: boolean;
+}
+
+/**
+ * Category creation input
+ */
+export interface CategoryCreateInput {
+  name: string;
+  type: 'income' | 'expense';
+  parentId?: string | null;
+  order?: number;
+  isActive?: boolean;
+}
+
+/**
+ * Category update input (all fields optional, PATCH semantics)
+ */
+export interface CategoryUpdateInput {
+  name?: string | null;
+  type?: string | null;
+  parentId?: string | null;
+  order?: number | null;
+  isActive?: boolean | null;
+}
+
 /**
  * File upload file state (mirrors FileUpload component)
  */
