@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction, Delivery, Budget, Transaction } from '@prisma/client';
+import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction, Delivery, Budget, Transaction, CashFlowPayment } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -1139,6 +1139,48 @@ export interface TransactionUpdateInput {
   description?: string | null;
   status?: string | null;
   source?: string | null;
+}
+
+// ─── CashFlowPayment ────────────────────────────────────────
+
+export type CashFlowPaymentData = CashFlowPayment & {
+  Project?: { id: string; name: string } | null;
+  Counterparty?: { id: string; name: string } | null;
+};
+
+export interface CashFlowPaymentListParams {
+  projectId?: string;
+  counterpartyId?: string;
+  status?: string;
+  type?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  dueBefore?: string;
+  skip?: number;
+  take?: number;
+}
+
+export interface CashFlowPaymentCreateInput {
+  date: string;
+  amount: number;
+  type: string;
+  projectId?: string | null;
+  counterpartyId?: string | null;
+  invoiceId?: string | null;
+  description?: string | null;
+  status?: string;
+  dueDate?: string | null;
+}
+
+export interface CashFlowPaymentUpdateInput {
+  date?: string | null;
+  amount?: number | null;
+  type?: string | null;
+  projectId?: string | null;
+  counterpartyId?: string | null;
+  description?: string | null;
+  status?: string | null;
+  dueDate?: string | null;
 }
 
 /**

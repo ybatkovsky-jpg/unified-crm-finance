@@ -19,6 +19,7 @@ const navItems = [
   { label: "Deliveries", href: "/procurement/deliveries" },
   { label: "Categories", href: "/finance/categories" },
   { label: "Transactions", href: "/finance/transactions" },
+  { label: "Payments", href: "/finance/payments" },
 ]
 
 export function NavBar() {
