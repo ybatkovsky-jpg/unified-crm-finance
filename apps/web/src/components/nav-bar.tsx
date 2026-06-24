@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
+import { NotificationBell } from "@/components/notification-bell"
 
 const navItems = [
   { label: "CRM", href: "/crm/contacts" },
@@ -21,6 +22,7 @@ const navItems = [
   { label: "Categories", href: "/finance/categories" },
   { label: "Transactions", href: "/finance/transactions" },
   { label: "Payments", href: "/finance/payments" },
+  { label: "Analytics", href: "/analytics" },
 ]
 
 export function NavBar() {
@@ -53,6 +55,8 @@ export function NavBar() {
             </Link>
           )
         })}
+        <div className="flex-1" />
+        <NotificationBell />
       </nav>
     </header>
   )
