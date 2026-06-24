@@ -154,19 +154,58 @@ unified-crm-finance/
 - ✅ Seed: admin@local / admin123
 - ✅ CI: lint, typecheck, build, Prisma validate, ruff, mypy, pytest, CodeQL
 
-## Что НЕ реализовано (будущие спринты)
+## Что реализовано
 
-- ❌ S2: NextAuth (login/logout), RBAC middleware, AuditLog middleware, FileEntity upload
-- ❌ S3: Модуль CRM (CRUD контактов, UI)
-- ❌ S4: Модуль Сделки (Kanban)
-- ❌ S5: Модуль Договоры (генерация PDF)
-- ❌ S6: Модуль Проекты (Kanban + guardrails)
-- ❌ S7-S8: Перенос AI-агента, email-воркера, склада из zakuppro
-- ❌ S9-S10: Перенос финансового контура из finpro
-- ❌ S11: Аналитика, Telegram-бот, уведомления
-- ❌ S12: Production-запуск, обучение
+- ✅ M001: Инфраструктура и модель данных (монорепо, Docker, Prisma, CI/CD)
+- ✅ M002: CRM модуль (контакты, взаимодействия, timeline)
+- ✅ M003: Сделки (pipeline, Kanban, drag-and-drop)
+- ✅ M004: Проекты (Gantt, этапы, production, файлы)
+- ✅ M005: Закупки (контрагенты, BOM, заявки, счета, согласования, склад, поставки)
+- ✅ M006: Финансы (категории, бюджеты, транзакции, платежи, дашборд)
+- ✅ M007: Аналитика (воронка, P&L, команда, закупки, сводный дашборд)
+- ✅ M008: Уведомления (email, in-app колокольчик, webhooks)
 
-См. полный roadmap: [`docs/18-roadmap.md`](docs/18-roadmap.md).
+## Runbook — Эксплуатация
+
+### Бэкапы
+
+```bash
+# Бэкап PostgreSQL
+docker compose exec postgres pg_dump -U postgres unified_crm > backup_$(date +%Y%m%d).sql
+
+# Бэкап MinIO (файлы)
+docker compose exec minio mc mirror local/unified-crm /backup/
+
+# Автоматизация (добавить в crontab):
+# 0 2 * * * cd /opt/unified-crm && make backup
+```
+
+### Восстановление
+
+```bash
+# Восстановление БД
+docker compose exec -T postgres psql -U postgres unified_crm < backup_20260101.sql
+
+# Перезапуск после сбоя
+make docker-down && make docker-up && make db-migrate
+```
+
+### Инциденты
+
+| Симптом | Причина | Решение |
+|---------|---------|---------|
+| 503 на /api/health | БД недоступна | `docker compose logs postgres`, проверить диск |
+| Медленный UI | Большие запросы | Проверить индексы: `docker compose exec postgres psql -U postgres unified_crm -c "SELECT * FROM pg_stat_user_indexes"` |
+| RabbitMQ очередь растёт | Worker не справляется | `docker compose logs worker`, проверить память |
+| 401 на API | Истек JWT токен | Перелогиниться |
+| Ошибка сборки | Зависимости | `make install && npx prisma generate` |
+
+### Мониторинг
+
+- **Health endpoint:** `GET /api/health` (200/503 + JSON статус)
+- **Python worker:** `GET http://localhost:8000/internal/health`
+- **Prometheus:** подключить скрейпинг `/api/health` каждые 30s
+- **Алерты:** настроить на статус != UP или latency >2s
 
 ## Отладка
 
