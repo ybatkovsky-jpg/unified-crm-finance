@@ -10,6 +10,7 @@ import { ProjectGantt } from "@/components/projects/project-gantt"
 import { ProductionList } from "@/components/projects/production-list"
 import { CreateProductionModal } from "@/components/projects/create-production-modal"
 import { BOMSection } from "@/components/procurement/bom-section"
+import { BudgetWidget } from "@/components/finance/budget-widget"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -637,6 +638,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
           {/* BOM Specification */}
           <BOMSection projectId={project.id} />
+
+          {/* Budget */}
+          <BudgetWidget projectId={project.id} />
 
           {/* File Attachments */}
           <Card>

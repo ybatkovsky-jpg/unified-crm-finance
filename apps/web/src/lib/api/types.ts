@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction, Delivery } from '@prisma/client';
+import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction, Delivery, Budget } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -1036,6 +1036,47 @@ export interface CategoryUpdateInput {
   parentId?: string | null;
   order?: number | null;
   isActive?: boolean | null;
+}
+
+// ─── Budget ─────────────────────────────────────────────────
+
+/**
+ * Budget data (mirrors Prisma Budget model with optional relations)
+ */
+export type BudgetData = Budget & {
+  Category?: { id: string; name: string; type: string } | null;
+  Project?: { id: string; name: string } | null;
+};
+
+/**
+ * Budget list filter params
+ */
+export interface BudgetListParams {
+  projectId?: string;
+  categoryId?: string;
+  period?: string;
+}
+
+/**
+ * Budget creation input
+ */
+export interface BudgetCreateInput {
+  projectId: string;
+  categoryId: string;
+  amount: number;
+  period: string;
+  note?: string | null;
+}
+
+/**
+ * Budget update input (all fields optional, PATCH semantics)
+ */
+export interface BudgetUpdateInput {
+  projectId?: string | null;
+  categoryId?: string | null;
+  amount?: number | null;
+  period?: string | null;
+  note?: string | null;
 }
 
 /**
