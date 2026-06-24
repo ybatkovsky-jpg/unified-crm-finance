@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction, Delivery, Budget } from '@prisma/client';
+import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction, Delivery, Budget, Transaction } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -1077,6 +1077,68 @@ export interface BudgetUpdateInput {
   amount?: number | null;
   period?: string | null;
   note?: string | null;
+}
+
+// ─── Transaction ────────────────────────────────────────────
+
+/**
+ * Transaction data with optional relation includes
+ */
+export type TransactionData = Transaction & {
+  Category?: { id: string; name: string; type: string } | null;
+  Project?: { id: string; name: string } | null;
+  Counterparty?: { id: string; name: string } | null;
+  Invoice?: { id: string; number: string } | null;
+};
+
+/**
+ * Transaction list filter params
+ */
+export interface TransactionListParams {
+  projectId?: string;
+  categoryId?: string;
+  counterpartyId?: string;
+  invoiceId?: string;
+  type?: string;
+  status?: string;
+  source?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  includeDeleted?: boolean;
+  skip?: number;
+  take?: number;
+}
+
+/**
+ * Transaction creation input
+ */
+export interface TransactionCreateInput {
+  categoryId: string;
+  date: string;
+  amount: number;
+  type: 'income' | 'expense';
+  projectId?: string | null;
+  counterpartyId?: string | null;
+  invoiceId?: string | null;
+  description?: string | null;
+  source?: string;
+  status?: string;
+}
+
+/**
+ * Transaction update input (all fields optional, PATCH semantics)
+ */
+export interface TransactionUpdateInput {
+  categoryId?: string | null;
+  projectId?: string | null;
+  counterpartyId?: string | null;
+  invoiceId?: string | null;
+  date?: string | null;
+  amount?: number | null;
+  type?: string | null;
+  description?: string | null;
+  status?: string | null;
+  source?: string | null;
 }
 
 /**
