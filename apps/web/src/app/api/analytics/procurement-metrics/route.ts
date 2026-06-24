@@ -1,0 +1,100 @@
+/**
+ * GET /api/analytics/procurement-metrics
+ *
+ * Procurement cycle times and supplier analytics.
+ * Query params: period
+ */
+
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '../../../../lib/db/prisma'
+
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  try {
+    const searchParams = request.nextUrl.searchParams
+    const period = searchParams.get('period') ?? 'all'
+
+    let dateFrom: Date | undefined
+    const now = new Date()
+    switch (period) {
+      case '3m': dateFrom = new Date(now.getFullYear(), now.getMonth() - 3, 1); break
+      case '6m': dateFrom = new Date(now.getFullYear(), now.getMonth() - 6, 1); break
+      case '12m': dateFrom = new Date(now.getFullYear() - 1, now.getMonth(), 1); break
+    }
+
+    // Count stats
+    const purchaseRequestCount = await prisma.purchaseRequest.count({
+      ...(dateFrom ? { where: { createdAt: { gte: dateFrom } } } : {}),
+    })
+    const invoiceCount = await prisma.invoice.count({
+      ...(dateFrom ? { where: { createdAt: { gte: dateFrom } } } : {}),
+    })
+    const deliveryCount = await prisma.delivery.count({
+      ...(dateFrom ? { where: { createdAt: { gte: dateFrom } } } : {}),
+    })
+
+    // Top suppliers by invoice amount
+    const invoices = await prisma.invoice.findMany({
+      where: {
+        ...(dateFrom ? { createdAt: { gte: dateFrom } } : {}),
+      },
+      include: {
+        Counterparty: { select: { id: true, name: true } },
+      },
+    })
+
+    const supplierMap = new Map<string, { name: string; invoiceCount: number; totalAmount: number }>()
+    for (const inv of invoices) {
+      const supplierId = inv.counterpartyId ?? 'unknown'
+      const existing = supplierMap.get(supplierId) ?? { name: inv.Counterparty?.name ?? 'Unknown', invoiceCount: 0, totalAmount: 0 }
+      existing.invoiceCount++
+      existing.totalAmount += inv.totalAmount ?? 0
+      supplierMap.set(supplierId, existing)
+    }
+
+    const topSuppliers = Array.from(supplierMap.entries())
+      .map(([id, data]) => ({ supplierId: id, supplierName: data.name, invoiceCount: data.invoiceCount, totalAmount: data.totalAmount }))
+      .sort((a, b) => b.totalAmount - a.totalAmount)
+      .slice(0, 10)
+
+    // Total procurement spend
+    const totalProcurementSpend = invoices.reduce((s, inv) => s + (inv.totalAmount ?? 0), 0)
+
+    // Warehouse stats
+    const warehouseItemCount = await prisma.warehouseItem.count()
+    const stockValueAgg = await prisma.warehouseItem.aggregate({
+      _sum: { totalValue: true },
+    })
+
+    // Monthly procurement trend
+    const monthlyInvoices = invoices.reduce((acc, inv) => {
+      const key = `${inv.createdAt.getFullYear()}-${String(inv.createdAt.getMonth() + 1).padStart(2, '0')}`
+      acc.set(key, (acc.get(key) ?? 0) + (inv.totalAmount ?? 0))
+      return acc
+    }, new Map<string, number>())
+
+    const monthlyTrend = Array.from(monthlyInvoices.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, amount]) => ({ month, amount }))
+
+    return NextResponse.json({
+      data: {
+        summary: {
+          purchaseRequestCount,
+          invoiceCount,
+          deliveryCount,
+          totalProcurementSpend,
+          warehouseItemCount,
+          stockValue: stockValueAgg._sum.totalValue ?? 0,
+        },
+        topSuppliers,
+        monthlyTrend,
+      },
+    })
+  } catch (error) {
+    console.error('Failed to compute procurement metrics:', error)
+    return NextResponse.json(
+      { error: 'Failed to compute metrics', message: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
+}
