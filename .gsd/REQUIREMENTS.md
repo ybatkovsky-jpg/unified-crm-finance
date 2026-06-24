@@ -85,6 +85,8 @@ This file is the explicit capability and coverage contract for the project.
 - Why it matters: Финансовый контроль и отчётность
 - Source: inferred
 - Primary owning slice: M006
+- Validation: Categories CRUD (S01), Budgets CRUD (S02), Transactions CRUD (S03), CashFlowPayment workflow (S04), Analytics API (S05), Invoice pay integration (S06), Finance dashboard (S07)
+- Notes: M006 planned with 7 slices: S01 Categories, S02 Budgets, S03 Transactions, S04 CashFlowPayment, S05 Analytics, S06 Invoice integration, S07 Dashboard. S01 fully decomposed into 5 tasks.
 
 ### R016 — Аналитика: дашборды, метрики, графики, экспорт
 - Class: differentiator
@@ -201,7 +203,7 @@ This file is the explicit capability and coverage contract for the project.
 | R012 | core-capability | validated | M009 | none | S04: ContractRepository with transaction safety, 57 tests (16 repo + 41 API); versioning with MAX+1 pattern; signer management; bidirectional deal→contract link |
 | R013 | core-capability | active | M004 | none | unmapped |
 | R014 | core-capability | active | M005 | none | unmapped |
-| R015 | core-capability | active | M006 | none | unmapped |
+| R015 | core-capability | active | M006 | none | Categories CRUD (S01), Budgets CRUD (S02), Transactions CRUD (S03), CashFlowPayment workflow (S04), Analytics API (S05), Invoice pay integration (S06), Finance dashboard (S07) |
 | R016 | differentiator | active | M007 | none | unmapped |
 | R017 | failure-visibility | active | M008 | none | unmapped |
 | R018 | integration | active | M001 | [] | Создание встречи в CRM отображается в Google Calendar и наоборот |
