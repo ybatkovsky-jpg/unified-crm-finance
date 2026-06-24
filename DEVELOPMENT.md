@@ -143,17 +143,6 @@ unified-crm-finance/
 3. **ci-docker.yml** — на каждый PR/merge в Docker-файлы: docker compose config validation.
 4. **codeql.yml** — security-анализ (раз в неделю + на PR).
 
-## Что реализовано в S1 (этот коммит)
-
-- ✅ Структура монорепо (npm workspaces)
-- ✅ Next.js 16 + TypeScript 5 + Tailwind 4 (конфиг)
-- ✅ Prisma-схема (40+ моделей из docs/05-data-model.md)
-- ✅ Python FastAPI + Celery + SQLAlchemy (reflect)
-- ✅ Docker Compose с PostgreSQL, RabbitMQ, MinIO, web, worker, celery-worker, celery-beat
-- ✅ Health endpoint: http://localhost:3000/api/health
-- ✅ Seed: admin@local / admin123
-- ✅ CI: lint, typecheck, build, Prisma validate, ruff, mypy, pytest, CodeQL
-
 ## Что реализовано
 
 - ✅ M001: Инфраструктура и модель данных (монорепо, Docker, Prisma, CI/CD)
