@@ -126,11 +126,9 @@ export function CreateProductionModal({ projectId, onCreate }: CreateProductionM
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger>
-        <Button size="sm" variant="outline">
-          <Plus className="size-4" />
-          <span className="ml-1.5">Добавить производство</span>
-        </Button>
+      <DialogTrigger render={<Button size="sm" variant="outline" />}>
+        <Plus className="size-4" />
+        <span className="ml-1.5">Добавить производство</span>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[450px]">
         <form onSubmit={handleSubmit}>

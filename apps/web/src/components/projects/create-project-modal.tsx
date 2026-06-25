@@ -182,11 +182,9 @@ export function CreateProjectModal({ onCreate }: CreateProjectModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger>
-        <Button>
-          <Plus className="size-4" />
-          <span className="ml-1.5">Создать проект</span>
-        </Button>
+      <DialogTrigger render={<Button />}>
+        <Plus className="size-4" />
+        <span className="ml-1.5">Создать проект</span>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>

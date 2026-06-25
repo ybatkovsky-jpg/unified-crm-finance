@@ -59,7 +59,7 @@ export class FilesApiClient {
 
   constructor(config: ApiClientConfig = {}) {
     this.baseUrl = config.baseUrl ?? DEFAULT_BASE_URL;
-    this.fetchFn = config.fetch ?? fetch;
+    this.fetchFn = config.fetch ?? ((...args: Parameters<typeof fetch>) => fetch(...args));
     this.defaultHeaders = {
       ...config.headers,
     };

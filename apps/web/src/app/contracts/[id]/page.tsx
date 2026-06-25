@@ -506,11 +506,9 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
               <div className="flex items-center justify-between">
                 <CardTitle>Версии контракта</CardTitle>
                 <Dialog open={versionModalOpen} onOpenChange={setVersionModalOpen}>
-                  <DialogTrigger>
-                    <Button size="sm">
-                      <FilePlus className="size-4" />
-                      <span className="ml-1.5">Добавить версию</span>
-                    </Button>
+                  <DialogTrigger render={<Button size="sm" />}>
+                    <FilePlus className="size-4" />
+                    <span className="ml-1.5">Добавить версию</span>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
@@ -589,11 +587,9 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
               <div className="flex items-center justify-between">
                 <CardTitle>Подписанты</CardTitle>
                 <Dialog open={signerModalOpen} onOpenChange={setSignerModalOpen}>
-                  <DialogTrigger>
-                    <Button size="sm">
-                      <UserPlus className="size-4" />
-                      <span className="ml-1.5">Добавить подписанта</span>
-                    </Button>
+                  <DialogTrigger render={<Button size="sm" />}>
+                    <UserPlus className="size-4" />
+                    <span className="ml-1.5">Добавить подписанта</span>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
