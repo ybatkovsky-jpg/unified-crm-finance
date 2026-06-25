@@ -88,26 +88,16 @@ export async function POST(
       )
     }
 
-    // Validate required fields
-    if (!body.type) {
-      return NextResponse.json(
-        { error: 'Validation failed', message: 'Production type is required (PLATE or COUNTERTOP)' },
-        { status: 400 }
-      )
-    }
-
-    if (!['PLATE', 'COUNTERTOP'].includes(body.type)) {
-      return NextResponse.json(
-        { error: 'Validation failed', message: 'Production type must be PLATE or COUNTERTOP' },
-        { status: 400 }
-      )
-    }
-
-    // Create production with projectId from route
-    const newProduction = await productions.create({
-      ...body,
+    // Store production type in attributes if provided
+    const productionData: Record<string, unknown> = {
       projectId,
-    })
+      status: body.status || 'planning',
+      notes: body.notes || null,
+      attributes: body.attributes || (body.type ? { type: body.type } : null),
+    }
+
+    // Create production
+    const newProduction = await productions.create(productionData)
 
     // Fetch with stages for response
     const productionWithStages = await productions.findUnique(newProduction.id, {
