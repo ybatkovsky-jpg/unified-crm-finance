@@ -309,9 +309,9 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
 
   if (!deal) return null
 
-  const stageColor = deal.stage.color || "#94a3b8"
-  const isWon = deal.stage.isWonStage
-  const isLost = deal.stage.isLostStage
+  const stageColor = deal.stage?.color || "#94a3b8"
+  const isWon = deal.stage?.isWonStage
+  const isLost = deal.stage?.isLostStage
 
   return (
     <div className="container mx-auto p-6 space-y-6">
