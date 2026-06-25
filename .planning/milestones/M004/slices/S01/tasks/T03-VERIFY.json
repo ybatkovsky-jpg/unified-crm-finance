@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T03",
+  "unitId": "M004/S01/T03",
+  "timestamp": 1782082131889,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "tsx apps/web/src/lib/db/production.test.ts",
+      "exitCode": 1,
+      "durationMs": 105,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

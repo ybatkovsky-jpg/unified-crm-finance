@@ -31,12 +31,15 @@ export async function GET(
     const { id } = await params
 
     const contract = await contracts.findUnique(id, {
-      Contact: true,
-      ContractTemplate: true,
-      ContractVersion: {
-        orderBy: { version: 'desc' },
+      include: {
+        Contact: true,
+        ContractTemplate: true,
+        ContractVersion: {
+          orderBy: { version: 'desc' },
+        },
+        ContractSigner: true,
+        Deal: true,
       },
-      ContractSigner: true,
     })
 
     if (!contract) {
@@ -46,7 +49,19 @@ export async function GET(
       )
     }
 
-    return NextResponse.json({ data: contract })
+    // Map Prisma PascalCase relations to API lowercase shape
+    const { Contact, ContractTemplate, ContractVersion, ContractSigner, Deal, ...rest } =
+      contract as Record<string, unknown> & { Contact?: unknown; ContractTemplate?: unknown; ContractVersion?: unknown; ContractSigner?: unknown; Deal?: unknown }
+    const mapped = {
+      ...rest,
+      contact: Contact ?? null,
+      template: ContractTemplate ?? null,
+      versions: ContractVersion ?? [],
+      signers: ContractSigner ?? [],
+      deal: Deal ?? null,
+    }
+
+    return NextResponse.json({ data: mapped })
   } catch (error) {
     console.error('Failed to fetch contract:', error)
     return NextResponse.json(

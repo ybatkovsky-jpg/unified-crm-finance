@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T06",
+  "unitId": "M001/S04/T06",
+  "timestamp": 1782000574004,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f apps/web/src/components/dashboard-layout.tsx",
+      "exitCode": 1,
+      "durationMs": 162,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q 'DashboardLayout' apps/web/src/app/dashboard/page.tsx",
+      "exitCode": 1,
+      "durationMs": 31,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

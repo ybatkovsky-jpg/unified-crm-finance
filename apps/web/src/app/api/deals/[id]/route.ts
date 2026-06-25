@@ -32,18 +32,14 @@ export async function GET(
 
     const deal = await deals.findUnique(id, {
       include: {
-        stage: true,
-        pipeline: true,
-        contact: true,
-        manager: true,
-        drawingFile: true,
-        actFile: true,
-        history: {
+        DealStage: true,
+        Pipeline: true,
+        Contact: true,
+        User: true,
+        DrawingFile: true,
+        ActFile: true,
+        DealHistory: {
           orderBy: { changedAt: 'desc' },
-          include: {
-            fromStage: true,
-            toStage: true,
-          },
         },
       },
     })
@@ -55,7 +51,21 @@ export async function GET(
       )
     }
 
-    return NextResponse.json({ data: deal })
+    // Map Prisma PascalCase relations to API lowercase shape
+    const { DealStage, Pipeline, Contact, User, DrawingFile, ActFile, DealHistory, ...rest } =
+      deal as Record<string, unknown> & { DealStage?: unknown; Pipeline?: unknown; Contact?: unknown; User?: unknown; DrawingFile?: unknown; ActFile?: unknown; DealHistory?: unknown }
+    const mapped = {
+      ...rest,
+      stage: DealStage ?? null,
+      pipeline: Pipeline ?? null,
+      contact: Contact ?? null,
+      manager: User ?? null,
+      drawingFile: DrawingFile ?? null,
+      actFile: ActFile ?? null,
+      history: DealHistory ?? [],
+    }
+
+    return NextResponse.json({ data: mapped })
   } catch (error) {
     console.error('Failed to fetch deal:', error)
     return NextResponse.json(

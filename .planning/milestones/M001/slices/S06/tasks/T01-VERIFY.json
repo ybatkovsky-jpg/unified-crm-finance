@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T01",
+  "unitId": "M001/S06/T01",
+  "timestamp": 1782013202389,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f apps/worker/pyproject.toml",
+      "exitCode": 1,
+      "durationMs": 37,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f apps/worker/tests/conftest.py",
+      "exitCode": 1,
+      "durationMs": 35,
+      "verdict": "fail"
+    },
+    {
+      "command": "test -f apps/worker/tests/test_health.py",
+      "exitCode": 1,
+      "durationMs": 36,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q pytest apps/worker/requirements.txt",
+      "exitCode": 1,
+      "durationMs": 43,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q ruff apps/worker/requirements.txt",
+      "exitCode": 1,
+      "durationMs": 35,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

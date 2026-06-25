@@ -1,0 +1,18 @@
+{
+  "id": "89683247-a5fb-4a76-bd93-7c41976f183b",
+  "runtime": "bash",
+  "purpose": "TypeScript type check to find compilation errors",
+  "script_chars": 36,
+  "started_at": "2026-06-23T10:01:30.729Z",
+  "finished_at": "2026-06-23T10:01:30.930Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 201,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\89683247-a5fb-4a76-bd93-7c41976f183b.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\89683247-a5fb-4a76-bd93-7c41976f183b.stderr"
+}

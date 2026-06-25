@@ -1,0 +1,18 @@
+{
+  "id": "bc5651a7-e1a5-46a5-84b6-8bdb9953321f",
+  "runtime": "bash",
+  "purpose": "Run CategoryRepository tests",
+  "script_chars": 64,
+  "started_at": "2026-06-24T07:57:56.154Z",
+  "finished_at": "2026-06-24T07:57:56.373Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 219,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\bc5651a7-e1a5-46a5-84b6-8bdb9953321f.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\bc5651a7-e1a5-46a5-84b6-8bdb9953321f.stderr"
+}

@@ -1,0 +1,423 @@
+stdout: src/app/api/contracts/route.ts(37,9): error TS2561: Object literal may only specify known properties, but 'contact' does not exist in type 'ContractInclude<DefaultArgs>'. Did you mean to write 'Contact'?
+src/app/api/deals/[id]/convert/route.ts(35,18): error TS2561: Object literal may only specify known properties, but 'contact' does not exist in type 'DealInclude<DefaultArgs>'. Did you mean to write 'Contact'?
+src/app/api/deals/[id]/convert/route.ts(68,9): error TS2353: Object literal may only specify known properties, and 'stage' does not exist in type 'DealInclude<DefaultArgs>'.
+src/app/api/deals/[id]/route.ts(34,7): error TS2353: Object literal may only specify known properties, and 'include' does not exist in type 'DealInclude<DefaultArgs>'.
+src/app/api/deals/route.ts(47,9): error TS2353: Object literal may only specify known properties, and 'stage' does not exist in type 'DealInclude<DefaultArgs>'.
+src/app/deals/[id]/page.tsx(75,17): error TS7009: 'new' expression, whose target lacks a construct signature, implicitly has an 'any' type.
+src/app/deals/[id]/page.tsx(75,30): error TS2554: Expected 1 arguments, but got 3.
+src/app/deals/[id]/page.tsx(84,17): error TS7009: 'new' expression, whose target lacks a construct signature, implicitly has an 'any' type.
+src/app/deals/[id]/page.tsx(84,30): error TS2554: Expected 1 arguments, but got 3.
+src/app/projects/[id]/page.tsx(679,52): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/app/projects/[id]/page.tsx(679,57): error TS18049: 'project.specFile' is possibly 'null' or 'undefined'.
+src/app/projects/[id]/page.tsx(679,78): error TS18049: 'project.specFile' is possibly 'null' or 'undefined'.
+src/components/shared/file-preview.tsx(253,26): error TS2322: Type '{ children: Element; asChild: true; }' is not assignable to type 'IntrinsicAttributes & DialogCloseProps'.
+  Property 'asChild' does not exist on type 'IntrinsicAttributes & DialogCloseProps'.
+src/lib/api/contacts.test.ts(71,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(84,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(86,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContactData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContactData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contacts.test.ts(103,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(105,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContactData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContactData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contacts.test.ts(124,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(140,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(152,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(177,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(195,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(197,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContactData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContactData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contacts.test.ts(221,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(240,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(263,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(287,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(308,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(310,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContactData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContactData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contacts.test.ts(335,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(360,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(375,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(377,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContactData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContactData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contacts.test.ts(398,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(423,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(438,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContactApiClient'.
+src/lib/api/contacts.test.ts(440,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContactData; message: string; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContactData; message: string; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(16,7): error TS2739: Type '{ id: string; title: string; contactId: string; dealId: string; templateId: null; amount: number; currency: string; startDate: Date; endDate: Date; status: string; notes: string; attributes: { ...; }; ... 7 more ...; signers: never[]; }' is missing the following properties from type 'ContractData': number, signedFileId
+src/lib/api/contracts.test.ts(69,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(82,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(84,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContractData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContractData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(101,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(103,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContractData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContractData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(120,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(122,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContractData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContractData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(139,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(141,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContractData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContractData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(162,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(178,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(190,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(215,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(233,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(235,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContractData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContractData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(259,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(275,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(277,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContractData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContractData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(301,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(326,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(352,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(367,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(369,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContractData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContractData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(386,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(410,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(425,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(427,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ContractData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ContractData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(449,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(462,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(464,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: never[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: never[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(483,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(511,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(528,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(531,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; }; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; }; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(554,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(567,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(569,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: never[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: never[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(598,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(614,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(617,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; }; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; }; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(638,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(666,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(678,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(680,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: { contract: ContractData; deal: {}; }; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: { contract: ContractData; deal: {}; }; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(697,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(699,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: { contract: ContractData; deal: {}; }; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: { contract: ContractData; deal: {}; }; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(718,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(733,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(747,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(748,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<never>; headers: { get: () => null; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<never>; headers: { get: () => null; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/contracts.test.ts(771,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ContractApiClient'.
+src/lib/api/contracts.test.ts(772,16): error TS2352: Conversion of type '{ ok: false; status: number; statusText: string; json: () => Promise<never>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: false; status: number; statusText: string; json: () => Promise<never>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, type, url, clone, and 7 more.
+src/lib/api/contracts.ts(153,110): error TS2304: Cannot find name 'DealData'.
+src/lib/api/contracts.ts(160,66): error TS2304: Cannot find name 'DealData'.
+src/lib/api/deals.test.ts(30,3): error TS2739: Type '{ id: string; code: string; name: string; }' is missing the following properties from type 'Omit<{ id: string; name: string; createdAt: Date; isActive: boolean; description: string | null; code: string; }, "createdAt">': isActive, description
+src/lib/api/deals.test.ts(70,5): error TS2353: Object literal may only specify known properties, and 'role' does not exist in type 'Omit<{ id: string; updatedAt: Date; name: string; email: string; phone: string | null; createdAt: Date; deletedAt: Date | null; passwordHash: string; telegramId: string | null; avatarUrl: string | null; isActive: boolean; lastLoginAt: Date | null; }, "deletedAt" | "passwordHash">'.
+src/lib/api/deals.test.ts(108,5): error TS2353: Object literal may only specify known properties, and 'sourceId' does not exist in type 'DealData'.
+src/lib/api/deals.test.ts(155,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(169,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(171,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(187,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(189,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(205,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(207,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(223,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(225,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(241,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(243,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(259,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(261,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(280,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(296,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(311,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(326,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(360,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(378,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(380,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(407,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(425,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(427,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(457,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(459,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(461,47): error TS2345: Argument of type '{ title: string; pipelineId: string; stageId: string; contactId?: string | null; amount?: number | null; currency?: string | null; expectedCloseDate?: string | null; managerId?: string | null; ... 4 more ...; actFileId?: string | null; }' is not assignable to parameter of type 'Partial<DealData>'.
+  Types of property 'attributes' are incompatible.
+    Type 'Record<string, unknown> | null | undefined' is not assignable to type 'JsonValue | undefined'.
+      Type 'Record<string, unknown>' is not assignable to type 'JsonValue | undefined'.
+        Type 'Record<string, unknown>' is missing the following properties from type 'JsonValue[]': length, pop, push, concat, and 35 more.
+src/lib/api/deals.test.ts(488,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(515,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(538,32): error TS2345: Argument of type '{ title?: string | null; amount?: number | null; currency?: string | null; expectedCloseDate?: string | null; description?: string | null; lossReason?: string | null; attributes?: Record<string, unknown> | null; contactId?: string | null; managerId?: string | null; drawingFileId?: string | null; actFileId?: string |...' is not assignable to parameter of type 'Partial<DealData>'.
+  Types of property 'attributes' are incompatible.
+    Type 'Record<string, unknown> | null | undefined' is not assignable to type 'JsonValue | undefined'.
+      Type 'Record<string, unknown>' is not assignable to type 'JsonValue | undefined'.
+        Type 'Record<string, unknown>' is missing the following properties from type 'JsonValue[]': length, pop, push, concat, and 35 more.
+src/lib/api/deals.test.ts(539,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(552,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(554,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(587,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(606,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(631,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(647,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(649,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData; message: string; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData; message: string; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(678,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(692,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(695,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(732,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(755,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(778,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(780,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(797,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(815,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(828,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(854,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(919,20): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(921,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(936,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(938,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/deals.test.ts(961,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'DealApiClient'.
+src/lib/api/deals.test.ts(963,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: DealData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/interactions.test.ts(72,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(86,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(88,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }[]; count: ...' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }[]; count: ...' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/interactions.test.ts(105,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(107,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }[]; count: ...' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }[]; count: ...' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/interactions.test.ts(126,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(142,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(154,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(180,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(198,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(200,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }; }>; heade...' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }; }>; heade...' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/interactions.test.ts(226,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(246,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(270,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(295,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(318,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(320,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }; }>; heade...' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }; }>; heade...' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/interactions.test.ts(345,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(370,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(385,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(387,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }; }>; heade...' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }; }>; heade...' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/interactions.test.ts(408,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(433,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(448,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(450,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }; message: ...' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }; message: ...' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/interactions.test.ts(474,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(500,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(515,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(527,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'InteractionApiClient'.
+src/lib/api/interactions.test.ts(529,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }[]; count: ...' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: { id: string; updatedAt: Date; type: string; createdAt: Date; content: string | null; authorId: string; contactId: string; direction: string | null; subject: string | null; scheduledAt: Date | null; completedAt: Date | null; eventId: string | null; }[]; count: ...' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/pipelines.test.ts(86,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(99,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(113,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(130,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(132,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: PipelineData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: PipelineData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/pipelines.test.ts(152,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(173,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(190,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(217,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(235,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(237,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: PipelineWithStages; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: PipelineWithStages; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/pipelines.test.ts(255,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(269,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(320,20): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(322,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: PipelineData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: PipelineData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/pipelines.test.ts(337,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'PipelineApiClient'.
+src/lib/api/pipelines.test.ts(339,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: PipelineData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: PipelineData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(15,51): error TS2339: Property 'stage' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(15,80): error TS2339: Property 'stage' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(30,5): error TS2353: Object literal may only specify known properties, and 'projectId' does not exist in type 'ProjectMemberData'.
+src/lib/api/projects.test.ts(50,5): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'ProjectData'.
+src/lib/api/projects.test.ts(108,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(114,41): error TS2339: Property 'title' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(114,56): error TS2339: Property 'title' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(122,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(124,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(140,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(142,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(158,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(160,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(176,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(178,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(194,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(196,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(213,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(215,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(234,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(250,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(265,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(270,38): error TS2339: Property 'title' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(270,53): error TS2339: Property 'title' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(271,38): error TS2339: Property 'code' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(271,52): error TS2339: Property 'code' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(277,9): error TS2561: Object literal may only specify known properties, but 'stage' does not exist in type 'Partial<ProjectData>'. Did you mean to write 'stages'?
+src/lib/api/projects.test.ts(279,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(283,29): error TS2551: Property 'stage' does not exist on type 'ProjectData'. Did you mean 'stages'?
+src/lib/api/projects.test.ts(284,38): error TS2551: Property 'stage' does not exist on type 'ProjectData'. Did you mean 'stages'?
+src/lib/api/projects.test.ts(310,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(328,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(330,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(348,9): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'ProjectCreateInput'.
+src/lib/api/projects.test.ts(355,37): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'Partial<ProjectData>'.
+src/lib/api/projects.test.ts(357,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(361,38): error TS2339: Property 'title' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(361,56): error TS2339: Property 'title' does not exist on type 'ProjectCreateInput'.
+src/lib/api/projects.test.ts(362,38): error TS2339: Property 'code' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(362,55): error TS2339: Property 'code' does not exist on type 'ProjectCreateInput'.
+src/lib/api/projects.test.ts(368,9): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'ProjectCreateInput'.
+src/lib/api/projects.test.ts(375,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(377,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(379,52): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'Partial<ProjectData>'.
+src/lib/api/projects.test.ts(393,9): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'ProjectCreateInput'.
+src/lib/api/projects.test.ts(409,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(411,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(413,50): error TS2345: Argument of type '{ externalNumber: string; name: string; description?: string | null; dealId?: string | null; contractId?: string | null; contactId?: string | null; status?: string | null; contractAmount?: number | null; ... 6 more ...; attributes?: Record<string, unknown> | null; }' is not assignable to parameter of type 'Partial<ProjectData>'.
+  Types of property 'attributes' are incompatible.
+    Type 'Record<string, unknown> | null | undefined' is not assignable to type 'JsonValue | undefined'.
+      Type 'Record<string, unknown>' is not assignable to type 'JsonValue | undefined'.
+        Type 'Record<string, unknown>' is missing the following properties from type 'JsonValue[]': length, pop, push, concat, and 35 more.
+src/lib/api/projects.test.ts(429,9): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'ProjectCreateInput'.
+src/lib/api/projects.test.ts(439,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(456,9): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'ProjectCreateInput'.
+src/lib/api/projects.test.ts(466,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(484,9): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'ProjectUpdateInput'.
+src/lib/api/projects.test.ts(489,35): error TS2345: Argument of type '{ name?: string | null; externalNumber?: string | null; description?: string | null; dealId?: string | null; contractId?: string | null; contactId?: string | null; status?: string | null; ... 10 more ...; attributes?: Record<string, unknown> | null; }' is not assignable to parameter of type 'Partial<ProjectData>'.
+  Types of property 'name' are incompatible.
+    Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+      Type 'null' is not assignable to type 'string | undefined'.
+src/lib/api/projects.test.ts(490,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(494,38): error TS2339: Property 'title' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(500,48): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'ProjectUpdateInput'.
+src/lib/api/projects.test.ts(503,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(505,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(507,52): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'Partial<ProjectData>'.
+src/lib/api/projects.test.ts(521,48): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'ProjectUpdateInput'.
+src/lib/api/projects.test.ts(538,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(541,55): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'ProjectUpdateInput'.
+src/lib/api/projects.test.ts(552,9): error TS2353: Object literal may only specify known properties, and 'budgetAmount' does not exist in type 'ProjectUpdateInput'.
+src/lib/api/projects.test.ts(558,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(560,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(576,9): error TS2353: Object literal may only specify known properties, and 'deadline' does not exist in type 'ProjectUpdateInput'.
+src/lib/api/projects.test.ts(582,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(584,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(605,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(610,38): error TS2339: Property 'title' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(610,53): error TS2339: Property 'title' does not exist on type 'ProjectData'.
+src/lib/api/projects.test.ts(630,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(646,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(648,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; message: string; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; message: string; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(663,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(676,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(689,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(715,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(779,20): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(781,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(796,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(798,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(819,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(821,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(846,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(848,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData[]; count: number; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(863,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(865,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(880,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(882,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/api/projects.test.ts(889,47): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'ProjectUpdateInput'.
+src/lib/api/projects.test.ts(897,14): error TS2341: Property 'fetchFn' is private and only accessible within class 'ProjectApiClient'.
+src/lib/api/projects.test.ts(899,16): error TS2352: Conversion of type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ ok: true; status: number; json: () => Promise<{ data: ProjectData; }>; headers: { get: () => string; }; }' is missing the following properties from type 'Response': redirected, statusText, type, url, and 8 more.
+src/lib/db/contracts.ts(111,18): error TS2339: Property 'id' does not exist on type 'ContractCreateInput'.
+src/lib/db/contracts.ts(112,22): error TS2339: Property 'number' does not exist on type 'ContractCreateInput'.
+src/lib/db/contracts.ts(113,25): error TS2339: Property 'createdAt' does not exist on type 'ContractCreateInput'.
+src/lib/db/contracts.ts(114,25): error TS2339: Property 'updatedAt' does not exist on type 'ContractCreateInput'.
+src/lib/db/contracts.ts(279,11): error TS2353: Object literal may only specify known properties, and 'description' does not exist in type '(Without<ContractCreateInput, ContractUncheckedCreateInput> & ContractUncheckedCreateInput) | (Without<...> & ContractCreateInput)'.
+src/lib/db/deals.test.ts(244,20): error TS2339: Property 'DealStage' does not exist on type '{ number: string; id: string; createdAt: Date; amount: number; updatedAt: Date; deletedAt: Date | null; attributes: JsonValue; title: string; pipelineId: string; ... 12 more ...; closedAt: Date | null; }'.
+src/lib/db/deals.test.ts(245,29): error TS2339: Property 'DealStage' does not exist on type '{ number: string; id: string; createdAt: Date; amount: number; updatedAt: Date; deletedAt: Date | null; attributes: JsonValue; title: string; pipelineId: string; ... 12 more ...; closedAt: Date | null; }'.
+src/lib/db/deals.test.ts(246,20): error TS2551: Property 'Pipeline' does not exist on type '{ number: string; id: string; createdAt: Date; amount: number; updatedAt: Date; deletedAt: Date | null; attributes: JsonValue; title: string; pipelineId: string; ... 12 more ...; closedAt: Date | null; }'. Did you mean 'pipelineId'?
+src/lib/db/deals.test.ts(247,29): error TS2551: Property 'Pipeline' does not exist on type '{ number: string; id: string; createdAt: Date; amount: number; updatedAt: Date; deletedAt: Date | null; attributes: JsonValue; title: string; pipelineId: string; ... 12 more ...; closedAt: Date | null; }'. Did you mean 'pipelineId'?
+src/lib/db/deals.test.ts(255,34): error TS2339: Property 'DealHistory' does not exist on type '{ number: string; id: string; createdAt: Date; amount: number; updatedAt: Date; deletedAt: Date | null; attributes: JsonValue; title: string; pipelineId: string; ... 12 more ...; closedAt: Date | null; }'.
+src/lib/db/deals.ts(130,18): error TS2339: Property 'id' does not exist on type 'DealCreateInput'.
+src/lib/db/deals.ts(131,22): error TS2339: Property 'number' does not exist on type 'DealCreateInput'.
+src/lib/db/deals.ts(132,25): error TS2339: Property 'createdAt' does not exist on type 'DealCreateInput'.
+src/lib/db/deals.ts(133,25): error TS2339: Property 'updatedAt' does not exist on type 'DealCreateInput'.
+src/lib/db/files.ts(137,15): error TS2353: Object literal may only specify known properties, and 'deletedAt' does not exist in type '(Without<FileEntityUpdateInput, FileEntityUncheckedUpdateInput> & FileEntityUncheckedUpdateInput) | (Without<...> & FileEntityUpdateInput)'.
+src/lib/db/production.test.ts(193,26): error TS2551: Property 'Project' does not exist on type '{ id: string; createdAt: Date; status: string; updatedAt: Date; deletedAt: Date | null; notes: string | null; attributes: JsonValue; projectId: string; plannedStartDate: Date | null; plannedEndDate: Date | null; actualStartDate: Date | null; actualEndDate: Date | null; progress: number; }'. Did you mean 'projectId'?
+src/lib/db/production.test.ts(194,35): error TS2551: Property 'Project' does not exist on type '{ id: string; createdAt: Date; status: string; updatedAt: Date; deletedAt: Date | null; notes: string | null; attributes: JsonValue; projectId: string; plannedStartDate: Date | null; plannedEndDate: Date | null; actualStartDate: Date | null; actualEndDate: Date | null; progress: number; }'. Did you mean 'projectId'?
+src/lib/db/production.test.ts(195,40): error TS2339: Property 'ProductionStage' does not exist on type '{ id: string; createdAt: Date; status: string; updatedAt: Date; deletedAt: Date | null; notes: string | null; attributes: JsonValue; projectId: string; plannedStartDate: Date | null; plannedEndDate: Date | null; actualStartDate: Date | null; actualEndDate: Date | null; progress: number; }'.
+src/lib/db/projects.test.ts(114,43): error TS2345: Argument of type '{ name: string; }' is not assignable to parameter of type 'ProjectCreateInput'.
+  Property 'externalNumber' is missing in type '{ name: string; }' but required in type 'ProjectCreateInput'.
+src/lib/db/projects.test.ts(131,43): error TS2345: Argument of type '{ name: string; description: string; status: string; contractAmount: number; currency: string; contactId: string; managerId: string; }' is not assignable to parameter of type 'ProjectCreateInput'.
+  Property 'externalNumber' is missing in type '{ name: string; description: string; status: string; contractAmount: number; currency: string; contactId: string; managerId: string; }' but required in type 'ProjectCreateInput'.
+src/lib/db/projects.test.ts(153,37): error TS2345: Argument of type '{ name: string; }' is not assignable to parameter of type 'ProjectCreateInput'.
+  Property 'externalNumber' is missing in type '{ name: string; }' but required in type 'ProjectCreateInput'.
+src/lib/db/projects.test.ts(154,37): error TS2345: Argument of type '{ name: string; }' is not assignable to parameter of type 'ProjectCreateInput'.
+  Property 'externalNumber' is missing in type '{ name: string; }' but required in type 'ProjectCreateInput'.
+src/lib/db/projects.test.ts(265,39): error TS2345: Argument of type '{ name: string; }' is not assignable to parameter of type 'ProjectCreateInput'.
+  Property 'externalNumber' is missing in type '{ name: string; }' but required in type 'ProjectCreateInput'.
+src/lib/db/projects.test.ts(277,42): error TS2345: Argument of type '{ name: string; }' is not assignable to parameter of type 'ProjectCreateInput'.
+  Property 'externalNumber' is missing in type '{ name: string; }' but required in type 'ProjectCreateInput'.
+src/lib/db/projects.test.ts(297,42): error TS2345: Argument of type '{ name: string; }' is not assignable to parameter of type 'ProjectCreateInput'.
+  Property 'externalNumber' is missing in type '{ name: string; }' but required in type 'ProjectCreateInput'.
+src/lib/db/projects.test.ts(311,39): error TS2345: Argument of type '{ name: string; }' is not assignable to parameter of type 'ProjectCreateInput'.
+  Property 'externalNumber' is missing in type '{ name: string; }' but required in type 'ProjectCreateInput'.
+src/lib/db/projects.test.ts(384,35): error TS2339: Property 'User' does not exist on type '{ id: string; projectId: string; userId: string; role: string; joinedAt: Date; leftAt: Date | null; }'.
+src/lib/db/projects.test.ts(428,46): error TS2345: Argument of type '{ name: string; managerId: string; }' is not assignable to parameter of type 'ProjectCreateInput'.
+  Property 'externalNumber' is missing in type '{ name: string; managerId: string; }' but required in type 'ProjectCreateInput'.
+src/lib/db/projects.test.ts(445,50): error TS2345: Argument of type '{ name: string; contactId: string; }' is not assignable to parameter of type 'ProjectCreateInput'.
+  Property 'externalNumber' is missing in type '{ name: string; contactId: string; }' but required in type 'ProjectCreateInput'.
+src/lib/db/projects.ts(123,18): error TS2339: Property 'id' does not exist on type 'ProjectCreateInput'.
+src/lib/db/projects.ts(125,25): error TS2339: Property 'createdAt' does not exist on type 'ProjectCreateInput'.
+src/lib/db/projects.ts(126,25): error TS2339: Property 'updatedAt' does not exist on type 'ProjectCreateInput'.
+src/lib/storage/s3.ts(14,30): error TS2307: Cannot find module '@aws-sdk/s3-request-presigner' or its corresponding type declarations.
+
+stderr: 
+status: 1

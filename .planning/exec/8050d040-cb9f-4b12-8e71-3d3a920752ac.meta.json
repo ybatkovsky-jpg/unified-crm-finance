@@ -1,0 +1,18 @@
+{
+  "id": "8050d040-cb9f-4b12-8e71-3d3a920752ac",
+  "runtime": "node",
+  "purpose": "Run CounterpartyRepository tests via node runtime",
+  "script_chars": 406,
+  "started_at": "2026-06-23T10:29:33.893Z",
+  "finished_at": "2026-06-23T10:29:36.802Z",
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 2909,
+  "stdout_bytes": 806,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\8050d040-cb9f-4b12-8e71-3d3a920752ac.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\8050d040-cb9f-4b12-8e71-3d3a920752ac.stderr"
+}

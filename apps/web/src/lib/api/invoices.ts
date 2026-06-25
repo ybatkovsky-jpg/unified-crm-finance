@@ -201,6 +201,21 @@ export class InvoiceApiClient {
     return parseJson<ApiResponse<InvoiceData>>(response);
   }
 
+  /** POST /api/invoices/[id]/pay — pay invoice (creates Transaction + CashFlowPayment) */
+  async payInvoice(
+    invoiceId: string,
+    data?: { amount?: number; date?: string; description?: string; categoryId?: string }
+  ): Promise<ApiResponse<unknown>> {
+    if (!invoiceId) throw new ApiClientError(400, 'Validation failed', 'invoiceId is required');
+    const response = await this.fetchFn(this.url(`/invoices/${invoiceId}/pay`), {
+      method: 'POST',
+      headers: this.defaultHeaders,
+      body: JSON.stringify(data ?? {}),
+    });
+    if (!response.ok) return parseApiError(response);
+    return parseJson<ApiResponse<unknown>>(response);
+  }
+
   /** PATCH /api/invoices/[id]/status — explicit status transition */
   async updateStatus(invoiceId: string, status: InvoiceStatus): Promise<ApiResponse<InvoiceData>> {
     if (!invoiceId) throw new ApiClientError(400, 'Validation failed', 'invoiceId is required');
@@ -232,6 +247,7 @@ export const {
   unmatchItem,
   recomputeStatus,
   approveInvoice,
+  payInvoice,
   updateStatus,
 } = invoicesApi;
 

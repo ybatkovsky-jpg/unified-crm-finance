@@ -1,0 +1,18 @@
+{
+  "id": "02c409d7-d4b2-47a8-b8ab-7ee3280ecfb2",
+  "runtime": "node",
+  "purpose": "Run CounterpartyApiClient tests (T02 verification)",
+  "script_chars": 407,
+  "started_at": "2026-06-23T10:29:43.896Z",
+  "finished_at": "2026-06-23T10:29:46.768Z",
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 2872,
+  "stdout_bytes": 2623,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\02c409d7-d4b2-47a8-b8ab-7ee3280ecfb2.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\02c409d7-d4b2-47a8-b8ab-7ee3280ecfb2.stderr"
+}

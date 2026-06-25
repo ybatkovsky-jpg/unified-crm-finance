@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T01",
+  "unitId": "M001/S03/T01",
+  "timestamp": 1781965370109,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "grep -q 'next-auth' apps/web/package.json",
+      "exitCode": 1,
+      "durationMs": 31,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q 'bcryptjs' apps/web/package.json",
+      "exitCode": 1,
+      "durationMs": 35,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

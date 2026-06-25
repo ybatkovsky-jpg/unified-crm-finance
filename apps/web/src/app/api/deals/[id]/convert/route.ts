@@ -32,7 +32,7 @@ export async function POST(
     // Verify deal exists
     const deal = await prisma.deal.findFirst({
       where: { id: dealId, deletedAt: null },
-      include: { contact: true },
+      include: { Contact: true },
     })
 
     if (!deal) {
@@ -65,17 +65,31 @@ export async function POST(
     const updatedDeal = await prisma.deal.findUnique({
       where: { id: dealId },
       include: {
-        stage: true,
-        pipeline: true,
-        contact: true,
-        manager: true,
+        DealStage: true,
+        Pipeline: true,
+        Contact: true,
+        User: true,
       },
     })
+
+    // Map Prisma PascalCase to API lowercase shape
+    let mappedDeal: Record<string, unknown> | null = null
+    if (updatedDeal) {
+      const { DealStage, Pipeline, Contact, User, ...rest } =
+        updatedDeal as Record<string, unknown> & { DealStage?: unknown; Pipeline?: unknown; Contact?: unknown; User?: unknown }
+      mappedDeal = {
+        ...rest,
+        stage: DealStage ?? null,
+        pipeline: Pipeline ?? null,
+        contact: Contact ?? null,
+        manager: User ?? null,
+      }
+    }
 
     return NextResponse.json({
       data: {
         contract,
-        deal: updatedDeal,
+        deal: mappedDeal,
       },
     }, { status: 201 })
   } catch (error) {

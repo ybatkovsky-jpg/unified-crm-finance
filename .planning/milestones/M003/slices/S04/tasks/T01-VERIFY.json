@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T01",
+  "unitId": "M003/S04/T01",
+  "timestamp": 1782055838565,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "grep -q \"prisma.\\$transaction\" apps/web/src/lib/db/contracts.ts",
+      "exitCode": 1,
+      "durationMs": 295,
+      "verdict": "fail"
+    },
+    {
+      "command": "grep -q \"from '@/lib/db/contracts'\" apps/web/src/app/api/contracts/route.ts",
+      "exitCode": 1,
+      "durationMs": 36,
+      "verdict": "fail"
+    },
+    {
+      "command": "echo '✅ T01 fixes verified'",
+      "exitCode": 0,
+      "durationMs": 40,
+      "verdict": "pass"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

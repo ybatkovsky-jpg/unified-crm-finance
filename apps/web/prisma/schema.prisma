@@ -246,6 +246,7 @@ model Contract {
   Contact          Contact           @relation(fields: [contactId], references: [id])
   ContractSigner   ContractSigner[]
   ContractVersion  ContractVersion[]
+  Deal             Deal?             @relation(fields: [dealId], references: [id])
 
   @@index([dealId])
   @@index([status])
@@ -358,6 +359,7 @@ model Deal {
   Event             Event[]
   Task              Task[]
   User              User?         @relation(fields: [managerId], references: [id])
+  Contract          Contract?
 
   @@index([projectId])
   @@index([contractId])

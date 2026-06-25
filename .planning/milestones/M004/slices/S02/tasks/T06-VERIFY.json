@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T06",
+  "unitId": "M004/S02/T06",
+  "timestamp": 1782122344870,
+  "passed": false,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "node --test src/lib/api/projects.test.ts",
+      "exitCode": 1,
+      "durationMs": 134,
+      "verdict": "fail"
+    }
+  ],
+  "retryAttempt": 1,
+  "maxRetries": 2
+}

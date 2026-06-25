@@ -1,0 +1,18 @@
+{
+  "id": "623ee63f-facd-4b9f-9762-fa91bbeb0456",
+  "runtime": "bash",
+  "purpose": "Verify CounterpartyRepository tests pass (T01)",
+  "script_chars": 68,
+  "started_at": "2026-06-23T10:22:51.968Z",
+  "finished_at": "2026-06-23T10:22:52.097Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 129,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\623ee63f-facd-4b9f-9762-fa91bbeb0456.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\623ee63f-facd-4b9f-9762-fa91bbeb0456.stderr"
+}

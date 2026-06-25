@@ -44,14 +44,26 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       where: Object.keys(where).length > 0 ? where : undefined,
       orderBy: { createdAt: 'desc' },
       include: {
-        stage: true,
-        pipeline: true,
-        contact: true,
-        manager: true,
+        DealStage: true,
+        Pipeline: true,
+        Contact: true,
+        User: true,
       },
     })
 
-    return NextResponse.json({ data: allDeals, count: allDeals.length })
+    // Map Prisma PascalCase relations to API lowercase shape
+    const mapped = allDeals.map((deal) => {
+      const { DealStage, Pipeline, Contact, User, ...rest } = deal as Record<string, unknown> & { DealStage?: unknown; Pipeline?: unknown; Contact?: unknown; User?: unknown }
+      return {
+        ...rest,
+        stage: DealStage ?? null,
+        pipeline: Pipeline ?? null,
+        contact: Contact ?? null,
+        manager: User ?? null,
+      }
+    })
+
+    return NextResponse.json({ data: mapped, count: mapped.length })
   } catch (error) {
     console.error('Failed to fetch deals:', error)
     return NextResponse.json(

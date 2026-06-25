@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeftIcon, RefreshCwIcon, CheckCircle2Icon, UnlinkIcon } from "lucide-react"
+import { ArrowLeftIcon, RefreshCwIcon, CheckCircle2Icon, UnlinkIcon, BanknoteIcon } from "lucide-react"
 
 import { invoicesApi, ApiClientError } from "@/lib/api/invoices"
 import { bomApi } from "@/lib/api/bom"
@@ -124,6 +124,27 @@ export default function InvoiceReconcilePage() {
     }
   }
 
+  const handlePay = async () => {
+    if (!invoice) return
+    if (invoice.paidAt) {
+      setError("Счёт уже оплачен.")
+      return
+    }
+    setBusy(true)
+    setError(null)
+    try {
+      await invoicesApi.payInvoice(id, {
+        amount: invoice.totalAmount,
+        description: `Оплата счёта ${invoice.invoiceNumber || invoice.number}`,
+      })
+      await refreshInvoice()
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : "Не удалось оплатить.")
+    } finally {
+      setBusy(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto p-6 flex items-center py-12">
@@ -173,6 +194,14 @@ export default function InvoiceReconcilePage() {
           </Button>
           <Button size="sm" onClick={handleApprove} disabled={busy || !canApprove}>
             <CheckCircle2Icon className="size-4" /> Одобрить
+          </Button>
+          <Button
+            size="sm"
+            variant="default"
+            onClick={handlePay}
+            disabled={busy || !!invoice.paidAt}
+          >
+            <BanknoteIcon className="size-4" /> Оплатить
           </Button>
         </div>
       </div>

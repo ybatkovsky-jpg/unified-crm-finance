@@ -1,0 +1,18 @@
+{
+  "id": "f4802c9b-54b6-4369-85f4-f8a80d4a80da",
+  "runtime": "node",
+  "purpose": "TypeScript type check (T03-T06 verification)",
+  "script_chars": 464,
+  "started_at": "2026-06-23T10:29:46.793Z",
+  "finished_at": "2026-06-23T10:29:54.775Z",
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 7982,
+  "stdout_bytes": 84620,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\f4802c9b-54b6-4369-85f4-f8a80d4a80da.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\f4802c9b-54b6-4369-85f4-f8a80d4a80da.stderr"
+}

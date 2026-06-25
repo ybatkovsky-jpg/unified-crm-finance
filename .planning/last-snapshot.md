@@ -1,0 +1,19 @@
+# GSD context snapshot (2026-06-24T10:12:17.134Z)
+
+## Active context
+Active: M006 / S01 / T05 - Category UI — Detail page
+
+## Top project memories
+- [MEM019] (gotcha) Prisma 7.x breaks Prisma 6.x schema format: datasource `url` property moved to prisma.config.ts. Task specified Prisma 6.x, so locked apps/web to Prisma 6.6.0 to avoid breaking changes.
+- [MEM069] (gotcha) Project.id requires manual UUID generation via randomUUID() - no @default in schema. Project.updatedAt must be manually set on update - no @updatedAt attribute. Same pattern as Deal, Contact, and other existing models.
+- [MEM071] (pattern) Next.js API routes use App Router: route.ts files export async GET, POST, PATCH, DELETE functions. Collection endpoints at /api/resource/, single resource at /api/resource/[id]/route.ts. Returns NextResponse.json({ data: result }) for success, { error, message } for errors.
+- [MEM009] (architecture) Prisma schema.prisma is single source of truth; SQLAlchemy uses automap_base() reflection, not declarative models. Python worker re-reflects schema on restart after Prisma migrations.
+- [MEM014] (gotcha) S01 summary describes files (apps/web, docker-compose.yml, package.json) that don't actually exist in the repo. Current state has only apps/worker with FastAPI. Plan S06 CI/CD for actual code, not S01 summary claims. Web app CI/CD jobs will be added when apps/web is created later.
+- [MEM018] (architecture) Using SQLite for development instead of PostgreSQL due to Docker Desktop unavailable. Schema datasource is sqlite (not postgresql). This is a temporary dev-only setup; production will use PostgreSQL.
+
+## Recent gsd_exec runs
+- [bc5651a7-e1a5-46a5-84b6-8bdb9953321f] bash exit:1 — Run CategoryRepository tests
+- [7c918c06-0d8e-4a0a-a331-be9a4e9f7727] bash exit:1 — Run BOMApiClient tests (T02 verification)
+- [f4802c9b-54b6-4369-85f4-f8a80d4a80da] node exit:0 — TypeScript type check (T03-T06 verification)
+- [02c409d7-d4b2-47a8-b8ab-7ee3280ecfb2] node exit:0 — Run CounterpartyApiClient tests (T02
+…[truncated]

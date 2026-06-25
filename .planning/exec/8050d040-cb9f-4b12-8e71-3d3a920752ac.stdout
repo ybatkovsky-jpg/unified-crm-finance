@@ -1,0 +1,23 @@
+▶ CounterpartyRepository
+  ✔ should create a new counterparty (152.0231ms)
+  ✔ should find counterparty by ID (6.5866ms)
+  ✔ should find counterparty by INN (3.4017ms)
+  ✔ should find counterparties by type (1.9085ms)
+  ✔ should find many counterparties (2.6924ms)
+  ✔ should update a counterparty (9.9262ms)
+  ✔ should throw when updating a non-existent counterparty (2.435ms)
+  ✔ should soft delete a counterparty (9.5713ms)
+  ✔ should throw when soft-deleting an already-deleted counterparty (1.6472ms)
+  ✔ should count counterparties (4.558ms)
+  ✔ should check INN existence (16.728ms)
+  ✔ cleanup test data (19.1041ms)
+✔ CounterpartyRepository (234.0732ms)
+ℹ tests 12
+ℹ suites 1
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 712.6305
+

@@ -1,0 +1,67 @@
+API request failed: 500 {
+  error: 'Failed to fetch counterparties',
+  message: 'Database connection error'
+}
+API request failed: 404 {
+  error: 'Not found',
+  message: 'Counterparty with id 550e8400-e29b-41d4-a716-446655440000 not found'
+}
+API request failed: 400 { error: 'Validation failed', message: 'name is required' }
+API request failed: 400 { error: 'Validation failed', message: 'type is required' }
+API request failed: 404 {
+  error: 'Not found',
+  message: 'Counterparty with id 550e8400-e29b-41d4-a716-446655440000 not found'
+}
+API request failed: 404 {
+  error: 'Not found',
+  message: 'Counterparty with id 550e8400-e29b-41d4-a716-446655440000 not found'
+}
+▶ CounterpartyApiClient
+  ▶ getCounterparties
+    ✔ should return counterparties list (2.1687ms)
+    ✔ should pass type filter in query params (0.7547ms)
+    ✔ should pass search filter in query params (0.6028ms)
+    ✔ should handle API error response (2.3465ms)
+    ✔ should handle empty response (3.1906ms)
+  ✔ getCounterparties (10.6018ms)
+  ▶ getCounterparty
+    ✔ should return single counterparty by ID (0.7268ms)
+    ✔ should throw error when ID is empty (0.4669ms)
+    ✔ should handle 404 response (0.6685ms)
+    ✔ should build correct URL for counterparty ID (0.4605ms)
+  ✔ getCounterparty (2.8656ms)
+  ▶ createCounterparty
+    ✔ should create new counterparty and return it (0.5009ms)
+    ✔ should handle validation error (missing name) (0.5438ms)
+    ✔ should handle validation error (missing type) (0.6664ms)
+    ✔ should send POST request (0.408ms)
+  ✔ createCounterparty (2.3618ms)
+  ▶ updateCounterparty
+    ✔ should update counterparty and return updated data (1.558ms)
+    ✔ should throw error when ID is empty (0.3419ms)
+    ✔ should handle 404 when counterparty not found (0.6368ms)
+    ✔ should send PUT request (0.3574ms)
+  ✔ updateCounterparty (3.1356ms)
+  ▶ deleteCounterparty
+    ✔ should soft-delete counterparty and return message (0.5003ms)
+    ✔ should throw error when ID is empty (0.3164ms)
+    ✔ should handle 404 when counterparty not found (0.5542ms)
+    ✔ should send DELETE request (0.3994ms)
+  ✔ deleteCounterparty (2.027ms)
+  ▶ ApiClientError
+    ✔ should have correct error properties (0.2298ms)
+  ✔ ApiClientError (0.3288ms)
+  ▶ singleton instance
+    ✔ should export default singleton (0.2048ms)
+    ✔ should export convenience methods (0.1882ms)
+  ✔ singleton instance (0.5175ms)
+✔ CounterpartyApiClient (23.1305ms)
+ℹ tests 24
+ℹ suites 8
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 421.409
+

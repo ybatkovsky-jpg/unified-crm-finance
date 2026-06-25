@@ -1,0 +1,18 @@
+{
+  "id": "7c918c06-0d8e-4a0a-a331-be9a4e9f7727",
+  "runtime": "bash",
+  "purpose": "Run BOMApiClient tests (T02 verification)",
+  "script_chars": 58,
+  "started_at": "2026-06-23T11:14:10.258Z",
+  "finished_at": "2026-06-23T11:14:10.457Z",
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "duration_ms": 199,
+  "stdout_bytes": 544,
+  "stderr_bytes": 0,
+  "stdout_truncated": false,
+  "stderr_truncated": false,
+  "stdout_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\7c918c06-0d8e-4a0a-a331-be9a4e9f7727.stdout",
+  "stderr_path": "D:\\CLAUDE\\Project\\unified-crm-finance\\.gsd\\exec\\7c918c06-0d8e-4a0a-a331-be9a4e9f7727.stderr"
+}

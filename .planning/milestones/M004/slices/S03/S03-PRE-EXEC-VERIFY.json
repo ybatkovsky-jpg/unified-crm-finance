@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "milestoneId": "M004",
+  "sliceId": "S03",
+  "timestamp": 1782123406413,
+  "status": "fail",
+  "durationMs": 6,
+  "checks": [
+    {
+      "category": "tool",
+      "target": "T01 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: npx next build --dry-run 2>&1 | head -20; test -f apps/web/src/app/projects/page.tsx; grep -q 'projectsApi' apps/web/src/app/projects/page.tsx; grep -q 'statusFilter' apps/web/src/app/projects/page.tsx (contains shell control syntax such as pipes, redirects, semicolons, backticks, or command substitution)",
+      "blocking": true
+    },
+    {
+      "category": "tool",
+      "target": "T02 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: test -f apps/web/src/components/projects/create-project-modal.tsx; grep -q 'createProject' apps/web/src/components/projects/create-project-modal.tsx; grep -q 'Dialog' apps/web/src/components/projects/create-project-modal.tsx; grep -q 'externalNumber' apps/web/src/components/projects/create-project-modal.tsx (contains shell control syntax such as pipes, redirects, semicolons, backticks, or command substitution)",
+      "blocking": true
+    },
+    {
+      "category": "tool",
+      "target": "T03 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: grep -q 'CreateProjectModal' apps/web/src/app/projects/page.tsx; grep -q 'onCreate' apps/web/src/app/projects/page.tsx; cd apps/web (contains shell control syntax such as pipes, redirects, semicolons, backticks, or command substitution)",
+      "blocking": true
+    },
+    {
+      "category": "tool",
+      "target": "T03 Verify",
+      "passed": false,
+      "message": "Unsafe or non-runnable Verify command: npx tsc --noEmit --skipLibCheck apps/web/src/app/projects/page.tsx 2>&1 | head -5 (contains shell control syntax such as pipes, redirects, semicolons, backticks, or command substitution)",
+      "blocking": true
+    }
+  ]
+}
