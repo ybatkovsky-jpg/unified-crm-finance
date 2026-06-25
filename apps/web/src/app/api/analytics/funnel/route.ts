@@ -32,7 +32,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const stages = await prisma.dealStage.findMany({
       where: pipelineId ? { pipelineId } : {},
       include: {
-        deals: {
+        Deal: {
           where: dateFrom ? { createdAt: { gte: dateFrom } } : {},
           select: { id: true, amount: true, createdAt: true },
         },
@@ -42,8 +42,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Build funnel data
     const funnelData = stages.map((stage, index) => {
-      const dealCount = stage.deals.length
-      const totalAmount = stage.deals.reduce((sum, d) => sum + (d.amount ?? 0), 0)
+      const dealCount = stage.Deal.length
+      const totalAmount = stage.Deal.reduce((sum, d) => sum + (d.amount ?? 0), 0)
       const avgAmount = dealCount > 0 ? totalAmount / dealCount : 0
 
       // Conversion rate: deals in this stage / deals in first stage

@@ -37,11 +37,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         name: true,
         status: true,
         contractAmount: true,
-        transactions: {
+        Transaction: {
           where: txWhere,
           select: { type: true, amount: true, date: true },
         },
-        budgets: {
+        Budget: {
           select: { amount: true, period: true, categoryId: true },
         },
       },
@@ -50,14 +50,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Compute P&L per project
     const pnlData = projects.map((p) => {
-      const income = p.transactions
+      const income = p.Transaction
         .filter((t) => t.type === 'income')
         .reduce((s, t) => s + t.amount, 0)
-      const expense = p.transactions
+      const expense = p.Transaction
         .filter((t) => t.type === 'expense')
         .reduce((s, t) => s + t.amount, 0)
       const profit = income - expense
-      const totalBudgeted = p.budgets.reduce((s, b) => s + b.amount, 0)
+      const totalBudgeted = p.Budget.reduce((s, b) => s + b.amount, 0)
       const revenue = p.contractAmount ?? 0
       const margin = revenue > 0 ? Math.round((profit / revenue) * 100) : 0
       const budgetUsage = totalBudgeted > 0 ? Math.round((expense / totalBudgeted) * 100) : 0
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         expense,
         budgeted: totalBudgeted,
         budgetUsage,
-        transactionCount: p.transactions.length,
+        transactionCount: p.Transaction.length,
       }
     })
 
