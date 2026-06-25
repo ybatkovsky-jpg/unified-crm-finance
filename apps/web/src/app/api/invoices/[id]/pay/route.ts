@@ -88,7 +88,7 @@ export async function POST(
           description,
           categoryId: body.categoryId ?? '00000000-0000-0000-0000-000000000000', // default expense category
           projectId,
-          counterpartyId: invoice.counterpartyId,
+          counterpartyId: invoice.supplierId,
           invoiceId: invoice.id,
           createdBy: body.createdBy ?? 'system',
           updatedAt: new Date(),
@@ -105,7 +105,7 @@ export async function POST(
           status: 'paid',
           description,
           projectId,
-          counterpartyId: invoice.counterpartyId,
+          counterpartyId: invoice.supplierId,
           invoiceId: invoice.id,
           updatedAt: new Date(),
         },

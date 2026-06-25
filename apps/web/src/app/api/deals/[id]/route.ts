@@ -31,16 +31,14 @@ export async function GET(
     const { id } = await params
 
     const deal = await deals.findUnique(id, {
-      include: {
-        DealStage: true,
-        Pipeline: true,
-        Contact: true,
-        User: true,
-        DrawingFile: true,
-        ActFile: true,
-        DealHistory: {
-          orderBy: { changedAt: 'desc' },
-        },
+      DealStage: true,
+      Pipeline: true,
+      Contact: true,
+      User: true,
+      DrawingFile: true,
+      ActFile: true,
+      DealHistory: {
+        orderBy: { changedAt: 'desc' },
       },
     })
 

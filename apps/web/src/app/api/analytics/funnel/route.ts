@@ -47,14 +47,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       const avgAmount = dealCount > 0 ? totalAmount / dealCount : 0
 
       // Conversion rate: deals in this stage / deals in first stage
-      const firstStageCount = stages[0]?.deals.length ?? 0
+      const firstStageCount = stages[0]?.Deal.length ?? 0
       const conversionRate = firstStageCount > 0
         ? Math.round((dealCount / firstStageCount) * 100)
         : 0
 
       // Conversion to next stage (if not last)
       const nextStageCount = index < stages.length - 1
-        ? stages[index + 1]?.deals.length ?? 0
+        ? stages[index + 1]?.Deal.length ?? 0
         : 0
       const stageToStageConversion = dealCount > 0
         ? Math.round((nextStageCount / dealCount) * 100)
@@ -75,8 +75,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Totals
     const totalDeals = funnelData.reduce((s, f) => s + f.dealCount, 0)
     const totalAmount = funnelData.reduce((s, f) => s + f.totalAmount, 0)
-    const overallConversion = stages[0]?.deals.length > 0 && stages.length > 0
-      ? Math.round(((funnelData[funnelData.length - 1]?.dealCount ?? 0) / stages[0].deals.length) * 100)
+    const overallConversion = stages[0]?.Deal.length > 0 && stages.length > 0
+      ? Math.round(((funnelData[funnelData.length - 1]?.dealCount ?? 0) / stages[0].Deal.length) * 100)
       : 0
 
     return NextResponse.json({

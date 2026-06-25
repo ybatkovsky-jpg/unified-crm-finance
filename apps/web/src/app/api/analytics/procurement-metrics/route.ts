@@ -44,7 +44,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const supplierMap = new Map<string, { name: string; invoiceCount: number; totalAmount: number }>()
     for (const inv of invoices) {
-      const supplierId = inv.counterpartyId ?? 'unknown'
+      const supplierId = inv.Counterparty?.id ?? 'unknown'
       const existing = supplierMap.get(supplierId) ?? { name: inv.Counterparty?.name ?? 'Unknown', invoiceCount: 0, totalAmount: 0 }
       existing.invoiceCount++
       existing.totalAmount += inv.totalAmount ?? 0
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Warehouse stats
     const warehouseItemCount = await prisma.warehouseItem.count()
     const stockValueAgg = await prisma.warehouseItem.aggregate({
-      _sum: { totalValue: true },
+      _sum: { quantity: true },
     })
 
     // Monthly procurement trend
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           deliveryCount,
           totalProcurementSpend,
           warehouseItemCount,
-          stockValue: stockValueAgg._sum.totalValue ?? 0,
+          stockValue: stockValueAgg._sum.quantity ?? 0,
         },
         topSuppliers,
         monthlyTrend,

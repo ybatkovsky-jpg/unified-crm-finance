@@ -31,15 +31,13 @@ export async function GET(
     const { id } = await params
 
     const contract = await contracts.findUnique(id, {
-      include: {
-        Contact: true,
-        ContractTemplate: true,
-        ContractVersion: {
-          orderBy: { version: 'desc' },
-        },
-        ContractSigner: true,
-        Deal: true,
+      Contact: true,
+      ContractTemplate: true,
+      ContractVersion: {
+        orderBy: { version: 'desc' },
       },
+      ContractSigner: true,
+      Deal: true,
     })
 
     if (!contract) {
