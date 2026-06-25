@@ -11,8 +11,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-export default function CategoryDetailPage({ params }: { params: { id: string } }) {
-  const categoryId = params.id
+export default function CategoryDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: categoryId } = use(params)
   const [category, setCategory] = useState<CategoryData | null>(null)
   const [allCategories, setAllCategories] = useState<CategoryData[]>([])
   const [loading, setLoading] = useState(true)

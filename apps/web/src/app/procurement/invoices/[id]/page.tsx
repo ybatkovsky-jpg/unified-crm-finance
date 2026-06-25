@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, use } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeftIcon, RefreshCwIcon, CheckCircle2Icon, UnlinkIcon, BanknoteIcon } from "lucide-react"
@@ -41,7 +41,7 @@ const STATUS_LABELS: Record<InvoiceStatus, string> = {
 
 export default function InvoiceReconcilePage() {
   const params = useParams<{ id: string }>()
-  const id = params.id
+  const { id } = use(params)
 
   const [invoice, setInvoice] = useState<InvoiceData | null>(null)
   const [items, setItems] = useState<InvoiceItemData[]>([])

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, use } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeftIcon, RefreshCwIcon, SendIcon, MailIcon } from "lucide-react"
@@ -41,7 +41,7 @@ const STATUS_LABELS: Record<PurchaseRequestStatus, string> = {
 
 export default function PurchaseRequestDetailPage() {
   const params = useParams<{ id: string }>()
-  const id = params.id
+  const { id } = use(params)
 
   const [request, setRequest] = useState<PurchaseRequestData | null>(null)
   const [items, setItems] = useState<PurchaseRequestItemData[]>([])

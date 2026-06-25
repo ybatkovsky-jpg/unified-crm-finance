@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, use } from "react"
 import Link from "next/link"
 import { RefreshCwIcon, ArrowLeftIcon, StarIcon, Building2Icon, BanknoteIcon, FileTextIcon } from "lucide-react"
 
@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-export default function CounterpartyDetailPage({ params }: { params: { id: string } }) {
-  const counterpartyId = params.id
+export default function CounterpartyDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: counterpartyId } = use(params)
   const [counterparty, setCounterparty] = useState<CounterpartyData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

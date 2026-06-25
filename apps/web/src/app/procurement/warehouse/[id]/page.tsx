@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, use } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeftIcon, RefreshCwIcon } from "lucide-react"
@@ -37,7 +37,7 @@ const TYPE_LABELS: Record<WarehouseTransactionType, string> = {
 
 export default function WarehouseDetailPage() {
   const params = useParams<{ id: string }>()
-  const id = params.id
+  const { id } = use(params)
 
   const [item, setItem] = useState<WarehouseItemDetail | null>(null)
   const [loading, setLoading] = useState(true)

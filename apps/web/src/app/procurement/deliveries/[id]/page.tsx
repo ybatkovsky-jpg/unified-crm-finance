@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, use } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeftIcon, RefreshCwIcon, TruckIcon } from "lucide-react"
@@ -38,7 +38,7 @@ const NEXT_STATUSES: Record<DeliveryStatus, DeliveryStatus[]> = {
 
 export default function DeliveryDetailPage() {
   const params = useParams<{ id: string }>()
-  const id = params.id
+  const { id } = use(params)
 
   const [delivery, setDelivery] = useState<DeliveryData | null>(null)
   const [loading, setLoading] = useState(true)

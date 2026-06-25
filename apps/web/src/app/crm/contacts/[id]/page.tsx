@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, use } from "react"
 import Link from "next/link"
 import { RefreshCwIcon, ArrowLeftIcon, PhoneIcon, MailIcon, Building2Icon, UserIcon } from "lucide-react"
 
@@ -22,8 +22,9 @@ function getDisplayName(contact: ContactData): string {
   return [contact.lastName, contact.firstName].filter(Boolean).join(" ") || "\u2014"
 }
 
-export default function ContactDetailPage({ params }: { params: { id: string } }) {
-  const contactId = params.id
+export default function ContactDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
+  const contactId = id
   const [contact, setContact] = useState<ContactData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

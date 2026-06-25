@@ -3,7 +3,7 @@ import "./globals.css"
 import { NavBar } from "@/components/nav-bar"
 
 export const metadata: Metadata = {
-  title: "Unified CRM",
+  title: "Единая CRM",
 }
 
 export default function RootLayout({

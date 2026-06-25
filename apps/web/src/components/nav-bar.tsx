@@ -8,21 +8,21 @@ import { buttonVariants } from "@/components/ui/button"
 import { NotificationBell } from "@/components/notification-bell"
 
 const navItems = [
-  { label: "CRM", href: "/crm/contacts" },
-  { label: "Deals", href: "/deals" },
-  { label: "Projects", href: "/projects" },
-  { label: "Contracts", href: "/contracts" },
-  { label: "Procurement", href: "/procurement/counterparties" },
-  { label: "Requests", href: "/procurement/purchase-requests" },
-  { label: "Invoices", href: "/procurement/invoices" },
-  { label: "Approvals", href: "/procurement/approvals" },
-  { label: "Warehouse", href: "/procurement/warehouse" },
-  { label: "Deliveries", href: "/procurement/deliveries" },
-  { label: "Finance", href: "/finance" },
-  { label: "Categories", href: "/finance/categories" },
-  { label: "Transactions", href: "/finance/transactions" },
-  { label: "Payments", href: "/finance/payments" },
-  { label: "Analytics", href: "/analytics" },
+  { label: "Контакты", href: "/crm/contacts" },
+  { label: "Сделки", href: "/deals" },
+  { label: "Проекты", href: "/projects" },
+  { label: "Договоры", href: "/contracts" },
+  { label: "Контрагенты", href: "/procurement/counterparties" },
+  { label: "Заявки", href: "/procurement/purchase-requests" },
+  { label: "Счета", href: "/procurement/invoices" },
+  { label: "Согласование", href: "/procurement/approvals" },
+  { label: "Склад", href: "/procurement/warehouse" },
+  { label: "Поставки", href: "/procurement/deliveries" },
+  { label: "Финансы", href: "/finance" },
+  { label: "Категории", href: "/finance/categories" },
+  { label: "Транзакции", href: "/finance/transactions" },
+  { label: "Платежи", href: "/finance/payments" },
+  { label: "Аналитика", href: "/analytics" },
 ]
 
 export function NavBar() {
@@ -35,7 +35,7 @@ export function NavBar() {
           href="/"
           className="mr-4 font-semibold text-sm tracking-tight"
         >
-          Unified CRM
+          Единая CRM
         </Link>
         {navItems.map((item) => {
           const isActive =
