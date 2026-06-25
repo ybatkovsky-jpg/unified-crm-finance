@@ -95,19 +95,19 @@ export async function PATCH(
       )
     }
 
-    // Prepare update data (only allow specific fields)
+    // Prepare update data (coerce types from form values)
     const updateData: Record<string, unknown> = {}
     if (body.title !== undefined) updateData.title = body.title
-    if (body.amount !== undefined) updateData.amount = body.amount
+    if (body.amount !== undefined) updateData.amount = body.amount === '' ? undefined : Number(body.amount)
     if (body.currency !== undefined) updateData.currency = body.currency
-    if (body.expectedCloseDate !== undefined) updateData.expectedCloseDate = body.expectedCloseDate
-    if (body.description !== undefined) updateData.description = body.description
-    if (body.lossReason !== undefined) updateData.lossReason = body.lossReason
+    if (body.expectedCloseDate !== undefined) updateData.expectedCloseDate = body.expectedCloseDate ? new Date(body.expectedCloseDate) : null
+    if (body.description !== undefined) updateData.description = body.description || null
+    if (body.lossReason !== undefined) updateData.lossReason = body.lossReason || null
     if (body.attributes !== undefined) updateData.attributes = body.attributes
-    if (body.contactId !== undefined) updateData.contactId = body.contactId
-    if (body.managerId !== undefined) updateData.managerId = body.managerId
-    if (body.drawingFileId !== undefined) updateData.drawingFileId = body.drawingFileId
-    if (body.actFileId !== undefined) updateData.actFileId = body.actFileId
+    if (body.contactId !== undefined) updateData.contactId = body.contactId || null
+    if (body.managerId !== undefined) updateData.managerId = body.managerId || null
+    if (body.drawingFileId !== undefined) updateData.drawingFileId = body.drawingFileId || null
+    if (body.actFileId !== undefined) updateData.actFileId = body.actFileId || null
 
     // If stageId is provided, use moveStage instead (to record history)
     if (body.stageId && body.stageId !== existing.stageId) {

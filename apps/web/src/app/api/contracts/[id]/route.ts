@@ -91,17 +91,17 @@ export async function PATCH(
       )
     }
 
-    // Prepare update data (only allow specific fields)
+    // Prepare update data (coerce types from form values)
     const updateData: Record<string, unknown> = {}
     if (body.title !== undefined) updateData.title = body.title
-    if (body.amount !== undefined) updateData.amount = body.amount
+    if (body.amount !== undefined) updateData.amount = body.amount === '' ? undefined : Number(body.amount)
     if (body.currency !== undefined) updateData.currency = body.currency
-    if (body.startDate !== undefined) updateData.startDate = body.startDate
-    if (body.endDate !== undefined) updateData.endDate = body.endDate
+    if (body.startDate !== undefined) updateData.startDate = body.startDate ? new Date(body.startDate) : null
+    if (body.endDate !== undefined) updateData.endDate = body.endDate ? new Date(body.endDate) : null
     if (body.status !== undefined) updateData.status = body.status
-    if (body.notes !== undefined) updateData.notes = body.notes
+    if (body.notes !== undefined) updateData.notes = body.notes || null
     if (body.attributes !== undefined) updateData.attributes = body.attributes
-    if (body.signedAt !== undefined) updateData.signedAt = body.signedAt
+    if (body.signedAt !== undefined) updateData.signedAt = body.signedAt ? new Date(body.signedAt) : null
 
     const updatedContract = await contracts.update(id, updateData)
 
