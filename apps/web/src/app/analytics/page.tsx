@@ -56,14 +56,14 @@ export default function AnalyticsDashboardPage() {
       ])
 
       setData({ finance, funnel, margin, team, procurement })
-    } catch (err) { setError("Failed to load dashboard.") }
+    } catch (err) { setError("Не удалось загрузить dashboard.") }
     finally { setLoading(false) }
   }, [period])
 
   useEffect(() => { fetchAll() }, [fetchAll])
 
-  if (loading) return <div className="container mx-auto p-6 flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Loading dashboard...</span></div>
-  if (error) return <div className="container mx-auto p-6"><Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error}</p><Button variant="outline" onClick={fetchAll}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Retry</span></Button></div></CardContent></Card></div>
+  if (loading) return <div className="container mx-auto p-6 flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Загрузка dashboard...</span></div>
+  if (error) return <div className="container mx-auto p-6"><Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error}</p><Button variant="outline" onClick={fetchAll}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Повторить</span></Button></div></CardContent></Card></div>
 
   const fData = data?.finance
   const fuData = data?.funnel
@@ -143,7 +143,7 @@ export default function AnalyticsDashboardPage() {
                   )
                 })}
               </div>
-            ) : <p className="text-sm text-muted-foreground text-center py-2">No data</p>}
+            ) : <p className="text-sm text-muted-foreground text-center py-2">Нет данных</p>}
           </CardContent>
         </Card>
 
@@ -161,7 +161,7 @@ export default function AnalyticsDashboardPage() {
                 <div className="flex justify-between"><span>Avg Margin:</span><Badge variant={mData.summary.avgMargin >= 20 ? "default" : "secondary"}>{mData.summary.avgMargin}%</Badge></div>
                 <div className="flex justify-between"><span>Profitable / Unprofitable:</span><span>{mData.summary.profitableCount} / {mData.summary.unprofitableCount}</span></div>
               </div>
-            ) : <p className="text-sm text-muted-foreground text-center py-2">No data</p>}
+            ) : <p className="text-sm text-muted-foreground text-center py-2">Нет данных</p>}
           </CardContent>
         </Card>
       </div>
@@ -183,7 +183,7 @@ export default function AnalyticsDashboardPage() {
                   </div>
                 ))}
               </div>
-            ) : <p className="text-sm text-muted-foreground text-center py-2">No data</p>}
+            ) : <p className="text-sm text-muted-foreground text-center py-2">Нет данных</p>}
           </CardContent>
         </Card>
         <Card>
@@ -199,7 +199,7 @@ export default function AnalyticsDashboardPage() {
                 <div className="flex justify-between"><span>Invoices:</span><span>{pData.summary.invoiceCount}</span></div>
                 <div className="flex justify-between"><span>Deliveries:</span><span>{pData.summary.deliveryCount}</span></div>
               </div>
-            ) : <p className="text-sm text-muted-foreground text-center py-2">No data</p>}
+            ) : <p className="text-sm text-muted-foreground text-center py-2">Нет данных</p>}
           </CardContent>
         </Card>
       </div>

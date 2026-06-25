@@ -104,7 +104,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to load contract. Please try again.")
+        setError("Не удалось загрузить договор. Попробуйте снова.")
       }
     } finally {
       setLoading(false)
@@ -140,7 +140,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to save contract. Please try again.")
+        setError("Не удалось сохранить договор. Попробуйте снова.")
       }
     } finally {
       setSaving(false)
@@ -187,7 +187,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to add version. Please try again.")
+        setError("Не удалось добавить версию. Попробуйте снова.")
       }
     } finally {
       setVersionSaving(false)
@@ -214,7 +214,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to add signer. Please try again.")
+        setError("Не удалось добавить подписанта. Попробуйте снова.")
       }
     } finally {
       setSignerSaving(false)
@@ -225,7 +225,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
     return (
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-center py-12">
-          <div className="text-muted-foreground">Loading contract...</div>
+          <div className="text-muted-foreground">Загрузка договора...</div>
         </div>
       </div>
     )
@@ -414,7 +414,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
                     </Button>
                     <Button variant="outline" onClick={handleCancel}>
                       <X className="size-4" />
-                      <span className="ml-1.5">Cancel</span>
+                      <span className="ml-1.5">Отмена</span>
                     </Button>
                   </div>
                 </>

@@ -57,7 +57,7 @@ export default function SalesFunnelPage() {
       const json = await parseJson<{ data: FunnelData }>(res)
       setFunnel(json.data)
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : "Failed to load funnel data.")
+      setError(err instanceof ApiClientError ? err.message : "Не удалось загрузить funnel data.")
     } finally { setLoading(false) }
   }, [period])
 
@@ -66,7 +66,7 @@ export default function SalesFunnelPage() {
   if (loading) {
     return (
       <div className="container mx-auto p-6">
-        <div className="flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Loading funnel...</span></div>
+        <div className="flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Загрузка funnel...</span></div>
       </div>
     )
   }
@@ -89,7 +89,7 @@ export default function SalesFunnelPage() {
       </div>
 
       {error && (
-        <Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error}</p><Button variant="outline" onClick={fetchFunnel}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Retry</span></Button></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error}</p><Button variant="outline" onClick={fetchFunnel}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Повторить</span></Button></div></CardContent></Card>
       )}
 
       {funnel && (

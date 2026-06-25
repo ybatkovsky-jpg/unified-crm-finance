@@ -44,8 +44,8 @@ export default function ProcurementMetricsPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
-  if (loading) return <div className="container mx-auto p-6 flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Loading...</span></div>
-  if (error || !data) return <div className="container mx-auto p-6"><Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error || "No data"}</p><Button variant="outline" onClick={fetchData}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Retry</span></Button></div></CardContent></Card></div>
+  if (loading) return <div className="container mx-auto p-6 flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Загрузка...</span></div>
+  if (error || !data) return <div className="container mx-auto p-6"><Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error || "No data"}</p><Button variant="outline" onClick={fetchData}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Повторить</span></Button></div></CardContent></Card></div>
 
   const { summary, topSuppliers, monthlyTrend } = data
   const maxMonthAmount = Math.max(...monthlyTrend.map(m => m.amount), 1)
@@ -74,7 +74,7 @@ export default function ProcurementMetricsPage() {
       <Card>
         <CardHeader><CardTitle>Monthly Procurement Spend</CardTitle></CardHeader>
         <CardContent>
-          {monthlyTrend.length === 0 ? <p className="text-muted-foreground text-sm py-4 text-center">No data</p> : (
+          {monthlyTrend.length === 0 ? <p className="text-muted-foreground text-sm py-4 text-center">Нет данных</p> : (
             <div className="space-y-1">
               {monthlyTrend.map(m => (
                 <div key={m.month} className="flex items-center gap-3">
@@ -95,7 +95,7 @@ export default function ProcurementMetricsPage() {
       <Card>
         <CardHeader><CardTitle>Top Suppliers by Volume</CardTitle></CardHeader>
         <CardContent>
-          {topSuppliers.length === 0 ? <p className="text-muted-foreground text-sm py-4 text-center">No data</p> : (
+          {topSuppliers.length === 0 ? <p className="text-muted-foreground text-sm py-4 text-center">Нет данных</p> : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead><tr className="border-b"><th className="text-left py-2">#</th><th className="text-left py-2">Supplier</th><th className="text-right py-2">Invoices</th><th className="text-right py-2">Total Amount</th></tr></thead>

@@ -108,7 +108,7 @@ export default function ContractsPage() {
         setError(err.message)
       } else {
         console.error("[Contracts] Unexpected error:", err)
-        setError("Failed to load contracts. Please try again.")
+        setError("Не удалось загрузить договорs. Попробуйте снова.")
       }
     } finally {
       setLoading(false)
@@ -191,7 +191,7 @@ export default function ContractsPage() {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading contracts...</span>
+          <span className="ml-2 text-muted-foreground">Загрузка договораs...</span>
         </div>
       )}
 
@@ -202,7 +202,7 @@ export default function ContractsPage() {
               <p className="text-destructive">{error}</p>
               <Button variant="outline" onClick={handleRetry}>
                 <RefreshCwIcon className="size-4" />
-                <span className="ml-1.5">Retry</span>
+                <span className="ml-1.5">Повторить</span>
               </Button>
             </div>
           </CardContent>
@@ -213,7 +213,7 @@ export default function ContractsPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground py-8">
-              No contracts found
+              Нет договоров found
             </p>
           </CardContent>
         </Card>

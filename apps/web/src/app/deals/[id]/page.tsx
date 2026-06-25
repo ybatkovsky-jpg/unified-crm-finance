@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, File, Download, Trash2, Upload } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, File, Download, Trash2, Upload, Package } from "lucide-react"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
 import { filesApi } from "@/lib/api/files"
 import { contractsApi } from "@/lib/api/contracts"
@@ -32,6 +32,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [converting, setConverting] = useState(false)
+  const [creatingProject, setCreatingProject] = useState(false)
   const [editForm, setEditForm] = useState({
     title: "",
     amount: "",
@@ -169,10 +170,41 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to convert deal to contract. Please try again.")
+        setError("Не удалось конвертировать сделку в контракт.")
       }
     } finally {
       setConverting(false)
+    }
+  }
+
+  const handleCreateProject = async () => {
+    if (!deal) return
+    if (deal.projectId) {
+      router.push(`/projects/${deal.projectId}`)
+      return
+    }
+
+    setCreatingProject(true)
+    setError(null)
+
+    try {
+      const res = await fetch(`/api/deals/${deal.id}/create-project`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: deal.title, contactId: deal.contactId }),
+      })
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.message || `HTTP ${res.status}`)
+      }
+
+      const { data: project } = await res.json()
+      router.push(`/projects/${project.id}`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Не удалось создать проект.')
+    } finally {
+      setCreatingProject(false)
     }
   }
 
@@ -346,6 +378,16 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
               <Button onClick={() => setIsEditing(true)}>
                 <Edit2 className="size-4" />
                 <span className="ml-1.5">Изменить</span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleCreateProject}
+                disabled={creatingProject || !!deal.projectId}
+              >
+                <Package className="size-4" />
+                <span className="ml-1.5">
+                  {creatingProject ? "Создание..." : deal.projectId ? "В проект" : "В проект"}
+                </span>
               </Button>
               <Button
                 variant="outline"

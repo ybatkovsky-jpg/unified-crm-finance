@@ -59,7 +59,7 @@ export default function ContactListPage() {
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to load contacts. Please try again.")
+        setError("Не удалось загрузить контактs. Попробуйте снова.")
       }
     } finally {
       setLoading(false)
@@ -129,7 +129,7 @@ export default function ContactListPage() {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading contacts...</span>
+          <span className="ml-2 text-muted-foreground">Загрузка контактаs...</span>
         </div>
       )}
 
@@ -140,7 +140,7 @@ export default function ContactListPage() {
               <p className="text-destructive">{error}</p>
               <Button variant="outline" onClick={handleRetry}>
                 <RefreshCwIcon className="size-4" />
-                <span className="ml-1.5">Retry</span>
+                <span className="ml-1.5">Повторить</span>
               </Button>
             </div>
           </CardContent>
