@@ -72,7 +72,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         const fileResponse = await filesApi.getFile(response.data.drawingFile.id)
         setDrawingFiles([{
           id: response.data.drawingFile.id,
-          file: new File([], response.data.drawingFile.fileName, { type: response.data.drawingFile.mimeType || 'application/octet-stream' }),
+          file: new (globalThis as any).File([], response.data.drawingFile.fileName, { type: response.data.drawingFile.mimeType || 'application/octet-stream' }),
           progress: 100,
           status: 'success',
         }])
@@ -81,7 +81,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         const fileResponse = await filesApi.getFile(response.data.actFile.id)
         setActFiles([{
           id: response.data.actFile.id,
-          file: new File([], response.data.actFile.fileName, { type: response.data.actFile.mimeType || 'application/octet-stream' }),
+          file: new (globalThis as any).File([], response.data.actFile.fileName, { type: response.data.actFile.mimeType || 'application/octet-stream' }),
           progress: 100,
           status: 'success',
         }])
