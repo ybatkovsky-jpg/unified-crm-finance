@@ -42,6 +42,13 @@ export async function POST(
       )
     }
 
+    if (!deal.contactId) {
+      return NextResponse.json(
+        { error: 'No contact', message: 'Назначьте контакт на сделку перед конвертацией в контракт' },
+        { status: 400 }
+      )
+    }
+
     // Check if contract already exists
     const existingContract = await contracts.findByDeal(dealId)
     if (existingContract) {
