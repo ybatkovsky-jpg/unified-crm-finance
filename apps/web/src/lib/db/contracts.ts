@@ -276,7 +276,7 @@ export class ContractRepository {
           title: `Договор: ${deal.title}`,
           amount: deal.amount,
           currency: deal.currency,
-          description: deal.description || undefined,
+          notes: deal.description || undefined,
           status: 'draft',
           number: contractNumber,
           createdAt: now,
