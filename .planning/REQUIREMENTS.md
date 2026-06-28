@@ -1,6 +1,6 @@
 # Requirements — Milestone v1.0 «ERP ПРО Мебель — доводка до спеки»
 
-> Источник правты: `.gsd/integration/PRODUCT-SPEC.md` (полное ТЗ из интервью 2026-06-29).
+> Источник правды: `.gsd/integration/PRODUCT-SPEC.md` (полное ТЗ из интервью 2026-06-29).
 > Прежние заявки «M001–M008 готовы» / R001–R0xx — протухшие; реальные пробелы описаны здесь.
 
 ## Active Requirements
@@ -81,10 +81,65 @@
 - Контроль качества и списание отходов в производстве.
 
 ## Out of Scope
-- ❌ Интеграция с 1С и ЭДО (Диадок/СБИС) — учёт и документы ведутся в 1С отдельно.
-- ❌ Онлайн-касса (54-ФЗ) — отдельно; наличные вносятся руками.
-- ❌ Инструменты сокрытия доходов — система честно фиксирует внесённое.
-- ❌ Переписывание схемы БД с нуля — фундамент (58 моделей, Postgres, Decimal) здоровый, доводим.
+- Интеграция с 1С и ЭДО (Диадок/СБИС) — учёт и документы ведутся в 1С отдельно.
+- Онлайн-касса (54-ФЗ) — отдельно; наличные вносятся руками.
+- Инструменты сокрытия доходов — система честно фиксирует внесённое.
+- Переписывание схемы БД с нуля — фундамент (58 моделей, Postgres, Decimal) здоровый, доводим.
 
 ## Traceability
-(заполняется roadmapper'ом — REQ-ID → Phase)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Pending |
+| CORE-01 | Phase 2 | Pending |
+| CORE-02 | Phase 2 | Pending |
+| CORE-03 | Phase 2 | Pending |
+| CORE-04 | Phase 2 | Pending |
+| UI-01 | Phase 3 | Pending |
+| UI-02 | Phase 3 | Pending |
+| UI-03 | Phase 3 | Pending |
+| UI-04 | Phase 3 | Pending |
+| UI-05 | Phase 3 | Pending |
+| CRM-01 | Phase 4 | Pending |
+| CRM-02 | Phase 4 | Pending |
+| CRM-03 | Phase 4 | Pending |
+| CRM-04 | Phase 4 | Pending |
+| CRM-05 | Phase 4 | Pending |
+| CRM-06 | Phase 4 | Pending |
+| CRM-07 | Phase 4 | Pending |
+| CRM-08 | Phase 4 | Pending |
+| PROJ-01 | Phase 5 | Pending |
+| PROJ-02 | Phase 5 | Pending |
+| PROJ-03 | Phase 5 | Pending |
+| PROJ-04 | Phase 5 | Pending |
+| PROJ-05 | Phase 5 | Pending |
+| PROJ-06 | Phase 5 | Pending |
+| PROJ-07 | Phase 5 | Pending |
+| PROJ-08 | Phase 6 | Pending |
+| PROJ-09 | Phase 6 | Pending |
+| PROJ-10 | Phase 6 | Pending |
+| PROJ-11 | Phase 6 | Pending |
+| PROJ-12 | Phase 7 | Pending |
+| PROJ-13 | Phase 7 | Pending |
+| PROJ-14 | Phase 7 | Pending |
+| FIN-01 | Phase 8 | Pending |
+| FIN-02 | Phase 8 | Pending |
+| FIN-03 | Phase 8 | Pending |
+| FIN-04 | Phase 8 | Pending |
+| FIN-05 | Phase 8 | Pending |
+| FIN-06 | Phase 8 | Pending |
+| ACCT-01 | Phase 9 | Pending |
+| ACCT-02 | Phase 9 | Pending |
+| ACCT-03 | Phase 9 | Pending |
+| ACCT-04 | Phase 9 | Pending |
+| PLAT-01 | Phase 10 | Pending |
+| PLAT-02 | Phase 10 | Pending |
+| PLAT-03 | Phase 10 | Pending |
+| PLAT-04 | Phase 10 | Pending |
+| PLAT-05 | Phase 10 | Pending |
+
+**Coverage:** 51/51 v1 требований замаплено (без orphan и дубликатов).
