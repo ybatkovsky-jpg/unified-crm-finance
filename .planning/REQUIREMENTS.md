@@ -1,218 +1,90 @@
-# Requirements
+# Requirements — Milestone v1.0 «ERP ПРО Мебель — доводка до спеки»
 
-This file is the explicit capability and coverage contract for the project.
+> Источник правты: `.gsd/integration/PRODUCT-SPEC.md` (полное ТЗ из интервью 2026-06-29).
+> Прежние заявки «M001–M008 готовы» / R001–R0xx — протухшие; реальные пробелы описаны здесь.
 
-## Active
+## Active Requirements
 
-### R001 — Монорепозиторий с npm workspaces (apps/web, apps/worker, packages/*) для удобной модульной разработки
-- Class: launchability
-- Status: active
-- Description: Монорепозиторий с npm workspaces (apps/web, apps/worker, packages/*) для удобной модульной разработки
-- Why it matters: Необходим для объединения кодовой базы и совместной разработки
-- Source: user
-- Primary owning slice: M001/S01
+### Доступ и права (AUTH)
+- [ ] **AUTH-01**: Пользователь входит через экран `/login` (email + пароль); без входа доступ закрыт ко всему, кроме `/login`.
+- [ ] **AUTH-02**: Сессия сохраняется (cookie/JWT); выход очищает её.
+- [ ] **AUTH-03**: Директор создаёт/блокирует пользователей и сбрасывает пароль в админке.
+- [ ] **AUTH-04**: Директор назначает роли; права применяются по матрице видимости (PRODUCT-SPEC п.1).
+- [ ] **AUTH-05**: Middleware блокирует несанкционированный доступ к чужим проектам и разделам.
 
-### R002 — Docker Compose для всех сервисов (PostgreSQL, RabbitMQ, MinIO, web, worker) одной командой
-- Class: launchability
-- Status: active
-- Description: Docker Compose для всех сервисов (PostgreSQL, RabbitMQ, MinIO, web, worker) одной командой
-- Why it matters: Обеспечивает единый environment для разработки и продакшена
-- Source: user
-- Primary owning slice: M001/S01
+### Редизайн UI (UI)
+- [ ] **UI-01**: Левый сайдбар с 7 основными разделами + верхний поднав подразделов выбранного.
+- [ ] **UI-02**: Шапка: логотип, глобальный поиск, текущий пользователь, выход.
+- [ ] **UI-03**: После входа — лендинг на CRM-канбан сделок.
+- [ ] **UI-04**: Микро-интеракции, плавный motion (Framer Motion), мгновенный отклик; дизайн-токены зафиксированы в UI-SPEC.
+- [ ] **UI-05**: Мобильный вид для полевых ролей (монтажник, менеджер).
 
-### R003 — Prisma схема по спецификации docs/05-data-model.md (42 сущности) с миграциями
-- Class: core-capability
-- Status: active
-- Description: Prisma схема по спецификации docs/05-data-model.md (42 сущности) с миграциями
-- Why it matters: Единая модель данных — основа для всех модулей
-- Source: user
-- Primary owning slice: M001/S02
+### Стабилизация ядра (CORE)
+- [ ] **CORE-01**: Создание сделки/проекта/инвойса работает без 500 (create-потоки починены).
+- [ ] **CORE-02**: Мёртвые тесты прибраны (298 ошибок шума устранены: удалены или переписаны).
+- [ ] **CORE-03**: Карточка сделки показывает «дни до конца проекта».
+- [ ] **CORE-04**: Schema/code drift исправлен (`assignedToId`, Category-импорт и пр.).
 
-### R005 — Базовый UI с shadcn/ui (layout, sidebar, header, тема)
-- Class: quality-attribute
-- Status: active
-- Description: Базовый UI с shadcn/ui (layout, sidebar, header, тема)
-- Why it matters: Консистентный дизайн и UX для всех модулей
-- Source: user
-- Primary owning slice: M001/S04
-- Validation: shadcn/ui initialized with components.json and utils; ThemeProvider integrated; sidebar and header components created; DashboardLayout wraps dashboard page
+### CRM — сделки и контакты (CRM)
+- [ ] **CRM-01**: Полный список источников лида (2ГИС, сайт, интернет, Instagram, ВК, ТГ-группа, офис, сарафан, старая база, дизайнер).
+- [ ] **CRM-02**: Канбан-доска с drag-and-drop сделок по стадиям воронки.
+- [ ] **CRM-03**: Карточка сделки: название, сумма, контакт, стадия проекта, дни до конца проекта.
+- [ ] **CRM-04**: Замер #1 (менеджер-дизайнер) оформляется как задача-выезд (перенос/пересоздание).
+- [ ] **CRM-05**: КП создаётся из дизайн-проекта + материалов, с версионированием (tier'ы по фурнитуре/материалам), формат PDF/распечатка, срок действия 30 дней.
+- [ ] **CRM-06**: Сделка закрывается «отказ» с обязательной причиной (для аналитики).
+- [ ] **CRM-07**: Переход сделки «договор заключён» → генерация договора + создание проекта `ПМ2026-0001` (общий номер).
+- [ ] **CRM-08**: Дизайнерский бонус 10% от суммы договора начисляется по проекту, выплата разово после получения всех денег клиента.
 
-### R006 — FastAPI worker с RabbitMQ consumer для фоновой обработки задач
-- Class: core-capability
-- Status: active
-- Description: FastAPI worker с RabbitMQ consumer для фоновой обработки задач
-- Why it matters: Асинхронная обработка (экспорт, уведомления, расчёты)
-- Source: user
-- Primary owning slice: M001/S05
+### Проекты, закупки, производство, монтаж (PROJ)
+- [ ] **PROJ-01**: Воронка проекта: Замер #2 → ТЗ/спецификация → Закупки → Производство → Монтаж → Акт → Закрытие.
+- [ ] **PROJ-02**: Замер #2 (технолог + монтажник) — задача-выезд, данные для детального проекта и расчёта выпилов.
+- [ ] **PROJ-03**: Технолог формирует единую спецификацию (позиции, материал, ед. изм., количество, поставщик в столбце), с ручными добавлениями.
+- [ ] **PROJ-04**: Закупки группируются по поставщику из спецификации, с учётом наличия на складе.
+- [ ] **PROJ-05**: Запрос поставщику: проверка → отправка по email (шаблон) → автосверка ответа (наименование/артикул/кол-во) с уведомлением о расхождениях и отсутствующих позициях.
+- [ ] **PROJ-06**: Воронка закупки: Запрос отправлен → Получен счёт → Счёт оплачен → Получен товар.
+- [ ] **PROJ-07**: Проект подсвечивается и напоминает, пока не по всем позициям сделаны закупки.
+- [ ] **PROJ-08**: Производство-аутсорс: партнёр с тегами-навыками (ДСП/МДФ, камень, стекло, бетон, покраска/плёнка, универсал); заказ-наряд с режимом материала (наш/партнёра); воронка Заказ передан → Материалы доставлены → В работе → Готово; контроль сроков (60 дней).
+- [ ] **PROJ-09**: Логистика: поставщик → производство; производство → объект (свой транспорт); стоимость доставки = расход проекта.
+- [ ] **PROJ-10**: Монтаж «прогрессивный» (после частичной доставки), многозаходный; финальные 30% перед началом монтажа; статусы «приступили/закончили».
+- [ ] **PROJ-11**: Доп. работы оформляются формально (доп. соглашение/отдельный договор), только по инициативе клиента.
+- [ ] **PROJ-12**: Акт: физлица подписывает монтажник на объекте; юрлица — менеджер (ЭДО/бумага).
+- [ ] **PROJ-13**: Закрытие проекта = акт подписан + все деньги клиента + все счета оплачены + бонус дизайнеру выплачен.
+- [ ] **PROJ-14**: Срок гарантии (2 года + фурнитура) хранится по проекту.
 
-### R008 — ADR-01: Гибридная архитектура (Next.js API Routes + Python FastAPI) зафиксирована
-- Class: constraint
-- Status: active
-- Description: ADR-01: Гибридная архитектура (Next.js API Routes + Python FastAPI) зафиксирована
-- Why it matters: Архитектурное решение должно быть задокументировано
-- Source: user
-- Primary owning slice: M001/S01
+### Финансы (FIN)
+- [ ] **FIN-01**: Платежи клиента (70% предоплата + 30% перед монтажом) привязаны к проекту.
+- [ ] **FIN-02**: Импорт банк-выписки файлом 1С/TXT (Озон, Тинькофф) → сопоставление платежей проектам/счетам.
+- [ ] **FIN-03**: Наличные платежи вносятся руками, способ оплаты «наличные».
+- [ ] **FIN-04**: Маржа проекта = доходы − расходы (материалы, производства, доставка, бонус, доп. работы), с пороговым алертом по низкомаржинальным.
+- [ ] **FIN-05**: Долги: дебиторка (клиенты) и кредиторка (поставщики/производства/дизайнер) с просрочкой.
+- [ ] **FIN-06**: Выплата бонуса дизайнеру разово по проекту после всех денег клиента; виден накопленный долг дизайнера.
 
-### R009 — ADR-02: Модель данных (Prisma + SQLAlchemy консистентность) зафиксирована
-- Class: constraint
-- Status: active
-- Description: ADR-02: Модель данных (Prisma + SQLAlchemy консистентность) зафиксирована
-- Why it matters: Консистентность моделей критична для гибридной архитектуры
-- Source: user
-- Primary owning slice: M001/S02
+### Управленческий учёт (ACCT)
+- [ ] **ACCT-01**: 12 статей постоянных расходов (зерно PRODUCT-SPEC п.6).
+- [ ] **ACCT-02**: P&L за период: доходы − расходы (постоянные + проектные).
+- [ ] **ACCT-03**: План/факт по статьям и периодам.
+- [ ] **ACCT-04**: ДДС (движение денежных средств) план/факт.
 
-### R013 — Модуль проекты: задачи, этапы, timelines, Gantt
-- Class: core-capability
-- Status: active
-- Description: Модуль проекты: задачи, этапы, timelines, Gantt
-- Why it matters: Управление проектами и сроками
-- Source: inferred
-- Primary owning slice: M004
+### Платформа: задачи, уведомления, аналитика (PLAT)
+- [ ] **PLAT-01**: Задачи (выезды и общие) с исполнителем/дедлайном/статусом, перенос и пересоздание.
+- [ ] **PLAT-02**: Уведомления (Telegram/in-app/email) по ключевым событиям (лид, смена стадии, оплата, дедлайн, ответ поставщика, просрочка задачи).
+- [ ] **PLAT-03**: Аналитика воронки продаж: конверсия по стадиям + причины отказов.
+- [ ] **PLAT-04**: Аналитика маржи проектов (текущая/закрытая, алерты).
+- [ ] **PLAT-05**: Аналитика команды: нагрузка и результативность.
 
-### R014 — Модуль закупки: заявки, позиции, утверждения, поставщики
-- Class: core-capability
-- Status: active
-- Description: Модуль закупки: заявки, позиции, утверждения, поставщики
-- Why it matters: Управление закупочными процессами
-- Source: inferred
-- Primary owning slice: M005
-- Notes: M005 active with 7 planned slices: S01 Counterparty, S02 BOM, S03 Purchase Requests, S04 Invoices, S05 Approvals, S06 Warehouse, S07 Delivery
-
-### R015 — Модуль финансы: бюджеты, транзакции, счета, отчеты
-- Class: core-capability
-- Status: active
-- Description: Модуль финансы: бюджеты, транзакции, счета, отчеты
-- Why it matters: Финансовый контроль и отчётность
-- Source: inferred
-- Primary owning slice: M006
-- Validation: Categories CRUD (S01), Budgets CRUD (S02), Transactions CRUD (S03), CashFlowPayment workflow (S04), Analytics API (S05), Invoice pay integration (S06), Finance dashboard (S07)
-- Notes: M006 planned with 7 slices: S01 Categories, S02 Budgets, S03 Transactions, S04 CashFlowPayment, S05 Analytics, S06 Invoice integration, S07 Dashboard. S01 fully decomposed into 5 tasks.
-
-### R016 — Аналитика: дашборды, метрики, графики, экспорт
-- Class: differentiator
-- Status: active
-- Description: Аналитика: дашборды, метрики, графики, экспорт
-- Why it matters: Прозрачность и понимание состояния бизнеса
-- Source: inferred
-- Primary owning slice: M007
-
-### R017 — Уведомления: email, in-app, webhook для критичных событий
-- Class: failure-visibility
-- Status: active
-- Description: Уведомления: email, in-app, webhook для критичных событий
-- Why it matters: Пользователи узнают о важных событиях вовремя
-- Source: inferred
-- Primary owning slice: M008
-
-### R018 — Google Calendar two-way sync: события CRM ↔ Google Calendar
-- Class: integration
-- Status: active
-- Description: Google Calendar two-way sync: события CRM ↔ Google Calendar
-- Why it matters: Пользователи работают в Google Calendar — нужна双向 синхронизация встреч, напоминаний, задач с deadline
-- Source: User requirement
-- Primary owning slice: M001
-- Supporting slices: []
-- Validation: Создание встречи в CRM отображается в Google Calendar и наоборот
-
-### R019 — События: история взаимодействий и календарь встреч
-- Class: core-capability
-- Status: active
-- Description: События: история взаимодействий и календарь встреч
-- Why it matters: CRM без истории взаимодействий бесполезен — нельзя отследить коммуникацию с клиентом
-- Source: User requirement
-- Primary owning slice: M001
-- Supporting slices: []
-- Validation: Создание события привязано к контакту, отображается в календаре, есть фильтры по типу и дате
-
-### R020 — Задачи: задачи на взаимодействия с клиентом + внутренние задачи компании
-- Class: core-capability
-- Status: active
-- Description: Задачи: задачи на взаимодействия с клиентом + внутренние задачи компании
-- Why it matters: Нужно разделять клиентские задачи (перезвонить, отправить КП) и внутренние (подготовить отчёт, approve закупку)
-- Source: User requirement
-- Primary owning slice: M001
-- Supporting slices: []
-- Validation: Есть два типа задач с разными вью-списками, фильтрами и workflow
-
-## Validated
-
-### R004 — NextAuth + JWT для аутентификации (login/logout/refresh token)
-- Class: primary-user-loop
-- Status: validated
-- Description: NextAuth + JWT для аутентификации (login/logout/refresh token)
-- Why it matters: Первое что делает пользователь — логинится в систему
-- Source: user
-- Primary owning slice: M001/S03
-- Validation: Login page exists at /login, NextAuth API routes configured at /api/auth/*, middleware protects /dashboard/* with redirects, logout functional via server action
-
-### R007 — CI/CD pipeline (GitHub Actions: lint, typecheck, test, build)
-- Class: operability
-- Status: validated
-- Description: CI/CD pipeline (GitHub Actions: lint, typecheck, test, build)
-- Why it matters: Автоматическая проверка качества кода и деплой
-- Source: user
-- Primary owning slice: M001/S06
-- Validation: GitHub Actions workflows created at .github/workflows/ci.yml and .github/workflows/deploy.yml; pytest tests pass (5/5); ruff lint passes clean; deployment documentation complete
-
-### R010 — CRM модуль: компании, контакты, задачи, события
-- Class: core-capability
-- Status: validated
-- Description: CRM модуль: компании, контакты, задачи, события
-- Why it matters: Базовая CRM функциональность для работы с клиентами
-- Source: inferred
-- Primary owning slice: M002
-- Validation: Contact CRUD API (S01), Contact List UI (S02), Interactions API & UI (S03), Contact Detail Page (S04) — 100+ тестов pass, zero build errors, dev server verified
-
-### R011 — Модуль сделки: pipeline, этапы, статусы
-- Class: core-capability
-- Status: validated
-- Description: Модуль сделки: pipeline, этапы, статусы
-- Why it matters: Управление продажами от лида до закрытия
-- Source: inferred
-- Primary owning slice: M009
-- Validation: S01: 78 tests passed (34 repo + 44 API); S02: Kanban Board with 8 stages, drag-drop; S03: DealHistoryTimeline integrated; S04: Transaction-safe deal→contract conversion
-
-### R012 — Модуль контракты: документы, этапы, подписи
-- Class: core-capability
-- Status: validated
-- Description: Модуль контракты: документы, этапы, подписи
-- Why it matters: Юридическое оформление сделок
-- Source: inferred
-- Primary owning slice: M009
-- Validation: S04: ContractRepository with transaction safety, 57 tests (16 repo + 41 API); versioning with MAX+1 pattern; signer management; bidirectional deal→contract link
-
-## Deferred
+## Future Requirements (отложено)
+- Гарантийные заявки/сервис (обращений почти нет — пока только срок).
+- Прайсы и сроки поставщиков, рейтинг.
+- Фото объекта до/после (портфолио, споры).
+- Телефония (автолог звонков).
+- Инвентаризация склада (формальные периодические проверки).
+- Контроль качества и списание отходов в производстве.
 
 ## Out of Scope
+- ❌ Интеграция с 1С и ЭДО (Диадок/СБИС) — учёт и документы ведутся в 1С отдельно.
+- ❌ Онлайн-касса (54-ФЗ) — отдельно; наличные вносятся руками.
+- ❌ Инструменты сокрытия доходов — система честно фиксирует внесённое.
+- ❌ Переписывание схемы БД с нуля — фундамент (58 моделей, Postgres, Decimal) здоровый, доводим.
 
 ## Traceability
-
-| ID | Class | Status | Primary owner | Supporting | Proof |
-|---|---|---|---|---|---|
-| R001 | launchability | active | M001/S01 | none | unmapped |
-| R002 | launchability | active | M001/S01 | none | unmapped |
-| R003 | core-capability | active | M001/S02 | none | unmapped |
-| R004 | primary-user-loop | validated | M001/S03 | none | Login page exists at /login, NextAuth API routes configured at /api/auth/*, middleware protects /dashboard/* with redirects, logout functional via server action |
-| R005 | quality-attribute | active | M001/S04 | none | shadcn/ui initialized with components.json and utils; ThemeProvider integrated; sidebar and header components created; DashboardLayout wraps dashboard page |
-| R006 | core-capability | active | M001/S05 | none | unmapped |
-| R007 | operability | validated | M001/S06 | none | GitHub Actions workflows created at .github/workflows/ci.yml and .github/workflows/deploy.yml; pytest tests pass (5/5); ruff lint passes clean; deployment documentation complete |
-| R008 | constraint | active | M001/S01 | none | unmapped |
-| R009 | constraint | active | M001/S02 | none | unmapped |
-| R010 | core-capability | validated | M002 | none | Contact CRUD API (S01), Contact List UI (S02), Interactions API & UI (S03), Contact Detail Page (S04) — 100+ тестов pass, zero build errors, dev server verified |
-| R011 | core-capability | validated | M009 | none | S01: 78 tests passed (34 repo + 44 API); S02: Kanban Board with 8 stages, drag-drop; S03: DealHistoryTimeline integrated; S04: Transaction-safe deal→contract conversion |
-| R012 | core-capability | validated | M009 | none | S04: ContractRepository with transaction safety, 57 tests (16 repo + 41 API); versioning with MAX+1 pattern; signer management; bidirectional deal→contract link |
-| R013 | core-capability | active | M004 | none | unmapped |
-| R014 | core-capability | active | M005 | none | unmapped |
-| R015 | core-capability | active | M006 | none | Categories CRUD (S01), Budgets CRUD (S02), Transactions CRUD (S03), CashFlowPayment workflow (S04), Analytics API (S05), Invoice pay integration (S06), Finance dashboard (S07) |
-| R016 | differentiator | active | M007 | none | unmapped |
-| R017 | failure-visibility | active | M008 | none | unmapped |
-| R018 | integration | active | M001 | [] | Создание встречи в CRM отображается в Google Calendar и наоборот |
-| R019 | core-capability | active | M001 | [] | Создание события привязано к контакту, отображается в календаре, есть фильтры по типу и дате |
-| R020 | core-capability | active | M001 | [] | Есть два типа задач с разными вью-списками, фильтрами и workflow |
-
-## Coverage Summary
-
-- Active requirements: 15
-- Mapped to slices: 15
-- Validated: 5 (R004, R007, R010, R011, R012)
-- Unmapped active requirements: 0
+(заполняется roadmapper'ом — REQ-ID → Phase)
