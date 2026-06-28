@@ -8,13 +8,13 @@ export interface SessionUser {
   id: string;
   email: string;
   name: string;
-  roleCode: RoleCode;
+  roleCodes: RoleCode[]; // может быть несколько ролей
   isActive: boolean;
 }
 
 /**
  * Текущий пользователь по session-cookie (server-side).
- * Перечитывает роль из БД (на случай смены роли/блокировки — сессия не переживает).
+ * Перечитывает роли/статус из БД. Удалённые (deletedAt) и заблокированные — null.
  */
 export async function getSession(): Promise<SessionUser | null> {
   const store = await cookies();
@@ -31,19 +31,18 @@ export async function getSession(): Promise<SessionUser | null> {
       email: true,
       name: true,
       isActive: true,
+      deletedAt: true,
       UserRole: { select: { Role: { select: { code: true } } } },
     },
   });
-  if (!user || !user.isActive) return null;
+  if (!user || !user.isActive || user.deletedAt) return null;
 
-  const dbRole = user.UserRole[0]?.Role.code;
-  const roleCode = dbRole && isRoleCode(dbRole) ? dbRole : isRoleCode(payload.roleCode) ? payload.roleCode : null;
-  if (!roleCode) return null;
+  const roleCodes = user.UserRole.map((ur) => ur.Role.code).filter(isRoleCode);
+  if (roleCodes.length === 0) return null;
 
-  return { id: user.id, email: user.email, name: user.name, roleCode, isActive: user.isActive };
+  return { id: user.id, email: user.email, name: user.name, roleCodes, isActive: user.isActive };
 }
 
-/** Требовать аутентифицированного пользователя (для server-components/routes). */
 export async function requireSession(): Promise<SessionUser> {
   const session = await getSession();
   if (!session) {

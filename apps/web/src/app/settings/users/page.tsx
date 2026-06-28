@@ -9,11 +9,15 @@ interface UserRow {
   name: string;
   isActive: boolean;
   lastLoginAt: string | null;
-  roleCode: RoleCode | null;
-  roleName: string | null;
+  roleCodes: RoleCode[];
+  roleNames: string[];
 }
 
 const ROLE_CODES = Object.keys(ROLE_MATRIX) as RoleCode[];
+
+function toggle(arr: RoleCode[], code: RoleCode): RoleCode[] {
+  return arr.includes(code) ? arr.filter((c) => c !== code) : [...arr, code];
+}
 
 export default function UsersAdminPage() {
   const [users, setUsers] = useState<UserRow[]>([]);
@@ -23,7 +27,7 @@ export default function UsersAdminPage() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [roleCode, setRoleCode] = useState<RoleCode>("manager_designer");
+  const [createRoles, setCreateRoles] = useState<RoleCode[]>(["manager_designer"]);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
@@ -49,7 +53,7 @@ export default function UsersAdminPage() {
     const res = await fetch("/api/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, name, password, roleCode }),
+      body: JSON.stringify({ email, name, password, roleCodes: createRoles }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -60,6 +64,7 @@ export default function UsersAdminPage() {
     setEmail("");
     setName("");
     setPassword("");
+    setCreateRoles(["manager_designer"]);
     load();
   }
 
@@ -78,6 +83,18 @@ export default function UsersAdminPage() {
     load();
   }
 
+  async function remove(id: string, label: string) {
+    if (!window.confirm(`Удалить пользователя ${label}? (мягкое удаление — история сохранится)`)) return;
+    setErr(null);
+    const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      setErr(d.error || "Ошибка удаления");
+      return;
+    }
+    load();
+  }
+
   if (forbidden) {
     return (
       <div className="container mx-auto p-6">
@@ -88,55 +105,35 @@ export default function UsersAdminPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Пользователи и роли</h1>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Пользователи и роли</h1>
+        <p className="text-sm text-muted-foreground">
+          У одного пользователя может быть несколько ролей — права объединяются.
+        </p>
+      </div>
 
-      {err && (
-        <div className="text-sm text-destructive bg-destructive/10 rounded-md p-2">{err}</div>
-      )}
-      {msg && (
-        <div className="text-sm text-emerald-600 bg-emerald-50 rounded-md p-2">{msg}</div>
-      )}
+      {err && <div className="text-sm text-destructive bg-destructive/10 rounded-md p-2">{err}</div>}
+      {msg && <div className="text-sm text-emerald-600 bg-emerald-50 rounded-md p-2">{msg}</div>}
 
-      <form
-        onSubmit={create}
-        className="grid grid-cols-1 md:grid-cols-5 gap-2 bg-muted/30 p-4 rounded-lg"
-      >
-        <input
-          className="rounded-md border bg-background px-3 py-2 text-sm"
-          placeholder="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          className="rounded-md border bg-background px-3 py-2 text-sm"
-          placeholder="ФИО"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          className="rounded-md border bg-background px-3 py-2 text-sm"
-          placeholder="пароль"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <select
-          className="rounded-md border bg-background px-3 py-2 text-sm"
-          value={roleCode}
-          onChange={(e) => setRoleCode(e.target.value as RoleCode)}
-        >
+      <form onSubmit={create} className="space-y-3 bg-muted/30 p-4 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+          <input className="rounded-md border bg-background px-3 py-2 text-sm" placeholder="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input className="rounded-md border bg-background px-3 py-2 text-sm" placeholder="ФИО" value={name} onChange={(e) => setName(e.target.value)} />
+          <input className="rounded-md border bg-background px-3 py-2 text-sm" placeholder="пароль" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <button className="rounded-md bg-primary text-primary-foreground py-2 text-sm font-medium" type="submit">Создать</button>
+        </div>
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
           {ROLE_CODES.map((c) => (
-            <option key={c} value={c}>
+            <label key={c} className="flex items-center gap-1.5 text-sm">
+              <input
+                type="checkbox"
+                checked={createRoles.includes(c)}
+                onChange={() => setCreateRoles((r) => toggle(r, c))}
+              />
               {ROLE_MATRIX[c].label}
-            </option>
+            </label>
           ))}
-        </select>
-        <button
-          className="rounded-md bg-primary text-primary-foreground py-2 text-sm font-medium"
-          type="submit"
-        >
-          Создать
-        </button>
+        </div>
       </form>
 
       {loading ? (
@@ -147,35 +144,33 @@ export default function UsersAdminPage() {
             <tr className="text-left text-muted-foreground border-b">
               <th className="py-2">Email</th>
               <th>ФИО</th>
-              <th>Роль</th>
+              <th>Роли</th>
               <th>Статус</th>
               <th>Действия</th>
             </tr>
           </thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.id} className="border-b">
+              <tr key={u.id} className="border-b align-top">
                 <td className="py-2">{u.email}</td>
                 <td>{u.name}</td>
                 <td>
-                  <select
-                    className="rounded border bg-background px-2 py-1 text-xs"
-                    value={u.roleCode ?? ""}
-                    onChange={(e) => patch(u.id, { roleCode: e.target.value })}
-                  >
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 max-w-md">
                     {ROLE_CODES.map((c) => (
-                      <option key={c} value={c}>
+                      <label key={c} className="flex items-center gap-1 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={u.roleCodes.includes(c)}
+                          onChange={() => patch(u.id, { roleCodes: toggle(u.roleCodes, c) })}
+                        />
                         {ROLE_MATRIX[c].label}
-                      </option>
+                      </label>
                     ))}
-                  </select>
+                  </div>
                 </td>
                 <td>{u.isActive ? "активен" : "заблокирован"}</td>
                 <td className="space-x-2 whitespace-nowrap">
-                  <button
-                    className="text-xs underline"
-                    onClick={() => patch(u.id, { isActive: !u.isActive })}
-                  >
+                  <button className="text-xs underline" onClick={() => patch(u.id, { isActive: !u.isActive })}>
                     {u.isActive ? "Заблокировать" : "Активировать"}
                   </button>
                   <button
@@ -186,6 +181,9 @@ export default function UsersAdminPage() {
                     }}
                   >
                     Сбросить пароль
+                  </button>
+                  <button className="text-xs underline text-destructive" onClick={() => remove(u.id, u.email)}>
+                    Удалить
                   </button>
                 </td>
               </tr>

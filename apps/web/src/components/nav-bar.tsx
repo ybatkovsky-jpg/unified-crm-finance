@@ -26,15 +26,20 @@ const navItems = [
   { label: "Аналитика", href: "/analytics" },
 ]
 
+interface MeUser {
+  name?: string
+  roleCodes?: string[]
+}
+
 export function NavBar() {
   const pathname = usePathname()
   const router = useRouter()
-  const [me, setMe] = useState<{ name?: string; roleCode?: string } | null>(null)
+  const [me, setMe] = useState<MeUser | null>(null)
 
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => r.json())
-      .then((d: { user?: { name?: string; roleCode?: string } }) => setMe(d.user ?? null))
+      .then((d: { user?: MeUser }) => setMe(d.user ?? null))
       .catch(() => setMe(null))
   }, [pathname])
 
@@ -76,7 +81,7 @@ export function NavBar() {
         })}
         <div className="flex-1" />
         <NotificationBell />
-        {me?.roleCode === "director" && (
+        {me?.roleCodes?.includes("director") && (
           <Link
             href="/settings/users"
             className={cn(

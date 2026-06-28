@@ -5,10 +5,10 @@ import { getSession } from '@/lib/auth/session';
 import { hashPassword } from '@/lib/auth/password';
 import { isRoleCode } from '@/lib/auth/roles';
 
-/** Только директор управляет пользователями. */
+/** Управление пользователями — только директор. */
 async function requireDirector() {
   const session = await getSession();
-  if (!session || session.roleCode !== 'director') return null;
+  if (!session || !session.roleCodes.includes('director')) return null;
   return session;
 }
 
@@ -34,8 +34,8 @@ export async function GET() {
     name: u.name,
     isActive: u.isActive,
     lastLoginAt: u.lastLoginAt,
-    roleCode: u.UserRole[0]?.Role.code ?? null,
-    roleName: u.UserRole[0]?.Role.name ?? null,
+    roleCodes: u.UserRole.map((ur) => ur.Role.code).filter(isRoleCode),
+    roleNames: u.UserRole.map((ur) => ur.Role.name),
   }));
   return NextResponse.json({ data });
 }
@@ -48,11 +48,16 @@ export async function POST(request: Request) {
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
   const name = typeof body.name === 'string' ? body.name.trim() : '';
   const password = typeof body.password === 'string' ? body.password : '';
-  const roleCode = typeof body.roleCode === 'string' ? body.roleCode : '';
+  const rawRoles = Array.isArray(body.roleCodes)
+    ? body.roleCodes
+    : typeof body.roleCode === 'string'
+      ? [body.roleCode]
+      : [];
+  const roleCodes = rawRoles.filter((c: unknown): c is string => typeof c === 'string').filter(isRoleCode);
 
-  if (!email || !name || password.length < 4 || !isRoleCode(roleCode)) {
+  if (!email || !name || password.length < 4 || roleCodes.length === 0) {
     return NextResponse.json(
-      { error: 'Укажите email, ФИО, пароль (≥4 симв.) и роль' },
+      { error: 'Укажите email, ФИО, пароль (≥4 симв.) и хотя бы одну роль' },
       { status: 400 }
     );
   }
@@ -61,9 +66,9 @@ export async function POST(request: Request) {
   if (existing) {
     return NextResponse.json({ error: 'Пользователь с таким email уже есть' }, { status: 400 });
   }
-  const role = await prisma.role.findUnique({ where: { code: roleCode } });
-  if (!role) {
-    return NextResponse.json({ error: 'Роль не найдена' }, { status: 400 });
+  const roles = await prisma.role.findMany({ where: { code: { in: roleCodes } } });
+  if (roles.length !== roleCodes.length) {
+    return NextResponse.json({ error: 'Одна из ролей не найдена' }, { status: 400 });
   }
 
   const userId = randomUUID();
@@ -75,9 +80,9 @@ export async function POST(request: Request) {
       passwordHash: await hashPassword(password),
       isActive: true,
       updatedAt: new Date(),
-      UserRole: { create: { roleId: role.id } },
+      UserRole: { create: roles.map((r) => ({ roleId: r.id })) },
     },
   });
 
-  return NextResponse.json({ user: { id: userId, email, name, roleCode } }, { status: 201 });
+  return NextResponse.json({ user: { id: userId, email, name, roleCodes } }, { status: 201 });
 }

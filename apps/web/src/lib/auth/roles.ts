@@ -1,7 +1,7 @@
 /**
  * Матрица ролей и прав (PRODUCT-SPEC п.1).
- * Единый источник правды: используется в middleware (section-RBAC),
- * UI (видимость меню) и seed (Role.permissions).
+ * Единый источник правды: middleware (section-RBAC), UI (видимость меню), seed.
+ * Пользователь может иметь НЕСКОЛЬКО ролей — права = объединение (union).
  */
 
 export type RoleCode =
@@ -37,7 +37,7 @@ export const ROLE_MATRIX: Record<RoleCode, RoleSpec> = {
   manager_designer: {
     label: 'Менеджер-дизайнер',
     sections: ['crm', 'projects', 'procurement', 'finance', 'analytics'],
-    viewAllProjects: false, // только свои проекты
+    viewAllProjects: false,
   },
   technologist: {
     label: 'Технолог',
@@ -52,7 +52,7 @@ export const ROLE_MATRIX: Record<RoleCode, RoleSpec> = {
   installer: {
     label: 'Монтажник',
     sections: ['projects', 'analytics'],
-    viewAllProjects: false, // свои задачи/проекты
+    viewAllProjects: false,
   },
   accountant: {
     label: 'Бухгалтер',
@@ -72,6 +72,25 @@ export function isRoleCode(code: string): code is RoleCode {
   return code in ROLE_MATRIX;
 }
 
+/** Список ролей → объединение доступных разделов. */
+export function effectiveSections(roleCodes: RoleCode[]): Section[] {
+  const set = new Set<Section>();
+  for (const code of roleCodes) {
+    for (const s of ROLE_MATRIX[code].sections) set.add(s);
+  }
+  return [...set];
+}
+
+/** Видит ВСЕ проекты, если хотя бы одна роль это разрешает. */
+export function canViewAllProjects(roleCodes: RoleCode[]): boolean {
+  return roleCodes.some((c) => ROLE_MATRIX[c]?.viewAllProjects);
+}
+
+/** Есть ли доступ к разделу по любому из ролей. */
+export function hasSection(roleCodes: RoleCode[], section: Section): boolean {
+  return roleCodes.some((c) => ROLE_MATRIX[c]?.sections.includes(section));
+}
+
 /** Маппинг пути → раздел (для middleware RBAC). */
 export function pathToSection(pathname: string): Section | null {
   if (
@@ -88,5 +107,5 @@ export function pathToSection(pathname: string): Section | null {
   if (pathname.startsWith('/accounting')) return 'accounting';
   if (pathname.startsWith('/analytics')) return 'analytics';
   if (pathname.startsWith('/settings')) return 'settings';
-  return null; // '/', /login и прочее — проверяется на уровне auth-gate
+  return null;
 }

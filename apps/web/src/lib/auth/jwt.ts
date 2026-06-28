@@ -1,9 +1,5 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-/**
- * JWT-сессия (jose — Edge-compatible, работает в middleware).
- * Секрет — AUTH_SECRET из env (fallback на dev-секрет только вне прод).
- */
 const SECRET = new TextEncoder().encode(
   process.env.AUTH_SECRET || 'dev-insecure-secret-change-me'
 );
@@ -14,11 +10,11 @@ export interface SessionPayload {
   sub: string; // user id
   email: string;
   name: string;
-  roleCode: string;
+  roleCodes: string[]; // может быть несколько ролей
 }
 
 export async function signSession(p: SessionPayload): Promise<string> {
-  return new SignJWT({ email: p.email, name: p.name, roleCode: p.roleCode })
+  return new SignJWT({ email: p.email, name: p.name, roleCodes: p.roleCodes })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(p.sub)
     .setIssuedAt()
@@ -34,11 +30,16 @@ export async function verifySession(token: string): Promise<SessionPayload | nul
       issuer: ISSUER,
       audience: AUDIENCE,
     });
+    const roleCodes = Array.isArray(payload.roleCodes)
+      ? (payload.roleCodes as string[])
+      : typeof payload.roleCodes === 'string'
+        ? [payload.roleCodes]
+        : [];
     return {
       sub: payload.sub as string,
       email: payload.email as string,
       name: payload.name as string,
-      roleCode: payload.roleCode as string,
+      roleCodes,
     };
   } catch {
     return null;

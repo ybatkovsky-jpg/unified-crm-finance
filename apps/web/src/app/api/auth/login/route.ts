@@ -22,10 +22,11 @@ export async function POST(request: Request) {
       name: true,
       passwordHash: true,
       isActive: true,
+      deletedAt: true,
       UserRole: { select: { Role: { select: { code: true } } } },
     },
   });
-  if (!user || !user.isActive) {
+  if (!user || !user.isActive || user.deletedAt) {
     return NextResponse.json({ error: 'Неверный email или пароль' }, { status: 401 });
   }
 
@@ -34,12 +35,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Неверный email или пароль' }, { status: 401 });
   }
 
-  const roleCode = user.UserRole[0]?.Role.code ?? '';
-  if (!isRoleCode(roleCode)) {
+  const roleCodes = user.UserRole.map((ur) => ur.Role.code).filter(isRoleCode);
+  if (roleCodes.length === 0) {
     return NextResponse.json({ error: 'У пользователя не назначена роль' }, { status: 403 });
   }
 
-  const token = await signSession({ sub: user.id, email: user.email, name: user.name, roleCode });
+  const token = await signSession({
+    sub: user.id,
+    email: user.email,
+    name: user.name,
+    roleCodes,
+  });
   const store = await cookies();
   store.set(SESSION_COOKIE, token, sessionCookieOptions);
 
@@ -49,6 +55,6 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json({
-    user: { id: user.id, email: user.email, name: user.name, roleCode },
+    user: { id: user.id, email: user.email, name: user.name, roleCodes },
   });
 }

@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySession } from '@/lib/auth/jwt';
 import { SESSION_COOKIE } from '@/lib/auth/cookies';
-import { pathToSection, isRoleCode, ROLE_MATRIX } from '@/lib/auth/roles';
+import {
+  pathToSection,
+  isRoleCode,
+  ROLE_MATRIX,
+  effectiveSections,
+} from '@/lib/auth/roles';
 
 const PUBLIC = new Set(['/login', '/api/health']);
 const PUBLIC_PREFIXES = ['/api/auth/', '/_next/'];
@@ -16,9 +21,10 @@ const SECTION_HOME: Record<string, string> = {
   settings: '/settings',
 };
 
-function roleHome(roleCode: string): string {
-  const spec = isRoleCode(roleCode) ? ROLE_MATRIX[roleCode] : null;
-  const first = spec?.sections[0] ?? 'crm';
+function roleHome(rawRoleCodes: string[]): string {
+  const codes = rawRoleCodes.filter(isRoleCode);
+  const sections = effectiveSections(codes);
+  const first = sections[0] ?? 'crm';
   return SECTION_HOME[first] ?? '/deals';
 }
 
@@ -35,6 +41,7 @@ export async function middleware(request: NextRequest) {
 
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const payload = token ? await verifySession(token) : null;
+  const roleCodes = (payload?.roleCodes ?? []).filter(isRoleCode);
 
   // API — без сессии 401
   if (pathname.startsWith('/api/')) {
@@ -54,15 +61,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Section-RBAC: роль не имеет раздела → редирект на её домашний раздел
+  // Section-RBAC: доступ через ЛЮБУЮ из ролей (union)
   const section = pathToSection(pathname);
-  if (
-    section &&
-    isRoleCode(payload.roleCode) &&
-    !ROLE_MATRIX[payload.roleCode].sections.includes(section)
-  ) {
+  if (section && !roleCodes.some((c) => ROLE_MATRIX[c]?.sections.includes(section))) {
     const url = request.nextUrl.clone();
-    url.pathname = roleHome(payload.roleCode);
+    url.pathname = roleHome(payload.roleCodes);
     url.search = '';
     return NextResponse.redirect(url);
   }
