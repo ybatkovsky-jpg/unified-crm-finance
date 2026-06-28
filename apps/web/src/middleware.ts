@@ -61,6 +61,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Сессия есть, но ролей нет (старый токен после смены схемы / сбой) — на /login, чистим cookie
+  if (roleCodes.length === 0) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    url.searchParams.set('next', pathname);
+    const res = NextResponse.redirect(url);
+    res.cookies.delete(SESSION_COOKIE);
+    return res;
+  }
+
   // Section-RBAC: доступ через ЛЮБУЮ из ролей (union)
   const section = pathToSection(pathname);
   if (section && !roleCodes.some((c) => ROLE_MATRIX[c]?.sections.includes(section))) {
