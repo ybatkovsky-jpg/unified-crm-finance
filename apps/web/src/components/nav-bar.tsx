@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -27,6 +27,16 @@ const navItems = [
 
 export function NavBar() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  // На странице входа навигация не нужна
+  if (pathname === "/login") return null
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" })
+    router.push("/login")
+    router.refresh()
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background">
@@ -57,6 +67,12 @@ export function NavBar() {
         })}
         <div className="flex-1" />
         <NotificationBell />
+        <button
+          onClick={handleLogout}
+          className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+        >
+          Выйти
+        </button>
       </nav>
     </header>
   )

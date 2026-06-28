@@ -23,34 +23,46 @@ async function main() {
   // === Роли ===
   const roles = [
     {
-      code: 'owner',
-      name: 'Владелец',
+      code: 'director',
+      name: 'Директор',
       description: 'Полный доступ ко всему',
-      permissions: ['*'],
+      permissions: { sections: ['crm', 'projects', 'procurement', 'finance', 'accounting', 'analytics', 'settings'], viewAllProjects: true },
     },
     {
-      code: 'sales',
-      name: 'Менеджер по продажам',
-      description: 'Работает с контактами и сделками',
-      permissions: ['contact:*', 'deal:*', 'interaction:*'],
+      code: 'manager_designer',
+      name: 'Менеджер-дизайнер',
+      description: 'Сделки, КП, договоры; ведёт проект от и до',
+      permissions: { sections: ['crm', 'projects', 'procurement', 'finance', 'analytics'], viewAllProjects: false },
     },
     {
-      code: 'manager',
-      name: 'Менеджер проектов',
-      description: 'Ведёт проекты и закупки',
-      permissions: ['project:*', 'bom:*', 'purchase:*', 'invoice:*', 'warehouse:read'],
+      code: 'technologist',
+      name: 'Технолог',
+      description: 'Замер #2, ТЗ/спецификация, контроль производства',
+      permissions: { sections: ['projects', 'procurement', 'analytics'], viewAllProjects: true },
+    },
+    {
+      code: 'supply',
+      name: 'Снабженец',
+      description: 'Закупки, поставщики, склад',
+      permissions: { sections: ['projects', 'procurement', 'finance', 'analytics'], viewAllProjects: true },
+    },
+    {
+      code: 'installer',
+      name: 'Монтажник',
+      description: 'Монтаж, сдача акта физлицам',
+      permissions: { sections: ['projects', 'analytics'], viewAllProjects: false },
     },
     {
       code: 'accountant',
       name: 'Бухгалтер',
-      description: 'Финансы, импорт выписок',
-      permissions: ['transaction:*', 'budget:*', 'invoice:*', 'report:*'],
+      description: 'Финансы, оплаты, отчёты',
+      permissions: { sections: ['finance', 'accounting', 'analytics', 'procurement'], viewAllProjects: true },
     },
     {
       code: 'storekeeper',
       name: 'Кладовщик',
       description: 'Склад, приёмка, списание',
-      permissions: ['warehouse:*', 'delivery:*'],
+      permissions: { sections: ['procurement'], viewAllProjects: false },
     },
   ];
 
@@ -77,12 +89,13 @@ async function main() {
       updatedAt: now(),
     },
   });
-  const ownerRole = await prisma.role.findUnique({ where: { code: 'owner' } });
+  const ownerRole = await prisma.role.findUnique({ where: { code: 'director' } });
   if (ownerRole) {
     await prisma.userRole.upsert({
       where: { userId_roleId: { userId: owner.id, roleId: ownerRole.id } },
       update: {},
-      create: { id: mkId(), userId: owner.id, roleId: ownerRole.id, updatedAt: now() },
+      // UserRole has composite @@id([userId, roleId]) — no `id`/`updatedAt` fields
+      create: { userId: owner.id, roleId: ownerRole.id },
     });
   }
   console.log('  ✓ Owner user: admin@local / admin123');
@@ -101,7 +114,8 @@ async function main() {
     await prisma.leadSource.upsert({
       where: { code: s.code },
       update: s,
-      create: { ...s, id: mkId(), updatedAt: now() },
+      // LeadSource has no updatedAt field
+      create: { ...s, id: mkId() },
     });
   }
   console.log(`  ✓ Lead sources: ${sources.length}`);
@@ -116,7 +130,7 @@ async function main() {
       name: 'Воронка по умолчанию',
       description: 'Стандартная воронка B2B-продаж',
       isActive: true,
-      updatedAt: now(),
+      // Pipeline has no updatedAt field
     },
   });
 
@@ -134,7 +148,8 @@ async function main() {
     await prisma.dealStage.upsert({
       where: { pipelineId_code: { pipelineId: pipeline.id, code: s.code } },
       update: s,
-      create: { ...s, id: mkId(), pipelineId: pipeline.id, updatedAt: now() },
+      // DealStage has no updatedAt field
+      create: { ...s, id: mkId(), pipelineId: pipeline.id },
     });
   }
   console.log(`  ✓ Default pipeline with ${stages.length} stages`);
