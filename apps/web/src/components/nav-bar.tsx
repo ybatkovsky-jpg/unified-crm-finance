@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -28,6 +29,14 @@ const navItems = [
 export function NavBar() {
   const pathname = usePathname()
   const router = useRouter()
+  const [me, setMe] = useState<{ name?: string; roleCode?: string } | null>(null)
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d: { user?: { name?: string; roleCode?: string } }) => setMe(d.user ?? null))
+      .catch(() => setMe(null))
+  }, [pathname])
 
   // На странице входа навигация не нужна
   if (pathname === "/login") return null
@@ -67,6 +76,22 @@ export function NavBar() {
         })}
         <div className="flex-1" />
         <NotificationBell />
+        {me?.roleCode === "director" && (
+          <Link
+            href="/settings/users"
+            className={cn(
+              buttonVariants({
+                variant: pathname.startsWith("/settings") ? "secondary" : "ghost",
+                size: "sm",
+              })
+            )}
+          >
+            Пользователи
+          </Link>
+        )}
+        {me?.name && (
+          <span className="text-xs text-muted-foreground hidden sm:inline">{me.name}</span>
+        )}
         <button
           onClick={handleLogout}
           className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
