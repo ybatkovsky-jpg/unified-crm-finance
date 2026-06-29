@@ -27,10 +27,13 @@ export class CategoryRepository {
    * Suitable for building a tree in the UI.
    */
   async findTree(): Promise<Category[]> {
-    return prisma.category.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends → TS2321 excessive stack depth).
+    const args: Prisma.CategoryFindManyArgs = {
       where: { isActive: true },
       orderBy: [{ parentId: { sort: 'asc', nulls: 'first' } }, { order: 'asc' }],
-    });
+    };
+    return prisma.category.findMany(args);
   }
 
   /**
@@ -186,7 +189,7 @@ export class CategoryRepository {
       if (visited.has(currentId)) return true; // already a cycle in DB
       visited.add(currentId);
 
-      const cat = await prisma.category.findUnique({
+      const cat: { parentId: string | null } | null = await prisma.category.findUnique({
         where: { id: currentId },
         select: { parentId: true },
       });

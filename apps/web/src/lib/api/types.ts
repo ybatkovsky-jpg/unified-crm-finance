@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction, Delivery, Budget, Transaction, CashFlowPayment } from '@prisma/client';
+import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction, Delivery, Budget, Transaction, CashFlowPayment, Category } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -238,7 +238,9 @@ export interface DealHistoryData {
 /**
  * Deal data with relations
  */
-export interface DealData extends Omit<Deal, 'deletedAt'> {
+export interface DealData extends Omit<Deal, 'deletedAt' | 'amount'> {
+  // amount: Prisma.Decimal в БД, но API возвращает number (см. lib/db/decimal-extension.ts)
+  amount: number;
   stage: DealStageData;
   pipeline: PipelineData;
   contact?: ContactData | null;
@@ -341,7 +343,9 @@ export interface DealMoveInput {
 /**
  * Contract data with relations
  */
-export interface ContractData extends Omit<Contract, 'deletedAt'> {
+export interface ContractData extends Omit<Contract, 'deletedAt' | 'amount'> {
+  // amount: Prisma.Decimal в БД → number в API (см. lib/db/decimal-extension.ts)
+  amount: number;
   contact?: ContactData | null;
   deal?: DealData | null;
   template?: ContractTemplateData | null;
@@ -443,7 +447,9 @@ export interface DealConvertInput {
 /**
  * Project data with relations
  */
-export interface ProjectData extends Omit<Project, 'deletedAt'> {
+export interface ProjectData extends Omit<Project, 'deletedAt' | 'contractAmount'> {
+  // contractAmount: Prisma.Decimal в БД → number в API (см. lib/db/decimal-extension.ts)
+  contractAmount: number;
   manager?: UserData | null;
   contact?: ContactData | null;
   deal?: DealData | null;
@@ -665,7 +671,12 @@ export interface BOMData extends Omit<BOM, 'BOMItem'> {
 /**
  * BOM item data (mirrors Prisma BOMItem model without heavy relations)
  */
-export type BOMItemData = Omit<BOMItem, 'BOM' | 'InvoiceItem' | 'PurchaseRequestItem' | 'WarehouseTransaction'> & {
+export type BOMItemData = Omit<
+  BOMItem,
+  'BOM' | 'InvoiceItem' | 'PurchaseRequestItem' | 'WarehouseTransaction' | 'price'
+> & {
+  // price: Prisma.Decimal в БД → number в API (см. lib/db/decimal-extension.ts)
+  price: number;
   supplier?: CounterpartyData | null;
 };
 
@@ -755,8 +766,10 @@ export interface PurchaseRequestData extends Omit<PurchaseRequest, 'PurchaseRequ
  */
 export type PurchaseRequestItemData = Omit<
   PurchaseRequestItem,
-  'BOMItem' | 'PurchaseRequest'
+  'BOMItem' | 'PurchaseRequest' | 'price'
 > & {
+  // price: Prisma.Decimal в БД → number в API (см. lib/db/decimal-extension.ts)
+  price: number;
   bomItem?: BOMItemData | null;
 };
 
@@ -821,14 +834,19 @@ export interface PurchaseRequestUpdateInput {
 export type InvoiceStatus = 'received' | 'verified' | 'discrepancy' | 'approved';
 
 /** Invoice data with optional relations */
-export interface InvoiceData extends Omit<Invoice, 'InvoiceItem'> {
+export interface InvoiceData extends Omit<Invoice, 'InvoiceItem' | 'totalAmount'> {
+  // totalAmount: Prisma.Decimal в БД → number в API (см. lib/db/decimal-extension.ts)
+  totalAmount: number;
   supplier?: CounterpartyData | null;
   project?: ProjectData | null;
   items?: InvoiceItemData[];
 }
 
 /** Invoice line data (mirrors Prisma InvoiceItem without heavy relations) */
-export type InvoiceItemData = Omit<InvoiceItem, 'BOMItem' | 'Invoice'> & {
+export type InvoiceItemData = Omit<InvoiceItem, 'BOMItem' | 'Invoice' | 'price' | 'totalPrice'> & {
+  // price/totalPrice: Prisma.Decimal в БД → number в API (см. lib/db/decimal-extension.ts)
+  price: number;
+  totalPrice: number | null;
   bomItem?: BOMItemData | null;
 };
 
@@ -883,7 +901,9 @@ export interface ApprovalUserData {
 }
 
 /** ApprovalRequest data with resolved requester/decider users */
-export interface ApprovalRequestData extends Omit<ApprovalRequest, never> {
+export interface ApprovalRequestData extends Omit<ApprovalRequest, 'amount'> {
+  // amount: Prisma.Decimal? в БД → number | null в API (см. lib/db/decimal-extension.ts)
+  amount: number | null;
   requester?: ApprovalUserData | null;
   decider?: ApprovalUserData | null;
 }
@@ -1043,7 +1063,9 @@ export interface CategoryUpdateInput {
 /**
  * Budget data (mirrors Prisma Budget model with optional relations)
  */
-export type BudgetData = Budget & {
+export type BudgetData = Omit<Budget, 'amount'> & {
+  // amount: Prisma.Decimal в БД → number в API (см. lib/db/decimal-extension.ts)
+  amount: number;
   Category?: { id: string; name: string; type: string } | null;
   Project?: { id: string; name: string } | null;
 };
@@ -1084,7 +1106,9 @@ export interface BudgetUpdateInput {
 /**
  * Transaction data with optional relation includes
  */
-export type TransactionData = Transaction & {
+export type TransactionData = Omit<Transaction, 'amount'> & {
+  // amount: Prisma.Decimal в БД → number в API (см. lib/db/decimal-extension.ts)
+  amount: number;
   Category?: { id: string; name: string; type: string } | null;
   Project?: { id: string; name: string } | null;
   Counterparty?: { id: string; name: string } | null;
@@ -1143,7 +1167,9 @@ export interface TransactionUpdateInput {
 
 // ─── CashFlowPayment ────────────────────────────────────────
 
-export type CashFlowPaymentData = CashFlowPayment & {
+export type CashFlowPaymentData = Omit<CashFlowPayment, 'amount'> & {
+  // amount: Prisma.Decimal в БД → number в API (см. lib/db/decimal-extension.ts)
+  amount: number;
   Project?: { id: string; name: string } | null;
   Counterparty?: { id: string; name: string } | null;
 };

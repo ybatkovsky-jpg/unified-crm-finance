@@ -44,13 +44,17 @@ export class ContactRepository {
   async findMany(params?: ContactFindManyParams): Promise<Contact[]> {
     const { where, ...rest } = params ?? {};
 
-    return prisma.contact.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends + спред локального типа → TS2321 excessive stack depth).
+    const args: Prisma.ContactFindManyArgs = {
       ...rest,
       where: {
         ...where,
         deletedAt: null, // Always exclude soft-deleted
       },
-    });
+    };
+
+    return prisma.contact.findMany(args);
   }
 
   /**
@@ -61,10 +65,13 @@ export class ContactRepository {
     id: string,
     include?: Prisma.ContactInclude
   ): Promise<Contact | null> {
-    return prisma.contact.findFirst({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends + спред локального типа → TS2321 excessive stack depth).
+    const args: Prisma.ContactFindFirstArgs = {
       where: { id, deletedAt: null },
       include,
-    });
+    };
+    return prisma.contact.findFirst(args);
   }
 
   /**

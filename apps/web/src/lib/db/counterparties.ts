@@ -44,27 +44,34 @@ export class CounterpartyRepository {
   async findMany(params?: CounterpartyFindManyParams): Promise<Counterparty[]> {
     const { where, ...rest } = params ?? {};
 
-    return prisma.counterparty.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends + спред локального типа → TS2321 excessive stack depth).
+    const args: Prisma.CounterpartyFindManyArgs = {
       ...rest,
       where: {
         ...where,
         deletedAt: null, // Always exclude soft-deleted
       },
-    });
+    };
+
+    return prisma.counterparty.findMany(args);
   }
 
   /**
    * Find a single counterparty by ID
    * Returns null if not found or soft-deleted
    */
-  async findUnique(
+  async findUnique<I extends Prisma.CounterpartyInclude>(
     id: string,
-    include?: Prisma.CounterpartyInclude
-  ): Promise<Counterparty | null> {
-    return prisma.counterparty.findFirst({
+    include?: I
+  ): Promise<Prisma.CounterpartyGetPayload<{ include: I }> | null> {
+    const args: Prisma.CounterpartyFindFirstArgs = {
       where: { id, deletedAt: null },
       include,
-    });
+    };
+    return prisma.counterparty.findFirst(args) as Promise<
+      Prisma.CounterpartyGetPayload<{ include: I }> | null
+    >;
   }
 
   /**

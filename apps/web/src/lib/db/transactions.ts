@@ -86,7 +86,9 @@ export class TransactionRepository {
       where.deletedAt = null;
     }
 
-    return prisma.transaction.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends → TS2321 excessive stack depth).
+    const args: Prisma.TransactionFindManyArgs = {
       where,
       include: {
         Category: { select: { id: true, name: true, type: true } },
@@ -97,7 +99,8 @@ export class TransactionRepository {
       orderBy: { date: 'desc' },
       skip,
       take,
-    });
+    };
+    return prisma.transaction.findMany(args);
   }
 
   /**

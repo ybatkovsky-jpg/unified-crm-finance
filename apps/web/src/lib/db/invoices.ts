@@ -118,7 +118,9 @@ export class InvoiceRepository {
     supplierId?: string;
     status?: InvoiceStatus | string;
   } = {}): Promise<InvoiceWithRelations[]> {
-    return prisma.invoice.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends + спред локального типа → TS2321 excessive stack depth).
+    const args: Prisma.InvoiceFindManyArgs = {
       where: {
         projectId: filters.projectId,
         supplierId: filters.supplierId,
@@ -126,7 +128,8 @@ export class InvoiceRepository {
       },
       orderBy: { createdAt: 'desc' },
       include: { Counterparty: true, Project: true },
-    });
+    };
+    return prisma.invoice.findMany(args) as Promise<InvoiceWithRelations[]>;
   }
 
   async update(id: string, data: InvoiceUpdateInput): Promise<Invoice> {
@@ -145,7 +148,7 @@ export class InvoiceRepository {
   /** Sum item qty*price and persist to totalAmount. Returns the updated invoice. */
   async recomputeTotal(id: string): Promise<Invoice> {
     const items = await prisma.invoiceItem.findMany({ where: { invoiceId: id } });
-    const total = items.reduce((sum, it) => sum + (it.quantity || 0) * (it.price || 0), 0);
+    const total = items.reduce((sum, it) => sum + (it.quantity || 0) * Number(it.price || 0), 0);
     return prisma.invoice.update({
       where: { id },
       data: { totalAmount: total, updatedAt: new Date() },

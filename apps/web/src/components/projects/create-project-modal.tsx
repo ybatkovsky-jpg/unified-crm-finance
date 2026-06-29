@@ -54,10 +54,10 @@ const CURRENCY_OPTIONS = [
   { value: "EUR", label: "EUR" },
 ]
 
-// MVP: hardcoded manager list
-const MANAGER_OPTIONS = [
-  { value: "1", label: "Admin" },
-]
+interface ManagerOption {
+  value: string
+  label: string
+}
 
 export function CreateProjectModal({ onCreate }: CreateProjectModalProps) {
   const [open, setOpen] = useState(false)
@@ -74,7 +74,10 @@ export function CreateProjectModal({ onCreate }: CreateProjectModalProps) {
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [marginTarget, setMarginTarget] = useState("0.25")
-  const [managerId, setManagerId] = useState("1")
+  const [managerId, setManagerId] = useState("")
+
+  // Managers list (real users, loaded from /api/users/list)
+  const [managers, setManagers] = useState<ManagerOption[]>([])
 
   // Searchable dropdowns data
   const [contacts, setContacts] = useState<ContactData[]>([])
@@ -95,10 +98,22 @@ export function CreateProjectModal({ onCreate }: CreateProjectModalProps) {
   useEffect(() => {
     if (open) {
       Promise.all([
+        fetch("/api/users/list").then((r) => r.json()),
         contactsApi.getContacts({}).then((res) => setContacts(res.data.slice(0, 50))),
         contractsApi.getContracts({}).then((res) => setContracts(res.data.slice(0, 50))),
         dealsApi.getDeals({}).then((res) => setDeals(res.data.slice(0, 50))),
-      ]).catch((err) => console.error("Failed to fetch dropdown data:", err))
+      ])
+        .then(([usersRes]) => {
+          if (usersRes?.data) {
+            setManagers(
+              usersRes.data.map((u: { id: string; name: string | null; email: string }) => ({
+                value: u.id,
+                label: u.name || u.email,
+              }))
+            )
+          }
+        })
+        .catch((err) => console.error("Failed to fetch dropdown data:", err))
     }
   }, [open])
 
@@ -124,7 +139,7 @@ export function CreateProjectModal({ onCreate }: CreateProjectModalProps) {
     setStartDate("")
     setEndDate("")
     setMarginTarget("0.25")
-    setManagerId("1")
+    setManagerId("")
     setSelectedContact(null)
     setSelectedContract(null)
     setSelectedDeal(null)
@@ -258,12 +273,13 @@ export function CreateProjectModal({ onCreate }: CreateProjectModalProps) {
 
               <div className="grid gap-2">
                 <Label htmlFor="managerId">Менеджер</Label>
-                <Select value={managerId} onValueChange={(value) => setManagerId(value ?? "1")}>
+                <Select value={managerId} onValueChange={(value) => setManagerId(value ?? "")}>
                   <SelectTrigger id="managerId">
-                    <SelectValue />
+                    <SelectValue placeholder="Не выбран" />
                   </SelectTrigger>
                   <SelectContent>
-                    {MANAGER_OPTIONS.map((option) => (
+                    <SelectItem value="">Не выбран</SelectItem>
+                    {managers.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -464,7 +480,7 @@ export function CreateProjectModal({ onCreate }: CreateProjectModalProps) {
                           <span className="flex-1 truncate">{deal.title}</span>
                           {deal.amount && (
                             <Badge variant="outline" className="text-[10px] shrink-0">
-                              {deal.currency} {deal.amount}
+                              {deal.currency} {Number(deal.amount)}
                             </Badge>
                           )}
                         </button>

@@ -1,9 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
-export default function LoginPage() {
+/**
+ * Inner login form. Extracted so `useSearchParams()` runs inside a Suspense
+ * boundary — required by Next for pages that can be statically prerendered.
+ */
+function LoginForm() {
   const router = useRouter()
   const params = useSearchParams()
   const [email, setEmail] = useState("admin@local")
@@ -90,5 +94,17 @@ export default function LoginPage() {
         </p>
       </form>
     </div>
+  )
+}
+
+/**
+ * Default export — wraps the form in a Suspense boundary so the page can be
+ * statically prerendered despite `useSearchParams()` usage.
+ */
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   )
 }

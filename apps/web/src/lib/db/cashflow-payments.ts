@@ -64,7 +64,9 @@ export class CashFlowPaymentRepository {
       where.dueDate = { lte: new Date(filters.dueBefore) };
     }
 
-    return prisma.cashFlowPayment.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends → TS2321 excessive stack depth).
+    const args: Prisma.CashFlowPaymentFindManyArgs = {
       where,
       include: {
         Project: { select: { id: true, name: true } },
@@ -73,7 +75,8 @@ export class CashFlowPaymentRepository {
       orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
       skip,
       take,
-    });
+    };
+    return prisma.cashFlowPayment.findMany(args);
   }
 
   async countWithFilters(filters: CashFlowPaymentFilters): Promise<number> {

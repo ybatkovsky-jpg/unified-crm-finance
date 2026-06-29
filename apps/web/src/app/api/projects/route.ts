@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { projects } from '../../../lib/db/projects'
+import { mapErrorToResponse } from '../../../lib/api/error-mapping'
 
 /**
  * GET /api/projects
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // Prepare creation data
+    // Prepare creation data (fields aligned with ProjectCreateInput api type)
     const createData = {
       name: body.name,
       externalNumber: body.externalNumber,
@@ -100,10 +101,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       managerId: body.managerId || null,
       contactId: body.contactId || null,
       dealId: body.dealId || null,
+      contractId: body.contractId || null,
       startDate: body.startDate || null,
       endDate: body.endDate || null,
       contractAmount: body.contractAmount || 0,
       currency: body.currency ?? 'RUB',
+      marginTarget: body.marginTarget ?? undefined,
       attributes: body.attributes || null,
     }
 
@@ -111,10 +114,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ data: newProject }, { status: 201 })
   } catch (error) {
-    console.error('Failed to create project:', error)
-    return NextResponse.json(
-      { error: 'Failed to create project', message: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    )
+    return mapErrorToResponse(error, 'create project')
   }
 }

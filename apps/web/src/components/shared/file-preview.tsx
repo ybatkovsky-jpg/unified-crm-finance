@@ -250,12 +250,12 @@ export function FilePreview({
                 </Button>
               </>
             )}
-            <DialogClose asChild>
+            <DialogClose render={
               <Button variant="ghost" size="icon-sm" title="Close">
                 <XIcon className="size-4" />
                 <span className="sr-only">Close</span>
               </Button>
-            </DialogClose>
+            } />
           </div>
         </DialogHeader>
 

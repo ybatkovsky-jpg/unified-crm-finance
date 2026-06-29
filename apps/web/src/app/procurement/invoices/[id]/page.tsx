@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, use } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeftIcon, RefreshCwIcon, CheckCircle2Icon, UnlinkIcon, BanknoteIcon } from "lucide-react"
@@ -40,8 +40,7 @@ const STATUS_LABELS: Record<InvoiceStatus, string> = {
 }
 
 export default function InvoiceReconcilePage() {
-  const params = useParams<{ id: string }>()
-  const { id } = use(params)
+  const { id } = useParams<{ id: string }>()
 
   const [invoice, setInvoice] = useState<InvoiceData | null>(null)
   const [items, setItems] = useState<InvoiceItemData[]>([])
@@ -134,7 +133,7 @@ export default function InvoiceReconcilePage() {
     setError(null)
     try {
       await invoicesApi.payInvoice(id, {
-        amount: invoice.totalAmount,
+        amount: Number(invoice.totalAmount),
         description: `Оплата счёта ${invoice.invoiceNumber || invoice.number}`,
       })
       await refreshInvoice()
@@ -234,7 +233,7 @@ export default function InvoiceReconcilePage() {
                     <TableRow key={it.id}>
                       <TableCell className="font-medium">{it.name}</TableCell>
                       <TableCell>{it.quantity}</TableCell>
-                      <TableCell>{(it.price ?? 0).toLocaleString("ru-RU")}</TableCell>
+                      <TableCell>{Number(it.price ?? 0).toLocaleString("ru-RU")}</TableCell>
                       <TableCell>
                         {status === "approved" ? (
                           <span className="text-sm">

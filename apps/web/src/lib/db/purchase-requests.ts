@@ -135,7 +135,9 @@ export class PurchaseRequestRepository {
     supplierId?: string;
     status?: PurchaseRequestStatus | string;
   } = {}): Promise<PurchaseRequestWithRelations[]> {
-    return prisma.purchaseRequest.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends → TS2321 excessive stack depth).
+    const args: Prisma.PurchaseRequestFindManyArgs = {
       where: {
         projectId: filters.projectId,
         supplierId: filters.supplierId,
@@ -143,7 +145,8 @@ export class PurchaseRequestRepository {
       },
       orderBy: { createdAt: 'desc' },
       include: { Counterparty: true, Project: true },
-    });
+    };
+    return prisma.purchaseRequest.findMany(args) as Promise<PurchaseRequestWithRelations[]>;
   }
 
   async update(id: string, data: PurchaseRequestUpdateInput): Promise<PurchaseRequest> {

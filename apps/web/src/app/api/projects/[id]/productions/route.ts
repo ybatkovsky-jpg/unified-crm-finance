@@ -11,7 +11,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { productions } from '@/lib/db/production'
+import type { ProductionCreateInput } from '@/lib/db/production'
 import { prisma } from '@/lib/db/prisma'
+import { Prisma } from '@prisma/client'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -89,11 +91,11 @@ export async function POST(
     }
 
     // Store production type in attributes if provided
-    const productionData: Record<string, unknown> = {
+    const productionData: ProductionCreateInput = {
       projectId,
       status: body.status || 'planning',
       notes: body.notes || null,
-      attributes: body.attributes || (body.type ? { type: body.type } : null),
+      attributes: (body.attributes ?? (body.type ? { type: body.type } : null)) as Prisma.InputJsonValue,
     }
 
     // Create production

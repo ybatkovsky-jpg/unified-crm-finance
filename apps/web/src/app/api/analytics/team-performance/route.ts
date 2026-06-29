@@ -38,7 +38,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Build performance per user
     const performance = await Promise.all(
       users.map(async (user) => {
-        const dealWhere: Record<string, unknown> = { assignedToId: user.id }
+        const dealWhere: Record<string, unknown> = { managerId: user.id }
         if (pipelineId) dealWhere.pipelineId = pipelineId
         if (dateFrom) dealWhere.createdAt = { gte: dateFrom }
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
         if (deals.length === 0) return null
 
-        const totalAmount = deals.reduce((s, d) => s + (d.amount ?? 0), 0)
+        const totalAmount = deals.reduce((s, d) => s + Number(d.amount ?? 0), 0)
         const avgAmount = totalAmount / deals.length
 
         // Conversion: deals reaching last stage / total deals

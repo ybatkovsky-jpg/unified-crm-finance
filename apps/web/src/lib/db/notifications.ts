@@ -9,7 +9,7 @@ import { randomUUID } from 'node:crypto';
 export type NotificationCreateInput = Omit<
   Prisma.NotificationUncheckedCreateInput,
   'id'
->;
+> & Partial<Pick<Prisma.NotificationUncheckedCreateInput, 'id'>>;
 
 export class NotificationRepository {
   async findById(id: string): Promise<Notification | null> {
@@ -24,11 +24,14 @@ export class NotificationRepository {
     if (filters?.unreadOnly) where.isRead = false;
     if (filters?.type) where.type = filters.type;
 
-    return prisma.notification.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends → TS2321 excessive stack depth).
+    const args: Prisma.NotificationFindManyArgs = {
       where,
       orderBy: { createdAt: 'desc' },
       take: filters?.limit ?? 50,
-    });
+    };
+    return prisma.notification.findMany(args);
   }
 
   async countUnread(userId: string): Promise<number> {

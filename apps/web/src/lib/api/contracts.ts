@@ -7,6 +7,7 @@
 
 import type {
   ContractData,
+  DealData,
   ContractListParams,
   ContractCreateInput,
   ContractUpdateInput,

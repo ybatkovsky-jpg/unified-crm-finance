@@ -13,7 +13,7 @@
  */
 
 import { prisma } from './prisma';
-import type { Delivery, Counterparty, Project, Invoice } from '@prisma/client';
+import type { Delivery, Counterparty, Project, Invoice, Prisma } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { NotFoundError, ValidationError } from './errors';
 import { warehouse } from './warehouse';
@@ -79,11 +79,14 @@ export class DeliveryRepository {
   }
 
   async findMany(filters: { projectId?: string; supplierId?: string; status?: DeliveryStatus | string } = {}): Promise<DeliveryWithRelations[]> {
-    return prisma.delivery.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends → TS2321 excessive stack depth).
+    const args: Prisma.DeliveryFindManyArgs = {
       where: { projectId: filters.projectId, supplierId: filters.supplierId, status: filters.status },
       orderBy: { createdAt: 'desc' },
       include: { Counterparty: true, Project: true, Invoice: true },
-    });
+    };
+    return prisma.delivery.findMany(args) as Promise<DeliveryWithRelations[]>;
   }
 
   async update(id: string, data: DeliveryUpdateInput): Promise<Delivery> {

@@ -39,41 +39,44 @@ export type FileFindManyParams = {
 export class FileRepository {
   /**
    * Find many files with optional filtering
-   * Automatically filters out soft-deleted records
    */
   async findMany(params?: FileFindManyParams): Promise<FileEntity[]> {
     const { where, ...rest } = params ?? {};
 
-    return prisma.fileEntity.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends + спред локального типа → TS2321 excessive stack depth).
+    const args: Prisma.FileEntityFindManyArgs = {
       ...rest,
-      where: {
-        ...where,
-        deletedAt: null, // Always exclude soft-deleted
-      },
-    });
+      where: where ?? undefined,
+    };
+
+    return prisma.fileEntity.findMany(args);
   }
 
   /**
    * Find a single file by ID
-   * Returns null if not found or soft-deleted
    */
-  async findUnique(
+  async findUnique<I extends Prisma.FileEntityInclude>(
     id: string,
-    include?: Prisma.FileEntityInclude
-  ): Promise<FileEntity | null> {
-    return prisma.fileEntity.findFirst({
-      where: { id, deletedAt: null },
+    include?: I
+  ): Promise<Prisma.FileEntityGetPayload<{ include: I }> | null> {
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends + спред локального типа → TS2321 excessive stack depth).
+    const args: Prisma.FileEntityFindFirstArgs = {
+      where: { id },
       include,
-    });
+    };
+    return prisma.fileEntity.findFirst(args) as Promise<
+      Prisma.FileEntityGetPayload<{ include: I }> | null
+    >;
   }
 
   /**
    * Find a single file by storage key
-   * Returns null if not found or soft-deleted
    */
   async findByStorageKey(storageKey: string): Promise<FileEntity | null> {
     return prisma.fileEntity.findFirst({
-      where: { storageKey, deletedAt: null },
+      where: { storageKey },
     });
   }
 
@@ -82,7 +85,7 @@ export class FileRepository {
    */
   async findByUploader(userId: string): Promise<FileEntity[]> {
     return prisma.fileEntity.findMany({
-      where: { uploadedBy: userId, deletedAt: null },
+      where: { uploadedBy: userId },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -122,19 +125,19 @@ export class FileRepository {
   }
 
   /**
-   * Soft delete a file by setting deletedAt timestamp
-   * Does NOT actually delete the record from database
+   * Delete a file.
+   * Note: FileEntity has no `deletedAt` column, so this is a hard delete.
+   * Kept as `softDelete` for API compatibility with the DELETE /api/files/[id] route.
    */
   async softDelete(id: string): Promise<FileEntity> {
-    // Verify file exists and not already deleted
+    // Verify file exists
     const existing = await this.findUnique(id);
     if (!existing) {
       throw new Error(`FileEntity with id ${id} not found`);
     }
 
-    return prisma.fileEntity.update({
+    return prisma.fileEntity.delete({
       where: { id },
-      data: { deletedAt: new Date() },
     });
   }
 
@@ -156,14 +159,11 @@ export class FileRepository {
   }
 
   /**
-   * Count files matching criteria (excluding soft-deleted)
+   * Count files matching criteria
    */
   async count(where?: Prisma.FileEntityWhereInput): Promise<number> {
     return prisma.fileEntity.count({
-      where: {
-        ...where,
-        deletedAt: null,
-      },
+      where: where ?? undefined,
     });
   }
 }

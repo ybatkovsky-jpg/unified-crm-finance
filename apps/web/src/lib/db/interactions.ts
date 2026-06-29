@@ -44,25 +44,34 @@ export class InteractionRepository {
   async findMany(params?: InteractionFindManyParams): Promise<Interaction[]> {
     const { where, orderBy, ...rest } = params ?? {};
 
-    return prisma.interaction.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends + спред локального типа → TS2321 excessive stack depth).
+    const args: Prisma.InteractionFindManyArgs = {
       ...rest,
       where,
       orderBy: orderBy ?? { createdAt: 'desc' },
-    });
+    };
+
+    return prisma.interaction.findMany(args);
   }
 
   /**
    * Find a single interaction by ID
    * Returns null if not found
    */
-  async findUnique(
+  async findUnique<I extends Prisma.InteractionInclude>(
     id: string,
-    include?: Prisma.InteractionInclude
-  ): Promise<Interaction | null> {
-    return prisma.interaction.findUnique({
+    include?: I
+  ): Promise<Prisma.InteractionGetPayload<{ include: I }> | null> {
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends + спред локального типа → TS2321 excessive stack depth).
+    const args: Prisma.InteractionFindUniqueArgs = {
       where: { id },
       include,
-    });
+    };
+    return prisma.interaction.findUnique(args) as Promise<
+      Prisma.InteractionGetPayload<{ include: I }> | null
+    >;
   }
 
   /**

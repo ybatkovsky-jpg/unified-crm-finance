@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { invoices } from '../../../lib/db/invoices'
 import type { InvoiceCreateInput } from '../../../lib/db/invoices'
+import { mapErrorToResponse } from '../../../lib/api/error-mapping'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -19,11 +20,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     })
     return NextResponse.json({ data, count: data.length })
   } catch (error) {
-    console.error('Failed to list invoices:', error)
-    return NextResponse.json(
-      { error: 'Failed to list invoices', message: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    )
+    return mapErrorToResponse(error, 'list invoices')
   }
 }
 
@@ -50,17 +47,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const created = await invoices.create(createData)
     return NextResponse.json({ data: created }, { status: 201 })
   } catch (error) {
-    return mapRepoError(error, 'create invoice')
+    return mapErrorToResponse(error, 'create invoice')
   }
-}
-
-function mapRepoError(error: unknown, action: string): NextResponse {
-  const status = (error as { statusCode?: number }).statusCode
-  const message = error instanceof Error ? error.message : 'Unknown error'
-  if (status === 400 || status === 404 || status === 409) {
-    const label = status === 404 ? 'Not found' : status === 409 ? 'Conflict' : 'Validation failed'
-    return NextResponse.json({ error: label, message }, { status })
-  }
-  console.error(`Failed to ${action}:`, error)
-  return NextResponse.json({ error: `Failed to ${action}`, message }, { status: 500 })
 }

@@ -45,13 +45,16 @@ export class BudgetRepository {
       where.period = filters.period;
     }
 
-    return prisma.budget.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends → TS2321 excessive stack depth).
+    const args: Prisma.BudgetFindManyArgs = {
       where,
       include: {
         Category: { select: { id: true, name: true, type: true } },
       },
       orderBy: [{ period: 'desc' }, { createdAt: 'desc' }],
-    });
+    };
+    return prisma.budget.findMany(args);
   }
 
   /**

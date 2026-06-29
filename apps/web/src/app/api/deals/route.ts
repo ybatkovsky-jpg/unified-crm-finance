@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { deals } from '../../../lib/db/deals'
+import { mapErrorToResponse } from '../../../lib/api/error-mapping'
 
 /**
  * GET /api/deals
@@ -124,10 +125,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ data: newDeal }, { status: 201 })
   } catch (error) {
-    console.error('Failed to create deal:', error)
-    return NextResponse.json(
-      { error: 'Failed to create deal', message: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    )
+    return mapErrorToResponse(error, 'create deal')
   }
 }

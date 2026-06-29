@@ -265,6 +265,21 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     setSpecFiles([])
   }
 
+  // Open the spec file in the preview dialog (fetches its download URL first).
+  const handlePreviewSpec = async (fileId: string, fileName: string) => {
+    try {
+      const response = await filesApi.getFile(fileId)
+      filePreview.openPreview({
+        fileName,
+        fileUrl: response.data.downloadUrl,
+        mimeType: response.data.file.mimeType || undefined,
+      })
+    } catch (err) {
+      console.error('[ProjectDetail] Failed to load spec file for preview:', err)
+      setError('Не удалось открыть файл спецификации.')
+    }
+  }
+
   // Check if all project stages are completed
   const allStagesCompleted = project?.stages?.every(
     (stage) => stage.status === "completed"
@@ -555,7 +570,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       <div>
                         <p className="text-xs text-muted-foreground">\u0421\u0443\u043C\u043C\u0430 \u043A\u043E\u043D\u0442\u0440\u0430\u043A\u0442\u0430</p>
                         <p className="font-medium">
-                          {formatCurrency(project.contractAmount, project.currency)}
+                          {formatCurrency(Number(project.contractAmount), project.currency)}
                         </p>
                       </div>
                     </div>
@@ -670,26 +685,29 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {project.specFile ? (
+                  {project.specFile ? (() => {
+                    const specFile = project.specFile
+                    return (
                     <div className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
                       <div className="flex items-center gap-2">
                         <FileText className="size-4 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium">{project.specFile.fileName}</p>
+                          <p className="text-sm font-medium">{specFile.fileName}</p>
                           <p className="text-xs text-muted-foreground">
-                            {project.specFile.mimeType || 'Unknown type'} • {(project.specFile.size / 1024).toFixed(1)} KB
+                            {specFile.mimeType || 'Unknown type'} • {(specFile.size / 1024).toFixed(1)} KB
                           </p>
                         </div>
                       </div>
                       <Button
                         variant="ghost"
                         size="icon-xs"
-                        onClick={() => filePreview.open(project.specFile.id, project.specFile.fileName)}
+                        onClick={() => handlePreviewSpec(specFile.id, specFile.fileName)}
                       >
                         <FileText className="size-3.5" />
                       </Button>
                     </div>
-                  ) : (
+                    )
+                  })() : (
                     <p className="text-sm text-muted-foreground">\u0424\u0430\u0439\u043B\u044B \u043D\u0435 \u043F\u0440\u0438\u043A\u0440\u0435\u043F\u043B\u0435\u043D\u044B</p>
                   )}
                 </div>

@@ -55,27 +55,34 @@ export class ProductionRepository {
   async findMany(params?: ProductionFindManyParams): Promise<Production[]> {
     const { where, ...rest } = params ?? {};
 
-    return prisma.production.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends + спред локального типа → TS2321 excessive stack depth).
+    const args: Prisma.ProductionFindManyArgs = {
       ...rest,
       where: {
         ...where,
         deletedAt: null, // Always exclude soft-deleted
       },
-    });
+    };
+
+    return prisma.production.findMany(args);
   }
 
   /**
    * Find a single production by ID
    * Returns null if not found or soft-deleted
    */
-  async findUnique(
+  async findUnique<I extends Prisma.ProductionInclude>(
     id: string,
-    include?: Prisma.ProductionInclude
-  ): Promise<Production | null> {
-    return prisma.production.findFirst({
+    include?: I
+  ): Promise<Prisma.ProductionGetPayload<{ include: I }> | null> {
+    const args: Prisma.ProductionFindFirstArgs = {
       where: { id, deletedAt: null },
       include,
-    });
+    };
+    return prisma.production.findFirst(args) as Promise<
+      Prisma.ProductionGetPayload<{ include: I }> | null
+    >;
   }
 
   /**

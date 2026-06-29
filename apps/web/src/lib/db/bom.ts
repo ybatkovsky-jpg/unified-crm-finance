@@ -157,10 +157,13 @@ export class BOMRepository {
    * Find all BOMItems for a given BOM, ordered by rowNumber
    */
   async findItemsByBomId(bomId: string): Promise<BOMItem[]> {
-    return prisma.bOMItem.findMany({
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends → TS2321 excessive stack depth).
+    const args: Prisma.BOMItemFindManyArgs = {
       where: { bomId },
       orderBy: { rowNumber: 'asc' },
-    });
+    };
+    return prisma.bOMItem.findMany(args);
   }
 
   /**
