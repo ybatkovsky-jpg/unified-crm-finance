@@ -103,7 +103,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           categoryId: cat.id,
           categoryName: cat.name,
           type: cat.type,
-          totalAmount: agg._sum.amount ?? 0,
+          totalAmount: Number(agg._sum.amount ?? 0),
           transactionCount: agg._count,
         }
       })
@@ -114,13 +114,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         totals: {
           income: totalIncome,
           expense: totalExpense,
-          balance: totalIncome - totalExpense,
+          balance: Number(totalIncome) - Number(totalExpense),
         },
         budgets: {
           totalBudgeted,
           budgetCount: budgetCount,
-          budgetHealth: totalBudgeted > 0
-            ? Math.round((totalExpense / totalBudgeted) * 100)
+          budgetHealth: Number(totalBudgeted) > 0
+            ? Math.round((Number(totalExpense) / Number(totalBudgeted)) * 100)
             : 0,
         },
         payments: {
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             projectName: p.Project?.name ?? null,
             dueDate: p.dueDate,
           })),
-          upcomingTotal: upcomingPayments.reduce((s, p) => s + p.amount, 0),
+          upcomingTotal: upcomingPayments.reduce((s, p) => s + Number(p.amount), 0),
         },
         transactions: {
           recent: recentTransactions.map((tx) => ({

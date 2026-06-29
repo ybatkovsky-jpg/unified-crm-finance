@@ -279,7 +279,7 @@ export default function ProjectsPage() {
                   <TableCell>{getContactName(project)}</TableCell>
                   <TableCell>{formatDate(project.startDate)}</TableCell>
                   <TableCell>{formatDate(project.endDate)}</TableCell>
-                  <TableCell>{formatCurrency(project.contractAmount, project.currency || "RUB")}</TableCell>
+                  <TableCell>{formatCurrency(Number(project.contractAmount), project.currency || "RUB")}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

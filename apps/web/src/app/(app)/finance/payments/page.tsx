@@ -104,9 +104,9 @@ export default function PaymentListPage() {
     finally { setDeletingId(null) }
   }
 
-  const totalPlanned = payments.filter(p => p.status === "planned").reduce((s, p) => s + p.amount, 0)
-  const totalScheduled = payments.filter(p => p.status === "scheduled").reduce((s, p) => s + p.amount, 0)
-  const totalPaid = payments.filter(p => p.status === "paid").reduce((s, p) => s + p.amount, 0)
+  const totalPlanned = payments.filter(p => p.status === "planned").reduce((s, p) => s + Number(p.amount), 0)
+  const totalScheduled = payments.filter(p => p.status === "scheduled").reduce((s, p) => s + Number(p.amount), 0)
+  const totalPaid = payments.filter(p => p.status === "paid").reduce((s, p) => s + Number(p.amount), 0)
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -152,7 +152,7 @@ export default function PaymentListPage() {
                   <TableCell><Link href={`/finance/payments/${p.id}`} className="text-primary hover:underline">{formatDate(p.date)}</Link></TableCell>
                   <TableCell className="max-w-[200px] truncate text-muted-foreground">{p.description || "—"}</TableCell>
                   <TableCell><Badge variant="outline">{p.type}</Badge></TableCell>
-                  <TableCell className="text-right font-medium">{formatCurrency(p.amount)}</TableCell>
+                  <TableCell className="text-right font-medium">{formatCurrency(Number(p.amount))}</TableCell>
                   <TableCell><Badge variant={statusVariant(p.status)}>{p.status}</Badge></TableCell>
                   <TableCell className="text-muted-foreground">{p.dueDate ? formatDate(p.dueDate) : "—"}</TableCell>
                   <TableCell>

@@ -53,8 +53,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           _sum: { amount: true },
         })
 
-        const actual = actualSum._sum.amount ?? 0
-        const variance = budget.amount - actual
+        const actual = Number(actualSum._sum.amount ?? 0)
+        const variance = Number(budget.amount) - actual
 
         return {
           budgetId: budget.id,
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           budgeted: budget.amount,
           actual,
           variance,
-          percentUsed: budget.amount > 0 ? Math.round((actual / budget.amount) * 100) : 0,
+          percentUsed: Number(budget.amount) > 0 ? Math.round((actual / Number(budget.amount)) * 100) : 0,
         }
       })
     )

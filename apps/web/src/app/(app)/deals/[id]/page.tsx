@@ -159,7 +159,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     try {
       const response = await contractsApi.convertDeal(deal.id, {
         title: deal.title,
-        amount: deal.amount,
+        amount: Number(deal.amount),
         currency: deal.currency,
         startDate: new Date().toISOString().split('T')[0],
       })

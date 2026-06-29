@@ -58,8 +58,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }
 
       if (!groups[key]) groups[key] = { income: 0, expense: 0, count: 0, transactions: [] }
-      if (tx.type === 'income') groups[key].income += tx.amount
-      else groups[key].expense += tx.amount
+      if (tx.type === 'income') groups[key].income += Number(tx.amount)
+      else groups[key].expense += Number(tx.amount)
       groups[key].count += 1
       groups[key].transactions.push({
         id: tx.id,

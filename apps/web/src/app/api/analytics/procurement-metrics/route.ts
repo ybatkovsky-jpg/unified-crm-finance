@@ -47,7 +47,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       const supplierId = inv.Counterparty?.id ?? 'unknown'
       const existing = supplierMap.get(supplierId) ?? { name: inv.Counterparty?.name ?? 'Unknown', invoiceCount: 0, totalAmount: 0 }
       existing.invoiceCount++
-      existing.totalAmount += inv.totalAmount ?? 0
+      existing.totalAmount += Number(inv.totalAmount ?? 0)
       supplierMap.set(supplierId, existing)
     }
 
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .slice(0, 10)
 
     // Total procurement spend
-    const totalProcurementSpend = invoices.reduce((s, inv) => s + (inv.totalAmount ?? 0), 0)
+    const totalProcurementSpend = invoices.reduce((s, inv) => s + Number(inv.totalAmount ?? 0), 0)
 
     // Warehouse stats
     const warehouseItemCount = await prisma.warehouseItem.count()
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Monthly procurement trend
     const monthlyInvoices = invoices.reduce((acc, inv) => {
       const key = `${inv.createdAt.getFullYear()}-${String(inv.createdAt.getMonth() + 1).padStart(2, '0')}`
-      acc.set(key, (acc.get(key) ?? 0) + (inv.totalAmount ?? 0))
+      acc.set(key, (acc.get(key) ?? 0) + Number(inv.totalAmount ?? 0))
       return acc
     }, new Map<string, number>())
 

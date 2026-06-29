@@ -43,8 +43,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     for (const p of payments) {
       const key = `${p.date.getFullYear()}-${String(p.date.getMonth() + 1).padStart(2, '0')}`
       if (!monthly[key]) monthly[key] = { income: 0, expense: 0, payments: [] }
-      if (p.type === 'income') monthly[key].income += p.amount
-      else monthly[key].expense += p.amount
+      if (p.type === 'income') monthly[key].income += Number(p.amount)
+      else monthly[key].expense += Number(p.amount)
       monthly[key].payments.push(p)
     }
 
@@ -57,8 +57,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }))
 
     // Totals
-    const totalIncome = payments.filter(p => p.type === 'income').reduce((s, p) => s + p.amount, 0)
-    const totalExpense = payments.filter(p => p.type !== 'income').reduce((s, p) => s + p.amount, 0)
+    const totalIncome = payments.filter(p => p.type === 'income').reduce((s, p) => s + Number(p.amount), 0)
+    const totalExpense = payments.filter(p => p.type !== 'income').reduce((s, p) => s + Number(p.amount), 0)
 
     return NextResponse.json({
       data,

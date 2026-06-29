@@ -107,10 +107,10 @@ export default function TransactionListPage() {
 
   const incomeTotal = transactions
     .filter((t) => t.type === "income")
-    .reduce((s, t) => s + t.amount, 0)
+    .reduce((s, t) => s + Number(t.amount), 0)
   const expenseTotal = transactions
     .filter((t) => t.type === "expense")
-    .reduce((s, t) => s + t.amount, 0)
+    .reduce((s, t) => s + Number(t.amount), 0)
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -242,7 +242,7 @@ export default function TransactionListPage() {
                   <TableCell>{tx.Category?.name ?? tx.categoryId}</TableCell>
                   <TableCell>{renderTypeBadge(tx.type)}</TableCell>
                   <TableCell className="text-right font-medium">
-                    {formatCurrency(tx.amount)}
+                    {formatCurrency(Number(tx.amount))}
                   </TableCell>
                   <TableCell>{renderStatusBadge(tx.status)}</TableCell>
                   <TableCell>

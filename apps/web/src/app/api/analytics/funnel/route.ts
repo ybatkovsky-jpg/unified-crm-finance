@@ -43,7 +43,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Build funnel data
     const funnelData = stages.map((stage, index) => {
       const dealCount = stage.Deal.length
-      const totalAmount = stage.Deal.reduce((sum, d) => sum + (d.amount ?? 0), 0)
+      const totalAmount = stage.Deal.reduce((sum, d) => sum + Number(d.amount ?? 0), 0)
       const avgAmount = dealCount > 0 ? totalAmount / dealCount : 0
 
       // Conversion rate: deals in this stage / deals in first stage

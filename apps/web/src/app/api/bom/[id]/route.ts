@@ -51,8 +51,8 @@ export async function GET(
 
     const items = (result as BOM & { BOMItem?: BOMItem[] }).BOMItem
     const total = items?.reduce(
-      (sum: number, item: { quantity: number; price: number }) =>
-        sum + (item.quantity || 0) * (item.price || 0),
+      (sum, item) =>
+        sum + (item.quantity || 0) * Number(item.price || 0),
       0
     ) ?? 0
 

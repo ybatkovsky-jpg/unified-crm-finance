@@ -52,13 +52,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const pnlData = projects.map((p) => {
       const income = p.Transaction
         .filter((t) => t.type === 'income')
-        .reduce((s, t) => s + t.amount, 0)
+        .reduce((s, t) => s + Number(t.amount), 0)
       const expense = p.Transaction
         .filter((t) => t.type === 'expense')
-        .reduce((s, t) => s + t.amount, 0)
+        .reduce((s, t) => s + Number(t.amount), 0)
       const profit = income - expense
-      const totalBudgeted = p.Budget.reduce((s, b) => s + b.amount, 0)
-      const revenue = p.contractAmount ?? 0
+      const totalBudgeted = p.Budget.reduce((s, b) => s + Number(b.amount), 0)
+      const revenue = Number(p.contractAmount ?? 0)
       const margin = revenue > 0 ? Math.round((profit / revenue) * 100) : 0
       const budgetUsage = totalBudgeted > 0 ? Math.round((expense / totalBudgeted) * 100) : 0
 

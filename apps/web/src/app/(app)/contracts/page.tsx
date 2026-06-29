@@ -253,7 +253,7 @@ export default function ContractsPage() {
                     </Link>
                   </TableCell>
                   <TableCell>{getContactName(contract)}</TableCell>
-                  <TableCell>{formatCurrency(contract.amount, contract.currency)}</TableCell>
+                  <TableCell>{formatCurrency(Number(contract.amount), contract.currency)}</TableCell>
                   <TableCell>{formatDate(contract.startDate)}</TableCell>
                   <TableCell>{formatDate(contract.endDate)}</TableCell>
                   <TableCell>

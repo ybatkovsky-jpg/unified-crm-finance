@@ -1,9 +1,10 @@
 import type { Metadata } from "next"
 import "./globals.css"
-import { NavBar } from "@/components/nav-bar"
+import { ThemeProvider } from "@/components/layout/theme-provider"
 
 export const metadata: Metadata = {
-  title: "Единая CRM",
+  title: "ПРО Мебель — ERP/CRM",
+  description: "Единая система управления производством мебели",
 }
 
 export default function RootLayout({
@@ -12,10 +13,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ru">
+    <html lang="ru" suppressHydrationWarning>
       <body className="antialiased">
-        <NavBar />
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

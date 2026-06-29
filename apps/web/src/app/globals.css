@@ -127,3 +127,43 @@
     @apply font-sans;
     }
 }
+
+/* ── App shell layout tokens (Phase 3 UI redesign) ────────────────────── */
+:root {
+    --sidebar-width: 15.5rem;
+    --sidebar-width-collapsed: 4.5rem;
+    --topbar-height: 3.5rem;
+}
+
+/* Accent colour: indigo primary (replaces grayscale). Only `--primary` and
+   `--sidebar-primary` change hue; the rest of the palette stays neutral so the
+   accent reads as a deliberate brand signal. */
+:root {
+    --primary: oklch(0.55 0.18 264);            /* indigo */
+    --primary-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.55 0.18 264);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --ring: oklch(0.55 0.18 264 / 0.5);
+}
+
+.dark {
+    --primary: oklch(0.62 0.19 264);
+    --primary-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.62 0.19 264);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --ring: oklch(0.62 0.19 264 / 0.5);
+}
+
+/* Smooth theme + shell transitions */
+:root {
+    color-scheme: light;
+}
+.dark {
+    color-scheme: dark;
+}
+body,
+header,
+aside,
+[data-slot="sidebar"] {
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
