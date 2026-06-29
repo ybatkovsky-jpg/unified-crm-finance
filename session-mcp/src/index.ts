@@ -1,16 +1,11 @@
 /**
- * Session MCP Server — operational context for ERP «ПРО Мебель»
+ * Session MCP Server — project-agnostic operational context.
  *
- * Stores session scratchpad between tool calls so the model doesn't
- * re-read files unnecessarily and can resume context across sessions.
+ * Auto-discovers project context files (README.md, .planning/*.md,
+ * .gsd/**\/*.md, docs/*.md, etc.) and stores session scratchpad in
+ * .session/scratchpad.json.
  *
- * Tools:
- *   session_start    — read HANDOFF + STATE, return bootstrap context
- *   session_note     — write a tagged note
- *   session_track    — mark file work started/done/read
- *   session_recall   — search notes by keyword
- *   session_snapshot — dump context to SESSION-LAST.md
- *   session_checkpoint — save progress marker
+ * Works with ANY project — no hardcoded paths.
  */
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -31,63 +26,37 @@ import {
   writeSnapshot,
 } from "./scratchpad.js";
 
-// ── Server setup ─────────────────────────────────────────────
-
 const server = new Server(
-  {
-    name: "erp-session-mcp",
-    version: "1.0.0",
-  },
-  {
-    capabilities: {
-      tools: {},
-    },
-  }
+  { name: "session-context", version: "2.0.0" },
+  { capabilities: { tools: {} } }
 );
-
-// ── Tool definitions ─────────────────────────────────────────
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
     {
       name: "session_start",
       description:
-        "Call this FIRST at the beginning of every session. " +
-        "Reads HANDOFF.md and STATE.md from the ERP project, returns " +
-        "a bootstrap summary: project context, current phase, progress, " +
-        "and what to do next. Also initializes the session scratchpad. " +
-        "Use this instead of reading those files manually — it's faster " +
-        "and saves context window. Returns handoffSummary, stateSummary, " +
-        "and projectRoot.",
-      inputSchema: {
-        type: "object",
-        properties: {},
-        required: [],
-      },
+        "Call this FIRST at the start of every session. Auto-discovers " +
+        "project context files (README.md, .planning/*.md, .gsd/**/*.md, " +
+        "docs/*.md, TODO.md, etc.) and returns a combined bootstrap summary. " +
+        "Initializes the session scratchpad. Use this instead of manually " +
+        "reading project files — saves context window. " +
+        "Set env SESSION_CONTEXT_FILES to override discovery: " +
+        "\"HANDOFF.md,STATE.md\"",
+      inputSchema: { type: "object", properties: {}, required: [] },
     },
     {
       name: "session_note",
       description:
         "Write a tagged note into the session scratchpad. " +
-        "Use this to remember what you've done: " +
-        "tag='files_read' for files you've examined, " +
-        "tag='decision' for architectural choices, " +
-        "tag='todo' for pending items, " +
-        "tag='blocker' for issues. " +
-        "The scratchpad persists across tool calls within a session. " +
-        "DO NOT use for trivial things — only information you'll need later.",
+        "Tags: 'files_read', 'decision', 'todo', 'blocker', 'progress', " +
+        "'error', 'api_test'. The scratchpad persists across tool calls. " +
+        "Be specific — include file paths, IDs, decisions made.",
       inputSchema: {
         type: "object",
         properties: {
-          tag: {
-            type: "string",
-            description:
-              "Category tag: 'files_read', 'decision', 'todo', 'blocker', 'progress', 'error', 'api_test'",
-          },
-          text: {
-            type: "string",
-            description: "The note content. Be specific — include file paths, IDs, decisions made.",
-          },
+          tag: { type: "string", description: "Category tag" },
+          text: { type: "string", description: "Note content. Be specific." },
         },
         required: ["tag", "text"],
       },
@@ -95,23 +64,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     {
       name: "session_track",
       description:
-        "Mark a file as 'started' (you're about to edit it), " +
-        "'done' (you've finished editing), or 'read' (you've examined it). " +
-        "This builds an activity log that helps avoid re-reading files " +
-        "unnecessarily. Call this BEFORE editing a file and AFTER finishing. " +
-        "The track data appears in the snapshot for session continuity.",
+        "Mark a file as 'started', 'done', or 'read'. Builds an activity " +
+        "log to avoid re-reading files. Call BEFORE editing and AFTER finishing. " +
+        "File path should be relative to project root.",
       inputSchema: {
         type: "object",
         properties: {
-          file: {
-            type: "string",
-            description: "Relative file path from project root, e.g. 'apps/web/src/lib/db/production.ts'",
-          },
-          action: {
-            type: "string",
-            enum: ["started", "done", "read"],
-            description: "What you did with this file",
-          },
+          file: { type: "string", description: "Relative path from project root" },
+          action: { type: "string", enum: ["started", "done", "read"] },
         },
         required: ["file", "action"],
       },
@@ -119,18 +79,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     {
       name: "session_recall",
       description:
-        "Search session notes by keyword. Returns matching notes " +
-        "with their tags and timestamps. Use this when you need to " +
-        "find something you noted earlier — e.g. 'what did I decide " +
-        "about the installation model?' The query matches against " +
-        "both tags and note text.",
+        "Search session notes by keyword (case-insensitive). Returns matching " +
+        "notes with tags and timestamps. Use to find earlier decisions or context.",
       inputSchema: {
         type: "object",
         properties: {
-          query: {
-            type: "string",
-            description: "Search keyword — matches tag names and note text (case-insensitive)",
-          },
+          query: { type: "string", description: "Search keyword" },
         },
         required: ["query"],
       },
@@ -138,41 +92,27 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     {
       name: "session_snapshot",
       description:
-        "Write the full session context to SESSION-LAST.md " +
-        "(human-readable markdown in .gsd/integration/) and return " +
-        "a structured summary. Call this at the END of a session " +
-        "or before a commit/push to preserve context for the next " +
-        "session. The snapshot includes: checkpoints, file activity " +
-        "log, and all tagged notes grouped by category.",
-      inputSchema: {
-        type: "object",
-        properties: {},
-        required: [],
-      },
+        "Write full session context to .session/SESSION-LAST.md and return " +
+        "a structured summary. Call at END of session or before commit. " +
+        "Includes checkpoints, file activity, and notes grouped by tag.",
+      inputSchema: { type: "object", properties: {}, required: [] },
     },
     {
       name: "session_checkpoint",
       description:
-        "Save a named progress marker. Use this when completing " +
-        "a major step: 'phase 6 schema migration done', " +
-        "'PROJ-08 API routes created', 'all smoke tests passed'. " +
-        "Checkpoints appear in the snapshot and help with resumption. " +
-        "The label should describe what was just COMPLETED.",
+        "Save a progress marker. Use when completing a major step. " +
+        "Label should describe what was just COMPLETED. " +
+        "Example: 'Step 3: API routes done'",
       inputSchema: {
         type: "object",
         properties: {
-          label: {
-            type: "string",
-            description: "What was just completed. Be specific: 'Step 3: PROJ-09 delivery API routes done'",
-          },
+          label: { type: "string", description: "What was completed" },
         },
         required: ["label"],
       },
     },
   ],
 }));
-
-// ── Tool handlers ────────────────────────────────────────────
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
@@ -183,163 +123,113 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const bootstrap = readBootstrapContext();
       save(state);
       return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(
-              {
-                sessionId: state.sessionId,
-                startedAt: state.startedAt,
-                projectRoot: bootstrap.projectRoot,
-                handoffSummary: bootstrap.handoffSummary,
-                stateSummary: bootstrap.stateSummary,
-                existingNotes: state.notes.length,
-                existingCheckpoints: state.checkpoints.length,
-                lastCheckpoint:
-                  state.checkpoints.length > 0
-                    ? state.checkpoints[state.checkpoints.length - 1]
-                    : null,
-                instruction:
-                  "Session initialized. Use session_note to record findings, " +
-                  "session_track to mark file work, session_checkpoint for milestones, " +
-                  "and session_snapshot at the end.",
-              },
-              null,
-              2
-            ),
-          },
-        ],
+        content: [{
+          type: "text",
+          text: JSON.stringify({
+            sessionId: state.sessionId,
+            projectName: bootstrap.projectName,
+            projectRoot: bootstrap.projectRoot,
+            contextFilesFound: bootstrap.contextFiles.map(f => f.path),
+            combinedSummary: bootstrap.combinedSummary,
+            existingNotes: state.notes.length,
+            existingCheckpoints: state.checkpoints.length,
+            lastCheckpoint: state.checkpoints[state.checkpoints.length - 1] || null,
+            instruction:
+              "Session ready. Use session_note for findings, session_track for file work, " +
+              "session_checkpoint for milestones, session_snapshot at end.",
+          }, null, 2),
+        }],
       };
     }
 
     case "session_note": {
-      const tag = (args as any).tag as string;
-      const text = (args as any).text as string;
+      const tag = (args as any).tag;
+      const text = (args as any).text;
       addNote(state, tag, text);
       save(state);
       return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({
-              ok: true,
-              tag,
-              text: text.slice(0, 100) + (text.length > 100 ? "..." : ""),
-              totalNotes: state.notes.length,
-            }),
-          },
-        ],
+        content: [{
+          type: "text",
+          text: JSON.stringify({ ok: true, tag, totalNotes: state.notes.length }),
+        }],
       };
     }
 
     case "session_track": {
-      const file = (args as any).file as string;
-      const action = (args as any).action as "started" | "done" | "read";
+      const file = (args as any).file;
+      const action = (args as any).action;
       trackFile(state, file, action);
       save(state);
       return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({
-              ok: true,
-              file,
-              action,
-              totalFilesTracked: state.files.length,
-            }),
-          },
-        ],
+        content: [{
+          type: "text",
+          text: JSON.stringify({ ok: true, file, action, totalFiles: state.files.length }),
+        }],
       };
     }
 
     case "session_recall": {
-      const query = (args as any).query as string;
+      const query = (args as any).query;
       const results = searchNotes(state, query);
       return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({
-              query,
-              count: results.length,
-              notes: results.map((n) => ({
-                tag: n.tag,
-                text: n.text,
-                at: n.at,
-              })),
-            }),
-          },
-        ],
+        content: [{
+          type: "text",
+          text: JSON.stringify({
+            query, count: results.length,
+            notes: results.map(n => ({ tag: n.tag, text: n.text, at: n.at })),
+          }),
+        }],
       };
     }
 
     case "session_snapshot": {
       const bootstrap = readBootstrapContext();
-      const snapshot = writeSnapshot(state, bootstrap);
+      writeSnapshot(state, bootstrap);
       save(state);
       return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({
-              ok: true,
-              snapshotPath: ".gsd/integration/SESSION-LAST.md",
-              summary: {
-                sessionId: state.sessionId,
-                notes: state.notes.length,
-                filesTracked: state.files.length,
-                checkpoints: state.checkpoints.length,
-                lastActivity: state.lastActivity,
-                checkpointList: state.checkpoints.map((c) => c.label),
-              },
-              instruction:
-                "Snapshot written. The next session can read SESSION-LAST.md " +
-                "for a human-readable summary or call session_start for bootstrap.",
-            }),
-          },
-        ],
+        content: [{
+          type: "text",
+          text: JSON.stringify({
+            ok: true,
+            snapshotPath: ".session/SESSION-LAST.md",
+            summary: {
+              projectName: state.projectName,
+              sessionId: state.sessionId,
+              notes: state.notes.length,
+              filesTracked: state.files.length,
+              checkpoints: state.checkpoints.length,
+              checkpointList: state.checkpoints.map(c => c.label),
+            },
+          }),
+        }],
       };
     }
 
     case "session_checkpoint": {
-      const label = (args as any).label as string;
+      const label = (args as any).label;
       addCheckpoint(state, label);
       save(state);
       return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({
-              ok: true,
-              label,
-              totalCheckpoints: state.checkpoints.length,
-              previousCheckpoint:
-                state.checkpoints.length > 1
-                  ? state.checkpoints[state.checkpoints.length - 2].label
-                  : null,
-            }),
-          },
-        ],
+        content: [{
+          type: "text",
+          text: JSON.stringify({
+            ok: true, label,
+            totalCheckpoints: state.checkpoints.length,
+            previousCheckpoint: state.checkpoints[state.checkpoints.length - 2]?.label || null,
+          }),
+        }],
       };
     }
 
     default:
-      return {
-        content: [{ type: "text", text: `Unknown tool: ${name}` }],
-        isError: true,
-      };
+      return { content: [{ type: "text", text: `Unknown tool: ${name}` }], isError: true };
   }
 });
-
-// ── Start ────────────────────────────────────────────────────
 
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Session MCP server running on stdio");
+  console.error("Session MCP v2.0 running on stdio");
 }
 
-main().catch((err) => {
-  console.error("Fatal:", err);
-  process.exit(1);
-});
+main().catch((err) => { console.error("Fatal:", err); process.exit(1); });
