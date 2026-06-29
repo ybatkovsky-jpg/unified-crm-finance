@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, File, Download, Trash2, Upload, Package } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, File, Download, Trash2, Upload, Package, ChevronDown } from "lucide-react"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
+import { pipelinesApi } from "@/lib/api/pipelines"
 import { filesApi } from "@/lib/api/files"
 import { contractsApi } from "@/lib/api/contracts"
-import type { DealData, FileUploadFile } from "@/lib/api/types"
+import type { DealData, DealStageData, FileUploadFile } from "@/lib/api/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -47,6 +48,12 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   const [uploadingAct, setUploadingAct] = useState(false)
   const filePreview = useFilePreview()
 
+  // Pipeline stages for the inline stage selector.
+  const [stages, setStages] = useState<DealStageData[]>([])
+  const [movingStage, setMovingStage] = useState(false)
+  // History section is collapsed by default (per UX decision).
+  const [historyOpen, setHistoryOpen] = useState(false)
+
   const unwrapParams = useCallback(async () => {
     return await params
   }, [params])
@@ -67,6 +74,17 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         description: response.data.description || "",
         lossReason: response.data.lossReason || "",
       })
+
+      // Load pipeline stages for the inline stage selector.
+      if (response.data.pipelineId) {
+        try {
+          const pipeline = await pipelinesApi.getPipeline(response.data.pipelineId)
+          // Pipeline API returns stages under PascalCase `DealStage` (Prisma shape).
+          setStages((pipeline.data as unknown as { DealStage?: DealStageData[] }).DealStage ?? [])
+        } catch {
+          setStages([])
+        }
+      }
 
       // Load file data for attachments
       if (response.data.drawingFile) {
@@ -103,6 +121,21 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
       fetchDeal(id)
     })
   }, [unwrapParams, fetchDeal])
+
+  // Move deal to a different stage via /move (records history, server derives actor).
+  const handleMoveStage = async (stageId: string) => {
+    if (!deal || deal.stageId === stageId) return
+    setMovingStage(true)
+    setError(null)
+    try {
+      const response = await dealsApi.moveDeal(deal.id, { stageId })
+      setDeal(response.data)
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : "Не удалось сменить этап.")
+    } finally {
+      setMovingStage(false)
+    }
+  }
 
   const handleSave = async () => {
     if (!deal) return
@@ -602,17 +635,30 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
             </CardContent>
           </Card>
 
-          {/* Deal History */}
+          {/* Deal History — collapsible (collapsed by default) */}
           <Card>
-            <CardHeader>
+            <button
+              type="button"
+              onClick={() => setHistoryOpen((v) => !v)}
+              className="flex w-full items-center justify-between gap-2 p-6 pb-0 text-left"
+              aria-expanded={historyOpen}
+            >
               <CardTitle className="flex items-center gap-2">
                 <History className="size-4" />
                 История изменений
+                {deal.history && deal.history.length > 0 && (
+                  <Badge variant="secondary" className="text-[10px]">{deal.history.length}</Badge>
+                )}
               </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <DealHistoryTimeline history={deal.history} />
-            </CardContent>
+              <ChevronDown
+                className={`size-4 text-muted-foreground transition-transform ${historyOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            {historyOpen && (
+              <CardContent className="pt-4">
+                <DealHistoryTimeline history={deal.history} />
+              </CardContent>
+            )}
           </Card>
 
           {/* File Attachments */}
@@ -727,22 +773,49 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Stage Info */}
+          {/* Stage Info — inline selector */}
           <Card>
             <CardHeader>
               <CardTitle>Этап</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div
-                className="p-3 rounded-lg text-center text-white font-medium"
-                style={{ backgroundColor: stageColor }}
+            <CardContent className="space-y-3">
+              <Select
+                value={deal.stageId}
+                onValueChange={(value) => value && handleMoveStage(value)}
+                disabled={movingStage || stages.length === 0}
               >
-                {deal.stage.name}
-              </div>
+                <SelectTrigger className="w-full">
+                  <span className="flex items-center gap-2">
+                    <span
+                      className="size-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: stageColor }}
+                    />
+                    <SelectValue placeholder="Выберите этап" />
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {stages.map((stage) => (
+                    <SelectItem key={stage.id} value={stage.id}>
+                      <span className="flex items-center gap-2">
+                        <span
+                          className="size-2.5 rounded-full"
+                          style={{ backgroundColor: stage.color || "#94a3b8" }}
+                        />
+                        {stage.name}
+                        {stage.isWonStage && <Badge variant="secondary" className="ml-1 text-[10px]">выиграно</Badge>}
+                        {stage.isLostStage && <Badge variant="outline" className="ml-1 text-[10px]">потеряно</Badge>}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {deal.stage.probability > 0 && (
-                <p className="text-xs text-center text-muted-foreground mt-2">
+                <p className="text-xs text-center text-muted-foreground">
                   Вероятность: {deal.stage.probability}%
                 </p>
+              )}
+              {movingStage && (
+                <p className="text-xs text-center text-muted-foreground">Смена этапа…</p>
               )}
             </CardContent>
           </Card>

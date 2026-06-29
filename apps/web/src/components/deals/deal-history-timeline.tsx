@@ -1,105 +1,86 @@
 "use client";
 
-import { History, ArrowRight, Loader2, AlertCircle } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import type { DealHistoryData } from "@/lib/api/types";
 
 interface DealHistoryTimelineProps {
-  history: DealHistoryData[] | null | undefined;
-  loading?: boolean;
-  error?: string | null;
+  history?: DealHistoryData[] | null;
 }
 
+/** Format a timestamp as "29 июн 2026, 16:35" in Russian. */
 function formatDate(dateStr: string | Date): string {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
+  return new Intl.DateTimeFormat("ru-RU", {
     day: "numeric",
+    month: "short",
     year: "numeric",
-    hour: "numeric",
+    hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(dateStr));
 }
 
-function getUserName(user: { firstName?: string | null; lastName?: string | null; email?: string | null } | null): string {
-  if (!user) return "Unknown";
-  if (user.firstName && user.lastName) {
-    return `${user.firstName} ${user.lastName}`;
-  }
-  if (user.firstName) return user.firstName;
-  if (user.email) return user.email;
-  return "Unknown";
+/** Resolve a display name from a user object. */
+function getUserName(user: { name?: string | null; email?: string | null } | null | undefined): string {
+  if (!user) return "Система";
+  return user.name || user.email || "Система";
 }
 
-export function DealHistoryTimeline({ history, loading = false, error = null }: DealHistoryTimelineProps) {
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12 text-muted-foreground">
-        <Loader2 className="mr-2 size-4 animate-spin" />
-        Loading history…
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center gap-3 py-12">
-        <div className="flex items-center gap-2 text-destructive">
-          <AlertCircle className="size-4" />
-          <span className="text-sm">{error}</span>
-        </div>
-        <Button variant="outline" size="sm">
-          Retry
-        </Button>
-      </div>
-    );
-  }
-
+export function DealHistoryTimeline({ history }: DealHistoryTimelineProps) {
   if (!history || history.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
-        No history yet
+      <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+        История изменений пуста
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <ol className="relative space-y-3 border-l border-border pl-4">
       {history.map((item) => {
-        const fromStage = item.fromStage?.name ?? "Previous Stage";
-        const toStage = item.toStage?.name ?? "New Stage";
-        const changedBy = item.changedByUser ? getUserName(item.changedByUser) : "Unknown";
+        const fromName = item.fromStage?.name;
+        const toName = item.toStage?.name ?? "—";
+        const toColor = item.toStage?.color || "#94a3b8";
 
         return (
-          <Card key={item.id} size="sm">
-            <CardContent>
-              <div className="flex items-start gap-3">
-                <Badge variant="outline" className="mt-0.5 shrink-0 gap-1">
-                  <History className="size-3" />
-                  Stage Change
-                </Badge>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="font-medium">{fromStage}</span>
-                    <ArrowRight className="size-3 text-muted-foreground" />
-                    <span className="font-medium">{toStage}</span>
-                  </div>
-                  <div className="mt-1 flex items-baseline gap-2 text-xs text-muted-foreground">
-                    <span>{formatDate(item.changedAt)}</span>
-                    <span>— {changedBy}</span>
-                  </div>
-                  {item.comment && (
-                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
-                      {item.comment}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <li key={item.id} className="relative">
+            {/* Timeline dot, coloured by the target stage */}
+            <span
+              className="absolute -left-[1.4rem] top-1.5 size-2.5 rounded-full ring-2 ring-background"
+              style={{ backgroundColor: toColor }}
+            />
+
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="font-medium">{fromName ?? "Начальный этап"}</span>
+              <ArrowRight className="size-3.5 text-muted-foreground" />
+              <span
+                className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 font-medium"
+                style={{
+                  backgroundColor: `${toColor}1a`,
+                  color: toColor,
+                }}
+              >
+                {toName}
+              </span>
+              {item.toStage?.isWonStage && (
+                <Badge variant="secondary" className="text-[10px]">выиграно</Badge>
+              )}
+              {item.toStage?.isLostStage && (
+                <Badge variant="outline" className="text-[10px]">потеряно</Badge>
+              )}
+            </div>
+
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+              <span>{formatDate(item.changedAt)}</span>
+              <span className="text-border">•</span>
+              <span>{getUserName(item.changedByUser)}</span>
+            </div>
+
+            {item.comment && (
+              <p className="mt-1.5 text-sm text-muted-foreground">{item.comment}</p>
+            )}
+          </li>
         );
       })}
-    </div>
+    </ol>
   );
 }

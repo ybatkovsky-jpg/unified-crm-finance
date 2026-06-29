@@ -336,7 +336,8 @@ export interface DealUpdateInput {
  */
 export interface DealMoveInput {
   stageId: string;
-  changedBy: string;
+  /** @deprecated Server now derives changedBy from the session. Kept for back-compat. */
+  changedBy?: string;
   comment?: string | null;
 }
 

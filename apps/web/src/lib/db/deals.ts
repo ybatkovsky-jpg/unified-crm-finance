@@ -258,13 +258,22 @@ export class DealRepository {
   }
 
   /**
-   * Get deal history entries
+   * Get deal history entries with related stage names and the user who made
+   * the change, so the UI can render "От этапа A → этап B, user, время".
    */
-  async getHistory(dealId: string): Promise<DealHistory[]> {
-    return prisma.dealHistory.findMany({
+  async getHistory(dealId: string) {
+    // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
+    // (query-extension $extends + спред локального типа → TS2321 excessive stack depth).
+    const args: Prisma.DealHistoryFindManyArgs = {
       where: { dealId },
       orderBy: { changedAt: 'desc' },
-    });
+      include: {
+        FromStage: { select: { id: true, name: true, color: true } },
+        ToStage: { select: { id: true, name: true, color: true, isWonStage: true, isLostStage: true } },
+        ChangedBy: { select: { id: true, name: true, email: true } },
+      },
+    };
+    return prisma.dealHistory.findMany(args);
   }
 }
 

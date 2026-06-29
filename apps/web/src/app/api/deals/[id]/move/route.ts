@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deals } from '@/lib/db/deals'
 import { prisma } from '@/lib/db/prisma'
+import { requireSession } from '@/lib/auth/session'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -18,17 +19,19 @@ interface RouteParams {
  * POST /api/deals/[id]/move
  *
  * Moves a deal to a different stage and records the transition in DealHistory.
+ * The actor (`changedBy`) is taken from the session — never from the request
+ * body — so audit records can't be forged.
  *
  * Body:
  * - stageId: string (required) - The target stage ID
  * - comment: string (optional) - Comment for the history record
- * - changedBy: string (required) - User ID who made the change
  */
 export async function POST(
   request: NextRequest,
   { params }: RouteParams
 ): Promise<NextResponse> {
   try {
+    const session = await requireSession()
     const { id } = await params
     const body = await request.json()
 
@@ -36,13 +39,6 @@ export async function POST(
     if (!body.stageId) {
       return NextResponse.json(
         { error: 'Validation failed', message: 'stageId is required' },
-        { status: 400 }
-      )
-    }
-
-    if (!body.changedBy) {
-      return NextResponse.json(
-        { error: 'Validation failed', message: 'changedBy (userId) is required' },
         { status: 400 }
       )
     }
@@ -64,11 +60,11 @@ export async function POST(
       )
     }
 
-    // Move stage and record history
+    // Move stage and record history (changedBy from session — can't be forged)
     await deals.moveStage(
       id,
       body.stageId,
-      body.changedBy,
+      session.id,
       body.comment
     )
 

@@ -1,10 +1,9 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -13,7 +12,7 @@ model ApprovalRequest {
   type                                   String
   entityId                               String
   status                                 String    @default("pending")
-  amount                                 Float?
+  amount                                 Decimal?  @db.Decimal(15, 2)
   requestedBy                            String
   decidedBy                              String?
   requestedAt                            DateTime  @default(now())
@@ -80,7 +79,7 @@ model BOMItem {
   category             String?
   quantity             Float
   unit                 String                 @default("шт")
-  price                Float                  @default(0)
+  price                Decimal                @default(0) @db.Decimal(15, 2)
   supplierId           String?
   status               String                 @default("pending")
   isFromWarehouse      Boolean                @default(false)
@@ -102,7 +101,7 @@ model Budget {
   id         String   @id
   projectId  String
   categoryId String
-  amount     Float
+  amount     Decimal  @db.Decimal(15, 2)
   period     String
   note       String?
   createdAt  DateTime @default(now())
@@ -116,7 +115,7 @@ model Budget {
 model CashFlowPayment {
   id             String        @id
   date           DateTime
-  amount         Float
+  amount         Decimal       @db.Decimal(15, 2)
   type           String
   counterpartyId String?
   projectId      String?
@@ -229,7 +228,7 @@ model Contract {
   contactId        String
   templateId       String?
   title            String
-  amount           Float             @default(0)
+  amount           Decimal           @default(0) @db.Decimal(15, 2)
   currency         String            @default("RUB")
   startDate        DateTime?
   endDate          DateTime?
@@ -334,7 +333,7 @@ model Deal {
   pipelineId        String
   stageId           String
   contactId         String?
-  amount            Float         @default(0)
+  amount            Decimal       @default(0) @db.Decimal(15, 2)
   currency          String        @default("RUB")
   expectedCloseDate DateTime?
   actualCloseDate   DateTime?
@@ -377,6 +376,9 @@ model DealHistory {
   changedBy   String
   changedAt   DateTime @default(now())
   Deal        Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  FromStage   DealStage? @relation("DealHistory_FromStage", fields: [fromStageId], references: [id])
+  ToStage     DealStage? @relation("DealHistory_ToStage", fields: [toStageId], references: [id])
+  ChangedBy   User       @relation("DealHistory_ChangedBy", fields: [changedBy], references: [id])
 
   @@index([dealId, changedAt])
 }
@@ -392,6 +394,8 @@ model DealStage {
   isLostStage Boolean  @default(false)
   color       String?
   Deal        Deal[]
+  DealHistory_FromStage DealHistory[] @relation("DealHistory_FromStage")
+  DealHistory_ToStage   DealHistory[] @relation("DealHistory_ToStage")
   Pipeline    Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
 
   @@unique([pipelineId, code])
@@ -505,24 +509,26 @@ model EventRecurrence {
 }
 
 model FileEntity {
-  id                 String            @id
-  fileName           String
-  storageKey         String
-  mimeType           String?
-  size               Int
-  bucket             String            @default("default")
-  uploadedBy         String?
-  createdAt          DateTime          @default(now())
-  BOM                BOM?
-  Contract           Contract[]
-  ContractVersion    ContractVersion[]
-  DealAsActFile      Deal[]            @relation("Deal_ActFile")
-  DealAsDrawingFile  Deal[]            @relation("Deal_DrawingFile")
-  Invoice            Invoice?
-  ProjectAsSpecFile  Project[]         @relation("Project_SpecFile")
-  User               User?             @relation(fields: [uploadedBy], references: [id])
-  Comment            Comment[]
-  Interaction        Interaction[]
+  id                String            @id
+  fileName          String
+  storageKey        String
+  mimeType          String?
+  size              Int
+  bucket            String            @default("default")
+  uploadedBy        String?
+  createdAt         DateTime          @default(now())
+  BOM               BOM?
+  Contract          Contract[]
+  ContractVersion   ContractVersion[]
+  DealAsActFile     Deal[]            @relation("Deal_ActFile")
+  DealAsDrawingFile Deal[]            @relation("Deal_DrawingFile")
+  Invoice           Invoice?
+  InvoiceAsRawFile  Invoice?          @relation("Invoice_RawFile")
+  ProjectAsSpecFile Project[]         @relation("Project_SpecFile")
+  BankStatement     BankStatement[]   @relation("BankStatement_SourceFile")
+  User              User?             @relation(fields: [uploadedBy], references: [id])
+  Comment           Comment[]
+  Interaction       Interaction[]
 
   @@index([uploadedBy])
 }
@@ -584,26 +590,31 @@ model Interaction {
 }
 
 model Invoice {
-  id            String        @id
-  number        String        @unique
-  projectId     String
-  supplierId    String
-  invoiceNumber String?
-  totalAmount   Float         @default(0)
-  status        String        @default("received")
-  receivedAt    DateTime      @default(now())
-  paidAt        DateTime?
-  dueDate       DateTime?
-  notes         String?
-  sourceFileId  String?       @unique
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime
-  Delivery      Delivery?
-  FileEntity    FileEntity?   @relation(fields: [sourceFileId], references: [id])
-  Counterparty  Counterparty  @relation(fields: [supplierId], references: [id])
-  Project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  InvoiceItem   InvoiceItem[]
-  Transaction   Transaction[]
+  id                       String                     @id
+  number                   String                     @unique
+  projectId                String
+  supplierId               String
+  invoiceNumber            String?
+  totalAmount              Decimal                    @default(0) @db.Decimal(15, 2)
+  status                   String                     @default("received")
+  receivedAt               DateTime                   @default(now())
+  paidAt                   DateTime?
+  dueDate                  DateTime?
+  notes                    String?
+  sourceFileId             String?                    @unique
+  rawText                  String?
+  rawFileId                String?                    @unique
+  verificationResult       Json?
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime
+  Delivery                 Delivery?
+  RawFile                  FileEntity?                @relation("Invoice_RawFile", fields: [rawFileId], references: [id])
+  FileEntity               FileEntity?                @relation(fields: [sourceFileId], references: [id])
+  Counterparty             Counterparty               @relation(fields: [supplierId], references: [id])
+  Project                  Project                    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  InvoiceItem              InvoiceItem[]
+  Transaction              Transaction[]
+  TransactionMatchingAudit TransactionMatchingAudit[]
 
   @@index([status])
   @@index([supplierId])
@@ -616,7 +627,8 @@ model InvoiceItem {
   bomItemId      String?
   name           String
   quantity       Float
-  price          Float    @default(0)
+  price          Decimal  @default(0) @db.Decimal(15, 2)
+  totalPrice     Decimal? @db.Decimal(15, 2)
   isMatch        Boolean  @default(false)
   mismatchReason String?
   BOMItem        BOMItem? @relation(fields: [bomItemId], references: [id])
@@ -629,7 +641,7 @@ model Lead {
   id                String    @id
   contactId         String
   status            String    @default("new")
-  value             Float?
+  value             Decimal?  @db.Decimal(15, 2)
   currency          String    @default("RUB")
   expectedCloseDate DateTime?
   notes             String?
@@ -693,44 +705,45 @@ model Pipeline {
 }
 
 model Project {
-  id              String            @id
-  externalNumber  String            @unique
-  name            String
-  description     String?
-  dealId          String?           @unique
-  contractId      String?           @unique
-  contactId       String?
-  specFileId      String?
-  status          String            @default("lead")
-  contractAmount  Float             @default(0)
-  currency        String            @default("RUB")
-  startDate       DateTime?
-  endDate         DateTime?
-  completedAt     DateTime?
-  marginTarget    Float             @default(0.25)
-  qualityRating   String?
-  deadlineStatus  String            @default("on_track")
-  managerId       String?
-  attributes      Json?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime
-  deletedAt       DateTime?
-  BOM             BOM?
-  Budget          Budget[]
-  CashFlowPayment CashFlowPayment[]
-  Delivery        Delivery[]
-  EmailLog        EmailLog[]
-  Event           Event[]
-  Invoice         Invoice[]
-  SpecFile        FileEntity?       @relation("Project_SpecFile", fields: [specFileId], references: [id])
-  User            User?             @relation(fields: [managerId], references: [id])
-  Contact         Contact?          @relation(fields: [contactId], references: [id])
-  ProjectMember   ProjectMember[]
-  ProjectStage    ProjectStage[]
-  Production      Production?
-  PurchaseRequest PurchaseRequest[]
-  Task            Task[]
-  Transaction     Transaction[]
+  id                   String                 @id
+  externalNumber       String                 @unique
+  name                 String
+  description          String?
+  dealId               String?                @unique
+  contractId           String?                @unique
+  contactId            String?
+  specFileId           String?
+  status               String                 @default("lead")
+  contractAmount       Decimal                @default(0) @db.Decimal(15, 2)
+  currency             String                 @default("RUB")
+  startDate            DateTime?
+  endDate              DateTime?
+  completedAt          DateTime?
+  marginTarget         Float                  @default(0.25)
+  qualityRating        String?
+  deadlineStatus       String                 @default("on_track")
+  managerId            String?
+  attributes           Json?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime
+  deletedAt            DateTime?
+  BOM                  BOM?
+  Budget               Budget[]
+  CashFlowPayment      CashFlowPayment[]
+  Delivery             Delivery[]
+  EmailLog             EmailLog[]
+  Event                Event[]
+  Invoice              Invoice[]
+  SpecFile             FileEntity?            @relation("Project_SpecFile", fields: [specFileId], references: [id])
+  User                 User?                  @relation(fields: [managerId], references: [id])
+  Contact              Contact?               @relation(fields: [contactId], references: [id])
+  ProjectMember        ProjectMember[]
+  ProjectStage         ProjectStage[]
+  Production           Production?
+  PurchaseRequest      PurchaseRequest[]
+  Task                 Task[]
+  Transaction          Transaction[]
+  ProjectStatusHistory ProjectStatusHistory[]
 
   @@index([contractId])
   @@index([dealId])
@@ -771,21 +784,21 @@ model ProjectStage {
 }
 
 model Production {
-  id                String            @id
-  projectId         String            @unique
-  status            String            @default("planning")
-  plannedStartDate  DateTime?
-  plannedEndDate    DateTime?
-  actualStartDate   DateTime?
-  actualEndDate     DateTime?
-  progress          Float             @default(0)
-  notes             String?
-  attributes        Json?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime
-  deletedAt         DateTime?
-  Project           Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  ProductionStage   ProductionStage[]
+  id               String            @id
+  projectId        String            @unique
+  status           String            @default("planning")
+  plannedStartDate DateTime?
+  plannedEndDate   DateTime?
+  actualStartDate  DateTime?
+  actualEndDate    DateTime?
+  progress         Float             @default(0)
+  notes            String?
+  attributes       Json?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime
+  deletedAt        DateTime?
+  Project          Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ProductionStage  ProductionStage[]
 
   @@index([status])
   @@index([deletedAt])
@@ -793,20 +806,23 @@ model Production {
 }
 
 model ProductionStage {
-  id              String       @id
-  productionId    String
-  code            String
-  name            String
-  order           Int
-  status          String       @default("pending")
-  startDate       DateTime?
-  endDate         DateTime?
-  completedAt     DateTime?
-  assigneeId      String?
-  notes           String?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime
-  Production      Production   @relation(fields: [productionId], references: [id], onDelete: Cascade)
+  id                     String     @id
+  productionId           String
+  code                   String
+  name                   String
+  order                  Int
+  status                 String     @default("pending")
+  startDate              DateTime?
+  endDate                DateTime?
+  completedAt            DateTime?
+  assigneeId             String?
+  notes                  String?
+  delayReason            String?
+  customReason           String?
+  expectedCompletionDate DateTime?
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime
+  Production             Production @relation(fields: [productionId], references: [id], onDelete: Cascade)
 
   @@unique([productionId, code])
   @@index([productionId, order])
@@ -841,7 +857,7 @@ model PurchaseRequestItem {
   requestId       String
   bomItemId       String
   quantity        Float
-  price           Float           @default(0)
+  price           Decimal         @default(0) @db.Decimal(15, 2)
   available       Boolean         @default(false)
   availableQty    Float           @default(0)
   deliveryDays    Int             @default(0)
@@ -943,7 +959,7 @@ model Transaction {
   invoiceId      String?
   createdBy      String
   date           DateTime
-  amount         Float
+  amount         Decimal       @db.Decimal(15, 2)
   type           String
   description    String?
   source         String        @default("manual")
@@ -967,20 +983,20 @@ model Transaction {
 }
 
 model User {
-  id                                                String            @id
-  email                                             String            @unique
+  id                                                String                 @id
+  email                                             String                 @unique
   name                                              String
   passwordHash                                      String
   phone                                             String?
   telegramId                                        String?
   avatarUrl                                         String?
-  isActive                                          Boolean           @default(true)
+  isActive                                          Boolean                @default(true)
   lastLoginAt                                       DateTime?
-  createdAt                                         DateTime          @default(now())
+  createdAt                                         DateTime               @default(now())
   updatedAt                                         DateTime
   deletedAt                                         DateTime?
-  ApprovalRequest_ApprovalRequest_decidedByToUser   ApprovalRequest[] @relation("ApprovalRequest_decidedByToUser")
-  ApprovalRequest_ApprovalRequest_requestedByToUser ApprovalRequest[] @relation("ApprovalRequest_requestedByToUser")
+  ApprovalRequest_ApprovalRequest_decidedByToUser   ApprovalRequest[]      @relation("ApprovalRequest_decidedByToUser")
+  ApprovalRequest_ApprovalRequest_requestedByToUser ApprovalRequest[]      @relation("ApprovalRequest_requestedByToUser")
   AuditLog                                          AuditLog[]
   Comment                                           Comment[]
   Contact                                           Contact[]
@@ -990,9 +1006,11 @@ model User {
   Notification                                      Notification[]
   Project                                           Project[]
   ProjectMember                                     ProjectMember[]
+  ProjectStatusHistory                              ProjectStatusHistory[] @relation("User_StatusChanges")
   RefreshToken                                      RefreshToken[]
-  Task_Task_createdByToUser                         Task[]            @relation("Task_createdByToUser")
-  Task_Task_assigneeIdToUser                        Task[]            @relation("Task_assigneeIdToUser")
+  Task_Task_createdByToUser                         Task[]                 @relation("Task_createdByToUser")
+  Task_Task_assigneeIdToUser                        Task[]                 @relation("Task_assigneeIdToUser")
+  DealHistory_ChangedBy                             DealHistory[]          @relation("DealHistory_ChangedBy")
   UserRole                                          UserRole[]
 
   @@index([deletedAt])
@@ -1042,4 +1060,126 @@ model WarehouseTransaction {
   WarehouseItem   WarehouseItem @relation(fields: [warehouseItemId], references: [id], onDelete: Cascade)
 
   @@index([warehouseItemId])
+}
+
+/// Выписка банка, загруженная как файл/парсинг (zakuppro: bank statement import).
+model BankStatement {
+  id              String            @id
+  accountNumber   String?
+  statementDate   DateTime
+  periodFrom      DateTime?
+  periodTo        DateTime?
+  currency        String            @default("RUB")
+  totalIncome     Decimal           @default(0) @db.Decimal(15, 2)
+  totalExpense    Decimal           @default(0) @db.Decimal(15, 2)
+  sourceFileId    String?
+  status          String            @default("parsed")
+  parsedAt        DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  FileEntity      FileEntity?       @relation("BankStatement_SourceFile", fields: [sourceFileId], references: [id])
+  BankTransaction BankTransaction[]
+
+  @@index([statementDate])
+  @@index([status])
+}
+
+/// Движение по счёту из выписки. Отдельно от Transaction (другой lifecycle/constraints,
+/// поступает извне, матчится к Invoice/Transaction позже).
+model BankTransaction {
+  id                       String                     @id
+  statementId              String
+  transactionDate          DateTime
+  amount                   Decimal                    @db.Decimal(15, 2)
+  direction                String
+  counterpartyName         String?
+  counterpartyInn          String?
+  counterpartyAccount      String?
+  description              String?
+  paymentPurpose           String?
+  matchingStatus           String                     @default("unmatched")
+  externalId               String?
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime
+  BankStatement            BankStatement              @relation(fields: [statementId], references: [id], onDelete: Cascade)
+  TransactionMatchingAudit TransactionMatchingAudit[]
+  UnresolvedTransaction    UnresolvedTransaction[]
+
+  @@index([statementId])
+  @@index([transactionDate])
+  @@index([matchingStatus])
+  @@index([counterpartyInn])
+}
+
+/// Аудит сопоставления движения по выписке с Invoice (AI/правило/ручное).
+model TransactionMatchingAudit {
+  id                String          @id
+  bankTransactionId String
+  invoiceId         String?
+  confidenceScore   Decimal         @db.Decimal(15, 2)
+  method            String
+  decision          String          @default("auto")
+  matchedBy         String?
+  notes             String?
+  createdAt         DateTime        @default(now())
+  BankTransaction   BankTransaction @relation(fields: [bankTransactionId], references: [id], onDelete: Cascade)
+  Invoice           Invoice?        @relation(fields: [invoiceId], references: [id])
+
+  @@index([bankTransactionId])
+  @@index([invoiceId])
+  @@index([decision])
+}
+
+/// Движение по выписке, которое не удалось размечнуть — очередь ручного разбора.
+model UnresolvedTransaction {
+  id                String          @id
+  bankTransactionId String
+  amount            Decimal         @db.Decimal(15, 2)
+  reason            String?
+  attempts          Int             @default(0)
+  status            String          @default("open")
+  resolvedAt        DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime
+  BankTransaction   BankTransaction @relation(fields: [bankTransactionId], references: [id], onDelete: Cascade)
+
+  @@index([bankTransactionId])
+  @@index([status])
+}
+
+/// DLQ фоновых задач (Celery в zakuppro: AI-парсинг, email, telegram) — хранение упавших задач для повтора/разбора.
+model FailedTask {
+  id            String    @id
+  taskType      String
+  taskName      String?
+  payload       Json
+  error         String?
+  errorTrace    String?
+  attempts      Int       @default(0)
+  status        String    @default("pending")
+  lastAttemptAt DateTime?
+  nextRetryAt   DateTime?
+  resolvedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+
+  @@index([status])
+  @@index([taskType])
+  @@index([nextRetryAt])
+}
+
+/// История смены статусов проекта (production-трекинг zakuppro).
+model ProjectStatusHistory {
+  id          String   @id
+  projectId   String
+  fromStatus  String?
+  toStatus    String
+  changedById String?
+  reason      String?
+  changedAt   DateTime @default(now())
+  createdAt   DateTime @default(now())
+  Project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  User        User?    @relation("User_StatusChanges", fields: [changedById], references: [id])
+
+  @@index([projectId, changedAt])
 }

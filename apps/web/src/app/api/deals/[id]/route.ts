@@ -39,6 +39,13 @@ export async function GET(
       ActFile: true,
       DealHistory: {
         orderBy: { changedAt: 'desc' },
+        // Eager-load stage names + the user who made each change so the UI can
+        // render "A → B, user, время" without extra round-trips.
+        include: {
+          FromStage: { select: { id: true, name: true, color: true } },
+          ToStage: { select: { id: true, name: true, color: true, isWonStage: true, isLostStage: true } },
+          ChangedBy: { select: { id: true, name: true, email: true } },
+        },
       },
     })
 
@@ -49,9 +56,24 @@ export async function GET(
       )
     }
 
-    // Map Prisma PascalCase relations to API lowercase shape
+    // Map Prisma PascalCase relations to API lowercase shape.
+    // DealHistory items also need inner PascalCase→camelCase mapping for the
+    // nested relations (FromStage→fromStage, etc.).
     const { DealStage, Pipeline, Contact, User, DrawingFile, ActFile, DealHistory, ...rest } =
-      deal as Record<string, unknown> & { DealStage?: unknown; Pipeline?: unknown; Contact?: unknown; User?: unknown; DrawingFile?: unknown; ActFile?: unknown; DealHistory?: unknown }
+      deal as Record<string, unknown> & {
+        DealStage?: unknown; Pipeline?: unknown; Contact?: unknown; User?: unknown;
+        DrawingFile?: unknown; ActFile?: unknown;
+        DealHistory?: Array<Record<string, unknown>>;
+      }
+    const history = (DealHistory ?? []).map((h) => {
+      const { FromStage, ToStage, ChangedBy, ...entry } = h
+      return {
+        ...entry,
+        fromStage: FromStage ?? null,
+        toStage: ToStage ?? null,
+        changedByUser: ChangedBy ?? null,
+      }
+    })
     const mapped = {
       ...rest,
       stage: DealStage ?? null,
@@ -60,7 +82,7 @@ export async function GET(
       manager: User ?? null,
       drawingFile: DrawingFile ?? null,
       actFile: ActFile ?? null,
-      history: DealHistory ?? [],
+      history,
     }
 
     return NextResponse.json({ data: mapped })
