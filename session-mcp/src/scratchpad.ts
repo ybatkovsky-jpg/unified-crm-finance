@@ -39,7 +39,7 @@ export interface ScratchpadState {
 // ── Paths ────────────────────────────────────────────────────
 
 const PROJECT_ROOT = path.resolve(
-  process.env.ERP_PROJECT_ROOT || path.join(process.cwd(), "..")
+  process.env.ERP_PROJECT_ROOT || process.cwd()
 );
 
 const GSD_DIR = path.join(PROJECT_ROOT, ".gsd", "integration");
