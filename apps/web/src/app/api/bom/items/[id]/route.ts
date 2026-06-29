@@ -83,6 +83,24 @@ export async function PATCH(
       )
     }
 
+    // Check if the BOM is locked (editing items of a locked BOM is forbidden)
+    const existing = await prisma.bOMItem.findUnique({
+      where: { id },
+      include: { BOM: { select: { status: true } } },
+    })
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Not found', message: `BOMItem with id ${id} not found` },
+        { status: 404 }
+      )
+    }
+    if (existing.BOM.status === 'locked') {
+      return NextResponse.json(
+        { error: 'BOM is locked', message: 'Cannot edit items of a locked BOM' },
+        { status: 409 }
+      )
+    }
+
     const updateData: BOMItemUpdateInput = {}
     if (body.rowNumber !== undefined) updateData.rowNumber = body.rowNumber
     if (body.name !== undefined) updateData.name = body.name

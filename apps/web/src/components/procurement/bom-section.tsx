@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { bomApi, ApiClientError } from "@/lib/api/bom"
 import { counterpartiesApi } from "@/lib/api/counterparties"
+import { purchaseRequestsApi } from "@/lib/api/purchase-requests"
 import type { BOMData, BOMItemData, BOMItemCreateInput, BOMItemUpdateInput, CounterpartyData } from "@/lib/api/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -62,7 +63,7 @@ type BOMSectionState =
   | { kind: "no-bom" }
   | { kind: "uploading-excel"; rows: ParsedExcelRow[] }
   | { kind: "creating-bom" }
-  | { kind: "has-bom"; bom: BOMData; items: BOMItemData[] }
+  | { kind: "has-bom"; bom: BOMData; items: BOMItemData[]; procurementCovered?: number }
   | { kind: "error"; message: string }
 
 // ---------------------------------------------------------------------------
@@ -217,6 +218,28 @@ export function BOMSection({ projectId }: { projectId: string }) {
     fetchBOM()
     fetchSuppliers()
   }, [fetchBOM, fetchSuppliers])
+
+  // Fetch procurement coverage for PROJ-07 tracking
+  useEffect(() => {
+    if (state.kind !== "has-bom") return
+    let cancelled = false
+    purchaseRequestsApi.getPurchaseRequests({ projectId } as any)
+      .then((res: any) => {
+        if (cancelled) return
+        const prs = res.data ?? []
+        const coveredIds = new Set<string>()
+        for (const pr of prs) {
+          for (const item of (pr.items ?? pr.PurchaseRequestItem ?? [])) {
+            if (item.bomItemId) coveredIds.add(item.bomItemId)
+          }
+        }
+        setState((prev) =>
+          prev.kind === "has-bom" ? { ...prev, procurementCovered: coveredIds.size } : prev
+        )
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [state.kind === "has-bom" ? (state as any).bom?.id : null, projectId])
 
   // -----------------------------------------------------------------------
   // Excel handling
@@ -723,6 +746,13 @@ export function BOMSection({ projectId }: { projectId: string }) {
                   ? "Заблокирован"
                   : state.bom.status}
             </Badge>
+            {state.procurementCovered !== undefined && state.items.length > 0 && (
+              <Badge
+                variant={state.procurementCovered === state.items.length ? "default" : "outline"}
+              >
+                {state.procurementCovered}/{state.items.length} заказано
+              </Badge>
+            )}
           </div>
           <div className="flex gap-2">
             {isLocked ? (

@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { projects } from '@/lib/db/projects'
+import { requireSession } from '@/lib/auth/session'
 import { prisma } from '@/lib/db/prisma'
 
 interface RouteParams {
@@ -127,6 +128,8 @@ export async function PATCH(
       )
     }
 
+    const session = await requireSession()
+
     // Prepare update data (only allow specific fields)
     const updateData: Record<string, unknown> = {}
     if (body.name !== undefined) updateData.name = body.name
@@ -147,7 +150,7 @@ export async function PATCH(
     if (body.attributes !== undefined) updateData.attributes = body.attributes
     if (body.specFileId !== undefined) updateData.specFileId = body.specFileId
 
-    const updatedProject = await projects.update(id, updateData)
+    const updatedProject = await projects.update(id, updateData, session.id)
 
     return NextResponse.json({ data: updatedProject })
   } catch (error) {

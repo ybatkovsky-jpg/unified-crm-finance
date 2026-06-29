@@ -5,6 +5,8 @@ import Link from "next/link"
 import { RefreshCwIcon, ArrowLeftIcon, StarIcon, Building2Icon, BanknoteIcon, FileTextIcon } from "lucide-react"
 
 import { counterpartiesApi, ApiClientError } from "@/lib/api/counterparties"
+import { purchaseRequestsApi } from "@/lib/api/purchase-requests"
+import { invoicesApi } from "@/lib/api/invoices"
 import type { CounterpartyData } from "@/lib/api/types"
 import { CounterpartyHistory } from "@/components/procurement/counterparty-history"
 import { Badge } from "@/components/ui/badge"
@@ -18,6 +20,9 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("details")
+  const [purchaseRequests, setPurchaseRequests] = useState<any[]>([])
+  const [invoices, setInvoices] = useState<any[]>([])
+  const [loadingTab, setLoadingTab] = useState(false)
 
   const fetchCounterparty = useCallback(async () => {
     setLoading(true)
@@ -44,6 +49,23 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
   useEffect(() => {
     fetchCounterparty()
   }, [fetchCounterparty])
+
+  useEffect(() => {
+    if (activeTab === "purchase-requests" && purchaseRequests.length === 0) {
+      setLoadingTab(true)
+      purchaseRequestsApi.getPurchaseRequests({ supplierId: counterpartyId } as any)
+        .then((res: any) => setPurchaseRequests(res.data ?? []))
+        .catch(() => {})
+        .finally(() => setLoadingTab(false))
+    }
+    if (activeTab === "invoices" && invoices.length === 0) {
+      setLoadingTab(true)
+      invoicesApi.getInvoices({ supplierId: counterpartyId } as any)
+        .then((res: any) => setInvoices(res.data ?? []))
+        .catch(() => {})
+        .finally(() => setLoadingTab(false))
+    }
+  }, [activeTab, counterpartyId])
 
   const handleRetry = () => {
     fetchCounterparty()
@@ -265,9 +287,9 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
             </CardHeader>
             <CardContent>
               <CounterpartyHistory
-                data={[]}
+                data={purchaseRequests}
                 columns={purchaseRequestColumns}
-                emptyMessage="No purchase requests yet"
+                emptyMessage={loadingTab ? "Loading..." : "No purchase requests yet"}
               />
             </CardContent>
           </Card>
@@ -280,9 +302,9 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
             </CardHeader>
             <CardContent>
               <CounterpartyHistory
-                data={[]}
+                data={invoices}
                 columns={invoiceColumns}
-                emptyMessage="No invoices yet"
+                emptyMessage={loadingTab ? "Loading..." : "No invoices yet"}
               />
             </CardContent>
           </Card>
@@ -297,7 +319,7 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
               <CounterpartyHistory
                 data={[]}
                 columns={deliveryColumns}
-                emptyMessage="No deliveries yet"
+                emptyMessage="Deliveries not yet implemented"
               />
             </CardContent>
           </Card>

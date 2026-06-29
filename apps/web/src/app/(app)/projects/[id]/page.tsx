@@ -11,6 +11,7 @@ import { ProductionList } from "@/components/projects/production-list"
 import { CreateProductionModal } from "@/components/projects/create-production-modal"
 import { BOMSection } from "@/components/procurement/bom-section"
 import { BudgetWidget } from "@/components/finance/budget-widget"
+import { StatusHistoryCard } from "@/components/projects/status-history-card"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -832,25 +833,28 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           {/* Metadata */}
           <Card>
             <CardHeader>
-              <CardTitle>\М\е\т\а\д\а\н\н\ы\е</CardTitle>
+              <CardTitle>Метаданные</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">\С\о\з\д\а\н</span>
+                <span className="text-muted-foreground">Создан</span>
                 <span>{new Date(project.createdAt).toLocaleDateString("ru-RU")}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">\О\б\н\о\в\л\ё\н</span>
+                <span className="text-muted-foreground">Обновлён</span>
                 <span>{new Date(project.updatedAt).toLocaleDateString("ru-RU")}</span>
               </div>
               {project.completedAt && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">\З\а\в\е\р\ш\ё\н</span>
+                  <span className="text-muted-foreground">Завершён</span>
                   <span>{new Date(project.completedAt).toLocaleDateString("ru-RU")}</span>
                 </div>
               )}
             </CardContent>
           </Card>
+
+          {/* Status History */}
+          <StatusHistoryCard projectId={project.id} />
         </div>
       </div>
     </div>

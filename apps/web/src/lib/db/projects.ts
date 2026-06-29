@@ -162,21 +162,41 @@ export class ProjectRepository {
    */
   async update(
     id: string,
-    data: ProjectUpdateInput
+    data: ProjectUpdateInput,
+    changedById?: string
   ): Promise<Project> {
-    // Verify project exists and not deleted
     const existing = await this.findUnique(id);
     if (!existing) {
       throw new Error(`Project with id ${id} not found`);
     }
 
-    return prisma.project.update({
-      where: { id },
-      data: {
-        ...data,
-        updatedAt: new Date(),
-      },
+    const newStatus = (data as Record<string,unknown>).status as string | undefined;
+    const shouldRecordHistory = newStatus && newStatus !== existing.status && changedById;
+
+    const result = await prisma.$transaction(async (tx) => {
+      const updated = await tx.project.update({
+        where: { id },
+        data: { ...data, updatedAt: new Date() },
+      });
+
+      if (shouldRecordHistory) {
+        await tx.projectStatusHistory.create({
+          data: {
+            id: randomUUID(),
+            projectId: id,
+            fromStatus: existing.status,
+            toStatus: newStatus!,
+            changedById,
+            changedAt: new Date(),
+            createdAt: new Date(),
+          },
+        });
+      }
+
+      return updated;
     });
+
+    return result;
   }
 
   /**
@@ -392,13 +412,27 @@ export class ProjectRepository {
         deal = existingDeal;
       }
 
-      // 4. Update project status to completed
+      // 4. Update project status to completed + record history
       const updatedProject = await tx.project.update({
         where: { id: projectId },
         data: {
           status: 'completed',
           completedAt: now,
           updatedAt: now,
+        },
+      });
+
+      // Record ProjectStatusHistory for the completion
+      await tx.projectStatusHistory.create({
+        data: {
+          id: randomUUID(),
+          projectId,
+          fromStatus: project.status,
+          toStatus: 'completed',
+          changedById: userId,
+          reason: 'Проект завершён (все этапы выполнены)',
+          changedAt: now,
+          createdAt: now,
         },
       });
 
@@ -435,6 +469,19 @@ export class ProjectRepository {
         project: updatedProject,
         deal: updatedDeal,
       };
+    });
+  }
+
+  /**
+   * Get project status history entries with the user who made each change.
+   */
+  async getHistory(projectId: string) {
+    return prisma.projectStatusHistory.findMany({
+      where: { projectId },
+      orderBy: { changedAt: 'desc' },
+      include: {
+        User: { select: { id: true, name: true, email: true } },
+      },
     });
   }
 }

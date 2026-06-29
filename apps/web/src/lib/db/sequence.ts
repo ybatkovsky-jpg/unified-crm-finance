@@ -7,8 +7,6 @@
  * Проект и договор получают ОДИН общий номер (ТЗ: «Номер один на проект и договор»).
  */
 
-import type { PrismaClient } from '@prisma/client'
-
 /** Format: ПМ2026-0001 */
 export const PROJECT_PREFIX = 'ПМ'
 
@@ -23,7 +21,7 @@ export function formatProjectNumber(year: number, seq: number): string {
  * Считает количество существующих проектов с префиксом ПМ{year} и возвращает count+1.
  */
 export async function nextProjectNumber(
-  tx: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>,
+  tx: any,
   year: number
 ): Promise<string> {
   const prefix = `${PROJECT_PREFIX}${year}`

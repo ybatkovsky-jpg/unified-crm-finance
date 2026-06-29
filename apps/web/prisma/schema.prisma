@@ -598,6 +598,7 @@ model Invoice {
   number                   String                     @unique
   projectId                String
   supplierId               String
+  purchaseRequestId        String?
   invoiceNumber            String?
   totalAmount              Decimal                    @default(0) @db.Decimal(15, 2)
   status                   String                     @default("received")
@@ -615,6 +616,7 @@ model Invoice {
   RawFile                  FileEntity?                @relation("Invoice_RawFile", fields: [rawFileId], references: [id])
   FileEntity               FileEntity?                @relation(fields: [sourceFileId], references: [id])
   Counterparty             Counterparty               @relation(fields: [supplierId], references: [id])
+  PurchaseRequest          PurchaseRequest?           @relation(fields: [purchaseRequestId], references: [id])
   Project                  Project                    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   InvoiceItem              InvoiceItem[]
   Transaction              Transaction[]
@@ -852,6 +854,7 @@ model PurchaseRequest {
   Counterparty        Counterparty          @relation(fields: [supplierId], references: [id])
   Project             Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
   PurchaseRequestItem PurchaseRequestItem[]
+  Invoice             Invoice[]
 
   @@index([status])
   @@index([supplierId])

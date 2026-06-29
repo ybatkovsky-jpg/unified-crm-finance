@@ -11,7 +11,20 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { projects } from '../../../lib/db/projects'
+import { prisma } from '../../../lib/db/prisma'
+import { randomUUID } from 'node:crypto'
 import { mapErrorToResponse } from '../../../lib/api/error-mapping'
+
+/** Default project stages per ROADMAP Phase 5 */
+const DEFAULT_PROJECT_STAGES = [
+  { code: 'measurement_2', name: 'Замер #2', order: 1 },
+  { code: 'specification', name: 'ТЗ / Спецификация', order: 2 },
+  { code: 'procurement', name: 'Закупки', order: 3 },
+  { code: 'production', name: 'Производство', order: 4 },
+  { code: 'installation', name: 'Монтаж', order: 5 },
+  { code: 'acceptance', name: 'Акт', order: 6 },
+  { code: 'closure', name: 'Закрытие', order: 7 },
+]
 
 /**
  * GET /api/projects
@@ -111,6 +124,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const newProject = await projects.create(createData)
+
+    // Auto-create default project stages (7 stages per ROADMAP)
+    const now = new Date()
+    await prisma.projectStage.createMany({
+      data: DEFAULT_PROJECT_STAGES.map((s) => ({
+        id: randomUUID(),
+        projectId: newProject.id,
+        code: s.code,
+        name: s.name,
+        order: s.order,
+        status: 'pending',
+      })),
+    })
 
     return NextResponse.json({ data: newProject }, { status: 201 })
   } catch (error) {
