@@ -14,6 +14,7 @@ import type {
   Prisma,
 } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
+import { nextProjectNumber } from './sequence';
 
 /**
  * Project creation input type
@@ -140,7 +141,7 @@ export class ProjectRepository {
       data: {
         ...data,
         id: data.id ?? randomUUID(),
-        externalNumber: data.externalNumber ?? this.generateExternalNumber(),
+        externalNumber: data.externalNumber ?? await nextProjectNumber(prisma, new Date().getFullYear()),
         createdAt: data.createdAt ?? now,
         updatedAt: data.updatedAt ?? now,
       },
@@ -148,12 +149,11 @@ export class ProjectRepository {
   }
 
   /**
-   * Generate external project number in format PRJ-YYYY-NNNNN
+   * Generate external project number in format ПМ{YYYY}-{NNNN}
+   * (delegates to shared sequence generator).
    */
-  private generateExternalNumber(): string {
-    const year = new Date().getFullYear();
-    const random = Math.floor(Math.random() * 99999).toString().padStart(5, '0');
-    return `PRJ-${year}-${random}`;
+  private async generateExternalNumber(): Promise<string> {
+    return nextProjectNumber(prisma, new Date().getFullYear());
   }
 
   /**

@@ -49,18 +49,22 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         Pipeline: true,
         Contact: true,
         User: true,
+        LeadSource: { select: { id: true, code: true, name: true, description: true, isActive: true } },
+        Project: { select: { id: true, endDate: true, externalNumber: true } },
       },
     })
 
     // Map Prisma PascalCase relations to API lowercase shape
     const mapped = allDeals.map((deal) => {
-      const { DealStage, Pipeline, Contact, User, ...rest } = deal as Record<string, unknown> & { DealStage?: unknown; Pipeline?: unknown; Contact?: unknown; User?: unknown }
+      const { DealStage, Pipeline, Contact, User, LeadSource, Project, ...rest } = deal as Record<string, unknown> & { DealStage?: unknown; Pipeline?: unknown; Contact?: unknown; User?: unknown; LeadSource?: unknown; Project?: unknown }
       return {
         ...rest,
         stage: DealStage ?? null,
         pipeline: Pipeline ?? null,
         contact: Contact ?? null,
         manager: User ?? null,
+        source: LeadSource ?? null,
+        project: Project ?? null,
       }
     })
 
@@ -112,6 +116,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       pipelineId: body.pipelineId,
       stageId: body.stageId,
       contactId: body.contactId || null,
+      sourceId: body.sourceId || null,
       amount: body.amount ?? 0,
       currency: body.currency ?? 'RUB',
       expectedCloseDate: body.expectedCloseDate || null,

@@ -12,6 +12,7 @@ import type {
   Prisma,
 } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
+import { isValidLossReason } from '../loss-reasons';
 
 /**
  * Deal creation input type
@@ -174,13 +175,15 @@ export class DealRepository {
 
   /**
    * Move deal to a different stage
-   * Records the transition in DealHistory
+   * Records the transition in DealHistory.
+   * When moving to a lost stage, lossReason is mandatory (CRM-06).
    */
   async moveStage(
     dealId: string,
     toStageId: string,
     changedBy: string,
-    comment?: string
+    comment?: string,
+    lossReason?: string
   ): Promise<Deal> {
     const deal = await this.findUnique(dealId);
     if (!deal) {
@@ -188,6 +191,24 @@ export class DealRepository {
     }
 
     const fromStageId = deal.stageId;
+
+    // Resolve the target stage to check win/lost flags
+    const stage = await prisma.dealStage.findUnique({
+      where: { id: toStageId },
+    });
+    if (!stage) {
+      throw new Error(`DealStage with id ${toStageId} not found`);
+    }
+
+    // CRM-06: loss reason is mandatory when moving to a lost stage
+    if (stage.isLostStage) {
+      if (!lossReason) {
+        throw new Error('lossReason is required when moving to a lost stage');
+      }
+      if (!isValidLossReason(lossReason)) {
+        throw new Error(`Invalid loss reason: ${lossReason}. Valid values: too_expensive, competitor, changed_mind, lost_contact, other`);
+      }
+    }
 
     // Record history
     await prisma.dealHistory.create({
@@ -202,20 +223,22 @@ export class DealRepository {
       },
     });
 
-    // Update deal stage
+    // Update deal stage + lossReason
+    const updateData: Prisma.DealUncheckedUpdateInput = {
+      stageId: toStageId,
+      updatedAt: new Date(),
+    };
+    if (lossReason !== undefined) {
+      updateData.lossReason = lossReason;
+    }
+
     const updated = await prisma.deal.update({
       where: { id: dealId },
-      data: {
-        stageId: toStageId,
-        updatedAt: new Date(),
-      },
+      data: updateData,
     });
 
     // Set closedAt if moved to won/lost stage
-    const stage = await prisma.dealStage.findUnique({
-      where: { id: toStageId },
-    });
-    if (stage && (stage.isWonStage || stage.isLostStage)) {
+    if (stage.isWonStage || stage.isLostStage) {
       await prisma.deal.update({
         where: { id: dealId },
         data: {

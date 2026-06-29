@@ -7,7 +7,9 @@ import { dealsApi, ApiClientError } from "@/lib/api/deals"
 import { pipelinesApi } from "@/lib/api/pipelines"
 import { filesApi } from "@/lib/api/files"
 import { contractsApi } from "@/lib/api/contracts"
-import type { DealData, DealStageData, FileUploadFile } from "@/lib/api/types"
+import { getLeadSources } from "@/lib/api/lead-source"
+import { getLossReasonLabel } from "@/lib/loss-reasons"
+import type { DealData, DealStageData, FileUploadFile, LeadSourceData } from "@/lib/api/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -41,6 +43,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     expectedCloseDate: "",
     description: "",
     lossReason: "",
+    sourceId: "",
   })
   const [drawingFiles, setDrawingFiles] = useState<FileUploadFile[]>([])
   const [actFiles, setActFiles] = useState<FileUploadFile[]>([])
@@ -53,6 +56,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   const [movingStage, setMovingStage] = useState(false)
   // History section is collapsed by default (per UX decision).
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [leadSources, setLeadSources] = useState<LeadSourceData[]>([])
 
   const unwrapParams = useCallback(async () => {
     return await params
@@ -73,6 +77,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           : "",
         description: response.data.description || "",
         lossReason: response.data.lossReason || "",
+        sourceId: response.data.source?.id || "",
       })
 
       // Load pipeline stages for the inline stage selector.
@@ -151,6 +156,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         expectedCloseDate: editForm.expectedCloseDate || undefined,
         description: editForm.description || undefined,
         lossReason: editForm.lossReason || undefined,
+        sourceId: editForm.sourceId || undefined,
       })
 
       setDeal(response.data)
@@ -177,6 +183,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           : "",
         description: deal.description || "",
         lossReason: deal.lossReason || "",
+        sourceId: deal.source?.id || "",
       })
     }
     setIsEditing(false)
@@ -402,33 +409,51 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
             </div>
             <p className="text-sm text-muted-foreground mt-1">
               {deal.number} · {deal.pipeline.name}
+              {deal.source && (
+                <Badge variant="secondary" className="ml-2 text-xs">
+                  {deal.source.name}
+                </Badge>
+              )}
             </p>
           </div>
         </div>
         <div className="flex gap-2">
           {!isEditing && (
             <>
-              <Button onClick={() => setIsEditing(true)}>
+              <Button onClick={() => { setIsEditing(true); getLeadSources().then(r => setLeadSources(r.data)).catch(() => {}) }}>
                 <Edit2 className="size-4" />
                 <span className="ml-1.5">Изменить</span>
               </Button>
               <Button
                 variant="outline"
-                onClick={handleCreateProject}
+                onClick={async () => {
+                  if (!deal) return
+                  setCreatingProject(true)
+                  setError(null)
+                  try {
+                    const res = await fetch(`/api/deals/${deal.id}/convert-to-project`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ name: deal.title, contactId: deal.contactId }),
+                    })
+                    if (!res.ok) {
+                      const errData = await res.json().catch(() => ({}))
+                      throw new Error(errData.message || `HTTP ${res.status}`)
+                    }
+                    const { data: result } = await res.json()
+                    router.push(`/projects/${result.project.id}`)
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : 'Не удалось создать проект и договор.')
+                  } finally {
+                    setCreatingProject(false)
+                  }
+                }}
                 disabled={creatingProject || !!deal.projectId}
               >
                 <Package className="size-4" />
                 <span className="ml-1.5">
-                  {creatingProject ? "Создание..." : deal.projectId ? "В проект" : "В проект"}
+                  {creatingProject ? "Создание..." : deal.projectId ? "Открыть проект" : "Создать проект и договор"}
                 </span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleConvertToContract}
-                disabled={converting}
-              >
-                <FileText className="size-4" />
-                <span className="ml-1.5">{converting ? "Конвертация..." : "В контракт"}</span>
               </Button>
             </>
           )}
@@ -512,6 +537,25 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                     />
                   </div>
 
+                  <div className="grid gap-2">
+                    <Label htmlFor="source">Источник</Label>
+                    <Select
+                      value={editForm.sourceId}
+                      onValueChange={(value) => setEditForm({ ...editForm, sourceId: value ?? "" })}
+                    >
+                      <SelectTrigger id="source">
+                        <SelectValue placeholder="Выберите источник..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {leadSources.map((ls) => (
+                          <SelectItem key={ls.id} value={ls.id}>
+                            {ls.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {isLost && (
                     <div className="grid gap-2">
                       <Label htmlFor="lossReason">Причина проигрыша</Label>
@@ -580,10 +624,17 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                   )}
 
+                  {deal.source && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Источник</p>
+                      <p className="text-sm">{deal.source.name}</p>
+                    </div>
+                  )}
+
                   {deal.lossReason && (
                     <div>
                       <p className="text-xs text-destructive mb-1">Причина проигрыша</p>
-                      <p className="text-sm">{deal.lossReason}</p>
+                      <p className="text-sm">{getLossReasonLabel(deal.lossReason)}</p>
                     </div>
                   )}
                 </>

@@ -257,7 +257,8 @@ export class ContractRepository {
    */
   async convertFromDeal(
     dealId: string,
-    additionalData?: Partial<ContractCreateInput>
+    additionalData?: Partial<ContractCreateInput>,
+    sharedNumber?: string
   ): Promise<Contract> {
     return prisma.$transaction(async (tx) => {
       const deal = await tx.deal.findFirst({
@@ -279,7 +280,7 @@ export class ContractRepository {
       // Generate contract data
       const now = new Date();
       const contractId = randomUUID();
-      const contractNumber = this.generateNumber();
+      const contractNumber = sharedNumber ?? this.generateNumber();
 
       // Contract.contactId is required in the schema; a deal without a contact
       // cannot be converted to a contract.

@@ -100,25 +100,36 @@ async function main() {
   }
   console.log('  ✓ Owner user: admin@local / admin123');
 
-  // === Источники лидов ===
-  const sources = [
-    { code: 'call', name: 'Звонок', description: 'Входящий звонок' },
-    { code: 'office', name: 'Визит в офис', description: 'Личный визит' },
+  // === Источники лидов (канонический список ТЗ — 10 источников) ===
+  const newSources = [
+    { code: '2gis', name: '2ГИС', description: 'Поиск в 2ГИС' },
     { code: 'website', name: 'Сайт', description: 'Заявка с сайта' },
-    { code: 'email', name: 'Email', description: 'Обращение по email' },
-    { code: 'telegram', name: 'Telegram', description: 'Обращение в Telegram' },
-    { code: 'referral', name: 'Рекомендация', description: 'Пришёл по рекомендации' },
-    { code: 'other', name: 'Другое', description: 'Прочее' },
+    { code: 'internet', name: 'Интернет', description: 'Поиск в интернете' },
+    { code: 'instagram', name: 'Instagram', description: 'Соцсеть Instagram' },
+    { code: 'vk', name: 'ВКонтакте', description: 'Соцсеть ВКонтакте' },
+    { code: 'telegram_group', name: 'Telegram-группа', description: 'Обращение из Telegram-группы' },
+    { code: 'office', name: 'Заход в офис', description: 'Личный визит в офис' },
+    { code: 'referral', name: 'Сарафан (рекомендация)', description: 'Пришёл по рекомендации' },
+    { code: 'old_base', name: 'Звонок по старой базе', description: 'Обзвон старой клиентской базы' },
+    { code: 'designer', name: 'Дизайнер (внешний партнёр)', description: 'Клиент от дизайнера-партнёра' },
   ];
-  for (const s of sources) {
+  // Деактивируем старые источники, которых нет в каноническом списке
+  const oldCodes = ['call', 'email', 'telegram', 'other'];
+  for (const oldCode of oldCodes) {
     await prisma.leadSource.upsert({
-      where: { code: s.code },
-      update: s,
-      // LeadSource has no updatedAt field
-      create: { ...s, id: mkId() },
+      where: { code: oldCode },
+      update: { isActive: false },
+      create: { id: mkId(), code: oldCode, name: oldCode, description: 'Устаревший источник', isActive: false },
     });
   }
-  console.log(`  ✓ Lead sources: ${sources.length}`);
+  for (const s of newSources) {
+    await prisma.leadSource.upsert({
+      where: { code: s.code },
+      update: { ...s, isActive: true },
+      create: { ...s, id: mkId(), isActive: true },
+    });
+  }
+  console.log(`  ✓ Lead sources: ${newSources.length} active (+ ${oldCodes.length} deprecated)`);
 
   // === Воронка по умолчанию ===
   const pipeline = await prisma.pipeline.upsert({

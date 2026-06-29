@@ -25,7 +25,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
 import { contactsApi } from "@/lib/api/contacts"
-import type { DealCreateInput, ContactData } from "@/lib/api/types"
+import { getLeadSources } from "@/lib/api/lead-source"
+import type { DealCreateInput, ContactData, LeadSourceData } from "@/lib/api/types"
 
 function getContactDisplayName(contact: ContactData): string {
   if (contact.type === "person") {
@@ -57,6 +58,8 @@ export function CreateDealModal({
   const [contacts, setContacts] = useState<ContactData[]>([])
   const [contactSearch, setContactSearch] = useState("")
   const [selectedContact, setSelectedContact] = useState<ContactData | null>(null)
+  const [leadSources, setLeadSources] = useState<LeadSourceData[]>([])
+  const [sourceId, setSourceId] = useState("")
 
   // Fetch contacts when modal opens
   useEffect(() => {
@@ -65,6 +68,9 @@ export function CreateDealModal({
         .getContacts({})
         .then((res) => setContacts(res.data.slice(0, 50)))
         .catch((err) => console.error("Failed to fetch contacts:", err))
+      getLeadSources()
+        .then((res) => setLeadSources(res.data))
+        .catch((err) => console.error("Failed to fetch lead sources:", err))
     }
   }, [open])
 
@@ -81,6 +87,7 @@ export function CreateDealModal({
     setOpen(isOpen)
     if (!isOpen) {
       resetContactSelection()
+      setSourceId("")
     }
   }
 
@@ -95,6 +102,7 @@ export function CreateDealModal({
         pipelineId,
         stageId: firstStageId,
         contactId: selectedContact?.id || undefined,
+        sourceId: sourceId || undefined,
         amount: amount ? parseFloat(amount) : 0,
         currency,
         expectedCloseDate: expectedCloseDate || undefined,
@@ -272,6 +280,22 @@ export function CreateDealModal({
                   </div>
                 </>
               )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="source">Источник</Label>
+              <Select value={sourceId} onValueChange={(value) => setSourceId(value ?? "")}>
+                <SelectTrigger id="source">
+                  <SelectValue placeholder="Выберите источник..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {leadSources.map((ls) => (
+                    <SelectItem key={ls.id} value={ls.id}>
+                      {ls.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

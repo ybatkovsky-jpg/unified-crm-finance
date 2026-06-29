@@ -21,6 +21,8 @@ const DEADLINE_STYLES: Record<string, string> = {
 
 export function DealCard({ deal, isDragging }: DealCardProps) {
   const deadline = getDeadlineInfo(deal.expectedCloseDate)
+  // CRM-03: project deadline takes priority over deal expectedCloseDate
+  const projectDeadline = deal.project?.endDate ? getDeadlineInfo(deal.project.endDate) : null
   return (
     <Link href={`/deals/${deal.id}`}>
       <Card
@@ -36,6 +38,11 @@ export function DealCard({ deal, isDragging }: DealCardProps) {
         <CardContent className="space-y-2">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="font-mono">{deal.number}</span>
+            {deal.source && (
+              <Badge variant="outline" className="text-[10px] font-normal shrink-0">
+                {deal.source.name}
+              </Badge>
+            )}
           </div>
 
           {Number(deal.amount) > 0 && (
@@ -58,7 +65,25 @@ export function DealCard({ deal, isDragging }: DealCardProps) {
             </div>
           )}
 
-          {deal.expectedCloseDate && (
+          {projectDeadline ? (
+            <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 min-w-0">
+                <CalendarDays className="size-3 shrink-0" />
+                <span className="truncate">
+                  {new Date(deal.project!.endDate!).toLocaleDateString("ru-RU")} · проект {deal.project!.externalNumber}
+                </span>
+              </div>
+              <Badge
+                variant="secondary"
+                className={cn(
+                  "shrink-0 text-[10px] font-medium",
+                  DEADLINE_STYLES[projectDeadline.level]
+                )}
+              >
+                {formatDeadlineLabel(projectDeadline)}
+              </Badge>
+            </div>
+          ) : deal.expectedCloseDate && (
             <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
               <div className="flex items-center gap-2 min-w-0">
                 <CalendarDays className="size-3 shrink-0" />

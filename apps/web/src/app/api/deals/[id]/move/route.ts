@@ -25,6 +25,7 @@ interface RouteParams {
  * Body:
  * - stageId: string (required) - The target stage ID
  * - comment: string (optional) - Comment for the history record
+ * - lossReason: string (required when moving to a lost stage) - Reason code from LOSS_REASONS
  */
 export async function POST(
   request: NextRequest,
@@ -65,7 +66,8 @@ export async function POST(
       id,
       body.stageId,
       session.id,
-      body.comment
+      body.comment,
+      body.lossReason
     )
 
     // Fetch full deal with relations for the response (kanban card needs stage/contact/manager)
@@ -100,8 +102,16 @@ export async function POST(
     })
   } catch (error) {
     console.error('Failed to move deal:', error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    // Validation errors (missing/invalid lossReason) → 400
+    if (message.includes('lossReason is required') || message.includes('Invalid loss reason')) {
+      return NextResponse.json(
+        { error: 'Validation failed', message },
+        { status: 400 }
+      )
+    }
     return NextResponse.json(
-      { error: 'Failed to move deal', message: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Failed to move deal', message },
       { status: 500 }
     )
   }

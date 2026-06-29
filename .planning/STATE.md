@@ -1,23 +1,23 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: "ERP ПРО Мебель — доводка до спеки"
-status: planning
-last_updated: "2026-06-29T00:00:00.000Z"
-last_activity: 2026-06-29
+milestone_name: milestone
+status: completed
+last_updated: "2026-06-29T08:00:00.000Z"
+last_activity: 2026-06-29 -- Phase 4 (CRM core) completed
 progress:
   total_phases: 10
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 4
+  total_plans: 4
+  completed_plans: 4
+  percent: 40
 ---
 
 # GSD State
 
 **Active Milestone:** v1.0 «ERP ПРО Мебель — доводка до спеки»
-**Active Phase:** Phase 1 — Доступ и авторизация (RBAC)
-**Requirements Status:** 51 active · 0 validated · 0 deferred · 0 out of scope
+**Active Phase:** ✅ Phase 4 complete — CRM: жизненный цикл сделки (ядро)
+**Requirements Status:** 51 active · 4 validated · 0 deferred · 0 out of scope
 
 ## Project Reference
 
@@ -28,10 +28,10 @@ progress:
 
 ## Current Position
 
-Phase: 1 (Доступ и авторизация) — Not started
+Phase: 1 — COMPLETE
 Plan: —
-Status: Roadmap ready, awaiting `/gsd:plan-phase 1`
-Last activity: 2026-06-29 — ROADMAP.md created (10 phases, 51 requirements mapped)
+Status: Phase 1 complete
+Last activity: 2026-06-28 -- Phase 1 marked complete
 
 ### Progress bar
 
@@ -50,10 +50,11 @@ Last activity: 2026-06-29 — ROADMAP.md created (10 phases, 51 requirements map
 
 > Прежние записи M001–M010 в старом STATE.md были фикцией (фактическое состояние: авторизации НЕТ, create-потоки падают, ~40 ошибок типов, ~298 битых тестов). Реальный milestone v1.0 стартует с Phase 1 ниже.
 
-- [ ] **Phase 1:** Доступ и авторизация (RBAC) — AUTH (5)
-- [ ] **Phase 2:** Стабилизация ядра — CORE (4)
-- [ ] **Phase 3:** Редизайн UI — UI (5)
-- [ ] **Phase 4:** CRM — сделки и КП — CRM (8)
+- [x] **Phase 1:** Доступ и авторизация (RBAC) — AUTH (5)
+- [x] **Phase 2:** Стабилизация ядра — CORE (4)
+- [x] **Phase 3:** Редизайн UI — UI (5)
+- [x] **Phase 4:** CRM — сделки и КП — CRM (4 из 8) ✅ 2026-06-29
+- [ ] **Phase 5:** Проект — спецификация и закупки — PROJ-01..07 (7)
 - [ ] **Phase 5:** Проект — спецификация и закупки — PROJ-01..07 (7)
 - [ ] **Phase 6:** Производство, логистика, монтаж — PROJ-08..11 (4)
 - [ ] **Phase 7:** Акт, закрытие проекта, гарантия — PROJ-12..14 (3)

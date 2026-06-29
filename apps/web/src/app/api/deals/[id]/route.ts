@@ -35,6 +35,7 @@ export async function GET(
       Pipeline: true,
       Contact: true,
       User: true,
+      LeadSource: { select: { id: true, code: true, name: true, description: true, isActive: true } },
       DrawingFile: true,
       ActFile: true,
       DealHistory: {
@@ -59,9 +60,9 @@ export async function GET(
     // Map Prisma PascalCase relations to API lowercase shape.
     // DealHistory items also need inner PascalCase→camelCase mapping for the
     // nested relations (FromStage→fromStage, etc.).
-    const { DealStage, Pipeline, Contact, User, DrawingFile, ActFile, DealHistory, ...rest } =
+    const { DealStage, Pipeline, Contact, User, LeadSource, DrawingFile, ActFile, DealHistory, ...rest } =
       deal as Record<string, unknown> & {
-        DealStage?: unknown; Pipeline?: unknown; Contact?: unknown; User?: unknown;
+        DealStage?: unknown; Pipeline?: unknown; Contact?: unknown; User?: unknown; LeadSource?: unknown;
         DrawingFile?: unknown; ActFile?: unknown;
         DealHistory?: Array<Record<string, unknown>>;
       }
@@ -80,6 +81,7 @@ export async function GET(
       pipeline: Pipeline ?? null,
       contact: Contact ?? null,
       manager: User ?? null,
+      source: LeadSource ?? null,
       drawingFile: DrawingFile ?? null,
       actFile: ActFile ?? null,
       history,
@@ -125,6 +127,7 @@ export async function PATCH(
     if (body.expectedCloseDate !== undefined) updateData.expectedCloseDate = body.expectedCloseDate ? new Date(body.expectedCloseDate) : null
     if (body.description !== undefined) updateData.description = body.description || null
     if (body.lossReason !== undefined) updateData.lossReason = body.lossReason || null
+    if (body.sourceId !== undefined) updateData.sourceId = body.sourceId || null
     if (body.attributes !== undefined) updateData.attributes = body.attributes
     if (body.contactId !== undefined) updateData.contactId = body.contactId || null
     if (body.managerId !== undefined) updateData.managerId = body.managerId || null

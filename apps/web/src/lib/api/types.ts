@@ -238,6 +238,26 @@ export interface DealHistoryData {
 /**
  * Deal data with relations
  */
+/**
+ * Lead source dictionary entry (from LeadSource model)
+ */
+export interface LeadSourceData {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  isActive: boolean;
+}
+
+/**
+ * Lightweight project data embedded in DealData (for days-to-deadline)
+ */
+export interface ProjectLiteData {
+  id: string;
+  endDate: string | null;
+  externalNumber: string;
+}
+
 export interface DealData extends Omit<Deal, 'deletedAt' | 'amount'> {
   // amount: Prisma.Decimal в БД, но API возвращает number (см. lib/db/decimal-extension.ts)
   amount: number;
@@ -245,6 +265,8 @@ export interface DealData extends Omit<Deal, 'deletedAt' | 'amount'> {
   pipeline: PipelineData;
   contact?: ContactData | null;
   manager?: UserData | null;
+  source?: LeadSourceData | null;
+  project?: ProjectLiteData | null;
   drawingFile?: FileEntityData | null;
   actFile?: FileEntityData | null;
   history?: DealHistoryData[];
@@ -303,6 +325,7 @@ export interface DealCreateInput {
   pipelineId: string;
   stageId: string;
   contactId?: string | null;
+  sourceId?: string | null;
   amount?: number | null;
   currency?: string | null;
   expectedCloseDate?: string | null;
@@ -324,6 +347,7 @@ export interface DealUpdateInput {
   expectedCloseDate?: string | null;
   description?: string | null;
   lossReason?: string | null;
+  sourceId?: string | null;
   attributes?: Record<string, unknown> | null;
   contactId?: string | null;
   managerId?: string | null;

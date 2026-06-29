@@ -340,6 +340,7 @@ model Deal {
   managerId         String?
   description       String?
   lossReason        String?
+  sourceId          String?
   attributes        Json?
   contractId        String?       @unique
   projectId         String?       @unique
@@ -353,18 +354,21 @@ model Deal {
   Contact           Contact?      @relation(fields: [contactId], references: [id])
   DealStage         DealStage     @relation(fields: [stageId], references: [id])
   DrawingFile       FileEntity?   @relation("Deal_DrawingFile", fields: [drawingFileId], references: [id])
+  LeadSource        LeadSource?   @relation(fields: [sourceId], references: [id])
   Pipeline          Pipeline      @relation(fields: [pipelineId], references: [id])
   DealHistory       DealHistory[]
   Event             Event[]
   Task              Task[]
   User              User?         @relation(fields: [managerId], references: [id])
   Contract          Contract?
+  Project           Project?
 
   @@index([projectId])
   @@index([contractId])
   @@index([expectedCloseDate])
   @@index([managerId])
   @@index([stageId])
+  @@index([sourceId])
 }
 
 model DealHistory {
@@ -662,6 +666,7 @@ model LeadSource {
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   Contact     Contact[]
+  Deal        Deal[]
 }
 
 model Notification {
@@ -744,6 +749,7 @@ model Project {
   Task                 Task[]
   Transaction          Transaction[]
   ProjectStatusHistory ProjectStatusHistory[]
+  Deal                 Deal?                  @relation(fields: [dealId], references: [id])
 
   @@index([contractId])
   @@index([dealId])
