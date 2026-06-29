@@ -183,6 +183,83 @@ async function main() {
   }
   console.log(`  ✓ Categories: ${categories.length}`);
 
+  // === 12 статей постоянных расходов организации (ACCT-01, PRODUCT-SPEC п.6) ===
+  // Справочник орг-учёта — отдельно от проектных категорий выше (это расходы
+  // организации, не привязанные к проекту). findFirst-guard вместо create().catch(),
+  // т.к. у Category нет уникального бизнес-ключа.
+  const orgExpenseArticles: Array<{ name: string; order: number; note?: string }> = [
+    { name: 'Аренда офиса', order: 10, note: '~44 500 ₽/мес' },
+    { name: 'Ведение бухгалтерии', order: 11, note: '~20 000 ₽/мес' },
+    { name: 'Зарплата — Ольга', order: 12, note: '150 000 ₽/мес' },
+    { name: 'Зарплата — Марианна', order: 13, note: '150 000 ₽/мес' },
+    { name: 'Зарплата — Юра', order: 14, note: '80 000 ₽/мес' },
+    { name: 'Рекламный бюджет', order: 15, note: '~50 000 ₽/мес (если только 2ГИС)' },
+    { name: 'Офисные затраты', order: 16, note: 'бумага, кофе ~5 000 ₽/мес' },
+    { name: 'Прочие расходы', order: 17, note: 'амортизация, мелочовка ~5 000 ₽/мес' },
+    { name: 'Налоги (УСН 15%)', order: 18, note: 'расчётно: 15% (доходы−расходы), мин. 1% от дохода' },
+    { name: 'Электроэнергия, вода', order: 19, note: '~5 000 ₽/мес' },
+    { name: 'Интернет', order: 20, note: '~1 000 ₽/мес' },
+    { name: 'Телефон Мегафон', order: 21, note: '~350 ₽/мес (89992563879)' },
+  ];
+  const orgArticleCategories: Array<{ id: string; name: string }> = [];
+  for (const a of orgExpenseArticles) {
+    const existing = await prisma.category.findFirst({
+      where: { name: a.name, type: 'expense' },
+      select: { id: true },
+    });
+    const id = existing?.id ?? mkId();
+    if (!existing) {
+      await prisma.category.create({
+        data: { id, name: a.name, type: 'expense', order: a.order, updatedAt: now() },
+      });
+    }
+    orgArticleCategories.push({ id, name: a.name });
+  }
+  console.log(`  ✓ Org expense articles (ACCT-01): ${orgArticleCategories.length}`);
+
+  // === Демо-план постоянных расходов на текущий месяц (ACCT-03) ===
+  // Номинальные плановые суммы из интервью — загружаются как отправная точка плана;
+  // бухгалтер правит через UI. period = "YYYY-MM" текущего месяца.
+  const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+  const orgPlanAmounts: Record<string, number> = {
+    'Аренда офиса': 44500,
+    'Ведение бухгалтерии': 20000,
+    'Зарплата — Ольга': 150000,
+    'Зарплата — Марианна': 150000,
+    'Зарплата — Юра': 80000,
+    'Рекламный бюджет': 50000,
+    'Офисные затраты': 5000,
+    'Прочие расходы': 5000,
+    'Налоги (УСН 15%)': 0, // расчётно
+    'Электроэнергия, вода': 5000,
+    'Интернет': 1000,
+    'Телефон Мегафон': 350,
+  };
+  let planSeeded = 0;
+  for (const art of orgArticleCategories) {
+    const amount = orgPlanAmounts[art.name] ?? 0;
+    // org-бюджет: projectId = null. Идемпотентность по (categoryId+period) для NULL-строк.
+    const existing = await prisma.budget.findFirst({
+      where: { categoryId: art.id, period: currentMonth, projectId: null },
+      select: { id: true },
+    });
+    if (!existing) {
+      await prisma.budget.create({
+        data: {
+          id: mkId(),
+          projectId: null,
+          categoryId: art.id,
+          amount,
+          period: currentMonth,
+          note: 'План (демо из интервью)',
+          updatedAt: now(),
+        },
+      });
+      planSeeded++;
+    }
+  }
+  console.log(`  ✓ Org plan for ${currentMonth} (ACCT-03): ${planSeeded} new articles`);
+
   // === Производства-партнёры (тестовые данные) ===
   const productionPartners = [
     {

@@ -15,6 +15,20 @@ import type {
 } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { nextProjectNumber } from './sequence';
+import { ConflictError } from './errors';
+
+/** Результат проверки готовности проекта к закрытию (PROJ-13). */
+export interface ClosureCondition {
+  key: 'act_signed' | 'client_paid' | 'supplier_invoices_paid' | 'designer_bonus_paid';
+  label: string;
+  met: boolean;
+  detail: string;
+}
+
+export interface ClosureReadiness {
+  ready: boolean;
+  conditions: ClosureCondition[];
+}
 
 /**
  * Project creation input type
@@ -337,20 +351,125 @@ export class ProjectRepository {
   }
 
   /**
+   * Проверить готовность проекта к закрытию (PROJ-13).
+   *
+   * Возвращает чек-лист из четырёх условий:
+   *  1. Акт приёмки подписан.
+   *  2. Все деньги клиента получены (сумма income >= contractAmount).
+   *  3. Все счета поставщиков/производств оплачены.
+   *  4. Бонус дизайнеру выплачен.
+   *
+   * Готовность (`ready`) = выполнены все условия. Само закрытие не блокируется
+   * жёстко — UI показывает предупреждения и допускает закрытие с override.
+   */
+  async getClosureReadiness(projectId: string): Promise<ClosureReadiness> {
+    const project = await prisma.project.findFirst({
+      where: { id: projectId, deletedAt: null },
+      select: {
+        id: true,
+        contractAmount: true,
+        AcceptanceAct: { select: { status: true, signedAt: true } },
+        DesignerBonus: { select: { status: true } },
+      },
+    });
+
+    if (!project) {
+      throw new Error(`Project with id ${projectId} not found`);
+    }
+
+    // 1. Акт подписан.
+    const actSigned = project.AcceptanceAct?.status === 'signed' || !!project.AcceptanceAct?.signedAt;
+
+    // 2. Все деньги клиента получены: сумма income-транзакций проекта >= contractAmount.
+    const incomeAgg = await prisma.transaction.aggregate({
+      where: { projectId, type: 'income', deletedAt: null },
+      _sum: { amount: true },
+    });
+    const incomeReceived = Number(incomeAgg._sum.amount ?? 0);
+    const contractAmount = Number(project.contractAmount ?? 0);
+    const clientPaid = incomeReceived >= contractAmount;
+
+    // 3. Все счета поставщиков оплачены: нет неоплаченных (paidAt IS NULL).
+    const unpaidInvoices = await prisma.invoice.count({
+      where: { projectId, paidAt: null },
+    });
+    const supplierInvoicesPaid = unpaidInvoices === 0;
+
+    // 4. Бонус дизайнеру выплачен. Если бонуса нет — условие считается невыполненным.
+    const bonusPaid = project.DesignerBonus?.status === 'paid';
+
+    const formatRub = (n: number) =>
+      new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(n);
+
+    const conditions: ClosureCondition[] = [
+      {
+        key: 'act_signed',
+        label: 'Акт приёмки подписан',
+        met: actSigned,
+        detail: actSigned ? 'Акт подписан' : 'Акт ещё не подписан',
+      },
+      {
+        key: 'client_paid',
+        label: 'Все деньги клиента получены',
+        met: clientPaid,
+        detail: clientPaid
+          ? `Получено ${formatRub(incomeReceived)} из ${formatRub(contractAmount)}`
+          : `Получено ${formatRub(incomeReceived)}, не хватает ${formatRub(Math.max(0, contractAmount - incomeReceived))}`,
+      },
+      {
+        key: 'supplier_invoices_paid',
+        label: 'Все счета поставщикам оплачены',
+        met: supplierInvoicesPaid,
+        detail: supplierInvoicesPaid
+          ? 'Неоплаченных счетов нет'
+          : `${unpaidInvoices} ${unpaidInvoices === 1 ? 'счёт' : 'счёта/счетов'} не оплачено`,
+      },
+      {
+        key: 'designer_bonus_paid',
+        label: 'Бонус дизайнеру выплачен',
+        met: bonusPaid,
+        detail: bonusPaid ? 'Бонус выплачен' : 'Бонус не выплачен (или не заведён)',
+      },
+    ];
+
+    return {
+      ready: conditions.every((c) => c.met),
+      conditions,
+    };
+  }
+
+  /**
    * Complete a project and cascade the completion to the related Deal.
    * Validates all project stages are completed first.
+   * Checks closure readiness (PROJ-13) unless `overrideUnmet` is set.
+   * Records warranty period on completion (PROJ-14: 2 года + фурнитура).
    * Uses Prisma transaction to atomically update both Project and Deal.
    *
    * @param projectId - The project ID to complete
    * @param userId - The user ID performing the completion (for DealHistory)
-   * @returns Object containing updated Project and Deal (if exists)
+   * @param overrideUnmet - When true, allow completion even if closure conditions are unmet
+   * @returns Object containing updated Project and Deal (if exists) plus readiness
    * @throws Error if project not found, stages not completed, or deal won stage not found
+   * @throws ConflictError if closure conditions unmet and overrideUnmet is false
    */
   async completeWithCascade(
     projectId: string,
-    userId: string
-  ): Promise<{ project: Project; deal: Deal | null }> {
+    userId: string,
+    overrideUnmet: boolean = false
+  ): Promise<{ project: Project; deal: Deal | null; readiness: ClosureReadiness }> {
     const now = new Date();
+
+    // Проверка готовности к закрытию (PROJ-13). Жёстко не блокируем — см. overrideUnmet.
+    const readiness = await this.getClosureReadiness(projectId);
+    if (!readiness.ready && !overrideUnmet) {
+      const unmet = readiness.conditions
+        .filter((c) => !c.met)
+        .map((c) => c.label)
+        .join('; ');
+      throw new ConflictError(
+        `Невыполненные условия закрытия: ${unmet}. Закройте с override, чтобы проигнорировать.`
+      );
+    }
 
     // Use transaction to ensure atomic updates
     return prisma.$transaction(async (tx) => {
@@ -412,12 +531,19 @@ export class ProjectRepository {
         deal = existingDeal;
       }
 
-      // 4. Update project status to completed + record history
+      // 4. Update project status to completed + record warranty period (PROJ-14)
+      const warrantyEndDate = new Date(now);
+      warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 2);
+
       const updatedProject = await tx.project.update({
         where: { id: projectId },
         data: {
           status: 'completed',
           completedAt: now,
+          // PROJ-14: гарантия 2 года + фурнитура по гарантии производителя.
+          warrantyStartDate: project.warrantyStartDate ?? now,
+          warrantyEndDate: project.warrantyEndDate ?? warrantyEndDate,
+          warrantyNotes: project.warrantyNotes ?? '2 года; фурнитура — по гарантии производителя',
           updatedAt: now,
         },
       });
@@ -468,6 +594,7 @@ export class ProjectRepository {
       return {
         project: updatedProject,
         deal: updatedDeal,
+        readiness,
       };
     });
   }

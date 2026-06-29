@@ -116,6 +116,7 @@ export class InvoiceRepository {
   async findMany(filters: {
     projectId?: string;
     supplierId?: string;
+    purchaseRequestId?: string;
     status?: InvoiceStatus | string;
   } = {}): Promise<InvoiceWithRelations[]> {
     // Явная аннотация типа нужна, чтобы разорвать рекурсивный вывод типов
@@ -124,6 +125,7 @@ export class InvoiceRepository {
       where: {
         projectId: filters.projectId,
         supplierId: filters.supplierId,
+        purchaseRequestId: filters.purchaseRequestId,
         status: filters.status,
       },
       orderBy: { createdAt: 'desc' },

@@ -48,6 +48,7 @@ export function TransactionForm({
   const [amount, setAmount] = useState("")
   const [description, setDescription] = useState("")
   const [status, setStatus] = useState("confirmed")
+  const [paymentMethod, setPaymentMethod] = useState<string>("")
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [categories, setCategories] = useState<CategoryData[]>([])
@@ -69,6 +70,7 @@ export function TransactionForm({
         setAmount(String(transaction.amount))
         setDescription(transaction.description ?? "")
         setStatus(transaction.status)
+        setPaymentMethod((transaction.paymentMethod as string) ?? "")
       } else {
         resetForm()
         if (defaultCategoryId) setCategoryId(defaultCategoryId)
@@ -83,6 +85,7 @@ export function TransactionForm({
     setAmount("")
     setDescription("")
     setStatus("confirmed")
+    setPaymentMethod("")
     setFormError(null)
   }
 
@@ -114,6 +117,7 @@ export function TransactionForm({
           amount: Number(amount),
           description: description || null,
           status,
+          paymentMethod: (paymentMethod || undefined) as "cash" | "bank" | "card" | undefined,
         })
       }
       resetForm()
@@ -253,6 +257,22 @@ export function TransactionForm({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Transaction description"
               />
+            </div>
+
+            {/* Payment method (FIN-03) */}
+            <div className="grid gap-2">
+              <Label htmlFor="paymentMethod">Способ оплаты</Label>
+              <Select value={paymentMethod || "__none__"} onValueChange={(v) => setPaymentMethod(!v || v === "__none__" ? "" : v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Не указан" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">Не указан</SelectItem>
+                  <SelectItem value="bank">Безналичный (банк)</SelectItem>
+                  <SelectItem value="cash">Наличные</SelectItem>
+                  <SelectItem value="card">Карта / эквайринг</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

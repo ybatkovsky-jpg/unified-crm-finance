@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../lib/db/prisma'
+import { parsePeriodToDateRange } from '../../../../lib/periods'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -17,19 +18,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const sortBy = searchParams.get('sortBy') ?? 'profit'
     const limit = parseInt(searchParams.get('limit') ?? '20')
 
-    // Parse period date filter
-    let dateFrom: Date | undefined
-    const now = new Date()
-    switch (period) {
-      case '3m': dateFrom = new Date(now.getFullYear(), now.getMonth() - 3, 1); break
-      case '6m': dateFrom = new Date(now.getFullYear(), now.getMonth() - 6, 1); break
-      case '12m': dateFrom = new Date(now.getFullYear() - 1, now.getMonth(), 1); break
-    }
+    // Parse period date filter (滚动ное окно "3m"/"6m"/"12m" или "all").
+    const range = parsePeriodToDateRange(period)
 
     const txWhere: Record<string, unknown> = { deletedAt: null }
-    if (dateFrom) txWhere.date = { gte: dateFrom }
+    if (range) txWhere.date = { gte: range.start, lte: range.end }
 
-    // Fetch projects with their transactions
+    // Fetch projects with their transactions and cost sources
     const projects = await prisma.project.findMany({
       where: { deletedAt: null },
       select: {
@@ -37,6 +32,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         name: true,
         status: true,
         contractAmount: true,
+        marginTarget: true,
         Transaction: {
           where: txWhere,
           select: { type: true, amount: true, date: true },
@@ -44,6 +40,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         Budget: {
           select: { amount: true, period: true, categoryId: true },
         },
+        // FIN-04: декомпозиция расходов по источникам
+        Invoice: { select: { totalAmount: true, paidAt: true } },
+        Delivery: { select: { cost: true } },
+        ChangeOrder: { select: { amount: true, status: true } },
+        DesignerBonus: { select: { amount: true, status: true } },
       },
       take: limit,
     })
@@ -53,14 +54,37 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       const income = p.Transaction
         .filter((t) => t.type === 'income')
         .reduce((s, t) => s + Number(t.amount), 0)
-      const expense = p.Transaction
+      const ledgerExpense = p.Transaction
         .filter((t) => t.type === 'expense')
         .reduce((s, t) => s + Number(t.amount), 0)
+
+      // FIN-04: декомпозиция расходов по источникам.
+      const materials = p.Invoice
+        .filter((i) => i.paidAt !== null)
+        .reduce((s, i) => s + Number(i.totalAmount), 0)
+      const delivery = p.Delivery.reduce((s, d) => s + Number(d.cost ?? 0), 0)
+      const changeOrders = p.ChangeOrder
+        .filter((c) => c.status !== 'cancelled')
+        .reduce((s, c) => s + Number(c.amount), 0)
+      const designerBonus = p.DesignerBonus && p.DesignerBonus.status === 'paid'
+        ? Number(p.DesignerBonus.amount)
+        : 0
+
+      // Совокупные расходы = транзакции + доп. источники, не учтённые в ledger.
+      // (materials уже обычно отражены как Transaction(expense), поэтому
+      // берём максимум ledgerExpense и суммы источников, чтобы не задвоить.)
+      const sourceBased = materials + delivery + changeOrders + designerBonus
+      const expense = Math.max(ledgerExpense, sourceBased)
+
       const profit = income - expense
       const totalBudgeted = p.Budget.reduce((s, b) => s + Number(b.amount), 0)
       const revenue = Number(p.contractAmount ?? 0)
       const margin = revenue > 0 ? Math.round((profit / revenue) * 100) : 0
       const budgetUsage = totalBudgeted > 0 ? Math.round((expense / totalBudgeted) * 100) : 0
+
+      // FIN-04: порог маржи и флаг низкомаржинальности.
+      const marginTargetPct = Math.round((p.marginTarget ?? 0.25) * 100)
+      const lowMargin = revenue > 0 && margin < marginTargetPct
 
       return {
         projectId: p.id,
@@ -70,8 +94,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         cost: expense,
         profit,
         margin,
+        marginTargetPct,
+        lowMargin,
         income,
         expense,
+        expenseBreakdown: { materials, delivery, changeOrders, designerBonus, ledger: ledgerExpense },
         budgeted: totalBudgeted,
         budgetUsage,
         transactionCount: p.Transaction.length,
@@ -106,11 +133,24 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       excellent: pnlData.filter((p) => p.margin >= 30).length,
     }
 
+    // FIN-04: алерты по низкомаржинальным проектам (margin < marginTarget).
+    const lowMarginAlerts = pnlData
+      .filter((p) => p.lowMargin)
+      .map((p) => ({
+        projectId: p.projectId,
+        projectName: p.projectName,
+        margin: p.margin,
+        target: p.marginTargetPct,
+        deficit: p.marginTargetPct - p.margin,
+      }))
+      .sort((a, b) => b.deficit - a.deficit)
+
     return NextResponse.json({
       data: {
         projects: pnlData,
         top5: pnlData.slice(0, 5),
         bottom5: pnlData.slice(-5).reverse(),
+        lowMarginAlerts,
         summary: {
           totalRevenue,
           totalCost,

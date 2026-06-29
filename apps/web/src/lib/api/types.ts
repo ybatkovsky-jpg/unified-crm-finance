@@ -474,7 +474,7 @@ export interface DealConvertInput {
 /**
  * Project data with relations
  */
-export interface ProjectData extends Omit<Project, 'deletedAt' | 'contractAmount'> {
+export interface ProjectData extends Omit<Project, 'deletedAt' | 'contractAmount' | 'warrantyStartDate' | 'warrantyEndDate' | 'warrantyNotes'> {
   // contractAmount: Prisma.Decimal в БД → number в API (см. lib/db/decimal-extension.ts)
   contractAmount: number;
   manager?: UserData | null;
@@ -484,6 +484,13 @@ export interface ProjectData extends Omit<Project, 'deletedAt' | 'contractAmount
   specFile?: FileEntityData | null;
   stages?: ProjectStageData[];
   members?: ProjectMemberData[];
+  // PROJ-14: гарантия (Date в БД → ISO-строка в API)
+  warrantyStartDate?: string | null;
+  warrantyEndDate?: string | null;
+  warrantyNotes?: string | null;
+  // PROJ-12 / PROJ-13
+  acceptanceAct?: AcceptanceActData | null;
+  designerBonus?: DesignerBonusData | null;
 }
 
 /**
@@ -774,6 +781,134 @@ export interface ChangeOrderUpdateInput {
   notes?: string | null;
 }
 
+// ─── AcceptanceAct (PROJ-12) ─────────────────────────────────
+
+export type AcceptanceActStatusType = 'draft' | 'signed';
+export type AcceptanceSignerType = 'individual' | 'legal';
+export type AcceptanceSignMethod = 'paper' | 'edo';
+
+export interface AcceptanceActData {
+  id: string;
+  projectId: string;
+  number: number;
+  status: string;
+  signerType: AcceptanceSignerType | null;
+  signedById: string | null;
+  signedAt: string | null;
+  signMethod: AcceptanceSignMethod | null;
+  actFileId: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  SignedBy?: { id: string; name: string; email: string } | null;
+  ActFile?: FileEntityData | null;
+}
+
+export interface AcceptanceActCreateInput {
+  signerType?: AcceptanceSignerType;
+  signMethod?: AcceptanceSignMethod;
+  actFileId?: string;
+  notes?: string;
+}
+
+export interface AcceptanceActUpdateInput {
+  signMethod?: AcceptanceSignMethod | null;
+  actFileId?: string | null;
+  notes?: string | null;
+  status?: AcceptanceActStatusType;
+}
+
+export interface SignActInput {
+  signedById: string;
+  signerType?: AcceptanceSignerType;
+  signMethod?: AcceptanceSignMethod;
+}
+
+// ─── DesignerBonus (минимальный след, PROJ-13/FIN-06) ─────────
+
+export type DesignerBonusStatusType = 'pending' | 'paid';
+
+export interface DesignerBonusData {
+  id: string;
+  projectId: string;
+  designerId: string | null;
+  percent: number;
+  amount: number;
+  status: string;
+  paidAt: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  Designer?: { id: string; name: string; email: string } | null;
+}
+
+export interface DesignerBonusUpsertInput {
+  designerId?: string | null;
+  percent?: number;
+  amount?: number;
+  notes?: string | null;
+}
+
+// ─── Closure readiness (PROJ-13) ─────────────────────────────
+
+export interface ClosureCondition {
+  key: 'act_signed' | 'client_paid' | 'supplier_invoices_paid' | 'designer_bonus_paid';
+  label: string;
+  met: boolean;
+  detail: string;
+}
+
+export interface ClosureReadiness {
+  ready: boolean;
+  conditions: ClosureCondition[];
+}
+
+// ─── ProjectPayment (FIN-01: 70/30) ──────────────────────────
+
+export type ProjectPaymentType = 'prepayment' | 'final' | 'other';
+export type ProjectPaymentStatus = 'planned' | 'partial' | 'paid';
+export type PaymentMethod = 'cash' | 'bank' | 'card';
+
+export interface ProjectPaymentData {
+  id: string;
+  projectId: string;
+  paymentType: ProjectPaymentType;
+  plannedPercent: number;
+  plannedAmount: number;
+  receivedAmount: number;
+  paymentMethod: PaymentMethod | null;
+  transactionId: string | null;
+  status: ProjectPaymentStatus;
+  dueDate: string | null;
+  receivedAt: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  Transaction?: { id: string; amount: number; date: string; paymentMethod: PaymentMethod | null } | null;
+}
+
+export interface ProjectPaymentCreateInput {
+  paymentType: ProjectPaymentType;
+  plannedPercent?: number;
+  dueDate?: string | null;
+  notes?: string;
+}
+
+export interface RecordPaymentInput {
+  amount: number;
+  paymentMethod?: PaymentMethod;
+  transactionDate?: string;
+  description?: string;
+}
+
+export interface PaymentCoverage {
+  total: number;
+  received: number;
+  percent: number;
+  prepaymentMet: boolean;
+  fullyPaid: boolean;
+}
+
 /**
  * BOM data with relations
  */
@@ -832,6 +967,7 @@ export interface BOMItemCreateInput {
   name: string;
   article?: string | null;
   category?: string | null;
+  material?: string | null;
   quantity: number;
   unit?: string | null;
   price?: number | null;
@@ -847,6 +983,7 @@ export interface BOMItemUpdateInput {
   name?: string | null;
   article?: string | null;
   category?: string | null;
+  material?: string | null;
   quantity?: number | null;
   unit?: string | null;
   price?: number | null;
@@ -969,6 +1106,7 @@ export type InvoiceItemData = Omit<InvoiceItem, 'BOMItem' | 'Invoice' | 'price' 
 export interface InvoiceListParams {
   projectId?: string;
   supplierId?: string;
+  purchaseRequestId?: string;
   status?: InvoiceStatus;
 }
 
@@ -1249,6 +1387,7 @@ export interface TransactionListParams {
   type?: string;
   status?: string;
   source?: string;
+  paymentMethod?: string;
   dateFrom?: string;
   dateTo?: string;
   includeDeleted?: boolean;
@@ -1270,6 +1409,8 @@ export interface TransactionCreateInput {
   description?: string | null;
   source?: string;
   status?: string;
+  paymentMethod?: PaymentMethod;
+  paymentType?: ProjectPaymentType;
 }
 
 /**

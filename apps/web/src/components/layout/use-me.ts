@@ -8,6 +8,7 @@ import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 
 export interface MeUser {
+  id?: string
   name?: string
   email?: string
   roleCodes?: string[]

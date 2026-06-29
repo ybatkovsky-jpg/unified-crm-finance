@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Edit2, Save, X, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, Users, Layers, Package, Upload, CheckCircle2, Wrench, Truck } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, Users, Layers, Package, Upload, CheckCircle2, Wrench, Truck, ShieldCheck, FileCheck, Gift, CreditCard } from "lucide-react"
 import { projectsApi, ApiClientError } from "@/lib/api/projects"
 import { filesApi } from "@/lib/api/files"
-import type { ProjectData, FileUploadFile } from "@/lib/api/types"
+import type { ProjectData, FileUploadFile, ClosureReadiness } from "@/lib/api/types"
 import { ProjectGantt } from "@/components/projects/project-gantt"
 import { ProductionList } from "@/components/projects/production-list"
 import { CreateProductionModal } from "@/components/projects/create-production-modal"
@@ -13,9 +13,15 @@ import { InstallationList } from "@/components/projects/installation-list"
 import { CreateInstallationModal } from "@/components/projects/create-installation-modal"
 import { ChangeOrderList } from "@/components/projects/change-order-list"
 import { CreateChangeOrderModal } from "@/components/projects/create-change-order-modal"
+import { CreateMeasurementTask } from "@/components/projects/create-measurement-task"
+import { StageManager } from "@/components/projects/stage-manager"
+import { AcceptanceActCard } from "@/components/projects/acceptance-act-card"
+import { DesignerBonusCard } from "@/components/projects/designer-bonus-card"
+import { ProjectPaymentsCard } from "@/components/projects/project-payments-card"
 import { BOMSection } from "@/components/procurement/bom-section"
 import { BudgetWidget } from "@/components/finance/budget-widget"
 import { StatusHistoryCard } from "@/components/projects/status-history-card"
+import { useMe } from "@/components/layout/use-me"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -96,6 +102,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [productionRefresh, setProductionRefresh] = useState(0)
   const [installationRefresh, setInstallationRefresh] = useState(0)
   const [changeOrderRefresh, setChangeOrderRefresh] = useState(0)
+  const [stageRefresh, setStageRefresh] = useState(0)
   const [saving, setSaving] = useState(false)
   const [editForm, setEditForm] = useState({
     name: "",
@@ -112,6 +119,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [uploadingSpec, setUploadingSpec] = useState(false)
   const [completingProject, setCompletingProject] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [closeDialogOpen, setCloseDialogOpen] = useState(false)
+  const [readiness, setReadiness] = useState<ClosureReadiness | null>(null)
+  const [readinessLoading, setReadinessLoading] = useState(false)
+  const { me } = useMe()
   const filePreview = useFilePreview()
 
   const unwrapParams = useCallback(async () => {
@@ -295,7 +306,23 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   // Check if project can be completed (all stages done and not already completed)
   const canCompleteProject = allStagesCompleted && project?.status !== "completed"
 
-  const handleCompleteProject = async () => {
+  // Загрузить чек-лист готовности к закрытию при открытии диалога.
+  const handleOpenCloseDialog = async (open: boolean) => {
+    setCloseDialogOpen(open)
+    if (open && project) {
+      setReadinessLoading(true)
+      try {
+        const response = await projectsApi.getClosureReadiness(project.id)
+        setReadiness(response.data)
+      } catch {
+        setReadiness(null)
+      } finally {
+        setReadinessLoading(false)
+      }
+    }
+  }
+
+  const handleCompleteProject = async (overrideUnmet: boolean = false) => {
     if (!project) return
 
     setCompletingProject(true)
@@ -303,13 +330,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     setSuccessMessage(null)
 
     try {
-      // Use a hardcoded user ID for now - in a real app this would come from auth
-      const userId = "system"
+      const userId = me?.id || "system"
 
-      const response = await projectsApi.completeProject(project.id, userId)
+      const response = await projectsApi.completeProject(project.id, userId, overrideUnmet)
 
-      // Show success message
-      setSuccessMessage("Проект успешно закрыт. Связанная сделка также закрыта.")
+      setSuccessMessage(
+        "Проект успешно закрыт. Установлена гарантия 2 года. Связанная сделка также закрыта."
+      )
+      setCloseDialogOpen(false)
 
       // Refresh project data
       await fetchProject(project.id)
@@ -380,35 +408,107 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         <div className="flex gap-2">
           {!isEditing ? (
             <>
+              <CreateMeasurementTask
+                projectId={project.id}
+                projectName={project.name}
+                contactId={project.contact?.id}
+                measurementType="measurement_2"
+              />
               <Button onClick={() => setIsEditing(true)}>
                 <Edit2 className="size-4" />
-                <span className="ml-1.5">\И\з\м\е\н\и\т\ь</span>
+                <span className="ml-1.5">Изменить</span>
               </Button>
 
               {canCompleteProject && (
-                <AlertDialog>
+                <AlertDialog open={closeDialogOpen} onOpenChange={handleOpenCloseDialog}>
                   <AlertDialogTrigger
                     render={<Button variant="default" className="bg-green-600 hover:bg-green-700">
                       <CheckCircle2 className="size-4" />
-                      <span className="ml-1.5">\П\о\д\п\и\с\а\т\ь \а\к\т \и \з\а\к\р\ы\т\ь \п\р\о\е\к\т</span>
+                      <span className="ml-1.5">Подписать акт и закрыть проект</span>
                     </Button>}
                   />
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>\З\а\к\р\ы\т\ь \п\р\о\е\к\т?</AlertDialogTitle>
+                      <AlertDialogTitle>Закрыть проект?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        \В\ы \у\в\е\р\е\н\ы, \ч\т\о \х\о\т\и\т\е \п\о\д\п\и\с\а\т\ь \а\к\т \и \з\а\к\р\ы\т\ь \п\р\о\е\к\т? \В\с\е \э\т\а\п\ы \п\р\о\е\к\т\а \з\а\в\е\р\ш\е\н\ы. \С\в\я\з\а\н\н\а\я \с\д\е\л\к\а \т\а\к\ж\е \б\у\д\е\т \з\а\к\р\ы\т\а.
+                        Все этапы проекта завершены. Связанная сделка также будет закрыта,
+                        а по проекту установлен срок гарантии 2 года.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
+
+                    {/* Чек-лист готовности к закрытию (PROJ-13) */}
+                    <div className="space-y-2 py-1">
+                      {readinessLoading && (
+                        <p className="text-sm text-muted-foreground">Проверка условий закрытия…</p>
+                      )}
+                      {!readinessLoading && readiness && (
+                        <>
+                          {readiness.conditions.map((c) => (
+                            <div key={c.key} className="flex items-start gap-2 text-sm">
+                              <CheckCircle2
+                                className={`size-4 mt-0.5 shrink-0 ${c.met ? "text-green-600" : "text-muted-foreground/40"}`}
+                              />
+                              <div>
+                                <span className={c.met ? "text-foreground" : "text-muted-foreground"}>
+                                  {c.label}
+                                </span>
+                                <span className="block text-xs text-muted-foreground">{c.detail}</span>
+                              </div>
+                            </div>
+                          ))}
+                          {!readiness.ready && (
+                            <p className="text-xs text-amber-600 dark:text-amber-400 pt-1">
+                              Есть невыполненные условия. Можно закрыть принудительно, но это не рекомендуется.
+                            </p>
+                          )}
+                        </>
+                      )}
+                    </div>
+
                     <AlertDialogFooter>
                       <AlertDialogCancel
-                        render={<Button variant="outline">\О\т\м\е\н\а</Button>}
+                        render={<Button variant="outline">Отмена</Button>}
                       />
-                      <AlertDialogAction
-                        render={<Button onClick={handleCompleteProject} disabled={completingProject} className="bg-green-600 hover:bg-green-700">
-                          {completingProject ? "\З\а\к\р\ы\т\и\е..." : "\П\о\д\п\и\с\а\т\ь \а\к\т"}
-                        </Button>}
-                      />
+                      {readiness && !readiness.ready ? (
+                        // Невыполненные условия → две кнопки: обычное закрытие (вернёт 409)
+                        // и «закрыть всё равно» с override.
+                        <div className="flex gap-2">
+                          <AlertDialogAction
+                            render={
+                              <Button
+                                onClick={() => handleCompleteProject(false)}
+                                disabled={completingProject}
+                                variant="outline"
+                              >
+                                {completingProject ? "Закрытие…" : "Закрыть"}
+                              </Button>
+                            }
+                          />
+                          <AlertDialogAction
+                            render={
+                              <Button
+                                onClick={() => handleCompleteProject(true)}
+                                disabled={completingProject}
+                                className="bg-amber-600 hover:bg-amber-700"
+                              >
+                                {completingProject ? "Закрытие…" : "Закрыть всё равно"}
+                              </Button>
+                            }
+                          />
+                        </div>
+                      ) : (
+                        <AlertDialogAction
+                          render={
+                            <Button
+                              onClick={() => handleCompleteProject(false)}
+                              disabled={completingProject}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              {completingProject ? "Закрытие…" : "Подписать акт"}
+                            </Button>
+                          }
+                        />
+                      )}
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -635,6 +735,16 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             </CardContent>
           </Card>
 
+          {/* Stage Manager */}
+          <StageManager
+            projectId={project.id}
+            stages={project.stages || []}
+            onUpdate={() => {
+              setStageRefresh((prev) => prev + 1)
+              fetchProject(project.id)
+            }}
+          />
+
           {/* Production */}
           <Card>
             <CardHeader>
@@ -701,6 +811,55 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 key={changeOrderRefresh}
                 projectId={project.id}
                 onUpdate={() => setChangeOrderRefresh((prev) => prev + 1)}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Client Payments 70/30 (FIN-01) */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="size-4" />
+                Платежи клиента
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProjectPaymentsCard
+                projectId={project.id}
+                onUpdate={() => fetchProject(project.id)}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Acceptance Act (PROJ-12) */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileCheck className="size-4" />
+                Акт приёмки
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AcceptanceActCard
+                projectId={project.id}
+                contactType={project.contact?.type ?? null}
+                onUpdate={() => fetchProject(project.id)}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Designer Bonus (минимальный след, PROJ-13) */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gift className="size-4" />
+                Бонус дизайнеру
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DesignerBonusCard
+                projectId={project.id}
+                onUpdate={() => fetchProject(project.id)}
               />
             </CardContent>
           </Card>
@@ -905,6 +1064,38 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               )}
             </CardContent>
           </Card>
+
+          {/* Warranty (PROJ-14) */}
+          {project.warrantyEndDate && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShieldCheck className="size-4" />
+                  Гарантия
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                {project.warrantyStartDate && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Начало</span>
+                    <span>{new Date(project.warrantyStartDate).toLocaleDateString("ru-RU")}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Окончание</span>
+                  <span className="flex items-center gap-2">
+                    {new Date(project.warrantyEndDate).toLocaleDateString("ru-RU")}
+                    <Badge variant={new Date(project.warrantyEndDate) > new Date() ? "secondary" : "destructive"}>
+                      {new Date(project.warrantyEndDate) > new Date() ? "На гарантии" : "Истекла"}
+                    </Badge>
+                  </span>
+                </div>
+                {project.warrantyNotes && (
+                  <p className="text-xs text-muted-foreground pt-1">{project.warrantyNotes}</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Status History */}
           <StatusHistoryCard projectId={project.id} />

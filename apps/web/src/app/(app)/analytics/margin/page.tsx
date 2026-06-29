@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 interface ProjectPnL {
   projectId: string; projectName: string; status: string
   revenue: number; cost: number; profit: number; margin: number
+  marginTargetPct: number; lowMargin: boolean
   income: number; expense: number; budgeted: number; budgetUsage: number
   transactionCount: number
 }
@@ -20,6 +21,7 @@ interface MarginData {
   projects: ProjectPnL[]
   top5: ProjectPnL[]
   bottom5: ProjectPnL[]
+  lowMarginAlerts: Array<{ projectId: string; projectName: string; margin: number; target: number; deficit: number }>
   summary: {
     totalRevenue: number; totalCost: number; totalProfit: number; avgMargin: number
     projectCount: number; profitableCount: number; unprofitableCount: number
@@ -56,7 +58,7 @@ export default function MarginPage() {
   if (loading) return <div className="container mx-auto p-6 flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Загрузка...</span></div>
   if (error || !data) return <div className="container mx-auto p-6"><Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error || "No data"}</p><Button variant="outline" onClick={fetchData}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Повторить</span></Button></div></CardContent></Card></div>
 
-  const { summary, top5, bottom5, projects, distribution } = data
+  const { summary, top5, bottom5, projects, distribution, lowMarginAlerts } = data
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -122,6 +124,35 @@ export default function MarginPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Low-margin alerts (FIN-04) */}
+      {lowMarginAlerts.length > 0 && (
+        <Card className="border-amber-500">
+          <CardHeader>
+            <CardTitle className="text-amber-600 flex items-center gap-2">
+              <TrendingDownIcon className="size-5" />
+              Низкомаржинальные проекты ({lowMarginAlerts.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {lowMarginAlerts.slice(0, 10).map((a) => (
+                <div key={a.projectId} className="flex items-center justify-between text-sm border-b pb-2">
+                  <a href={`/projects/${a.projectId}`} className="font-medium text-primary hover:underline">
+                    {a.projectName}
+                  </a>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="destructive">{pct(a.margin)}</Badge>
+                    <span className="text-xs text-muted-foreground">
+                      цель {pct(a.target)}, недостача {pct(a.deficit)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Full Table */}
       <Card>

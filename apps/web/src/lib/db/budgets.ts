@@ -72,18 +72,37 @@ export class BudgetRepository {
   }
 
   /**
+   * Find organizational budgets (constant expenses, projectId = null) for a period.
+   * ACCT-01/03: план постоянных расходов организации по периоду.
+   */
+  async findOrgByPeriod(period: string): Promise<Budget[]> {
+    const args: Prisma.BudgetFindManyArgs = {
+      where: { period, projectId: null },
+      include: {
+        Category: { select: { id: true, name: true, type: true } },
+      },
+      orderBy: [{ Category: { order: 'asc' } }, { createdAt: 'desc' }],
+    };
+    return prisma.budget.findMany(args);
+  }
+
+  /**
    * Create a new budget.
-   * Validates: projectId exists, categoryId exists and is active.
-   * Handles unique constraint violation (projectId + categoryId + period).
+   * projectId может быть null — это организационный бюджет (постоянные расходы).
+   * Validates: project exists (если указан), categoryId exists and is active.
+   * Handles unique constraint violation (projectId + categoryId + period), в т.ч.
+   * для орг-бюджетов — ручная проверка (partial unique index в БД).
    */
   async create(data: BudgetCreateInput): Promise<Budget> {
-    // Validate project exists
-    const project = await prisma.project.findUnique({
-      where: { id: data.projectId },
-      select: { id: true },
-    });
-    if (!project) {
-      throw new Error(`Project with id ${data.projectId} not found`);
+    // Validate project exists (только для проектного бюджета)
+    if (data.projectId) {
+      const project = await prisma.project.findUnique({
+        where: { id: data.projectId },
+        select: { id: true },
+      });
+      if (!project) {
+        throw new Error(`Project with id ${data.projectId} not found`);
+      }
     }
 
     // Validate category exists and is active
@@ -97,20 +116,34 @@ export class BudgetRepository {
       );
     }
 
-    // Check unique constraint
-    const existing = await prisma.budget.findUnique({
-      where: {
-        projectId_categoryId_period: {
-          projectId: data.projectId,
-          categoryId: data.categoryId,
-          period: data.period,
+    // Check unique constraint.
+    // Для проектного бюджета — композитный unique. Для орг-бюджета (projectId=null)
+    // — ручная проверка, т.к. обычный unique не ловит NULL (partial index в БД страхует).
+    if (data.projectId) {
+      const existing = await prisma.budget.findUnique({
+        where: {
+          projectId_categoryId_period: {
+            projectId: data.projectId,
+            categoryId: data.categoryId,
+            period: data.period,
+          },
         },
-      },
-    });
-    if (existing) {
-      throw new Error(
-        `Budget for project ${data.projectId}, category ${data.categoryId}, period ${data.period} already exists`
-      );
+      });
+      if (existing) {
+        throw new Error(
+          `Budget for project ${data.projectId}, category ${data.categoryId}, period ${data.period} already exists`
+        );
+      }
+    } else {
+      const existing = await prisma.budget.findFirst({
+        where: { categoryId: data.categoryId, period: data.period, projectId: null },
+        select: { id: true },
+      });
+      if (existing) {
+        throw new Error(
+          `Org budget for category ${data.categoryId}, period ${data.period} already exists`
+        );
+      }
     }
 
     return prisma.budget.create({
@@ -132,8 +165,9 @@ export class BudgetRepository {
       throw new Error(`Budget with id ${id} not found`);
     }
 
-    // If projectId or categoryId changed, validate they exist
-    if (data.projectId !== undefined) {
+    // If projectId changed, validate it exists (если задан непустой id;
+    // null допустим — это орг-бюджет).
+    if (data.projectId !== undefined && data.projectId !== null) {
       const project = await prisma.project.findUnique({
         where: { id: String(data.projectId) },
         select: { id: true },

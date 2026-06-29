@@ -206,7 +206,7 @@ export function BudgetWidget({ projectId }: BudgetWidgetProps) {
     return period
   }
 
-  const totalBudget = budgets.reduce((sum, b) => sum + b.amount, 0)
+  const totalBudget = budgets.reduce((sum, b) => sum + Number(b.amount), 0)
 
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat("ru-RU", {
@@ -297,7 +297,7 @@ export function BudgetWidget({ projectId }: BudgetWidgetProps) {
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <span className="text-sm font-medium">
-                            {formatCurrency(budget.amount)}
+                            {formatCurrency(Number(budget.amount))}
                           </span>
                           <Button
                             variant="ghost"

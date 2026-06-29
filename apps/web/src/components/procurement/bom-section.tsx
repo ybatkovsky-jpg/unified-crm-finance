@@ -47,6 +47,7 @@ interface ParsedExcelRow {
   name: string
   article?: string
   category?: string
+  material?: string
   quantity: number
   unit?: string
   price?: number
@@ -55,7 +56,7 @@ interface ParsedExcelRow {
 
 interface EditableCell {
   itemId: string
-  field: "name" | "quantity" | "unit" | "price" | "article" | "category"
+  field: "name" | "quantity" | "unit" | "price" | "article" | "category" | "material"
 }
 
 type BOMSectionState =
@@ -74,6 +75,7 @@ const COLUMN_PATTERNS: Record<string, string[]> = {
   name: ["наименование", "name", "название", "позиция", "товар", "product"],
   article: ["артикул", "article", "арт", "art", "код"],
   category: ["категория", "category", "группа", "group", "тип"],
+  material: ["материал", "material", "сырьё", "сырье", "raw"],
   quantity: ["количество", "quantity", "кол-во", "qty", "кол", "count"],
   unit: ["ед.изм", "единица", "unit", "ед", "изм", "uom"],
   price: ["цена", "price", "стоимость", "сумма", "cost", "amount"],
@@ -143,6 +145,7 @@ function parseExcelRows(jsonData: Record<string, unknown>[]): ParsedExcelRow[] {
       name: getValue("name") || `Позиция ${index + 1}`,
       article: getValue("article"),
       category: getValue("category"),
+      material: getValue("material"),
       quantity: qtyStr ? parseFloat(qtyStr.replace(",", ".")) || 0 : 0,
       unit: getValue("unit"),
       price: priceStr ? parseFloat(priceStr.replace(",", ".")) || undefined : undefined,
@@ -297,6 +300,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
       name: row.name,
       article: row.article || null,
       category: row.category || null,
+      material: row.material || null,
       quantity: row.quantity,
       unit: row.unit || null,
       price: row.price ?? null,
@@ -403,7 +407,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
 
     try {
       const update: BOMItemUpdateInput = {}
-      if (field === "name" || field === "unit" || field === "article" || field === "category") {
+      if (field === "name" || field === "unit" || field === "article" || field === "category" || field === "material") {
         ;(update as Record<string, string | null>)[field] = editValue || null
       } else if (field === "quantity" || field === "price") {
         ;(update as Record<string, number | null>)[field] = editValue ? parseFloat(editValue) : null
@@ -694,6 +698,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
                   <TableHead className="w-12">#</TableHead>
                   <TableHead>Наименование</TableHead>
                   <TableHead className="w-20">Артикул</TableHead>
+                  <TableHead className="w-24">Материал</TableHead>
                   <TableHead className="w-16">Кол-во</TableHead>
                   <TableHead className="w-16">Ед.</TableHead>
                   <TableHead className="w-24">Цена</TableHead>
@@ -705,6 +710,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
                     <TableCell>{row.rowNumber}</TableCell>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.article || "\—"}</TableCell>
+                    <TableCell>{row.material || "\—"}</TableCell>
                     <TableCell>{row.quantity}</TableCell>
                     <TableCell>{row.unit || "\—"}</TableCell>
                     <TableCell>
@@ -819,6 +825,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
                     <TableHead>Наименование</TableHead>
                     <TableHead className="w-24">Артикул</TableHead>
                     <TableHead className="w-20">Категория</TableHead>
+                    <TableHead className="w-24">Материал</TableHead>
                     <TableHead className="w-20">Кол-во</TableHead>
                     <TableHead className="w-16">Ед.</TableHead>
                     <TableHead className="w-24">Цена</TableHead>
@@ -839,6 +846,9 @@ export function BOMSection({ projectId }: { projectId: string }) {
                       </TableCell>
                       <TableCell>
                         {renderEditableCell(item, "category", item.category ?? "", "text-xs")}
+                      </TableCell>
+                      <TableCell>
+                        {renderEditableCell(item, "material", item.material ?? "", "text-xs")}
                       </TableCell>
                       <TableCell>
                         {renderEditableCell(item, "quantity", item.quantity)}

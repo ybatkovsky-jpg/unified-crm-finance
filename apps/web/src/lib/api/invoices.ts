@@ -55,6 +55,7 @@ export class InvoiceApiClient {
       this.url('/invoices', {
         projectId: params.projectId,
         supplierId: params.supplierId,
+        purchaseRequestId: params.purchaseRequestId,
         status: params.status,
       }),
       { headers: this.defaultHeaders }

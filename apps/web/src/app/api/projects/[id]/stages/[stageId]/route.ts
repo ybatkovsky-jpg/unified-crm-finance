@@ -1,7 +1,7 @@
 /**
  * PATCH /api/projects/[id]/stages/[stageId]
  *
- * Update a project stage's dates via drag-drop in Gantt chart.
+ * Update a project stage's dates, status, or completion.
  * Validates that endDate >= startDate.
  */
 
@@ -17,7 +17,7 @@ export async function PATCH(
 
     // Parse request body
     const body = await request.json();
-    const { startDate, endDate } = body;
+    const { startDate, endDate, status, completedAt } = body;
 
     // Validate dates
     if (startDate && endDate) {
@@ -35,15 +35,20 @@ export async function PATCH(
       }
     }
 
+    // Validate status if provided
+    if (status && !['pending', 'active', 'completed', 'blocked'].includes(status)) {
+      return NextResponse.json(
+        { error: 'Validation Error', message: `Invalid status: ${status}` },
+        { status: 400 }
+      );
+    }
+
     // Update the stage
     const updatedStage = await projects.updateStage(stageId, {
       ...(startDate && { startDate: new Date(startDate) }),
       ...(endDate && { endDate: new Date(endDate) }),
-    });
-
-    console.log(`[API] Stage ${stageId} updated for project ${id}`, {
-      startDate: updatedStage.startDate,
-      endDate: updatedStage.endDate,
+      ...(status && { status }),
+      ...(completedAt && { completedAt: new Date(completedAt) }),
     });
 
     return NextResponse.json({ data: updatedStage });

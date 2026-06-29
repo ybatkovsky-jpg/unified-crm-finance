@@ -121,6 +121,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       description: body.description ?? null,
       source: body.source ?? 'manual',
       status: body.status ?? 'confirmed',
+      paymentMethod: body.paymentMethod ?? null,
+      paymentType: body.paymentType ?? null,
       createdBy: body.createdBy ?? 'system',
     }
 

@@ -12,6 +12,7 @@ import type {
   ProjectCreateInput,
   ProjectUpdateInput,
   ProjectStageUpdateInput,
+  ClosureReadiness,
   ApiListResponse,
   ApiResponse,
   ApiClientConfig,
@@ -216,11 +217,15 @@ export class ProjectApiClient {
    *
    * Complete a project and cascade the completion to the related Deal.
    * Validates all project stages are completed first.
+   * Checks closure readiness (PROJ-13); set `overrideUnmet` to force-close
+   * even if conditions (act/money/invoices/bonus) are unmet.
+   * Records a 2-year warranty period on completion (PROJ-14).
    */
   async completeProject(
     id: string,
-    userId: string
-  ): Promise<ApiResponse<{ project: ProjectData; deal: ProjectData['deal'] | null }>> {
+    userId: string,
+    overrideUnmet: boolean = false
+  ): Promise<ApiResponse<{ project: ProjectData; deal: ProjectData['deal'] | null; readiness: ClosureReadiness }>> {
     if (!id) {
       throw new ApiClientError(400, 'Validation failed', 'id is required');
     }
@@ -231,14 +236,51 @@ export class ProjectApiClient {
     const response = await this.fetchFn(this.url(`/projects/${id}/complete`), {
       method: 'POST',
       headers: this.defaultHeaders,
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({ userId, overrideUnmet }),
     });
 
     if (!response.ok) {
       return parseApiError(response);
     }
 
-    return parseJson<ApiResponse<{ project: ProjectData; deal: ProjectData['deal'] | null }>>(response);
+    return parseJson<ApiResponse<{ project: ProjectData; deal: ProjectData['deal'] | null; readiness: ClosureReadiness }>>(response);
+  }
+
+  /**
+   * GET /api/projects/[id]/closure-readiness
+   *
+   * Returns the PROJ-13 closure readiness checklist (act/money/invoices/bonus).
+   */
+  async getClosureReadiness(id: string): Promise<ApiResponse<ClosureReadiness>> {
+    if (!id) {
+      throw new ApiClientError(400, 'Validation failed', 'id is required');
+    }
+    const response = await this.fetchFn(this.url(`/projects/${id}/closure-readiness`), {
+      headers: this.defaultHeaders,
+    });
+    if (!response.ok) return parseApiError(response);
+    return parseJson<ApiResponse<ClosureReadiness>>(response);
+  }
+
+  /** PATCH /api/projects/[id]/stages/[stageId] — update stage status/dates */
+  async updateProjectStage(
+    projectId: string,
+    stageId: string,
+    data: { status?: string; startDate?: string; endDate?: string; completedAt?: string }
+  ): Promise<ApiResponse<ProjectStageData>> {
+    if (!projectId || !stageId) {
+      throw new ApiClientError(400, 'Validation failed', 'projectId and stageId are required');
+    }
+    const response = await this.fetchFn(
+      this.url(`/projects/${projectId}/stages/${stageId}`),
+      {
+        method: 'PATCH',
+        headers: this.defaultHeaders,
+        body: JSON.stringify(data),
+      }
+    );
+    if (!response.ok) return parseApiError(response);
+    return parseJson<ApiResponse<ProjectStageData>>(response);
   }
 }
 
@@ -258,6 +300,7 @@ export const {
   deleteProject,
   updateStage,
   completeProject,
+  getClosureReadiness,
 } = projectsApi;
 
 export default projectsApi;

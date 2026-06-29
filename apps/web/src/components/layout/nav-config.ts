@@ -30,6 +30,13 @@ import {
   TrendingUp,
   Boxes,
   UserCog,
+  Landmark,
+  Scale,
+  Calculator,
+  FileBarChart,
+  GitCompareArrows,
+  Banknote,
+  Tags,
 } from "lucide-react"
 
 export interface NavChild {
@@ -84,9 +91,24 @@ export const NAV_SECTIONS: NavSection[] = [
     icon: Wallet,
     children: [
       { label: "Обзор", href: "/finance", icon: LayoutDashboard },
-      { label: "Категории", href: "/finance/categories", icon: Split },
       { label: "Транзакции", href: "/finance/transactions", icon: ArrowRightLeft },
       { label: "Платежи", href: "/finance/payments", icon: CreditCard },
+      { label: "Банк-выписки", href: "/finance/statements", icon: Landmark },
+      { label: "Долги", href: "/finance/debts", icon: Scale },
+      { label: "Категории", href: "/finance/categories", icon: Split },
+    ],
+  },
+  {
+    id: "accounting",
+    label: "Учёт",
+    matchPrefix: "/accounting",
+    icon: Calculator,
+    children: [
+      { label: "Обзор", href: "/accounting", icon: LayoutDashboard },
+      { label: "P&L", href: "/accounting/pnl", icon: FileBarChart },
+      { label: "План/факт", href: "/accounting/plan-fact", icon: GitCompareArrows },
+      { label: "ДДС", href: "/accounting/cashflow", icon: Banknote },
+      { label: "Статьи расходов", href: "/accounting/articles", icon: Tags },
     ],
   },
   {

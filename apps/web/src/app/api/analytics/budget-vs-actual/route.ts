@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../lib/db/prisma'
+import { parsePeriodToDateRange } from '../../../../lib/periods'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -78,31 +79,4 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       { status: 500 }
     )
   }
-}
-
-/**
- * Parse period string to date range.
- * "2026" → entire year, "2026-Q1" → Jan-Mar, "2026-01" → single month.
- */
-function parsePeriodToDateRange(period: string): { start: Date; end: Date } | null {
-  if (period.match(/^\d{4}$/)) {
-    const y = parseInt(period)
-    return { start: new Date(y, 0, 1), end: new Date(y, 11, 31, 23, 59, 59) }
-  }
-  if (period.match(/^\d{4}-Q[1-4]$/)) {
-    const [, y, q] = period.match(/^(\d{4})-Q([1-4])$/)!
-    const qs = parseInt(q)
-    return {
-      start: new Date(parseInt(y), (qs - 1) * 3, 1),
-      end: new Date(parseInt(y), qs * 3, 0, 23, 59, 59),
-    }
-  }
-  if (period.match(/^\d{4}-\d{2}$/)) {
-    const [, y, m] = period.match(/^(\d{4})-(\d{2})$/)!
-    return {
-      start: new Date(parseInt(y), parseInt(m) - 1, 1),
-      end: new Date(parseInt(y), parseInt(m), 0, 23, 59, 59),
-    }
-  }
-  return null
 }

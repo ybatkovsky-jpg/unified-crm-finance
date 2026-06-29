@@ -77,6 +77,7 @@ model BOMItem {
   name                 String
   article              String?
   category             String?
+  material             String?
   quantity             Float
   unit                 String                 @default("шт")
   price                Decimal                @default(0) @db.Decimal(15, 2)
@@ -97,9 +98,14 @@ model BOMItem {
   @@index([bomId])
 }
 
+/// План по статье и периоду. Проектный бюджет (projectId заполнен) или
+/// организационный план постоянных расходов (projectId = null). ACCT-01/03.
+/// Для орг-бюджетов уникальность (categoryId + period) обеспечена partial index
+/// в миграции (Postgres: NULL не равен NULL в обычном @@unique).
 model Budget {
   id         String   @id
-  projectId  String
+  /// null для организационного бюджета (постоянные расходы организации).
+  projectId  String?
   categoryId String
   amount     Decimal  @db.Decimal(15, 2)
   period     String
@@ -107,7 +113,7 @@ model Budget {
   createdAt  DateTime @default(now())
   updatedAt  DateTime
   Category   Category @relation(fields: [categoryId], references: [id])
-  Project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  Project    Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, categoryId, period])
 }
@@ -374,14 +380,14 @@ model Deal {
 }
 
 model DealHistory {
-  id          String   @id
+  id          String     @id
   dealId      String
   fromStageId String?
   toStageId   String?
   comment     String?
   changedBy   String
-  changedAt   DateTime @default(now())
-  Deal        Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  changedAt   DateTime   @default(now())
+  Deal        Deal       @relation(fields: [dealId], references: [id], onDelete: Cascade)
   FromStage   DealStage? @relation("DealHistory_FromStage", fields: [fromStageId], references: [id])
   ToStage     DealStage? @relation("DealHistory_ToStage", fields: [toStageId], references: [id])
   ChangedBy   User       @relation("DealHistory_ChangedBy", fields: [changedBy], references: [id])
@@ -390,19 +396,19 @@ model DealHistory {
 }
 
 model DealStage {
-  id          String   @id
-  pipelineId  String
-  code        String
-  name        String
-  order       Int
-  probability Float    @default(0)
-  isWonStage  Boolean  @default(false)
-  isLostStage Boolean  @default(false)
-  color       String?
-  Deal        Deal[]
+  id                    String        @id
+  pipelineId            String
+  code                  String
+  name                  String
+  order                 Int
+  probability           Float         @default(0)
+  isWonStage            Boolean       @default(false)
+  isLostStage           Boolean       @default(false)
+  color                 String?
+  Deal                  Deal[]
   DealHistory_FromStage DealHistory[] @relation("DealHistory_FromStage")
   DealHistory_ToStage   DealHistory[] @relation("DealHistory_ToStage")
-  Pipeline    Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  Pipeline              Pipeline      @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
 
   @@unique([pipelineId, code])
   @@index([pipelineId, order])
@@ -532,6 +538,7 @@ model FileEntity {
   ContractVersion   ContractVersion[]
   DealAsActFile     Deal[]            @relation("Deal_ActFile")
   DealAsDrawingFile Deal[]            @relation("Deal_DrawingFile")
+  AcceptanceActFile AcceptanceAct?    @relation("AcceptanceAct_ActFile")
   Invoice           Invoice?
   InvoiceAsRawFile  Invoice?          @relation("Invoice_RawFile")
   ProjectAsSpecFile Project[]         @relation("Project_SpecFile")
@@ -737,6 +744,12 @@ model Project {
   deadlineStatus       String                 @default("on_track")
   managerId            String?
   attributes           Json?
+  /// Дата начала гарантийного срока (проставляется при закрытии проекта). PROJ-14.
+  warrantyStartDate    DateTime?
+  /// Дата окончания гарантии (completedAt + 2 года). PROJ-14.
+  warrantyEndDate      DateTime?
+  /// Заметка по гарантии, напр. «фурнитура — по гарантии производителя». PROJ-14.
+  warrantyNotes        String?
   createdAt            DateTime               @default(now())
   updatedAt            DateTime
   deletedAt            DateTime?
@@ -758,13 +771,64 @@ model Project {
   PurchaseRequest      PurchaseRequest[]
   Task                 Task[]
   Transaction          Transaction[]
+  ProjectPayment       ProjectPayment[]
   ProjectStatusHistory ProjectStatusHistory[]
   Deal                 Deal?                  @relation(fields: [dealId], references: [id])
+  AcceptanceAct        AcceptanceAct?
+  DesignerBonus        DesignerBonus?
 
   @@index([contractId])
   @@index([dealId])
   @@index([managerId])
   @@index([status])
+}
+
+/// Акт приёмки выполненных работ по проекту (PROJ-12).
+/// Тип подписанта определяется по типу контрагента:
+/// физлицо → монтажник подписывает на объекте; юрлицо → менеджер (ЭДО/бумага).
+model AcceptanceAct {
+  id         String      @id
+  projectId  String      @unique
+  number     Int
+  /// draft | signed
+  status     String      @default("draft")
+  /// individual (физлицо, подпись монтажника) | legal (юрлицо, подпись менеджера)
+  signerType String?
+  signedById String?
+  signedAt   DateTime?
+  /// paper | edo
+  signMethod String?
+  actFileId  String?     @unique
+  notes      String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime
+  Project    Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  SignedBy   User?       @relation("AcceptanceAct_SignedBy", fields: [signedById], references: [id])
+  ActFile    FileEntity? @relation("AcceptanceAct_ActFile", fields: [actFileId], references: [id])
+
+  @@index([projectId])
+  @@index([status])
+}
+
+/// Бонус дизайнеру по проекту (минимальный след для PROJ-13; полная логика выплат/долга — FIN-06, Phase 8).
+model DesignerBonus {
+  id         String    @id
+  projectId  String    @unique
+  designerId String?
+  percent    Float     @default(0.1)
+  amount     Decimal   @default(0) @db.Decimal(15, 2)
+  /// pending | paid
+  status     String    @default("pending")
+  paidAt     DateTime?
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime
+  Project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  Designer   User?     @relation("DesignerBonus_Designer", fields: [designerId], references: [id])
+
+  @@index([projectId])
+  @@index([status])
+  @@index([designerId])
 }
 
 model ProjectMember {
@@ -849,20 +913,20 @@ model ProductionStage {
 }
 
 model Installation {
-  id               String                 @id
-  projectId        String
-  number           Int
-  status           String                 @default("planned")
-  plannedStartDate DateTime?
-  actualStartDate  DateTime?
-  actualEndDate    DateTime?
-  advancePercent   Float                  @default(30)
-  advanceAmount    Decimal?               @db.Decimal(15, 2)
-  cost             Decimal?               @db.Decimal(15, 2)
-  notes            String?
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime
-  Project          Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id                 String               @id
+  projectId          String
+  number             Int
+  status             String               @default("planned")
+  plannedStartDate   DateTime?
+  actualStartDate    DateTime?
+  actualEndDate      DateTime?
+  advancePercent     Float                @default(30)
+  advanceAmount      Decimal?             @db.Decimal(15, 2)
+  cost               Decimal?             @db.Decimal(15, 2)
+  notes              String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime
+  Project            Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
   InstallationWorker InstallationWorker[]
 
   @@index([projectId, number])
@@ -931,6 +995,7 @@ model PurchaseRequestItem {
   requestId       String
   bomItemId       String
   quantity        Float
+  itemStatus      String          @default("ordered")
   price           Decimal         @default(0) @db.Decimal(15, 2)
   available       Boolean         @default(false)
   availableQty    Float           @default(0)
@@ -940,6 +1005,7 @@ model PurchaseRequestItem {
   PurchaseRequest PurchaseRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
 
   @@index([requestId])
+  @@index([itemStatus])
 }
 
 model RefreshToken {
@@ -1026,27 +1092,32 @@ model Task {
 }
 
 model Transaction {
-  id             String        @id
+  id             String          @id
   projectId      String?
   categoryId     String
   counterpartyId String?
   invoiceId      String?
   createdBy      String
   date           DateTime
-  amount         Decimal       @db.Decimal(15, 2)
+  amount         Decimal         @db.Decimal(15, 2)
   type           String
   description    String?
-  source         String        @default("manual")
+  source         String          @default("manual")
   externalId     String?
-  status         String        @default("confirmed")
-  fileIds        Json          @default("[]")
-  createdAt      DateTime      @default(now())
+  status         String          @default("confirmed")
+  /// Способ оплаты: cash | bank | card. FIN-03.
+  paymentMethod  String?
+  /// Тип платежа клиента: prepayment | final | other (связь с этапом 70/30). FIN-01.
+  paymentType    String?
+  fileIds        Json            @default("[]")
+  createdAt      DateTime        @default(now())
   updatedAt      DateTime
   deletedAt      DateTime?
-  Invoice        Invoice?      @relation(fields: [invoiceId], references: [id])
-  Counterparty   Counterparty? @relation(fields: [counterpartyId], references: [id])
-  Category       Category      @relation(fields: [categoryId], references: [id])
-  Project        Project?      @relation(fields: [projectId], references: [id])
+  Invoice        Invoice?        @relation(fields: [invoiceId], references: [id])
+  Counterparty   Counterparty?   @relation(fields: [counterpartyId], references: [id])
+  Category       Category        @relation(fields: [categoryId], references: [id])
+  Project        Project?        @relation(fields: [projectId], references: [id])
+  ProjectPayment ProjectPayment?
 
   @@unique([externalId, source, date])
   @@index([invoiceId])
@@ -1054,6 +1125,34 @@ model Transaction {
   @@index([type, date])
   @@index([categoryId])
   @@index([projectId, date])
+  @@index([paymentMethod])
+}
+
+/// Этап оплаты клиента по проекту (FIN-01: предоплата 70% + финал 30%).
+/// Связан с фактическим платежом через Transaction.
+model ProjectPayment {
+  id             String       @id
+  projectId      String
+  /// prepayment | final | other
+  paymentType    String
+  plannedPercent Float
+  plannedAmount  Decimal      @default(0) @db.Decimal(15, 2)
+  receivedAmount Decimal      @default(0) @db.Decimal(15, 2)
+  /// cash | bank | card (способ последнего платежа)
+  paymentMethod  String?
+  transactionId  String?      @unique
+  /// planned | partial | paid
+  status         String       @default("planned")
+  dueDate        DateTime?
+  receivedAt     DateTime?
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime
+  Project        Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  Transaction    Transaction? @relation(fields: [transactionId], references: [id])
+
+  @@index([projectId])
+  @@index([status])
 }
 
 model User {
@@ -1086,6 +1185,8 @@ model User {
   Task_Task_assigneeIdToUser                        Task[]                 @relation("Task_assigneeIdToUser")
   DealHistory_ChangedBy                             DealHistory[]          @relation("DealHistory_ChangedBy")
   InstallationWorker                                InstallationWorker[]
+  AcceptanceAct_SignedBy                            AcceptanceAct[]        @relation("AcceptanceAct_SignedBy")
+  DesignerBonus_Designer                            DesignerBonus[]        @relation("DesignerBonus_Designer")
   UserRole                                          UserRole[]
 
   @@index([deletedAt])

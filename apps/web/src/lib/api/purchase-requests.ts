@@ -216,6 +216,19 @@ export class PurchaseRequestApiClient {
     if (!response.ok) return parseApiError(response);
     return parseJson<ApiResponse<PurchaseRequestItemData> & { message: string }>(response);
   }
+
+  /** PATCH /api/purchase-requests/items/[id]/receive — mark as received + warehouse tx */
+  async receiveItem(
+    itemId: string
+  ): Promise<ApiResponse<PurchaseRequestItemData>> {
+    if (!itemId) throw new ApiClientError(400, 'Validation failed', 'itemId is required');
+    const response = await this.fetchFn(this.url(`/purchase-requests/items/${itemId}/receive`), {
+      method: 'PATCH',
+      headers: this.defaultHeaders,
+    });
+    if (!response.ok) return parseApiError(response);
+    return parseJson<ApiResponse<PurchaseRequestItemData>>(response);
+  }
 }
 
 /** Default singleton instance */
@@ -236,6 +249,7 @@ export const {
   getItems,
   addItem,
   removeItem,
+  receiveItem,
 } = purchaseRequestsApi;
 
 export default purchaseRequestsApi;

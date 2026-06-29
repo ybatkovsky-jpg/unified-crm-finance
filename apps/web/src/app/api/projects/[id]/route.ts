@@ -55,6 +55,17 @@ export async function GET(
         Contact: true,
         User: true,
         SpecFile: true,
+        AcceptanceAct: {
+          include: {
+            SignedBy: { select: { id: true, name: true, email: true } },
+            ActFile: true,
+          },
+        },
+        DesignerBonus: {
+          include: {
+            Designer: { select: { id: true, name: true, email: true } },
+          },
+        },
       } as const,
     )
 

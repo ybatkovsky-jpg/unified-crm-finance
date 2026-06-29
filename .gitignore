@@ -56,6 +56,15 @@ ENV/
 
 # Prisma
 prisma/migrations/dev.db*
+prisma/dev.db*
+*.db
+*.db-journal
+
+# Agent / tooling local state (не в репозиторий)
+.claude/
+.session/
+ТЗ.docx
+*.docx
 
 # Uploads (local dev)
 uploads/

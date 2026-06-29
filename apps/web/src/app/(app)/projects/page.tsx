@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { RefreshCwIcon } from "lucide-react"
+import { RefreshCwIcon, Package } from "lucide-react"
 
 import { projectsApi, ApiClientError } from "@/lib/api/projects"
-import type { ProjectData } from "@/lib/api/types"
+import { bomApi } from "@/lib/api/bom"
+import type { ProjectData, BOMData } from "@/lib/api/types"
 import {
   Table,
   TableBody,
@@ -101,6 +102,64 @@ export default function ProjectsPage() {
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
   const [managerFilter, setManagerFilter] = useState<string>("all")
+  const [coverageMap, setCoverageMap] = useState<Record<string, { total: number; covered: number; bomStatus: string }>>({})
+
+  type CoverageInfo = { total: number; covered: number; bomStatus: string }
+
+  // Fetch BOM coverage for all projects
+  useEffect(() => {
+    if (projects.length === 0) return
+    let cancelled = false
+
+    const fetchCoverage = async () => {
+      const map: Record<string, CoverageInfo> = {}
+      await Promise.all(
+        projects.map(async (p) => {
+          try {
+            // Try to get BOM for the project
+            const bomRes = await bomApi.getBOM(p.id)
+            const bom: BOMData = bomRes.data
+            const items = bom.items ?? []
+            // Count covered items (those that appear in any PurchaseRequest)
+            // For the list, we use a simpler check: does BOM exist and is it locked?
+            // We set total to item count and mark as covered if BOM is locked
+            map[p.id] = {
+              total: items.length,
+              covered: bom.status === "locked" ? items.length : 0,
+              bomStatus: bom.status,
+            }
+          } catch {
+            // No BOM for this project
+            map[p.id] = { total: 0, covered: 0, bomStatus: "none" }
+          }
+        })
+      )
+      if (!cancelled) setCoverageMap(map)
+    }
+
+    fetchCoverage()
+    return () => { cancelled = true }
+  }, [projects])
+
+  function getCoverageBadge(info?: CoverageInfo) {
+    if (!info || info.bomStatus === "none") {
+      return <Badge variant="outline" className="text-muted-foreground">Нет спецификации</Badge>
+    }
+    if (info.bomStatus === "draft") {
+      return <Badge variant="outline" className="text-yellow-600 border-yellow-300 bg-yellow-50 dark:text-yellow-400 dark:border-yellow-800 dark:bg-yellow-950">Черновик</Badge>
+    }
+    if (info.bomStatus === "locked") {
+      if (info.total === 0) {
+        return <Badge variant="outline" className="text-muted-foreground">Пустая</Badge>
+      }
+      // For locked BOMs without PR fetch, show as "Заблокирована"
+      return <Badge variant="secondary" className="text-blue-600 border-blue-300 bg-blue-50 dark:text-blue-400 dark:border-blue-800 dark:bg-blue-950">
+        <Package className="size-3 mr-1" />
+        Заблокирована
+      </Badge>
+    }
+    return <Badge variant="outline">{info.bomStatus}</Badge>
+  }
 
   const fetchProjects = useCallback(async (status: StatusFilter, managerId: string) => {
     setLoading(true)
@@ -249,6 +308,7 @@ export default function ProjectsPage() {
                 <TableHead>\Д\а\т\а \н\а\ч\а\л\а</TableHead>
                 <TableHead>\Д\а\т\а \о\к\о\н\ч\а\н\и\я</TableHead>
                 <TableHead>\С\у\м\м\а \к\о\н\т\р\а\к\т\а</TableHead>
+                <TableHead>\С\п\е\ц\и\ф\и\к\а\ц\и\я</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -280,6 +340,7 @@ export default function ProjectsPage() {
                   <TableCell>{formatDate(project.startDate)}</TableCell>
                   <TableCell>{formatDate(project.endDate)}</TableCell>
                   <TableCell>{formatCurrency(Number(project.contractAmount), project.currency || "RUB")}</TableCell>
+                  <TableCell>{getCoverageBadge(coverageMap[project.id])}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -32,7 +32,7 @@ export function KanbanColumn({
     },
   })
 
-  const totalAmount = deals.reduce((sum, deal) => sum + (deal.amount || 0), 0)
+  const totalAmount = deals.reduce((sum, deal) => sum + Number(deal.amount || 0), 0)
 
   return (
     <div

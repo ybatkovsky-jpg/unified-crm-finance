@@ -67,7 +67,7 @@ export function ApprovalCreateDialog({ open, onOpenChange, onSuccess }: Props) {
       await approvalsApi.createApproval({
         type: "payment",
         entityId: invoiceId,
-        amount: selected?.totalAmount,
+        amount: selected?.totalAmount != null ? Number(selected.totalAmount) : undefined,
         requestedBy: requestedBy.trim() || "manager",
         comment: comment.trim() || undefined,
       })
@@ -112,7 +112,7 @@ export function ApprovalCreateDialog({ open, onOpenChange, onSuccess }: Props) {
                 )}
                 {approved.map((inv) => (
                   <SelectItem key={inv.id} value={inv.id}>
-                    {inv.invoiceNumber || inv.number} — {(inv.totalAmount ?? 0).toLocaleString("ru-RU")} ₽
+                    {inv.invoiceNumber || inv.number} — {Number(inv.totalAmount ?? 0).toLocaleString("ru-RU")} ₽
                   </SelectItem>
                 ))}
               </SelectContent>

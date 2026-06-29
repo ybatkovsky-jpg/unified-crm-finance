@@ -106,6 +106,7 @@ export async function PATCH(
     if (body.name !== undefined) updateData.name = body.name
     if (body.article !== undefined) updateData.article = body.article
     if (body.category !== undefined) updateData.category = body.category
+    if (body.material !== undefined) updateData.material = body.material
     if (body.quantity !== undefined) updateData.quantity = body.quantity
     if (body.unit !== undefined) updateData.unit = body.unit
     if (body.price !== undefined) updateData.price = body.price
@@ -152,6 +153,24 @@ export async function DELETE(
       return NextResponse.json(
         { error: 'Validation failed', message: 'id is required' },
         { status: 400 }
+      )
+    }
+
+    // Check if the BOM is locked (deleting items of a locked BOM is forbidden)
+    const existing = await prisma.bOMItem.findUnique({
+      where: { id },
+      include: { BOM: { select: { status: true } } },
+    })
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Not found', message: `BOMItem with id ${id} not found` },
+        { status: 404 }
+      )
+    }
+    if (existing.BOM.status === 'locked') {
+      return NextResponse.json(
+        { error: 'BOM is locked', message: 'Cannot delete items of a locked BOM' },
+        { status: 409 }
       )
     }
 

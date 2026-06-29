@@ -3,7 +3,8 @@
  *
  * CRUD API for Budget model:
  * - GET: List budgets with optional projectId, categoryId, period filters
- * - POST: Create a new budget with validation
+ *        (если указан только period без projectId — возвращает орг-бюджеты)
+ * - POST: Create a new budget with validation (projectId опционален для орг-бюджета)
  *
  * GET /api/budgets
  * POST /api/budgets
@@ -19,6 +20,7 @@ import { budgets } from '../../../lib/db/budgets'
  * - projectId: filter by project
  * - categoryId: filter by category
  * - period: filter by period (e.g. "2026-01", "2026-Q1", "2026")
+ * - org=1 (с period): только организационные бюджеты (projectId = null), ACCT-01/03
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -26,6 +28,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const projectId = searchParams.get('projectId')
     const categoryId = searchParams.get('categoryId')
     const period = searchParams.get('period')
+    const org = searchParams.get('org') === '1'
+
+    // Organizational budgets (constant expenses, projectId = null).
+    if (org && period) {
+      const data = await budgets.findOrgByPeriod(period)
+      const filteredData = categoryId
+        ? data.filter((b) => b.categoryId === categoryId)
+        : data
+      return NextResponse.json({ data: filteredData, count: filteredData.length })
+    }
 
     // If projectId is provided, use findByProject with filters
     if (projectId) {
@@ -66,21 +78,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 /**
  * POST /api/budgets
  *
- * Creates a new budget.
- * Required fields: projectId, categoryId, amount, period.
- * Validates project and category existence.
+ * Creates a new budget. projectId опционален: если не задан — создаётся
+ * организационный бюджет (постоянные расходы, ACCT-01/03).
+ * Required fields: categoryId, amount, period.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json()
 
-    // Validate required fields
-    if (!body.projectId) {
-      return NextResponse.json(
-        { error: 'Validation failed', message: 'projectId is required' },
-        { status: 400 }
-      )
-    }
+    // categoryId, amount, period — обязательны. projectId — опционален (орг-бюджет).
     if (!body.categoryId) {
       return NextResponse.json(
         { error: 'Validation failed', message: 'categoryId is required' },
@@ -101,7 +107,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const createData = {
-      projectId: body.projectId,
+      projectId: body.projectId ?? null,
       categoryId: body.categoryId,
       amount: body.amount,
       period: body.period,

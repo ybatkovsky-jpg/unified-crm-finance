@@ -16,6 +16,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const data = await invoices.findMany({
       projectId: sp.get('projectId') ?? undefined,
       supplierId: sp.get('supplierId') ?? undefined,
+      purchaseRequestId: sp.get('purchaseRequestId') ?? undefined,
       status: sp.get('status') ?? undefined,
     })
     return NextResponse.json({ data, count: data.length })

@@ -5,7 +5,10 @@
  *
  * Completes a project and cascades the completion to the related Deal.
  * Validates all project stages are completed first.
- * Uses Prisma transaction to atomically update both Project and Deal.
+ * Checks closure readiness (PROJ-13): act signed, client money received,
+ * supplier invoices paid, designer bonus paid. Unmet conditions return 409
+ * unless `overrideUnmet` is true (soft closure with override).
+ * Records a 2-year warranty period on completion (PROJ-14).
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -18,8 +21,7 @@ interface RouteParams {
 /**
  * POST /api/projects/[id]/complete
  *
- * Completes a project and cascades the completion to the related Deal.
- * Body: { userId: string } - The user ID performing the completion (for DealHistory)
+ * Body: { userId: string, overrideUnmet?: boolean }
  */
 export async function POST(
   request: NextRequest,
@@ -41,13 +43,16 @@ export async function POST(
       )
     }
 
-    // Call completeWithCascade which validates stages and uses transaction
-    const result = await projects.completeWithCascade(id, userId)
+    const overrideUnmet = body.overrideUnmet === true
+
+    // completeWithCascade validates stages, checks readiness, and records warranty.
+    const result = await projects.completeWithCascade(id, userId, overrideUnmet)
 
     return NextResponse.json({
       data: {
         project: result.project,
         deal: result.deal,
+        readiness: result.readiness,
       },
     })
   } catch (error) {
@@ -60,8 +65,12 @@ export async function POST(
     if (error instanceof Error) {
       errorMessage = error.message
 
+      // Closure conditions unmet without override → 409 with readiness payload.
+      if (error.name === 'ConflictError') {
+        status = 409
+      }
       // Return 400 for validation errors (incomplete stages)
-      if (errorMessage.includes('Cannot complete project') || errorMessage.includes('incomplete stages')) {
+      else if (errorMessage.includes('Cannot complete project') || errorMessage.includes('incomplete stages')) {
         status = 400
       }
       // Return 404 for not found errors
