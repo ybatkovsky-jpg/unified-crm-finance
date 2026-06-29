@@ -37,6 +37,9 @@ import {
   GitCompareArrows,
   Banknote,
   Tags,
+  ListTodo,
+  CalendarClock,
+  UsersRound,
 } from "lucide-react"
 
 export interface NavChild {
@@ -68,6 +71,17 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: "Сделки", href: "/deals", icon: Handshake },
       { label: "Проекты", href: "/projects", icon: FolderKanban },
       { label: "Договоры", href: "/contracts", icon: FileText },
+    ],
+  },
+  {
+    id: "tasks",
+    label: "Задачи",
+    matchPrefix: "/tasks",
+    icon: ListTodo,
+    children: [
+      { label: "Мои задачи", href: "/tasks", icon: CheckSquare },
+      { label: "Просроченные", href: "/tasks/overdue", icon: CalendarClock },
+      { label: "Все задачи", href: "/tasks/all", icon: UsersRound },
     ],
   },
   {

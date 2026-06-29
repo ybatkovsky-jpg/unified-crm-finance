@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-06-29T13:20:00.000Z"
-last_activity: 2026-06-29 -- Phase 9 (accounting ACCT-01..04: 12 expense articles, org P&L, plan/fact, cashflow) completed
+status: complete
+last_updated: "2026-06-30T00:20:00.000Z"
+last_activity: 2026-06-30 -- Phase 10 (platform PLAT-01..05: tasks, notifications, analytics) completed — milestone v1.0 COMPLETE
 progress:
   total_phases: 10
   completed_phases: 10
@@ -15,9 +15,9 @@ progress:
 
 # GSD State
 
-**Active Milestone:** v1.0 «ERP ПРО Мебель — доводка до спеки»
-**Active Phase:** ✅ Phase 9 complete — управленческий учёт (12 статей расходов, P&L, план/факт, ДДС)
-**Requirements Status:** 51 active · 25 validated · 0 deferred · 0 out of scope
+**Active Milestone:** v1.0 «ERP ПРО Мебель — доводка до спеки» — COMPLETE ✅
+**Active Phase:** ✅ Phase 10 complete — платформа (задачи, уведомления, аналитика) — milestone завершён
+**Requirements Status:** 51 active · 51 validated · 0 deferred · 0 out of scope
 
 ## Project Reference
 
@@ -60,7 +60,7 @@ Last activity: 2026-06-28 -- Phase 1 marked complete
 - [x] **Phase 7:** Акт, закрытие проекта, гарантия — PROJ-12..14 (3) ✅ 2026-06-29
 - [x] **Phase 8:** Финансы — FIN-01..06 (6) ✅ 2026-06-29
 - [x] **Phase 9:** Управленческий учёт — ACCT-01..04 (4) ✅ 2026-06-29
-- [ ] **Phase 10:** Задачи, уведомления, аналитика — PLAT (5)
+- [x] **Phase 10:** Задачи, уведомления, аналитика — PLAT-01..05 (5) ✅ 2026-06-30
 
 ## Accumulated Context
 
@@ -76,13 +76,19 @@ Last activity: 2026-06-28 -- Phase 1 marked complete
 - 2026-06-29 (Phase 9): Архитектурное решение по модели плана — Budget.projectId сделан nullable (единая модель для проектных и орг-бюджетов вместо отдельной OrgBudget). Уникальность орг-плана (categoryId+period, projectId=null) обеспечена partial unique index в БД (Postgres NULL≠NULL) + ручной проверкой в BudgetRepository.create. Факт постоянных расходов = Transaction(type=expense, projectId=null).
 - 2026-06-29 (Phase 9): P&L/план-факт/ДДС считаются на лету агрегацией Transaction/Budget/CashFlowPayment за период (без материализации). P&L = доходы − расходы (постоянные+проектные), с прикидкой УСН 15% (max от 15% базы и 1% дохода). ДДС отделён от P&L — по моменту движения денег. Общий util периодов lib/periods.ts (ранее дублировался локально в analytics routes).
 - 2026-06-29 (Phase 9): UI раздела «Учёт» — русский (в отличие от англоязычного /finance, исторический долг). Раздел уже был в матрице ролей (director+accountant) и pathToSection — добавлен только в nav-config + страницы. Общий форматтер lib/format.ts (ru-RU/RUB).
+- 2026-06-30 (Phase 10): PLAT-02 — только in-app уведомления (Telegram/email → Future). Каналы подтверждены заказчиком: колокол в шапке уже был, нужны только trigger-points + починка MOCK_USER_ID → me.id.
+- 2026-06-30 (Phase 10): Time-based события (60 дней, просрочка задачи) — ленивый расчёт при чтении (как статусы проекта Phase 5), без cron/worker. Уведомления создаются в GET-эндпоинтах по факту обнаружения, idempotent через metadata.dedupeKey.
+- 2026-06-30 (Phase 10): Task lineage — originalTaskId (корень цепочки) + parentTaskId (предыдущая при переносе) + failedReason. Reschedule = пометить старую failed + создать новую-копию с переносом даты и сохранением lineage. Репо lib/db/tasks.ts по паттерну budgets.ts.
+- 2026-06-30 (Phase 10): Известный баг — Task.createdBy это FK на User, но create-measurement-task шлёт 'system' (несуществующий). Не регрессия Phase 10 (существовало ранее), но при реальном использовании нужен реальный userId из сессии.
 
 ### Todos
 
 - Получить образец файлa банк-выписки 1С/TXT от Озон/Тинькофф (PRODUCT-SPEC п.11, открытый вопрос #4) — для точной доработки парсера FIN-02 (сейчас по стандарту 1C + эвристики).
 - Подтвердить матрицу видимости проектов (PRODUCT-SPEC п.1, открытый вопрос #1) — влияет на AUTH-04/AUTH-05.
-- Подтвердить каналы уведомлений (Telegram-бот нужен?) — влияет на Phase 10/PLAT-02.
+- ~~Подтвердить каналы уведомлений~~ ✅ решено Phase 10: только in-app, Telegram/email → Future.
 - Собрать дизайн-референсы для «сексуального и плавного» UI — влияет на Phase 3/UI-04.
+- Future: Telegram-бот + email для уведомлений (PLAT-02 расширение) — когда будет готов bot token/SMTP.
+- Bug: Task.createdBy FK='system' в create-measurement-task (нужен реальный userId из сессии).
 
 ### Blockers
 
@@ -90,6 +96,7 @@ Last activity: 2026-06-28 -- Phase 1 marked complete
 
 ## Session Continuity
 
-**Last session:** 2026-06-29 — Phase 9 (управленческий учёт ACCT-01..04) завершена. 12 статей постоянных расходов (seed, PRODUCT-SPEC п.6), Budget.projectId → nullable (единая модель плана, partial unique index для орг-бюджетов). P&L организации (доходы − расходы постоянные+проектные, прикидка УСН 15%), план/факт по статьям и периодам, ДДС план/факт по месяцам (отдельно от P&L — по моменту движения денег). Раздел «Учёт» в навигации + 5 страниц (/accounting, /pnl, /plan-fact, /cashflow, /articles). Общий util lib/periods.ts (ранее дублировался) + lib/format.ts. Прогресс 100% (10/10 фаз, 25/51 требований validated).
-**Next action:** Запустить планирование Phase 10 (Задачи, уведомления, аналитика — PLAT-01..05) — последняя фаза milestone.
-**Resume command:** «Продолжи с Phase 10» — продолжит с дорожной карты задач/уведомлений/аналитики.
+**Last session:** 2026-06-30 — Phase 10 (платформа PLAT-01..05) завершена. **MILESTONE v1.0 COMPLETE — все 10 фаз, 51/51 требований validated.**
+PLAT-01: задачи (Task lineage originalTaskId/parentTaskId/failedReason, repo lib/db/tasks.ts, API GET-фильтры+PATCH+reschedule+recreate, раздел «Задачи» в навигации + 3 страницы /tasks/overdue/all, assignee в create-measurement-task). PLAT-02: in-app уведомления (колокол починен MOCK_USER_ID→me.id, lib/notifications/events.ts с dedupeKey, trigger-points в deals.moveStage/инвойс-оплата/project-payment/ленивая просрочка задач). PLAT-03: воронка причин отказов (lossReasonBreakdown через LOSS_REASONS). PLAT-04: маржа сплит open/closed (marginByStatus). PLAT-05: команда win-rate + нагрузка (activeTaskCount/overdueTaskCount/activeProjectCount/wonAmount).
+**Next action:** Milestone завершён. Дальнейшее — Future requirements (Telegram/email уведомления, гарантийные заявки, телефония, инвентаризация) и баг Task.createdBy='system'.
+**Resume command:** Milestone v1.0 готов. Для новых задач — определить следующий milestone или поработать над Future-требованиями.

@@ -16,6 +16,7 @@ export type RoleCode =
 export type Section =
   | 'crm'
   | 'projects'
+  | 'tasks'
   | 'procurement'
   | 'finance'
   | 'accounting'
@@ -31,37 +32,37 @@ export interface RoleSpec {
 export const ROLE_MATRIX: Record<RoleCode, RoleSpec> = {
   director: {
     label: 'Директор',
-    sections: ['crm', 'projects', 'procurement', 'finance', 'accounting', 'analytics', 'settings'],
+    sections: ['crm', 'projects', 'tasks', 'procurement', 'finance', 'accounting', 'analytics', 'settings'],
     viewAllProjects: true,
   },
   manager_designer: {
     label: 'Менеджер-дизайнер',
-    sections: ['crm', 'projects', 'procurement', 'finance', 'analytics'],
+    sections: ['crm', 'projects', 'tasks', 'procurement', 'finance', 'analytics'],
     viewAllProjects: false,
   },
   technologist: {
     label: 'Технолог',
-    sections: ['projects', 'procurement', 'analytics'],
+    sections: ['projects', 'tasks', 'procurement', 'analytics'],
     viewAllProjects: true,
   },
   supply: {
     label: 'Снабженец',
-    sections: ['projects', 'procurement', 'finance', 'analytics'],
+    sections: ['projects', 'tasks', 'procurement', 'finance', 'analytics'],
     viewAllProjects: true,
   },
   installer: {
     label: 'Монтажник',
-    sections: ['projects', 'analytics'],
+    sections: ['projects', 'tasks', 'analytics'],
     viewAllProjects: false,
   },
   accountant: {
     label: 'Бухгалтер',
-    sections: ['finance', 'accounting', 'analytics', 'procurement'],
+    sections: ['finance', 'accounting', 'analytics', 'procurement', 'tasks'],
     viewAllProjects: true,
   },
   storekeeper: {
     label: 'Кладовщик',
-    sections: ['procurement'],
+    sections: ['procurement', 'tasks'],
     viewAllProjects: false,
   },
 };
@@ -102,6 +103,7 @@ export function pathToSection(pathname: string): Section | null {
     return 'crm';
   }
   if (pathname.startsWith('/projects')) return 'projects';
+  if (pathname.startsWith('/tasks')) return 'tasks';
   if (pathname.startsWith('/procurement')) return 'procurement';
   if (pathname.startsWith('/finance')) return 'finance';
   if (pathname.startsWith('/accounting')) return 'accounting';

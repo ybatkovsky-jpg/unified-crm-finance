@@ -7,6 +7,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../lib/db/prisma'
+import { parsePeriodToDateRange } from '../../../../lib/periods'
+import { LOSS_REASONS } from '../../../../lib/loss-reasons'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -14,26 +16,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const pipelineId = searchParams.get('pipelineId')
     const period = searchParams.get('period') ?? 'all'
 
-    // Parse period to date filter
-    let dateFrom: Date | undefined
-    const now = new Date()
-    switch (period) {
-      case '3m': dateFrom = new Date(now.getFullYear(), now.getMonth() - 3, 1); break
-      case '6m': dateFrom = new Date(now.getFullYear(), now.getMonth() - 6, 1); break
-      case '12m': dateFrom = new Date(now.getFullYear() - 1, now.getMonth(), 1); break
-      // 'all' — no date filter
-    }
-
-    const where: Record<string, unknown> = {}
-    if (pipelineId) where.pipelineId = pipelineId
-    if (dateFrom) where.createdAt = { gte: dateFrom }
+    // Parse period to date filter (через общий util).
+    const range = parsePeriodToDateRange(period)
+    const dateFrom = range?.start
 
     // Fetch pipeline stages with deal counts
     const stages = await prisma.dealStage.findMany({
       where: pipelineId ? { pipelineId } : {},
       include: {
         Deal: {
-          where: dateFrom ? { createdAt: { gte: dateFrom } } : {},
+          where: range ? { createdAt: { gte: range.start, lte: range.end } } : {},
           select: { id: true, amount: true, createdAt: true },
         },
       },
@@ -79,6 +71,43 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       ? Math.round(((funnelData[funnelData.length - 1]?.dealCount ?? 0) / stages[0].Deal.length) * 100)
       : 0
 
+    // PLAT-03: разбивка причин отказов. Сделки на lost-стадиях, сгруппированные
+    // по lossReason через словарь LOSS_REASONS.
+    const lostStageIds = stages.filter((s) => s.isLostStage).map((s) => s.id)
+    let lossReasonBreakdown: Array<{ reason: string; label: string; count: number; amount: number }> = []
+    let totalLost = 0
+    if (lostStageIds.length > 0) {
+      const lostDeals = await prisma.deal.findMany({
+        where: {
+          stageId: { in: lostStageIds },
+          deletedAt: null,
+          ...(range ? { createdAt: { gte: range.start, lte: range.end } } : {}),
+        },
+        select: { amount: true, lossReason: true },
+      })
+      totalLost = lostDeals.length
+      const byReason = new Map<string, { count: number; amount: number }>()
+      for (const d of lostDeals) {
+        const key = d.lossReason ?? 'unknown'
+        const e = byReason.get(key) ?? { count: 0, amount: 0 }
+        e.count += 1
+        e.amount += Number(d.amount ?? 0)
+        byReason.set(key, e)
+      }
+      lossReasonBreakdown = LOSS_REASONS
+        .map((r) => {
+          const e = byReason.get(r.code)
+          return e ? { reason: r.code, label: r.label, count: e.count, amount: e.amount } : null
+        })
+        .filter((x): x is { reason: string; label: string; count: number; amount: number } => x !== null)
+        .sort((a, b) => b.count - a.count)
+      // Неизвестные причины (если есть).
+      const unknown = byReason.get('unknown')
+      if (unknown) {
+        lossReasonBreakdown.push({ reason: 'unknown', label: 'Не указана', count: unknown.count, amount: unknown.amount })
+      }
+    }
+
     return NextResponse.json({
       data: {
         stages: funnelData,
@@ -89,7 +118,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           firstStage: stages[0]?.name ?? 'N/A',
           lastStage: stages[stages.length - 1]?.name ?? 'N/A',
           pipelineName: pipelineId ? (await getPipelineName(pipelineId)) : 'All Pipelines',
+          totalLost,
         },
+        lossReasonBreakdown,
       },
     })
   } catch (error) {

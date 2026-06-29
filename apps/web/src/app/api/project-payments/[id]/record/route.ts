@@ -8,8 +8,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db/prisma';
 import { projectPayments } from '@/lib/db/project-payments';
 import type { PaymentMethod } from '@/lib/db/project-payments';
+import { notifyPaymentReceived } from '@/lib/notifications/events';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -36,6 +38,25 @@ export async function POST(
       transactionDate: body.transactionDate,
       description: body.description,
     });
+
+    // PLAT-02: уведомление о поступлении оплаты клиента (директору + менеджеру).
+    void (async () => {
+      try {
+        const [project, director] = await Promise.all([
+          prisma.project.findUnique({ where: { id: updated.projectId }, select: { name: true, managerId: true } }),
+          prisma.user.findFirst({
+            where: { deletedAt: null, isActive: true, UserRole: { some: { Role: { code: 'director' } } } },
+            select: { id: true },
+          }),
+        ])
+        const userIds = [director?.id, project?.managerId].filter((x): x is string => !!x)
+        if (userIds.length && project) {
+          await notifyPaymentReceived(userIds, project.name, body.amount, updated.projectId)
+        }
+      } catch (err) {
+        console.error('[project-payment record] notification failed:', err)
+      }
+    })()
 
     const data = await projectPayments.findById(updated.id);
     return NextResponse.json({ data });

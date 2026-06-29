@@ -1059,6 +1059,11 @@ model SyncLog {
   @@index([source])
 }
 
+/// Задача (выезд замер#1/#2/монтаж или общая). PLAT-01.
+/// status: todo | in_progress | done | failed | cancelled (контролируется в коде).
+/// type: measurement_1 | measurement_2 | installation | general | client.
+/// Перенос/пересоздание при неудаче: originalTaskId (корень цепочки),
+/// parentTaskId (предыдущая задача при переносе), failedReason.
 model Task {
   id                         String    @id
   title                      String
@@ -1072,6 +1077,12 @@ model Task {
   projectId                  String?
   dealId                     String?
   assigneeId                 String?
+  /// Корень цепочки переноса/пересоздания (первоисточник).
+  originalTaskId             String?
+  /// Предыдущая задача в цепочке переноса.
+  parentTaskId               String?
+  /// Почему провалена (клиент не явился, нет доступа и т.п.).
+  failedReason               String?
   createdBy                  String
   createdAt                  DateTime  @default(now())
   updatedAt                  DateTime
@@ -1081,6 +1092,10 @@ model Task {
   Deal                       Deal?     @relation(fields: [dealId], references: [id])
   Project                    Project?  @relation(fields: [projectId], references: [id])
   Contact                    Contact?  @relation(fields: [contactId], references: [id])
+  OriginalTask               Task?     @relation("TaskLineage", fields: [originalTaskId], references: [id])
+  ParentTask                 Task?     @relation("TaskReschedule", fields: [parentTaskId], references: [id])
+  Other_Task_OriginalTask    Task[]    @relation("TaskLineage")
+  Other_Task_ParentTask      Task[]    @relation("TaskReschedule")
 
   @@index([deletedAt])
   @@index([projectId])
@@ -1089,6 +1104,9 @@ model Task {
   @@index([dueDate])
   @@index([priority])
   @@index([status])
+  @@index([type])
+  @@index([originalTaskId])
+  @@index([parentTaskId])
 }
 
 model Transaction {

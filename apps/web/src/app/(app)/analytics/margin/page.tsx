@@ -22,6 +22,10 @@ interface MarginData {
   top5: ProjectPnL[]
   bottom5: ProjectPnL[]
   lowMarginAlerts: Array<{ projectId: string; projectName: string; margin: number; target: number; deficit: number }>
+  marginByStatus?: {
+    closed: { count: number; revenue: number; profit: number; avgMargin: number }
+    open: { count: number; revenue: number; profit: number; avgMargin: number }
+  }
   summary: {
     totalRevenue: number; totalCost: number; totalProfit: number; avgMargin: number
     projectCount: number; profitableCount: number; unprofitableCount: number
@@ -58,7 +62,7 @@ export default function MarginPage() {
   if (loading) return <div className="container mx-auto p-6 flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Загрузка...</span></div>
   if (error || !data) return <div className="container mx-auto p-6"><Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error || "No data"}</p><Button variant="outline" onClick={fetchData}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Повторить</span></Button></div></CardContent></Card></div>
 
-  const { summary, top5, bottom5, projects, distribution, lowMarginAlerts } = data
+  const { summary, top5, bottom5, projects, distribution, lowMarginAlerts, marginByStatus } = data
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -124,6 +128,35 @@ export default function MarginPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* PLAT-04: сплит маржи — текущие vs закрытые */}
+      {marginByStatus && (marginByStatus.closed.count > 0 || marginByStatus.open.count > 0) && (
+        <Card>
+          <CardHeader><CardTitle className="text-lg">Маржа: текущие vs закрытые</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-6 text-sm">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <TrendingUpIcon className="size-4" /> В работе
+                  <Badge variant="outline">{marginByStatus.open.count}</Badge>
+                </div>
+                <div>Выручка: <span className="font-medium">{f(marginByStatus.open.revenue)}</span></div>
+                <div>Прибыль: <span className={`font-medium ${marginByStatus.open.profit >= 0 ? "text-green-600" : "text-red-600"}`}>{f(marginByStatus.open.profit)}</span></div>
+                <div>Ср. маржа: <span className="font-medium">{pct(marginByStatus.open.avgMargin)}</span></div>
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <BarChart3Icon className="size-4" /> Закрытые
+                  <Badge variant="outline">{marginByStatus.closed.count}</Badge>
+                </div>
+                <div>Выручка: <span className="font-medium">{f(marginByStatus.closed.revenue)}</span></div>
+                <div>Прибыль: <span className={`font-medium ${marginByStatus.closed.profit >= 0 ? "text-green-600" : "text-red-600"}`}>{f(marginByStatus.closed.profit)}</span></div>
+                <div>Ср. маржа: <span className="font-medium">{pct(marginByStatus.closed.avgMargin)}</span></div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Low-margin alerts (FIN-04) */}
       {lowMarginAlerts.length > 0 && (

@@ -145,12 +145,32 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }))
       .sort((a, b) => b.deficit - a.deficit)
 
+    // PLAT-04: сплит маржи по статусу — текущие (в работе) vs закрытые.
+    const isClosed = (s: string) => s === 'completed' || s === 'closed'
+    const closed = pnlData.filter((p) => isClosed(p.status))
+    const open = pnlData.filter((p) => !isClosed(p.status))
+    const marginByStatus = {
+      closed: {
+        count: closed.length,
+        revenue: closed.reduce((s, p) => s + p.revenue, 0),
+        profit: closed.reduce((s, p) => s + p.profit, 0),
+        avgMargin: closed.length > 0 ? Math.round(closed.reduce((s, p) => s + p.margin, 0) / closed.length) : 0,
+      },
+      open: {
+        count: open.length,
+        revenue: open.reduce((s, p) => s + p.revenue, 0),
+        profit: open.reduce((s, p) => s + p.profit, 0),
+        avgMargin: open.length > 0 ? Math.round(open.reduce((s, p) => s + p.margin, 0) / open.length) : 0,
+      },
+    }
+
     return NextResponse.json({
       data: {
         projects: pnlData,
         top5: pnlData.slice(0, 5),
         bottom5: pnlData.slice(-5).reverse(),
         lowMarginAlerts,
+        marginByStatus,
         summary: {
           totalRevenue,
           totalCost,

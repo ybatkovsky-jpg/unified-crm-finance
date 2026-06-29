@@ -1,21 +1,21 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { BellIcon, CheckIcon, XIcon, RefreshCwIcon } from "lucide-react"
+import { BellIcon, CheckIcon, RefreshCwIcon } from "lucide-react"
 
 import { parseJson, ApiClientError } from "@/lib/api/shared"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useMe } from "@/components/layout/use-me"
 
 interface NotificationItem {
   id: string; type: string; title: string; message: string
   level: string; link: string | null; isRead: boolean; createdAt: string
 }
 
-// Mock user ID for MVP
-const MOCK_USER_ID = "00000000-0000-0000-0000-000000000001"
-
 export function NotificationBell() {
+  const { me } = useMe()
+  const userId = me?.id
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [open, setOpen] = useState(false)
@@ -23,15 +23,16 @@ export function NotificationBell() {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const fetchNotifications = useCallback(async () => {
+    if (!userId) return
     setLoading(true)
     try {
-      const res = await fetch(`/api/notifications?userId=${MOCK_USER_ID}&limit=10`)
+      const res = await fetch(`/api/notifications?userId=${userId}&limit=10`)
       if (!res.ok) return
       const json = await parseJson<{ data: NotificationItem[]; unreadCount: number }>(res)
       setNotifications(json.data)
       setUnreadCount(json.unreadCount ?? 0)
     } catch {} finally { setLoading(false) }
-  }, [])
+  }, [userId])
 
   useEffect(() => {
     fetchNotifications()
@@ -60,10 +61,13 @@ export function NotificationBell() {
   }
 
   const markAllRead = async () => {
+    if (!userId) return
     try {
-      await fetch(`/api/notifications/placeholder`, {
+      // mark-all: передаём реальный userId в теле; id в пути игнорируется роутом.
+      await fetch(`/api/notifications/${userId}`, {
         method: 'PATCH',
-        body: JSON.stringify({ markAllRead: true, userId: MOCK_USER_ID }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ markAllRead: true, userId }),
       })
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
       setUnreadCount(0)
@@ -82,11 +86,11 @@ export function NotificationBell() {
   const timeAgo = (dateStr: string): string => {
     const diff = Date.now() - new Date(dateStr).getTime()
     const mins = Math.floor(diff / 60000)
-    if (mins < 1) return 'just now'
-    if (mins < 60) return `${mins}m ago`
+    if (mins < 1) return 'только что'
+    if (mins < 60) return `${mins} мин назад`
     const hours = Math.floor(mins / 60)
-    if (hours < 24) return `${hours}h ago`
-    return `${Math.floor(hours / 24)}d ago`
+    if (hours < 24) return `${hours} ч назад`
+    return `${Math.floor(hours / 24)} дн назад`
   }
 
   return (
@@ -111,10 +115,10 @@ export function NotificationBell() {
       {open && (
         <div className="absolute right-0 top-full mt-2 w-80 bg-card border rounded-lg shadow-lg z-50 max-h-96 overflow-hidden flex flex-col">
           <div className="flex items-center justify-between p-3 border-b">
-            <span className="font-medium text-sm">Notifications</span>
+            <span className="font-medium text-sm">Уведомления</span>
             {unreadCount > 0 && (
               <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllRead}>
-                <CheckIcon className="size-3 mr-1" /> Mark all read
+                <CheckIcon className="size-3 mr-1" /> Прочитать все
               </Button>
             )}
           </div>
@@ -125,7 +129,7 @@ export function NotificationBell() {
             )}
 
             {!loading && notifications.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-8">No notifications</p>
+              <p className="text-sm text-muted-foreground text-center py-8">Нет уведомлений</p>
             )}
 
             {notifications.map(n => (

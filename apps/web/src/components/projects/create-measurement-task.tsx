@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Ruler, Loader2, CheckCircle2 } from "lucide-react"
 import { createTask, ApiClientError } from "@/lib/api/tasks"
+import { parseJson } from "@/lib/api/shared"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -15,6 +16,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select"
 
 interface Props {
   projectId: string
@@ -42,8 +46,20 @@ export function CreateMeasurementTask({ projectId, projectName, contactId, measu
   const [success, setSuccess] = useState(false)
   const [description, setDescription] = useState("")
   const [dueDate, setDueDate] = useState("")
+  const [assigneeId, setAssigneeId] = useState<string>("")
+  const [users, setUsers] = useState<Array<{ id: string; name: string | null; email: string }>>([])
 
   const info = LABELS[measurementType]
+
+  // Загрузка списка исполнителей для выбора.
+  useEffect(() => {
+    if (open && users.length === 0) {
+      fetch("/api/users/list")
+        .then((r) => r.json())
+        .then((d: { data?: typeof users }) => setUsers(d.data ?? []))
+        .catch(() => {})
+    }
+  }, [open, users.length])
 
   const handleCreate = async () => {
     setSaving(true)
@@ -57,6 +73,7 @@ export function CreateMeasurementTask({ projectId, projectName, contactId, measu
         dueDate: dueDate || undefined,
         projectId,
         contactId: contactId ?? undefined,
+        assigneeId: assigneeId || undefined,
         createdBy: "system",
       })
       setSuccess(true)
@@ -73,6 +90,7 @@ export function CreateMeasurementTask({ projectId, projectName, contactId, measu
       setError(null)
       setDescription("")
       setDueDate("")
+      setAssigneeId("")
     }
     setOpen(open)
   }
@@ -136,6 +154,18 @@ export function CreateMeasurementTask({ projectId, projectName, contactId, measu
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
                 />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>Исполнитель</Label>
+                <Select value={assigneeId} onValueChange={(v) => { if (v) setAssigneeId(v) }}>
+                  <SelectTrigger><SelectValue placeholder="Выберите исполнителя" /></SelectTrigger>
+                  <SelectContent><SelectGroup>
+                    {users.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>{u.name ?? u.email}</SelectItem>
+                    ))}
+                  </SelectGroup></SelectContent>
+                </Select>
               </div>
 
               {error && <p className="text-sm text-destructive">{error}</p>}

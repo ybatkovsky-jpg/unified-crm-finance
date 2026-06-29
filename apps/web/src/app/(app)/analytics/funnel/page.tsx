@@ -23,7 +23,9 @@ interface FunnelData {
   summary: {
     totalDeals: number; totalAmount: number; overallConversion: number
     firstStage: string; lastStage: string; pipelineName: string
+    totalLost?: number
   }
+  lossReasonBreakdown?: Array<{ reason: string; label: string; count: number; amount: number }>
 }
 
 function formatCurrency(a: number): string {
@@ -173,6 +175,39 @@ export default function SalesFunnelPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Причины отказов (PLAT-03) */}
+          {funnel.lossReasonBreakdown && funnel.lossReasonBreakdown.length > 0 && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2"><TrendingDownIcon className="size-4" /> Причины отказов</CardTitle>
+                  <Badge variant="outline">{funnel.summary.totalLost ?? 0} отказов</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {funnel.lossReasonBreakdown.map((r) => {
+                    const maxCount = Math.max(...funnel.lossReasonBreakdown!.map((x) => x.count), 1)
+                    const pct = Math.round((r.count / maxCount) * 100)
+                    return (
+                      <div key={r.reason} className="space-y-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <span>{r.label}</span>
+                          <span className="text-muted-foreground">
+                            {r.count} · {formatCurrency(r.amount)}
+                          </span>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-red-500 rounded-full" style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </>
       )}
     </div>

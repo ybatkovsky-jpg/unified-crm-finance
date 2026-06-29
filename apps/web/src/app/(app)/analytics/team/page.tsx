@@ -12,11 +12,13 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 interface Manager {
   userId: string; userName: string; dealCount: number; totalAmount: number
   avgAmount: number; conversion: number; interactionCount: number
+  wonCount: number; lostCount: number; wonAmount: number; winRate: number
+  activeTaskCount: number; overdueTaskCount: number; activeProjectCount: number
 }
 
 interface TeamData {
   managers: Manager[]
-  summary: { totalDeals: number; totalAmount: number; avgConversion: number; managerCount: number }
+  summary: { totalDeals: number; totalAmount: number; avgConversion: number; managerCount: number; totalWonAmount?: number; totalOverdueTasks?: number }
 }
 
 function f(a: number): string {
@@ -86,22 +88,44 @@ export default function TeamPerformancePage() {
 
       {/* Table */}
       <Card>
-        <CardHeader><CardTitle>Manager Details</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Эффективность и нагрузка</CardTitle></CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead><tr className="border-b">
-                <th className="text-left py-2">Manager</th><th className="text-right py-2">Deals</th><th className="text-right py-2">Total Amount</th><th className="text-right py-2">Avg Deal</th><th className="text-right py-2">Conversion</th><th className="text-right py-2">Interactions</th>
+              <thead><tr className="border-b text-muted-foreground">
+                <th className="text-left py-2 font-medium">Сотрудник</th>
+                <th className="text-right py-2 font-medium">Сделки</th>
+                <th className="text-right py-2 font-medium">Сумма</th>
+                <th className="text-right py-2 font-medium">Выиграно</th>
+                <th className="text-right py-2 font-medium">Win-rate</th>
+                <th className="text-right py-2 font-medium">Конверсия</th>
+                <th className="text-right py-2 font-medium">Задачи</th>
+                <th className="text-right py-2 font-medium">Просрочка</th>
+                <th className="text-right py-2 font-medium">Проекты</th>
               </tr></thead>
               <tbody>
                 {managers.map(m => (
                   <tr key={m.userId} className="border-b hover:bg-muted/50">
                     <td className="py-2 font-medium">{m.userName}</td>
-                    <td className="py-2 text-right font-medium">{m.dealCount}</td>
+                    <td className="py-2 text-right">{m.dealCount}</td>
                     <td className="py-2 text-right">{f(m.totalAmount)}</td>
-                    <td className="py-2 text-right text-muted-foreground">{f(m.avgAmount)}</td>
+                    <td className="py-2 text-right">
+                      <span className="text-green-600">{f(m.wonAmount)}</span>
+                      <span className="text-muted-foreground text-xs"> ({m.wonCount}✓ / {m.lostCount}✗)</span>
+                    </td>
+                    <td className="py-2 text-right">
+                      {(m.wonCount + m.lostCount) > 0
+                        ? <Badge variant={m.winRate >= 50 ? "default" : m.winRate >= 25 ? "secondary" : "destructive"}>{m.winRate}%</Badge>
+                        : <span className="text-muted-foreground">—</span>}
+                    </td>
                     <td className="py-2 text-right"><Badge variant={m.conversion >= 50 ? "default" : m.conversion >= 25 ? "secondary" : "outline"}>{m.conversion}%</Badge></td>
-                    <td className="py-2 text-right text-muted-foreground">{m.interactionCount}</td>
+                    <td className="py-2 text-right">{m.activeTaskCount}</td>
+                    <td className="py-2 text-right">
+                      {m.overdueTaskCount > 0
+                        ? <Badge variant="destructive">{m.overdueTaskCount}</Badge>
+                        : <span className="text-muted-foreground">0</span>}
+                    </td>
+                    <td className="py-2 text-right">{m.activeProjectCount}</td>
                   </tr>
                 ))}
               </tbody>

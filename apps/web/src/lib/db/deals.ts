@@ -12,7 +12,8 @@ import type {
   Prisma,
 } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
-import { isValidLossReason } from '../loss-reasons';
+import { isValidLossReason, getLossReasonLabel } from '../loss-reasons';
+import { notifyDealStageChange, notifyDealLost } from '../notifications/events';
 
 /**
  * Deal creation input type
@@ -247,6 +248,38 @@ export class DealRepository {
         },
       });
     }
+
+    // PLAT-02: уведомления о смене стадии. Побочный эффект — не ломает транзакцию.
+    // Нужны имена стадий для текста уведомления.
+    const fromStage = fromStageId
+      ? await prisma.dealStage.findUnique({ where: { id: fromStageId }, select: { name: true } })
+      : null
+    const dealTitle = deal.title ?? dealId
+    void (async () => {
+      try {
+        if (stage.isLostStage && lossReason) {
+          // Отказ → директору (найдём по роли).
+          const director = await prisma.user.findFirst({
+            where: { deletedAt: null, isActive: true, UserRole: { some: { Role: { code: 'director' } } } },
+            select: { id: true },
+          })
+          if (director) {
+            await notifyDealLost(director.id, dealTitle, getLossReasonLabel(lossReason), dealId)
+          }
+        } else if (deal.managerId) {
+          // Обычная смена стадии → менеджеру сделки.
+          await notifyDealStageChange(
+            deal.managerId,
+            dealTitle,
+            fromStage?.name ?? '—',
+            stage.name ?? toStageId,
+            dealId
+          )
+        }
+      } catch (err) {
+        console.error('[moveStage] notification failed:', err)
+      }
+    })()
 
     return updated;
   }

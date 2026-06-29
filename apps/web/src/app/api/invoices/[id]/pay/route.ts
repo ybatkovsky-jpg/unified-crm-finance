@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../lib/db/prisma'
 import { randomUUID } from 'node:crypto'
+import { notifyPaymentReceived } from '../../../../../lib/notifications/events'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -122,6 +123,28 @@ export async function POST(
 
       return { transaction, payment, updatedInvoice }
     })
+
+    // PLAT-02: уведомление об оплате счёта (директору + менеджеру проекта).
+    // Побочный эффект — не ломает ответ.
+    if (projectId) {
+      void (async () => {
+        try {
+          const [project, director] = await Promise.all([
+            prisma.project.findUnique({ where: { id: projectId }, select: { name: true, managerId: true } }),
+            prisma.user.findFirst({
+              where: { deletedAt: null, isActive: true, UserRole: { some: { Role: { code: 'director' } } } },
+              select: { id: true },
+            }),
+          ])
+          const userIds = [director?.id, project?.managerId].filter((x): x is string => !!x)
+          if (userIds.length && project) {
+            await notifyPaymentReceived(userIds, project.name, Number(amount), projectId)
+          }
+        } catch (err) {
+          console.error('[invoice pay] notification failed:', err)
+        }
+      })()
+    }
 
     return NextResponse.json({
       data: result,
