@@ -2,22 +2,22 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-last_updated: "2026-06-29T08:00:00.000Z"
-last_activity: 2026-06-29 -- Phase 4 (CRM core) completed
+status: in_progress
+last_updated: "2026-06-29T09:00:00.000Z"
+last_activity: 2026-06-29 -- Phase 5 (project audit-fixes) completed
 progress:
   total_phases: 10
-  completed_phases: 4
-  total_plans: 4
-  completed_plans: 4
-  percent: 40
+  completed_phases: 5
+  total_plans: 5
+  completed_plans: 5
+  percent: 50
 ---
 
 # GSD State
 
 **Active Milestone:** v1.0 «ERP ПРО Мебель — доводка до спеки»
-**Active Phase:** ✅ Phase 4 complete — CRM: жизненный цикл сделки (ядро)
-**Requirements Status:** 51 active · 4 validated · 0 deferred · 0 out of scope
+**Active Phase:** ✅ Phase 5 complete — аудит-фиксы проектов/закупок
+**Requirements Status:** 51 active · 8 validated · 0 deferred · 0 out of scope
 
 ## Project Reference
 
@@ -53,8 +53,10 @@ Last activity: 2026-06-28 -- Phase 1 marked complete
 - [x] **Phase 1:** Доступ и авторизация (RBAC) — AUTH (5)
 - [x] **Phase 2:** Стабилизация ядра — CORE (4)
 - [x] **Phase 3:** Редизайн UI — UI (5)
-- [x] **Phase 4:** CRM — сделки и КП — CRM (4 из 8) ✅ 2026-06-29
-- [ ] **Phase 5:** Проект — спецификация и закупки — PROJ-01..07 (7)
+- [x] **Phase 4:** CRM — сделки и КП — CRM (4/8) ✅ 2026-06-29
+- [x] **Phase 5:** Проект — стабилизация + аудит-фиксы ✅ 2026-06-29
+- [ ] **Phase 6:** Производство, логистика, монтаж — PROJ-08..11 (4)
+- [ ] **Phase 7:** Акт, закрытие проекта, гарантия — PROJ-12..14 (3)
 - [ ] **Phase 5:** Проект — спецификация и закупки — PROJ-01..07 (7)
 - [ ] **Phase 6:** Производство, логистика, монтаж — PROJ-08..11 (4)
 - [ ] **Phase 7:** Акт, закрытие проекта, гарантия — PROJ-12..14 (3)
