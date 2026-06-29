@@ -243,7 +243,7 @@ export function readBootstrapContext(): BootstrapContext {
   return {
     projectName: projectName(),
     projectRoot: PROJECT_ROOT,
-    contextFiles: sorted.map(f => ({ path: f.path, content: f.content, summary: f.content.slice(0, 300) })),
+    contextFiles: sorted.slice(0, 30).map(f => ({ path: f.path, content: f.content, summary: f.content.slice(0, 300) })),
     combinedSummary: parts.join("\n\n") || "No context files found. Add README.md or set SESSION_CONTEXT_FILES env var.",
   };
 }
