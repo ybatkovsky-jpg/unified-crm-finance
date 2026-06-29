@@ -7,6 +7,7 @@ import { RefreshCwIcon, ArrowLeftIcon, StarIcon, Building2Icon, BanknoteIcon, Fi
 import { counterpartiesApi, ApiClientError } from "@/lib/api/counterparties"
 import { purchaseRequestsApi } from "@/lib/api/purchase-requests"
 import { invoicesApi } from "@/lib/api/invoices"
+import { deliveriesApi } from "@/lib/api/deliveries"
 import type { CounterpartyData } from "@/lib/api/types"
 import { CounterpartyHistory } from "@/components/procurement/counterparty-history"
 import { Badge } from "@/components/ui/badge"
@@ -22,6 +23,7 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
   const [activeTab, setActiveTab] = useState("details")
   const [purchaseRequests, setPurchaseRequests] = useState<any[]>([])
   const [invoices, setInvoices] = useState<any[]>([])
+  const [deliveries, setDeliveries] = useState<any[]>([])
   const [loadingTab, setLoadingTab] = useState(false)
 
   const fetchCounterparty = useCallback(async () => {
@@ -62,6 +64,13 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
       setLoadingTab(true)
       invoicesApi.getInvoices({ supplierId: counterpartyId } as any)
         .then((res: any) => setInvoices(res.data ?? []))
+        .catch(() => {})
+        .finally(() => setLoadingTab(false))
+    }
+    if (activeTab === "deliveries" && deliveries.length === 0) {
+      setLoadingTab(true)
+      deliveriesApi.getDeliveries({ supplierId: counterpartyId } as any)
+        .then((res: any) => setDeliveries(res.data ?? []))
         .catch(() => {})
         .finally(() => setLoadingTab(false))
     }
@@ -254,9 +263,11 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
 
   const deliveryColumns = [
     { key: "id", header: "ID" },
-    { key: "date", header: "Date" },
-    { key: "status", header: "Status" },
-    { key: "items", header: "Items" },
+    { key: "deliveryType", header: "Тип" },
+    { key: "status", header: "Статус" },
+    { key: "carrier", header: "Перевозчик" },
+    { key: "trackingNumber", header: "Трек" },
+    { key: "cost", header: "Стоимость" },
   ]
 
   return (
@@ -313,13 +324,13 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
         <TabsContent value="deliveries">
           <Card>
             <CardHeader>
-              <CardTitle>Deliveries</CardTitle>
+              <CardTitle>Поставки</CardTitle>
             </CardHeader>
             <CardContent>
               <CounterpartyHistory
-                data={[]}
+                data={deliveries}
                 columns={deliveryColumns}
-                emptyMessage="Deliveries not yet implemented"
+                emptyMessage={loadingTab ? "Загрузка..." : "Поставок пока нет"}
               />
             </CardContent>
           </Card>

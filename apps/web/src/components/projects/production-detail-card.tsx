@@ -41,6 +41,11 @@ const TYPE_LABELS: Record<string, string> = {
   COUNTERTOP: "Столешницы",
 }
 
+const MATERIAL_MODE_LABELS: Record<string, string> = {
+  our_materials: "Из наших материалов",
+  partner_materials: "Из материала партнёра",
+}
+
 const STAGE_STATUS_LABELS: Record<string, string> = {
   pending: "Ожидает",
   in_progress: "В работе",
@@ -166,6 +171,11 @@ export function ProductionDetailCard({ production, onUpdate }: ProductionDetailC
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="outline">{getTypeLabel()}</Badge>
+            {production.materialMode && (
+              <Badge variant="outline" className="text-xs">
+                {MATERIAL_MODE_LABELS[production.materialMode] || production.materialMode}
+              </Badge>
+            )}
             <Badge variant={STATUS_VARIANTS[production.status] || "outline"}>
               {STATUS_LABELS[production.status] || production.status}
             </Badge>
@@ -204,6 +214,19 @@ export function ProductionDetailCard({ production, onUpdate }: ProductionDetailC
             </Button>
           </div>
         </div>
+
+        {/* Partner Info */}
+        {(production as any).Counterparty && (
+          <div className="text-sm">
+            <span className="text-muted-foreground">Партнёр: </span>
+            <span className="font-medium">{(production as any).Counterparty.name}</span>
+            {(production as any).Counterparty.contactPerson && (
+              <span className="text-muted-foreground ml-2">
+                ({(production as any).Counterparty.contactPerson})
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Progress Bar */}
         {production.progress > 0 && (

@@ -246,6 +246,7 @@ model Contract {
   ContractSigner   ContractSigner[]
   ContractVersion  ContractVersion[]
   Deal             Deal?             @relation(fields: [dealId], references: [id])
+  ChangeOrder      ChangeOrder[]
 
   @@index([dealId])
   @@index([status])
@@ -319,6 +320,7 @@ model Counterparty {
   Delivery        Delivery[]
   EmailLog        EmailLog[]
   Invoice         Invoice[]
+  Production      Production[]
   PurchaseRequest PurchaseRequest[]
   Transaction     Transaction[]
 
@@ -412,8 +414,12 @@ model Delivery {
   supplierId     String
   invoiceId      String?      @unique
   status         String       @default("pending")
+  deliveryType   String?      @default("supplier_to_production")
   trackingNumber String?
   carrier        String?
+  fromLocation   String?
+  toLocation     String?
+  cost           Decimal?     @db.Decimal(15, 2)
   estimatedDate  DateTime?
   actualDate     DateTime?
   notes          String?
@@ -747,6 +753,8 @@ model Project {
   ProjectMember        ProjectMember[]
   ProjectStage         ProjectStage[]
   Production           Production?
+  Installation         Installation[]
+  ChangeOrder          ChangeOrder[]
   PurchaseRequest      PurchaseRequest[]
   Task                 Task[]
   Transaction          Transaction[]
@@ -794,7 +802,9 @@ model ProjectStage {
 model Production {
   id               String            @id
   projectId        String            @unique
+  partnerId        String?
   status           String            @default("planning")
+  materialMode     String?           @default("our_materials")
   plannedStartDate DateTime?
   plannedEndDate   DateTime?
   actualStartDate  DateTime?
@@ -806,6 +816,7 @@ model Production {
   updatedAt        DateTime
   deletedAt        DateTime?
   Project          Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  Counterparty     Counterparty?     @relation(fields: [partnerId], references: [id])
   ProductionStage  ProductionStage[]
 
   @@index([status])
@@ -834,6 +845,60 @@ model ProductionStage {
 
   @@unique([productionId, code])
   @@index([productionId, order])
+  @@index([status])
+}
+
+model Installation {
+  id               String                 @id
+  projectId        String
+  number           Int
+  status           String                 @default("planned")
+  plannedStartDate DateTime?
+  actualStartDate  DateTime?
+  actualEndDate    DateTime?
+  advancePercent   Float                  @default(30)
+  advanceAmount    Decimal?               @db.Decimal(15, 2)
+  cost             Decimal?               @db.Decimal(15, 2)
+  notes            String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime
+  Project          Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  InstallationWorker InstallationWorker[]
+
+  @@index([projectId, number])
+  @@index([status])
+}
+
+model InstallationWorker {
+  id             String       @id
+  installationId String
+  userId         String
+  User           User         @relation(fields: [userId], references: [id])
+  Installation   Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+
+  @@unique([installationId, userId])
+  @@index([installationId])
+  @@index([userId])
+}
+
+model ChangeOrder {
+  id          String    @id
+  projectId   String
+  contractId  String?
+  number      Int
+  title       String
+  description String?
+  amount      Decimal   @db.Decimal(15, 2)
+  status      String    @default("draft")
+  approvedAt  DateTime?
+  completedAt DateTime?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  Project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  Contract    Contract? @relation(fields: [contractId], references: [id])
+
+  @@index([projectId, number])
   @@index([status])
 }
 
@@ -1020,6 +1085,7 @@ model User {
   Task_Task_createdByToUser                         Task[]                 @relation("Task_createdByToUser")
   Task_Task_assigneeIdToUser                        Task[]                 @relation("Task_assigneeIdToUser")
   DealHistory_ChangedBy                             DealHistory[]          @relation("DealHistory_ChangedBy")
+  InstallationWorker                                InstallationWorker[]
   UserRole                                          UserRole[]
 
   @@index([deletedAt])

@@ -2,13 +2,17 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Edit2, Save, X, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, Users, Layers, Package, Upload, CheckCircle2 } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, Users, Layers, Package, Upload, CheckCircle2, Wrench, Truck } from "lucide-react"
 import { projectsApi, ApiClientError } from "@/lib/api/projects"
 import { filesApi } from "@/lib/api/files"
 import type { ProjectData, FileUploadFile } from "@/lib/api/types"
 import { ProjectGantt } from "@/components/projects/project-gantt"
 import { ProductionList } from "@/components/projects/production-list"
 import { CreateProductionModal } from "@/components/projects/create-production-modal"
+import { InstallationList } from "@/components/projects/installation-list"
+import { CreateInstallationModal } from "@/components/projects/create-installation-modal"
+import { ChangeOrderList } from "@/components/projects/change-order-list"
+import { CreateChangeOrderModal } from "@/components/projects/create-change-order-modal"
 import { BOMSection } from "@/components/procurement/bom-section"
 import { BudgetWidget } from "@/components/finance/budget-widget"
 import { StatusHistoryCard } from "@/components/projects/status-history-card"
@@ -90,6 +94,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [error, setError] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [productionRefresh, setProductionRefresh] = useState(0)
+  const [installationRefresh, setInstallationRefresh] = useState(0)
+  const [changeOrderRefresh, setChangeOrderRefresh] = useState(0)
   const [saving, setSaving] = useState(false)
   const [editForm, setEditForm] = useState({
     name: "",
@@ -635,7 +641,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Package className="size-4" />
-                  \П\р\о\и\з\в\о\д\с\т\в\о
+                  Производство
                 </div>
                 <CreateProductionModal
                   projectId={project.id}
@@ -648,6 +654,53 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 key={productionRefresh}
                 projectId={project.id}
                 onUpdate={() => setProductionRefresh((prev) => prev + 1)}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Installation */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Wrench className="size-4" />
+                  Монтаж
+                </div>
+                <CreateInstallationModal
+                  projectId={project.id}
+                  onCreate={() => setInstallationRefresh((prev) => prev + 1)}
+                />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <InstallationList
+                key={installationRefresh}
+                projectId={project.id}
+                onUpdate={() => setInstallationRefresh((prev) => prev + 1)}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Change Orders */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="size-4" />
+                  Доп. работы
+                </div>
+                <CreateChangeOrderModal
+                  projectId={project.id}
+                  contractId={project.contract?.id}
+                  onCreate={() => setChangeOrderRefresh((prev) => prev + 1)}
+                />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ChangeOrderList
+                key={changeOrderRefresh}
+                projectId={project.id}
+                onUpdate={() => setChangeOrderRefresh((prev) => prev + 1)}
               />
             </CardContent>
           </Card>

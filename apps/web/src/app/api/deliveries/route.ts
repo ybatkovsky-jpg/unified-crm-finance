@@ -40,8 +40,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       projectId: body.projectId,
       supplierId: body.supplierId,
       invoiceId: body.invoiceId,
+      deliveryType: body.deliveryType,
       trackingNumber: body.trackingNumber,
       carrier: body.carrier,
+      fromLocation: body.fromLocation,
+      toLocation: body.toLocation,
+      cost: body.cost ?? undefined,
       estimatedDate: body.estimatedDate ? new Date(body.estimatedDate) : undefined,
       notes: body.notes,
     }

@@ -50,6 +50,7 @@ export async function GET(
         ProductionStage: {
           orderBy: { order: 'asc' },
         },
+        Counterparty: true,
       },
       orderBy: { createdAt: 'desc' },
     })
@@ -94,6 +95,8 @@ export async function POST(
     const productionData: ProductionCreateInput = {
       projectId,
       status: body.status || 'planning',
+      partnerId: body.partnerId || null,
+      materialMode: body.materialMode || 'our_materials',
       notes: body.notes || null,
       attributes: (body.attributes ?? (body.type ? { type: body.type } : null)) as Prisma.InputJsonValue,
     }
@@ -101,11 +104,12 @@ export async function POST(
     // Create production
     const newProduction = await productions.create(productionData)
 
-    // Fetch with stages for response
+    // Fetch with stages and partner for response
     const productionWithStages = await productions.findUnique(newProduction.id, {
       ProductionStage: {
         orderBy: { order: 'asc' },
       },
+      Counterparty: true,
     })
 
     return NextResponse.json({ data: productionWithStages }, { status: 201 })

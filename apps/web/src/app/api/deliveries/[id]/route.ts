@@ -41,8 +41,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
     }
     const body = await request.json()
     const updateData: DeliveryUpdateInput = {}
-    for (const key of ['trackingNumber', 'carrier', 'notes'] as const) {
+    for (const key of ['deliveryType', 'trackingNumber', 'carrier', 'fromLocation', 'toLocation', 'notes'] as const) {
       if (body[key] !== undefined) updateData[key] = body[key]
+    }
+    if (body.cost !== undefined) {
+      updateData.cost = body.cost ?? null
     }
     if (body.estimatedDate !== undefined) {
       updateData.estimatedDate = body.estimatedDate ? new Date(body.estimatedDate) : null

@@ -133,6 +133,7 @@ export interface CounterpartyListParams extends CounterpartyFilters, PaginationO
 export interface CounterpartyCreateInput {
   name: string;
   type: string;
+  types?: string[] | null;
   inn?: string | null;
   kpp?: string | null;
   email?: string | null;
@@ -153,6 +154,7 @@ export interface CounterpartyCreateInput {
 export interface CounterpartyUpdateInput {
   name?: string | null;
   type?: string | null;
+  types?: string[] | null;
   inn?: string | null;
   kpp?: string | null;
   email?: string | null;
@@ -598,6 +600,7 @@ export interface ProjectMemberCreateInput {
  */
 export interface ProductionData extends Omit<Production, 'deletedAt'> {
   ProductionStage?: ProductionStageData[];
+  Counterparty?: CounterpartyData | null;
 }
 
 /**
@@ -622,7 +625,9 @@ export interface ProductionListParams extends ProductionFilters, PaginationOptio
  */
 export interface ProductionCreateInput {
   projectId: string;
+  partnerId?: string | null;
   status?: string | null;
+  materialMode?: string | null;
   plannedStartDate?: string | null;
   plannedEndDate?: string | null;
   actualStartDate?: string | null;
@@ -637,6 +642,8 @@ export interface ProductionCreateInput {
  */
 export interface ProductionUpdateInput {
   status?: string | null;
+  partnerId?: string | null;
+  materialMode?: string | null;
   plannedStartDate?: string | null;
   plannedEndDate?: string | null;
   actualStartDate?: string | null;
@@ -682,6 +689,89 @@ export interface ProductionStageUpdateInput {
 export interface ProductionStageMoveInput {
   status: string;
   completedAt?: string | null;
+}
+
+// ─── Installation (PROJ-10) ──────────────────────────────────
+
+export type InstallationStatusType = 'planned' | 'advance_paid' | 'started' | 'completed' | 'cancelled';
+
+export interface InstallationWorkerData {
+  id: string;
+  installationId: string;
+  userId: string;
+  User?: { id: string; name: string; email: string } | null;
+}
+
+export interface InstallationData {
+  id: string;
+  projectId: string;
+  number: number;
+  status: string;
+  plannedStartDate: string | null;
+  actualStartDate: string | null;
+  actualEndDate: string | null;
+  advancePercent: number;
+  advanceAmount: number | null;
+  cost: number | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  InstallationWorker?: InstallationWorkerData[];
+}
+
+export interface InstallationCreateInput {
+  plannedStartDate?: string | null;
+  advancePercent?: number | null;
+  advanceAmount?: number | null;
+  cost?: number | null;
+  notes?: string | null;
+}
+
+export interface InstallationUpdateInput {
+  plannedStartDate?: string | null;
+  advancePercent?: number | null;
+  advanceAmount?: number | null;
+  cost?: number | null;
+  notes?: string | null;
+}
+
+// ─── ChangeOrder (PROJ-11) ───────────────────────────────────
+
+export type ChangeOrderStatusType = 'draft' | 'approved' | 'completed' | 'cancelled';
+
+export interface ChangeOrderData {
+  id: string;
+  projectId: string;
+  contractId: string | null;
+  number: number;
+  title: string;
+  description: string | null;
+  amount: number;
+  status: string;
+  approvedAt: string | null;
+  completedAt: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  Contract?: { id: string; number: string; title: string } | null;
+  Project?: { id: string; name: string; externalNumber: string } | null;
+}
+
+export interface ChangeOrderCreateInput {
+  contractId?: string | null;
+  title: string;
+  description?: string | null;
+  amount: number;
+  notes?: string | null;
+}
+
+export interface ChangeOrderUpdateInput {
+  title?: string | null;
+  description?: string | null;
+  amount?: number | null;
+  contractId?: string | null;
+  status?: string | null;
+  notes?: string | null;
 }
 
 /**
@@ -1031,16 +1121,24 @@ export interface DeliveryCreateInput {
   projectId: string;
   supplierId: string;
   invoiceId?: string;
+  deliveryType?: string;
   trackingNumber?: string;
   carrier?: string;
+  fromLocation?: string;
+  toLocation?: string;
+  cost?: number;
   estimatedDate?: string | null;
   notes?: string | null;
 }
 
 /** Delivery update input */
 export interface DeliveryUpdateInput {
+  deliveryType?: string | null;
   trackingNumber?: string | null;
   carrier?: string | null;
+  fromLocation?: string | null;
+  toLocation?: string | null;
+  cost?: number | null;
   estimatedDate?: string | null;
   notes?: string | null;
 }

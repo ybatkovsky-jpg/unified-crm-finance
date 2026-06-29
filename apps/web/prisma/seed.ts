@@ -183,6 +183,52 @@ async function main() {
   }
   console.log(`  ✓ Categories: ${categories.length}`);
 
+  // === Производства-партнёры (тестовые данные) ===
+  const productionPartners = [
+    {
+      name: 'ИП Петров С.В. (плитные)',
+      type: 'supplier',
+      types: JSON.stringify(['plate', 'paint', 'universal']),
+      contactPerson: 'Сергей Петров',
+      phone: '+7-999-111-22-33',
+      email: 'petrov@example.com',
+      notes: 'ДСП/МДФ, покраска, плёночные фасады. Срок 2-3 недели.',
+      rating: 4,
+    },
+    {
+      name: 'ООО «КаменьПро»',
+      type: 'supplier',
+      types: JSON.stringify(['stone', 'concrete']),
+      contactPerson: 'Алексей Иванов',
+      phone: '+7-999-444-55-66',
+      email: 'kamenpro@example.com',
+      notes: 'Столешницы из акрила/кварца, бетонные изделия. Срок 3-4 недели.',
+      rating: 5,
+    },
+    {
+      name: 'ООО «СтеклоДом»',
+      type: 'supplier',
+      types: JSON.stringify(['glass', 'universal']),
+      contactPerson: 'Марина Стеклова',
+      phone: '+7-999-777-88-99',
+      email: 'steklodom@example.com',
+      notes: 'Стеклянные фасады, зеркала, витражи. Срок 1-2 недели.',
+      rating: 4,
+    },
+  ];
+
+  for (const p of productionPartners) {
+    const existing = await prisma.counterparty.findFirst({ where: { name: p.name } });
+    if (!existing) {
+      await prisma.counterparty.create({
+        data: { id: mkId(), ...p, updatedAt: now() },
+      });
+      console.log(`  ✓ Partner: ${p.name}`);
+    } else {
+      console.log(`  ✓ Partner (exists): ${p.name}`);
+    }
+  }
+
   console.log('✅ Seeding complete');
   console.log('');
   console.log('Login: admin@local / admin123');

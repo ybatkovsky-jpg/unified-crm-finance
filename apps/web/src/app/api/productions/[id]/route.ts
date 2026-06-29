@@ -35,6 +35,7 @@ export async function GET(
       ProductionStage: {
         orderBy: { order: 'asc' },
       },
+      Counterparty: true,
     })
 
     if (!production) {
@@ -86,6 +87,8 @@ export async function PATCH(
     if (body.plannedEndDate !== undefined) updateData.plannedEndDate = body.plannedEndDate
     if (body.actualStartDate !== undefined) updateData.actualStartDate = body.actualStartDate
     if (body.actualEndDate !== undefined) updateData.actualEndDate = body.actualEndDate
+    if (body.partnerId !== undefined) updateData.partnerId = body.partnerId
+    if (body.materialMode !== undefined) updateData.materialMode = body.materialMode
     if (body.material !== undefined) updateData.material = body.material
     if (body.dimensions !== undefined) updateData.dimensions = body.dimensions
     if (body.notes !== undefined) updateData.notes = body.notes
@@ -93,11 +96,12 @@ export async function PATCH(
 
     const updatedProduction = await productions.update(id, updateData)
 
-    // Fetch with stages for response
+    // Fetch with stages and partner for response
     const productionWithStages = await productions.findUnique(updatedProduction.id, {
       ProductionStage: {
         orderBy: { order: 'asc' },
       },
+      Counterparty: true,
     })
 
     return NextResponse.json({ data: productionWithStages })

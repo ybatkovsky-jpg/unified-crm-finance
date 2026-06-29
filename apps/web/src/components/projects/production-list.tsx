@@ -42,6 +42,11 @@ const TYPE_LABELS: Record<string, string> = {
   COUNTERTOP: "Столешницы",
 }
 
+const MATERIAL_MODE_LABELS: Record<string, string> = {
+  our_materials: "Наши материалы",
+  partner_materials: "Материал партнёра",
+}
+
 const STAGE_STATUS_COLORS: Record<string, string> = {
   pending: "bg-muted",
   in_progress: "bg-blue-500",
@@ -142,6 +147,11 @@ export function ProductionList({ projectId, onUpdate }: ProductionListProps) {
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-2 flex-wrap">
               <Badge variant="outline">{getTypeLabel(production)}</Badge>
+              {production.materialMode && (
+                <Badge variant="outline" className="text-xs">
+                  {MATERIAL_MODE_LABELS[production.materialMode] || production.materialMode}
+                </Badge>
+              )}
               <Badge variant={STATUS_VARIANTS[production.status] || "outline"}>
                 {STATUS_LABELS[production.status] || production.status}
               </Badge>
@@ -155,6 +165,13 @@ export function ProductionList({ projectId, onUpdate }: ProductionListProps) {
               <Trash2 className="size-4" />
             </Button>
           </div>
+
+          {/* Partner Info */}
+          {(production as any).Counterparty && (
+            <div className="text-sm text-muted-foreground">
+              Партнёр: <span className="font-medium text-foreground">{(production as any).Counterparty.name}</span>
+            </div>
+          )}
 
           {/* Progress Bar */}
           {production.progress > 0 && (

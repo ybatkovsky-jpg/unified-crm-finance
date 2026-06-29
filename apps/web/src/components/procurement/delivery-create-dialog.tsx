@@ -27,14 +27,25 @@ interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess?: () => void
+  preselectedProjectId?: string
 }
 
-/** Create a delivery from an invoice. */
-export function DeliveryCreateDialog({ open, onOpenChange, onSuccess }: Props) {
+const DELIVERY_TYPE_OPTIONS = [
+  { value: "supplier_to_production", label: "Поставщик → Производство" },
+  { value: "production_to_object", label: "Производство → Объект" },
+  { value: "other", label: "Прочее" },
+]
+
+/** Create a delivery (from an invoice or manually). */
+export function DeliveryCreateDialog({ open, onOpenChange, onSuccess, preselectedProjectId }: Props) {
   const [invoices, setInvoices] = useState<InvoiceData[]>([])
   const [invoiceId, setInvoiceId] = useState("")
+  const [deliveryType, setDeliveryType] = useState("supplier_to_production")
   const [carrier, setCarrier] = useState("")
   const [trackingNumber, setTrackingNumber] = useState("")
+  const [fromLocation, setFromLocation] = useState("")
+  const [toLocation, setToLocation] = useState("")
+  const [cost, setCost] = useState("")
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -48,8 +59,12 @@ export function DeliveryCreateDialog({ open, onOpenChange, onSuccess }: Props) {
 
   const reset = () => {
     setInvoiceId("")
+    setDeliveryType("supplier_to_production")
     setCarrier("")
     setTrackingNumber("")
+    setFromLocation("")
+    setToLocation("")
+    setCost("")
     setError(null)
     setSaving(false)
   }
@@ -65,11 +80,15 @@ export function DeliveryCreateDialog({ open, onOpenChange, onSuccess }: Props) {
     setSaving(true)
     try {
       await deliveriesApi.createDelivery({
-        projectId: selected.projectId,
+        projectId: preselectedProjectId || selected.projectId,
         supplierId: selected.supplierId,
         invoiceId: selected.id,
+        deliveryType: deliveryType,
         carrier: carrier.trim() || undefined,
         trackingNumber: trackingNumber.trim() || undefined,
+        fromLocation: fromLocation.trim() || undefined,
+        toLocation: toLocation.trim() || undefined,
+        cost: cost ? parseFloat(cost) : undefined,
       })
       onSuccess?.()
       onOpenChange(false)
@@ -92,7 +111,9 @@ export function DeliveryCreateDialog({ open, onOpenChange, onSuccess }: Props) {
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle>Новая поставка</DialogTitle>
-          <DialogDescription>Создаётся из счёта. При delivered склад обновится автоматически.</DialogDescription>
+          <DialogDescription>
+            Создайте поставку из счёта. При статусе «Доставлена» склад обновится автоматически.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
@@ -117,6 +138,33 @@ export function DeliveryCreateDialog({ open, onOpenChange, onSuccess }: Props) {
             </Select>
           </div>
 
+          <div className="space-y-1.5">
+            <Label>Тип доставки</Label>
+            <Select value={deliveryType} onValueChange={(v) => v && setDeliveryType(v)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {DELIVERY_TYPE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="from">Откуда</Label>
+              <Input id="from" placeholder="Склад поставщика" value={fromLocation} onChange={(e) => setFromLocation(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="to">Куда</Label>
+              <Input id="to" placeholder="Производство / объект" value={toLocation} onChange={(e) => setToLocation(e.target.value)} />
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="carrier">Перевозчик</Label>
@@ -126,6 +174,11 @@ export function DeliveryCreateDialog({ open, onOpenChange, onSuccess }: Props) {
               <Label htmlFor="tracking">Трек-номер</Label>
               <Input id="tracking" value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="cost">Стоимость доставки (₽)</Label>
+            <Input id="cost" type="number" placeholder="0.00" value={cost} onChange={(e) => setCost(e.target.value)} />
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}

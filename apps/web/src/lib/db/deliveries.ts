@@ -34,15 +34,23 @@ export type DeliveryCreateInput = {
   projectId: string;
   supplierId: string;
   invoiceId?: string;
+  deliveryType?: string;
   trackingNumber?: string;
   carrier?: string;
+  fromLocation?: string;
+  toLocation?: string;
+  cost?: number;
   estimatedDate?: Date;
   notes?: string;
 };
 
 export type DeliveryUpdateInput = {
+  deliveryType?: string | null;
   trackingNumber?: string | null;
   carrier?: string | null;
+  fromLocation?: string | null;
+  toLocation?: string | null;
+  cost?: number | null;
   estimatedDate?: Date | null;
   notes?: string | null;
 };
@@ -62,8 +70,12 @@ export class DeliveryRepository {
         supplierId: data.supplierId,
         invoiceId: data.invoiceId,
         status: 'pending',
+        deliveryType: data.deliveryType,
         trackingNumber: data.trackingNumber,
         carrier: data.carrier,
+        fromLocation: data.fromLocation,
+        toLocation: data.toLocation,
+        cost: data.cost ?? null,
         estimatedDate: data.estimatedDate,
         notes: data.notes,
         updatedAt: new Date(),

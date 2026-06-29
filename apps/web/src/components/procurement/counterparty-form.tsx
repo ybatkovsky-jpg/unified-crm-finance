@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
 import {
   Select,
   SelectContent,
@@ -25,6 +26,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+
+const PRODUCTION_SKILLS = [
+  { value: "plate", label: "ДСП/МДФ" },
+  { value: "stone", label: "Камень" },
+  { value: "glass", label: "Стекло" },
+  { value: "concrete", label: "Бетон" },
+  { value: "paint", label: "Покраска/плёнка" },
+  { value: "universal", label: "Универсал" },
+]
 
 interface CounterpartyFormProps {
   open: boolean
@@ -35,6 +45,7 @@ interface CounterpartyFormProps {
 export function CounterpartyForm({ open, onOpenChange, onSuccess }: CounterpartyFormProps) {
   const [name, setName] = useState("")
   const [type, setType] = useState("")
+  const [skillTags, setSkillTags] = useState<string[]>([])
   const [inn, setInn] = useState("")
   const [kpp, setKpp] = useState("")
   const [email, setEmail] = useState("")
@@ -53,6 +64,7 @@ export function CounterpartyForm({ open, onOpenChange, onSuccess }: Counterparty
   const resetForm = () => {
     setName("")
     setType("")
+    setSkillTags([])
     setInn("")
     setKpp("")
     setEmail("")
@@ -66,6 +78,12 @@ export function CounterpartyForm({ open, onOpenChange, onSuccess }: Counterparty
     setNotes("")
     setRating(0)
     setFormError(null)
+  }
+
+  const toggleSkillTag = (tag: string) => {
+    setSkillTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    )
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,6 +104,7 @@ export function CounterpartyForm({ open, onOpenChange, onSuccess }: Counterparty
       const input: CounterpartyCreateInput = {
         name: name.trim(),
         type,
+        types: skillTags.length > 0 ? skillTags : null,
         inn: inn.trim() || null,
         kpp: kpp.trim() || null,
         email: email.trim() || null,
@@ -124,9 +143,9 @@ export function CounterpartyForm({ open, onOpenChange, onSuccess }: Counterparty
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>Create Counterparty</DialogTitle>
+          <DialogTitle>Новый контрагент</DialogTitle>
           <DialogDescription>
-            Add a new supplier or customer to the system.
+            Добавьте поставщика или заказчика в систему.
           </DialogDescription>
         </DialogHeader>
 
@@ -142,52 +161,74 @@ export function CounterpartyForm({ open, onOpenChange, onSuccess }: Counterparty
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="name">
-                  Name <span className="text-destructive">*</span>
+                  Название <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Counterparty name"
+                  placeholder="Название контрагента"
                   required
                 />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="type">
-                  Type <span className="text-destructive">*</span>
+                  Тип <span className="text-destructive">*</span>
                 </Label>
                 <Select value={type} onValueChange={(value) => { if (value) setType(value) }}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue placeholder="Выберите тип" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="supplier">Supplier</SelectItem>
-                      <SelectItem value="customer">Customer</SelectItem>
+                      <SelectItem value="supplier">Поставщик</SelectItem>
+                      <SelectItem value="customer">Заказчик</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
+            {/* Production Skill Tags (for suppliers) */}
+            {type === "supplier" && (
+              <div className="grid gap-2">
+                <Label>Навыки производства</Label>
+                <div className="flex flex-wrap gap-2">
+                  {PRODUCTION_SKILLS.map(skill => (
+                    <Badge
+                      key={skill.value}
+                      variant={skillTags.includes(skill.value) ? "default" : "outline"}
+                      className="cursor-pointer select-none"
+                      onClick={() => toggleSkillTag(skill.value)}
+                    >
+                      {skill.label}
+                    </Badge>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Выберите виды материалов, с которыми работает партнёр
+                </p>
+              </div>
+            )}
+
             {/* INN and KPP */}
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="inn">INN</Label>
+                <Label htmlFor="inn">ИНН</Label>
                 <Input
                   id="inn"
                   value={inn}
                   onChange={(e) => setInn(e.target.value)}
-                  placeholder="Tax ID"
+                  placeholder="ИНН"
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="kpp">KPP</Label>
+                <Label htmlFor="kpp">КПП</Label>
                 <Input
                   id="kpp"
                   value={kpp}
                   onChange={(e) => setKpp(e.target.value)}
-                  placeholder="KPP"
+                  placeholder="КПП"
                 />
               </div>
             </div>
@@ -201,88 +242,88 @@ export function CounterpartyForm({ open, onOpenChange, onSuccess }: Counterparty
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email address"
+                  placeholder="Email"
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="phone">Phone</Label>
+                <Label htmlFor="phone">Телефон</Label>
                 <Input
                   id="phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Phone number"
+                  placeholder="Телефон"
                 />
               </div>
             </div>
 
             {/* Contact Person */}
             <div className="grid gap-2">
-              <Label htmlFor="contactPerson">Contact Person</Label>
+              <Label htmlFor="contactPerson">Контактное лицо</Label>
               <Input
                 id="contactPerson"
                 value={contactPerson}
                 onChange={(e) => setContactPerson(e.target.value)}
-                placeholder="Contact person name"
+                placeholder="Имя контактного лица"
               />
             </div>
 
             {/* Address */}
             <div className="grid gap-2">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address">Адрес</Label>
               <Input
                 id="address"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder="Legal address"
+                placeholder="Юридический адрес"
               />
             </div>
 
             {/* Bank Details */}
             <div className="rounded-lg border p-4 space-y-4">
-              <h4 className="text-sm font-medium">Bank Details</h4>
+              <h4 className="text-sm font-medium">Банковские реквизиты</h4>
               <div className="grid gap-2">
-                <Label htmlFor="bankName">Bank Name</Label>
+                <Label htmlFor="bankName">Банк</Label>
                 <Input
                   id="bankName"
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
-                  placeholder="Bank name"
+                  placeholder="Название банка"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="bankAccount">Bank Account</Label>
+                  <Label htmlFor="bankAccount">Расчётный счёт</Label>
                   <Input
                     id="bankAccount"
                     value={bankAccount}
                     onChange={(e) => setBankAccount(e.target.value)}
-                    placeholder="Account number"
+                    placeholder="Номер счёта"
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="korAccount">Corr. Account</Label>
+                  <Label htmlFor="korAccount">Корр. счёт</Label>
                   <Input
                     id="korAccount"
                     value={korAccount}
                     onChange={(e) => setKorAccount(e.target.value)}
-                    placeholder="Correspondent account"
+                    placeholder="Корреспондентский счёт"
                   />
                 </div>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="bik">BIK</Label>
+                <Label htmlFor="bik">БИК</Label>
                 <Input
                   id="bik"
                   value={bik}
                   onChange={(e) => setBik(e.target.value)}
-                  placeholder="BIK"
+                  placeholder="БИК"
                 />
               </div>
             </div>
 
             {/* Rating */}
             <div className="grid gap-2">
-              <Label htmlFor="rating">Rating</Label>
+              <Label htmlFor="rating">Рейтинг (1-5)</Label>
               <Input
                 id="rating"
                 type="number"
@@ -296,12 +337,12 @@ export function CounterpartyForm({ open, onOpenChange, onSuccess }: Counterparty
 
             {/* Notes */}
             <div className="grid gap-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="notes">Заметки</Label>
               <Textarea
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Additional notes"
+                placeholder="Дополнительные заметки"
                 rows={3}
               />
             </div>
@@ -314,11 +355,11 @@ export function CounterpartyForm({ open, onOpenChange, onSuccess }: Counterparty
               onClick={() => handleOpenChange(false)}
               disabled={submitting}
             >
-              Cancel
+              Отмена
             </Button>
             <Button type="submit" disabled={submitting}>
               {submitting && <Loader2 className="size-4 animate-spin" />}
-              {submitting ? "Creating..." : "Create"}
+              {submitting ? "Создание..." : "Создать"}
             </Button>
           </DialogFooter>
         </form>
