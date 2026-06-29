@@ -1,0 +1,51 @@
+<evals>
+  <eval id="1">
+    <question>Start a new ERP session and tell me what phase we're on and what progress we've made.</question>
+    <expected>Calls session_start, returns phase 6 complete, 60% progress, 12 validated requirements. References "производство-аутсорс, логистика, монтаж, доп. работы".</expected>
+  </eval>
+
+  <eval id="2">
+    <question>I'm about to edit the production.ts file. Track that, then make a note about what I'm changing.</question>
+    <expected>Calls session_track(file="apps/web/src/lib/db/production.ts", action="started"), then session_note(tag="todo", text="..."). Two tool calls, correct order.</expected>
+  </eval>
+
+  <eval id="3">
+    <question>What did I decide about skill tags earlier? Find it in the session notes.</question>
+    <expected>Calls session_recall(query="skill") or session_recall(query="tags"), returns the note about Counterparty.types JSON for skill tags.</expected>
+  </eval>
+
+  <eval id="4">
+    <question>I've finished editing production.ts. Mark it done and create a checkpoint for the milestone.</question>
+    <expected>Calls session_track(file="...production.ts", action="done"), then session_checkpoint(label="..."). Two calls, checkpoint label is descriptive.</expected>
+  </eval>
+
+  <eval id="5">
+    <question>End this session and save everything for tomorrow.</question>
+    <expected>Calls session_snapshot. Returns ok with checkpoint list, note count, file count. SESSION-LAST.md is written.</expected>
+  </eval>
+
+  <eval id="6">
+    <question>I'm starting fresh. What's the project about and where do I begin?</question>
+    <expected>Calls session_start. Returns handoffSummary mentioning "ПРО Мебель", "ERP", stateSummary showing 60% progress. Lists existing checkpoints from previous session.</expected>
+  </eval>
+
+  <eval id="7">
+    <question>Search for all decisions I've made — I can't remember what we agreed on.</question>
+    <expected>Calls session_recall(query="decision"). Returns all notes with tag="decision". If none, says count=0 but doesn't error.</expected>
+  </eval>
+
+  <eval id="8">
+    <question>Track that I read schema.prisma and the project page. Then make a note that there are 65 models.</question>
+    <expected>Calls session_track twice (file="...schema.prisma", action="read"; file="...page.tsx", action="read"), then session_note(tag="files_read", text="schema.prisma → 65 models, page.tsx → project detail"). Three calls total.</expected>
+  </eval>
+
+  <eval id="9">
+    <question>What checkpoints have we passed? Give me the full list.</question>
+    <expected>Calls session_snapshot and reads the checkpointList from the response. Or calls session_start to see existingCheckpoints and lastCheckpoint. Either approach is valid.</expected>
+  </eval>
+
+  <eval id="10">
+    <question>I accidentally deleted production.ts. Did I track any work on it? What was the last action?</question>
+    <expected>Calls session_recall(query="production.ts") or checks session_start output. If no tracks exist, reports that honestly. If tracks exist, reports the last action.</expected>
+  </eval>
+</evals>
