@@ -438,7 +438,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
                         <p className="font-medium">
                           {contract.startDate
                             ? new Date(contract.startDate).toLocaleDateString("ru-RU")
-                            : "\u2014"}
+                            : "\—"}
                         </p>
                       </div>
                     </div>
@@ -452,7 +452,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
                         <p className="font-medium">
                           {contract.endDate
                             ? new Date(contract.endDate).toLocaleDateString("ru-RU")
-                            : "\u2014"}
+                            : "\—"}
                         </p>
                       </div>
                     </div>
@@ -464,7 +464,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
                         <p className="font-medium">
                           {contract.signedAt
                             ? new Date(contract.signedAt).toLocaleDateString("ru-RU")
-                            : "\u2014"}
+                            : "\—"}
                         </p>
                       </div>
                     </div>
@@ -564,7 +564,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
                           {version.generatedPdfFileId ? (
                             <Badge variant="outline">Есть</Badge>
                           ) : (
-                            <span className="text-muted-foreground">\u2014</span>
+                            <span className="text-muted-foreground">\—</span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -645,17 +645,17 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
                     {contract.signers.map((signer: ContractSignerData) => (
                       <TableRow key={signer.id}>
                         <TableCell className="font-medium">{signer.name}</TableCell>
-                        <TableCell>{signer.position ?? "\u2014"}</TableCell>
+                        <TableCell>{signer.position ?? "\—"}</TableCell>
                         <TableCell>
                           {signer.signedAt
                             ? new Date(signer.signedAt).toLocaleDateString("ru-RU")
-                            : "\u2014"}
+                            : "\—"}
                         </TableCell>
                         <TableCell>
                           {signer.signatureFileId ? (
                             <Badge variant="outline">Есть</Badge>
                           ) : (
-                            <span className="text-muted-foreground">\u2014</span>
+                            <span className="text-muted-foreground">\—</span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -697,7 +697,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
                             .join(" ")}
                     </a>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\u2014</p>
+                    <p className="text-sm text-muted-foreground">\—</p>
                   )}
                 </div>
               </div>
@@ -714,7 +714,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
                       {contract.deal.title}
                     </a>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\u2014</p>
+                    <p className="text-sm text-muted-foreground">\—</p>
                   )}
                 </div>
               </div>

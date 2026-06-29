@@ -522,7 +522,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                         <p className="font-medium">
                           {deal.expectedCloseDate
                             ? new Date(deal.expectedCloseDate).toLocaleDateString("ru-RU")
-                            : "\u2014"}
+                            : "\—"}
                         </p>
                       </div>
                     </div>
@@ -583,7 +583,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                             .join(" ")}
                     </a>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\u2014</p>
+                    <p className="text-sm text-muted-foreground">\—</p>
                   )}
                 </div>
               </div>
@@ -593,9 +593,9 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                 <div>
                   <p className="text-xs text-muted-foreground">Менеджер</p>
                   {deal.manager ? (
-                    <p className="text-sm font-medium">{deal.manager.name || "\u2014"}</p>
+                    <p className="text-sm font-medium">{deal.manager.name || "\—"}</p>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\u2014</p>
+                    <p className="text-sm text-muted-foreground">\—</p>
                   )}
                 </div>
               </div>

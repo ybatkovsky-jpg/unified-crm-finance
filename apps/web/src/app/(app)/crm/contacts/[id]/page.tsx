@@ -17,9 +17,9 @@ const MOCK_AUTHOR_ID = "00000000-0000-0000-0000-000000000001"
 
 function getDisplayName(contact: ContactData): string {
   if (contact.type === "company") {
-    return contact.companyName || "\u2014"
+    return contact.companyName || "\—"
   }
-  return [contact.lastName, contact.firstName].filter(Boolean).join(" ") || "\u2014"
+  return [contact.lastName, contact.firstName].filter(Boolean).join(" ") || "\—"
 }
 
 export default function ContactDetailPage({ params }: { params: Promise<{ id: string }> }) {

@@ -39,13 +39,13 @@ import { FileUpload } from "@/components/shared/file-upload"
 import { FilePreview, useFilePreview } from "@/components/shared/file-preview"
 
 function formatDate(date: Date | string | null | undefined): string {
-  if (!date) return "\u2014"
+  if (!date) return "\—"
   const d = typeof date === "string" ? new Date(date) : date
   return d.toLocaleDateString("ru-RU")
 }
 
 function formatCurrency(amount: number | null | undefined, currency: string = "RUB"): string {
-  if (amount == null) return "\u2014"
+  if (amount == null) return "\—"
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency: currency,
@@ -366,7 +366,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              {project.externalNumber || "\u2014"}
+              {project.externalNumber || "\—"}
             </p>
           </div>
         </div>
@@ -375,7 +375,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <>
               <Button onClick={() => setIsEditing(true)}>
                 <Edit2 className="size-4" />
-                <span className="ml-1.5">\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C</span>
+                <span className="ml-1.5">\И\з\м\е\н\и\т\ь</span>
               </Button>
 
               {canCompleteProject && (
@@ -383,23 +383,23 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   <AlertDialogTrigger
                     render={<Button variant="default" className="bg-green-600 hover:bg-green-700">
                       <CheckCircle2 className="size-4" />
-                      <span className="ml-1.5">\u041F\u043E\u0434\u043F\u0438\u0441\u0430\u0442\u044C \u0430\u043A\u0442 \u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u044C \u043F\u0440\u043E\u0435\u043A\u0442</span>
+                      <span className="ml-1.5">\П\о\д\п\и\с\а\т\ь \а\к\т \и \з\а\к\р\ы\т\ь \п\р\о\е\к\т</span>
                     </Button>}
                   />
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>\u0417\u0430\u043A\u0440\u044B\u0442\u044C \u043F\u0440\u043E\u0435\u043A\u0442?</AlertDialogTitle>
+                      <AlertDialogTitle>\З\а\к\р\ы\т\ь \п\р\о\е\к\т?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        \u0412\u044B \u0443\u0432\u0435\u0440\u0435\u043D\u044B, \u0447\u0442\u043E \u0445\u043E\u0442\u0438\u0442\u0435 \u043F\u043E\u0434\u043F\u0438\u0441\u0430\u0442\u044C \u0430\u043A\u0442 \u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u044C \u043F\u0440\u043E\u0435\u043A\u0442? \u0412\u0441\u0435 \u044D\u0442\u0430\u043F\u044B \u043F\u0440\u043E\u0435\u043A\u0442\u0430 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u044B. \u0421\u0432\u044F\u0437\u0430\u043D\u043D\u0430\u044F \u0441\u0434\u0435\u043B\u043A\u0430 \u0442\u0430\u043A\u0436\u0435 \u0431\u0443\u0434\u0435\u0442 \u0437\u0430\u043A\u0440\u044B\u0442\u0430.
+                        \В\ы \у\в\е\р\е\н\ы, \ч\т\о \х\о\т\и\т\е \п\о\д\п\и\с\а\т\ь \а\к\т \и \з\а\к\р\ы\т\ь \п\р\о\е\к\т? \В\с\е \э\т\а\п\ы \п\р\о\е\к\т\а \з\а\в\е\р\ш\е\н\ы. \С\в\я\з\а\н\н\а\я \с\д\е\л\к\а \т\а\к\ж\е \б\у\д\е\т \з\а\к\р\ы\т\а.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel
-                        render={<Button variant="outline">\u041E\u0442\u043C\u0435\u043D\u0430</Button>}
+                        render={<Button variant="outline">\О\т\м\е\н\а</Button>}
                       />
                       <AlertDialogAction
                         render={<Button onClick={handleCompleteProject} disabled={completingProject} className="bg-green-600 hover:bg-green-700">
-                          {completingProject ? "\u0417\u0430\u043A\u0440\u044B\u0442\u0438\u0435..." : "\u041F\u043E\u0434\u043F\u0438\u0441\u0430\u0442\u044C \u0430\u043A\u0442"}
+                          {completingProject ? "\З\а\к\р\ы\т\и\е..." : "\П\о\д\п\и\с\а\т\ь \а\к\т"}
                         </Button>}
                       />
                     </AlertDialogFooter>
@@ -411,11 +411,11 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <div className="flex gap-2">
               <Button onClick={handleSave} disabled={saving}>
                 <Save className="size-4" />
-                <span className="ml-1.5">{saving ? "Saving..." : "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C"}</span>
+                <span className="ml-1.5">{saving ? "Saving..." : "\С\о\х\р\а\н\и\т\ь"}</span>
               </Button>
               <Button variant="outline" onClick={handleCancel}>
                 <X className="size-4" />
-                <span className="ml-1.5">\u041E\u0442\u043C\u0435\u043D\u0430</span>
+                <span className="ml-1.5">\О\т\м\е\н\а</span>
               </Button>
             </div>
           )}
@@ -447,13 +447,13 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>\u0414\u0435\u0442\u0430\u043B\u0438 \u043F\u0440\u043E\u0435\u043A\u0442\u0430</CardTitle>
+              <CardTitle>\Д\е\т\а\л\и \п\р\о\е\к\т\а</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {isEditing ? (
                 <>
                   <div className="grid gap-2">
-                    <Label htmlFor="name">\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435</Label>
+                    <Label htmlFor="name">\Н\а\з\в\а\н\и\е</Label>
                     <Input
                       id="name"
                       value={editForm.name}
@@ -462,7 +462,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="externalNumber">\u041D\u043E\u043C\u0435\u0440 \u043F\u0440\u043E\u0435\u043A\u0442\u0430</Label>
+                    <Label htmlFor="externalNumber">\Н\о\м\е\р \п\р\о\е\к\т\а</Label>
                     <Input
                       id="externalNumber"
                       value={editForm.externalNumber}
@@ -472,7 +472,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="status">\u0421\u0442\u0430\u0442\u0443\u0441</Label>
+                      <Label htmlFor="status">\С\т\а\т\у\с</Label>
                       <Select
                         value={editForm.status}
                         onValueChange={(value) => setEditForm({ ...editForm, status: value ?? "lead" })}
@@ -481,16 +481,16 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="lead">\u041B\u0438\u0434</SelectItem>
-                          <SelectItem value="active">\u0410\u043A\u0442\u0438\u0432\u043D\u044B\u0439</SelectItem>
-                          <SelectItem value="completed">\u0417\u0430\u0432\u0435\u0440\u0448\u0451\u043D</SelectItem>
-                          <SelectItem value="paused">\u041F\u0430\u0443\u0437\u0430</SelectItem>
+                          <SelectItem value="lead">\Л\и\д</SelectItem>
+                          <SelectItem value="active">\А\к\т\и\в\н\ы\й</SelectItem>
+                          <SelectItem value="completed">\З\а\в\е\р\ш\ё\н</SelectItem>
+                          <SelectItem value="paused">\П\а\у\з\а</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="grid gap-2">
-                      <Label htmlFor="currency">\u0412\u0430\u043B\u044E\u0442\u0430</Label>
+                      <Label htmlFor="currency">\В\а\л\ю\т\а</Label>
                       <Select
                         value={editForm.currency}
                         onValueChange={(value) => setEditForm({ ...editForm, currency: value ?? "RUB" })}
@@ -509,7 +509,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="contractAmount">\u0421\u0443\u043C\u043C\u0430 \u043A\u043E\u043D\u0442\u0440\u0430\u043A\u0442\u0430</Label>
+                      <Label htmlFor="contractAmount">\С\у\м\м\а \к\о\н\т\р\а\к\т\а</Label>
                       <Input
                         id="contractAmount"
                         type="number"
@@ -519,7 +519,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     </div>
 
                     <div className="grid gap-2">
-                      <Label htmlFor="marginTarget">\u041C\u0430\u0440\u0436\u0430 (%)</Label>
+                      <Label htmlFor="marginTarget">\М\а\р\ж\а (%)</Label>
                       <Input
                         id="marginTarget"
                         type="number"
@@ -532,7 +532,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="startDate">\u0414\u0430\u0442\u0430 \u043D\u0430\u0447\u0430\u043B\u0430</Label>
+                      <Label htmlFor="startDate">\Д\а\т\а \н\а\ч\а\л\а</Label>
                       <Input
                         id="startDate"
                         type="date"
@@ -542,7 +542,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     </div>
 
                     <div className="grid gap-2">
-                      <Label htmlFor="endDate">\u0414\u0430\u0442\u0430 \u043E\u043A\u043E\u043D\u0447\u0430\u043D\u0438\u044F</Label>
+                      <Label htmlFor="endDate">\Д\а\т\а \о\к\о\н\ч\а\н\и\я</Label>
                       <Input
                         id="endDate"
                         type="date"
@@ -553,7 +553,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="description">\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435</Label>
+                    <Label htmlFor="description">\О\п\и\с\а\н\и\е</Label>
                     <Textarea
                       id="description"
                       value={editForm.description}
@@ -568,7 +568,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     <div className="flex items-center gap-2">
                       <DollarSign className="size-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">\u0421\u0443\u043C\u043C\u0430 \u043A\u043E\u043D\u0442\u0440\u0430\u043A\u0442\u0430</p>
+                        <p className="text-xs text-muted-foreground">\С\у\м\м\а \к\о\н\т\р\а\к\т\а</p>
                         <p className="font-medium">
                           {formatCurrency(Number(project.contractAmount), project.currency)}
                         </p>
@@ -578,7 +578,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     <div className="flex items-center gap-2">
                       <Calendar className="size-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">\u0414\u0430\u0442\u0430 \u043D\u0430\u0447\u0430\u043B\u0430</p>
+                        <p className="text-xs text-muted-foreground">\Д\а\т\а \н\а\ч\а\л\а</p>
                         <p className="font-medium">{formatDate(project.startDate)}</p>
                       </div>
                     </div>
@@ -588,7 +588,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     <div className="flex items-center gap-2">
                       <Calendar className="size-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">\u0414\u0430\u0442\u0430 \u043E\u043A\u043E\u043D\u0447\u0430\u043D\u0438\u044F</p>
+                        <p className="text-xs text-muted-foreground">\Д\а\т\а \о\к\о\н\ч\а\н\и\я</p>
                         <p className="font-medium">{formatDate(project.endDate)}</p>
                       </div>
                     </div>
@@ -597,7 +597,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       <div className="flex items-center gap-2">
                         <DollarSign className="size-4 text-muted-foreground" />
                         <div>
-                          <p className="text-xs text-muted-foreground">\u041C\u0430\u0440\u0436\u0430</p>
+                          <p className="text-xs text-muted-foreground">\М\а\р\ж\а</p>
                           <p className="font-medium">{project.marginTarget}%</p>
                         </div>
                       </div>
@@ -606,7 +606,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
                   {project.description && (
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435</p>
+                      <p className="text-xs text-muted-foreground mb-1">\О\п\и\с\а\н\и\е</p>
                       <p className="text-sm">{project.description}</p>
                     </div>
                   )}
@@ -620,7 +620,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Layers className="size-4" />
-                \u042D\u0442\u0430\u043F\u044B \u043F\u0440\u043E\u0435\u043A\u0442\u0430
+                \Э\т\а\п\ы \п\р\о\е\к\т\а
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -634,7 +634,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Package className="size-4" />
-                  \u041F\u0440\u043E\u0438\u0437\u0432\u043E\u0434\u0441\u0442\u0432\u043E
+                  \П\р\о\и\з\в\о\д\с\т\в\о
                 </div>
                 <CreateProductionModal
                   projectId={project.id}
@@ -662,14 +662,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Upload className="size-4" />
-                \u0424\u0430\u0439\u043B\u044B \u043F\u0440\u043E\u0435\u043A\u0442\u0430
+                \Ф\а\й\л\ы \п\р\о\е\к\т\а
               </CardTitle>
             </CardHeader>
             <CardContent>
               {isEditing ? (
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-sm">\u0422\u0435\u0445\u043D\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u0441\u043F\u0435\u0446\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438</Label>
+                    <Label className="text-sm">\Т\е\х\н\и\ч\е\с\к\и\е \с\п\е\ц\и\ф\и\к\а\ц\и\и</Label>
                     <div className="mt-2">
                       <FileUpload
                         accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.dwg,.dxf"
@@ -708,7 +708,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     </div>
                     )
                   })() : (
-                    <p className="text-sm text-muted-foreground">\u0424\u0430\u0439\u043B\u044B \u043D\u0435 \u043F\u0440\u0438\u043A\u0440\u0435\u043F\u043B\u0435\u043D\u044B</p>
+                    <p className="text-sm text-muted-foreground">\Ф\а\й\л\ы \н\е \п\р\и\к\р\е\п\л\е\н\ы</p>
                   )}
                 </div>
               )}
@@ -720,14 +720,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <LinkIcon className="size-4" />
-                \u0421\u0432\u044F\u0437\u0430\u043D\u043D\u044B\u0435 \u0441\u0443\u0449\u043D\u043E\u0441\u0442\u0438
+                \С\в\я\з\а\н\н\ы\е \с\у\щ\н\о\с\т\и
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
                 <Building2 className="size-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">\u041A\u043B\u0438\u0435\u043D\u0442</p>
+                  <p className="text-xs text-muted-foreground">\К\л\и\е\н\т</p>
                   {project.contact ? (
                     <a
                       href={`/crm/contacts/${project.contact.id}`}
@@ -740,7 +740,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                             .join(" ")}
                     </a>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\u2014</p>
+                    <p className="text-sm text-muted-foreground">\—</p>
                   )}
                 </div>
               </div>
@@ -748,11 +748,11 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <div className="flex items-center gap-3">
                 <User className="size-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">\u041C\u0435\u043D\u0435\u0434\u0436\u0435\u0440</p>
+                  <p className="text-xs text-muted-foreground">\М\е\н\е\д\ж\е\р</p>
                   {project.manager ? (
-                    <p className="text-sm font-medium">{project.manager.name || "\u2014"}</p>
+                    <p className="text-sm font-medium">{project.manager.name || "\—"}</p>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\u2014</p>
+                    <p className="text-sm text-muted-foreground">\—</p>
                   )}
                 </div>
               </div>
@@ -760,7 +760,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <div className="flex items-center gap-3">
                 <FileText className="size-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">\u0421\u0434\u0435\u043B\u043A\u0430</p>
+                  <p className="text-xs text-muted-foreground">\С\д\е\л\к\а</p>
                   {project.deal ? (
                     <a
                       href={`/deals/${project.deal.id}`}
@@ -769,7 +769,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       {project.deal.title}
                     </a>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\u2014</p>
+                    <p className="text-sm text-muted-foreground">\—</p>
                   )}
                 </div>
               </div>
@@ -777,7 +777,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <div className="flex items-center gap-3">
                 <FileText className="size-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">\u041A\u043E\u043D\u0442\u0440\u0430\u043A\u0442</p>
+                  <p className="text-xs text-muted-foreground">\К\о\н\т\р\а\к\т</p>
                   {project.contract ? (
                     <a
                       href={`/contracts/${project.contract.id}`}
@@ -786,7 +786,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       {project.contract.title}
                     </a>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\u2014</p>
+                    <p className="text-sm text-muted-foreground">\—</p>
                   )}
                 </div>
               </div>
@@ -801,7 +801,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="size-4" />
-                \u041A\u043E\u043C\u0430\u043D\u0434\u0430
+                \К\о\м\а\н\д\а
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -816,7 +816,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-medium">
-                          {member.User?.name || member.User?.email || "\u2014"}
+                          {member.User?.name || member.User?.email || "\—"}
                         </p>
                         <p className="text-xs text-muted-foreground">{member.role}</p>
                       </div>
@@ -824,7 +824,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">\u041D\u0435\u0442 \u0447\u043B\u0435\u043D\u043E\u0432 \u043A\u043E\u043C\u0430\u043D\u0434\u044B</p>
+                <p className="text-sm text-muted-foreground">\Н\е\т \ч\л\е\н\о\в \к\о\м\а\н\д\ы</p>
               )}
             </CardContent>
           </Card>
@@ -832,20 +832,20 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           {/* Metadata */}
           <Card>
             <CardHeader>
-              <CardTitle>\u041C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435</CardTitle>
+              <CardTitle>\М\е\т\а\д\а\н\н\ы\е</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">\u0421\u043E\u0437\u0434\u0430\u043D</span>
+                <span className="text-muted-foreground">\С\о\з\д\а\н</span>
                 <span>{new Date(project.createdAt).toLocaleDateString("ru-RU")}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">\u041E\u0431\u043D\u043E\u0432\u043B\u0451\u043D</span>
+                <span className="text-muted-foreground">\О\б\н\о\в\л\ё\н</span>
                 <span>{new Date(project.updatedAt).toLocaleDateString("ru-RU")}</span>
               </div>
               {project.completedAt && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">\u0417\u0430\u0432\u0435\u0440\u0448\u0451\u043D</span>
+                  <span className="text-muted-foreground">\З\а\в\е\р\ш\ё\н</span>
                   <span>{new Date(project.completedAt).toLocaleDateString("ru-RU")}</span>
                 </div>
               )}

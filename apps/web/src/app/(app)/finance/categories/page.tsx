@@ -258,14 +258,14 @@ export default function CategoryListPage() {
               {categories.map((cat) => {
                 const depth = depthMap.get(cat.id) ?? 0
                 const parentName = cat.parentId
-                  ? parentNameMap.get(cat.parentId) ?? "\u2014"
-                  : "\u2014"
+                  ? parentNameMap.get(cat.parentId) ?? "\—"
+                  : "\—"
 
                 return (
                   <TableRow key={cat.id}>
                     <TableCell>
                       <span style={{ paddingLeft: `${depth * 24}px` }}>
-                        {depth > 0 && "\u2514 "}
+                        {depth > 0 && "\└ "}
                         {cat.name}
                       </span>
                     </TableCell>

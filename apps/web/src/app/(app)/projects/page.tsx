@@ -30,7 +30,7 @@ import { CreateProjectModal } from "@/components/projects/create-project-modal"
 type StatusFilter = "all" | "lead" | "active" | "completed" | "paused"
 
 function formatCurrency(amount: number | null | undefined, currency: string = "RUB"): string {
-  if (amount == null) return "\u2014"
+  if (amount == null) return "\—"
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency: currency,
@@ -38,7 +38,7 @@ function formatCurrency(amount: number | null | undefined, currency: string = "R
 }
 
 function formatDate(date: Date | string | null | undefined): string {
-  if (!date) return "\u2014"
+  if (!date) return "\—"
   const d = typeof date === "string" ? new Date(date) : date
   return d.toLocaleDateString("ru-RU")
 }
@@ -59,18 +59,18 @@ function getStatusVariant(status: string): "default" | "secondary" | "outline" |
 }
 
 function getManagerName(project: ProjectData): string {
-  if (!project.manager) return "\u2014"
-  return project.manager.name || project.manager.email || "\u2014"
+  if (!project.manager) return "\—"
+  return project.manager.name || project.manager.email || "\—"
 }
 
 function getContactName(project: ProjectData): string {
-  if (!project.contact) return "\u2014"
+  if (!project.contact) return "\—"
   if (project.contact.type === "company") {
-    return project.contact.companyName || "\u2014"
+    return project.contact.companyName || "\—"
   }
   return [project.contact.lastName, project.contact.firstName]
     .filter(Boolean)
-    .join(" ") || "\u2014"
+    .join(" ") || "\—"
 }
 
 type ManagerOption = {
@@ -83,7 +83,7 @@ function extractManagerOptions(projects: ProjectData[]): ManagerOption[] {
 
   for (const project of projects) {
     if (project.manager) {
-      const name = project.manager.name || project.manager.email || `\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C ${project.manager.id}`
+      const name = project.manager.name || project.manager.email || `\П\о\л\ь\з\о\в\а\т\е\л\ь ${project.manager.id}`
 
       if (!managersMap.has(project.manager.id)) {
         managersMap.set(project.manager.id, { id: project.manager.id, name })
@@ -149,7 +149,7 @@ export default function ProjectsPage() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">\u041F\u0440\u043E\u0435\u043A\u0442\u044B</h1>
+        <h1 className="text-2xl font-semibold">\П\р\о\е\к\т\ы</h1>
         <CreateProjectModal onCreate={handleProjectCreated} />
       </div>
 
@@ -157,7 +157,7 @@ export default function ProjectsPage() {
         <CardContent className="pt-6">
           <div className="flex gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-muted-foreground">\u0421\u0442\u0430\u0442\u0443\u0441</label>
+              <label className="text-sm text-muted-foreground">\С\т\а\т\у\с</label>
               <Select
                 value={statusFilter}
                 onValueChange={(value) => {
@@ -165,21 +165,21 @@ export default function ProjectsPage() {
                 }}
               >
                 <SelectTrigger className="w-40">
-                  <SelectValue placeholder="\u0412\u0441\u0435 \u0441\u0442\u0430\u0442\u0443\u0441\u044B" />
+                  <SelectValue placeholder="\В\с\е \с\т\а\т\у\с\ы" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="all">\u0412\u0441\u0435 \u0441\u0442\u0430\u0442\u0443\u0441\u044B</SelectItem>
-                    <SelectItem value="lead">\u041B\u0438\u0434</SelectItem>
-                    <SelectItem value="active">\u0410\u043A\u0442\u0438\u0432\u043D\u044B\u0439</SelectItem>
-                    <SelectItem value="completed">\u0417\u0430\u0432\u0435\u0440\u0448\u0451\u043D</SelectItem>
-                    <SelectItem value="paused">\u041F\u0430\u0443\u0437\u0430</SelectItem>
+                    <SelectItem value="all">\В\с\е \с\т\а\т\у\с\ы</SelectItem>
+                    <SelectItem value="lead">\Л\и\д</SelectItem>
+                    <SelectItem value="active">\А\к\т\и\в\н\ы\й</SelectItem>
+                    <SelectItem value="completed">\З\а\в\е\р\ш\ё\н</SelectItem>
+                    <SelectItem value="paused">\П\а\у\з\а</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-muted-foreground">\u041C\u0435\u043D\u0435\u0434\u0436\u0435\u0440</label>
+              <label className="text-sm text-muted-foreground">\М\е\н\е\д\ж\е\р</label>
               <Select
                 value={managerFilter}
                 onValueChange={(value) => {
@@ -187,11 +187,11 @@ export default function ProjectsPage() {
                 }}
               >
                 <SelectTrigger className="w-64">
-                  <SelectValue placeholder="\u0412\u0441\u0435 \u043C\u0435\u043D\u0435\u0434\u0436\u0435\u0440\u044B" />
+                  <SelectValue placeholder="\В\с\е \м\е\н\е\д\ж\е\р\ы" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="all">\u0412\u0441\u0435 \u043C\u0435\u043D\u0435\u0434\u0436\u0435\u0440\u044B</SelectItem>
+                    <SelectItem value="all">\В\с\е \м\е\н\е\д\ж\е\р\ы</SelectItem>
                     {managerOptions.map((manager) => (
                       <SelectItem key={manager.id} value={manager.id}>
                         {manager.name}
@@ -241,14 +241,14 @@ export default function ProjectsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>\u041D\u043E\u043C\u0435\u0440</TableHead>
-                <TableHead>\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435</TableHead>
-                <TableHead>\u0421\u0442\u0430\u0442\u0443\u0441</TableHead>
-                <TableHead>\u041C\u0435\u043D\u0435\u0434\u0436\u0435\u0440</TableHead>
-                <TableHead>\u041A\u043B\u0438\u0435\u043D\u0442</TableHead>
-                <TableHead>\u0414\u0430\u0442\u0430 \u043D\u0430\u0447\u0430\u043B\u0430</TableHead>
-                <TableHead>\u0414\u0430\u0442\u0430 \u043E\u043A\u043E\u043D\u0447\u0430\u043D\u0438\u044F</TableHead>
-                <TableHead>\u0421\u0443\u043C\u043C\u0430 \u043A\u043E\u043D\u0442\u0440\u0430\u043A\u0442\u0430</TableHead>
+                <TableHead>\Н\о\м\е\р</TableHead>
+                <TableHead>\Н\а\з\в\а\н\и\е</TableHead>
+                <TableHead>\С\т\а\т\у\с</TableHead>
+                <TableHead>\М\е\н\е\д\ж\е\р</TableHead>
+                <TableHead>\К\л\и\е\н\т</TableHead>
+                <TableHead>\Д\а\т\а \н\а\ч\а\л\а</TableHead>
+                <TableHead>\Д\а\т\а \о\к\о\н\ч\а\н\и\я</TableHead>
+                <TableHead>\С\у\м\м\а \к\о\н\т\р\а\к\т\а</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -259,7 +259,7 @@ export default function ProjectsPage() {
                       href={`/projects/${project.id}`}
                       className="text-primary hover:underline"
                     >
-                      {project.externalNumber || "\u2014"}
+                      {project.externalNumber || "\—"}
                     </Link>
                   </TableCell>
                   <TableCell>

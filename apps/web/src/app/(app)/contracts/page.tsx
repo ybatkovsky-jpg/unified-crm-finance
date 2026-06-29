@@ -37,7 +37,7 @@ function formatCurrency(amount: number, currency: string = "RUB"): string {
 }
 
 function formatDate(date: Date | string | null | undefined): string {
-  if (!date) return "\u2014"
+  if (!date) return "\—"
   const d = typeof date === "string" ? new Date(date) : date
   return d.toLocaleDateString("ru-RU")
 }
@@ -58,13 +58,13 @@ function getStatusVariant(status: string): "default" | "secondary" | "outline" |
 }
 
 function getContactName(contract: ContractData): string {
-  if (!contract.contact) return "\u2014"
+  if (!contract.contact) return "\—"
   if (contract.contact.type === "company") {
-    return contract.contact.companyName || "\u2014"
+    return contract.contact.companyName || "\—"
   }
   return [contract.contact.lastName, contract.contact.firstName]
     .filter(Boolean)
-    .join(" ") || "\u2014"
+    .join(" ") || "\—"
 }
 
 export default function ContractsPage() {

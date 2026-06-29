@@ -52,8 +52,8 @@ export function DealCard({ deal, isDragging }: DealCardProps) {
               <User className="size-3" />
               <span className="line-clamp-1">
                 {deal.contact.type === 'company'
-                  ? deal.contact.companyName || '\u2014'
-                  : [deal.contact.firstName, deal.contact.lastName].filter(Boolean).join(' ') || '\u2014'}
+                  ? deal.contact.companyName || '\—'
+                  : [deal.contact.firstName, deal.contact.lastName].filter(Boolean).join(' ') || '\—'}
               </span>
             </div>
           )}
@@ -82,7 +82,7 @@ export function DealCard({ deal, isDragging }: DealCardProps) {
 
           {deal.manager && (
             <Badge variant="outline" className="text-xs w-fit">
-              {deal.manager.name || deal.manager.email || '\u2014'}
+              {deal.manager.name || deal.manager.email || '\—'}
             </Badge>
           )}
         </CardContent>

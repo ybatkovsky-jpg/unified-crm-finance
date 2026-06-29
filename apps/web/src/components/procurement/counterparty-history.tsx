@@ -37,7 +37,7 @@ export function CounterpartyHistory({ data, columns, emptyMessage }: Counterpart
           <TableRow key={item.id as string ?? index}>
             {columns.map((col) => (
               <TableCell key={col.key}>
-                {col.render ? col.render(item) : (item[col.key] as React.ReactNode) ?? "\u2014"}
+                {col.render ? col.render(item) : (item[col.key] as React.ReactNode) ?? "\—"}
               </TableCell>
             ))}
           </TableRow>

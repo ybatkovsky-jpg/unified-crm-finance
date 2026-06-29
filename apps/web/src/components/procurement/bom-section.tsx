@@ -483,7 +483,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
   const isLocked = state.kind === "has-bom" && state.bom.status === "locked"
   const total =
     state.kind === "has-bom"
-      ? state.items.reduce((sum, i) => sum + (i.quantity || 0) * (i.price || 0), 0)
+      ? state.items.reduce((sum, i) => sum + (i.quantity || 0) * Number(i.price || 0), 0)
       : 0
 
   // -----------------------------------------------------------------------
@@ -497,7 +497,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
     className = ""
   ) => {
     if (isLocked) {
-      return <span className={className}>{displayValue || "\u2014"}</span>
+      return <span className={className}>{displayValue || "\—"}</span>
     }
 
     const isEditing =
@@ -522,9 +522,9 @@ export function BOMSection({ projectId }: { projectId: string }) {
       <button
         type="button"
         className={`cursor-pointer rounded px-1 py-0.5 text-left text-sm hover:bg-muted ${className}`}
-        onClick={() => startEditing(item.id, field, item[field])}
+        onClick={() => startEditing(item.id, field, item[field] as string | number | null)}
       >
-        {displayValue || "\u2014"}
+        {displayValue || "\—"}
       </button>
     )
   }
@@ -681,11 +681,11 @@ export function BOMSection({ projectId }: { projectId: string }) {
                   <TableRow key={row.rowNumber}>
                     <TableCell>{row.rowNumber}</TableCell>
                     <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.article || "\u2014"}</TableCell>
+                    <TableCell>{row.article || "\—"}</TableCell>
                     <TableCell>{row.quantity}</TableCell>
-                    <TableCell>{row.unit || "\u2014"}</TableCell>
+                    <TableCell>{row.unit || "\—"}</TableCell>
                     <TableCell>
-                      {row.price != null ? row.price.toLocaleString("ru-RU") : "\u2014"}
+                      {row.price != null ? Number(row.price).toLocaleString("ru-RU") : "\—"}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -817,10 +817,10 @@ export function BOMSection({ projectId }: { projectId: string }) {
                         {renderEditableCell(item, "unit", item.unit ?? "")}
                       </TableCell>
                       <TableCell>
-                        {renderEditableCell(item, "price", item.price ?? "")}
+                        {renderEditableCell(item, "price", item.price != null ? Number(item.price) : "")}
                       </TableCell>
                       <TableCell className="font-medium">
-                        {((item.quantity || 0) * (item.price || 0)).toLocaleString(
+                        {((item.quantity || 0) * Number(item.price || 0)).toLocaleString(
                           "ru-RU",
                           { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                         )}
@@ -830,7 +830,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
                           <span className="text-sm">
                             {item.supplier
                               ? `${item.supplier.name}${item.supplier.inn ? ` (ИНН ${item.supplier.inn})` : ""}`
-                              : "\u2014"}
+                              : "\—"}
                           </span>
                         ) : (
                           <Select

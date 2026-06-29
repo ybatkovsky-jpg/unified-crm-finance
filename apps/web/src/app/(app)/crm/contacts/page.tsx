@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { RefreshCwIcon } from "lucide-react"
+import { RefreshCwIcon, UserPlus } from "lucide-react"
 
 import { contactsApi, ApiClientError } from "@/lib/api/contacts"
 import type { ContactData } from "@/lib/api/types"
+import { CreateContactModal } from "@/components/contacts/create-contact-modal"
 import {
   Table,
   TableBody,
@@ -31,9 +32,9 @@ type StatusFilter = "all" | "active" | "inactive"
 
 function getDisplayName(contact: ContactData): string {
   if (contact.type === "company") {
-    return contact.companyName || "\u2014"
+    return contact.companyName || "\—"
   }
-  return [contact.lastName, contact.firstName].filter(Boolean).join(" ") || "\u2014"
+  return [contact.lastName, contact.firstName].filter(Boolean).join(" ") || "\—"
 }
 
 export default function ContactListPage() {
@@ -42,6 +43,7 @@ export default function ContactListPage() {
   const [error, setError] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all")
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
+  const [createOpen, setCreateOpen] = useState(false)
 
   const fetchContacts = useCallback(async (type: TypeFilter, status: StatusFilter) => {
     setLoading(true)
@@ -74,9 +76,20 @@ export default function ContactListPage() {
     fetchContacts(typeFilter, statusFilter)
   }
 
+  // After creating a contact, refresh the list (newest-first ordering puts it on top).
+  const handleCreated = () => {
+    fetchContacts(typeFilter, statusFilter)
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Contacts</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold">Контакты</h1>
+        <Button onClick={() => setCreateOpen(true)}>
+          <UserPlus className="size-4" />
+          Создать контакт
+        </Button>
+      </div>
 
       <Card>
         <CardContent className="pt-6">
@@ -189,8 +202,8 @@ export default function ContactListPage() {
                       {contact.type === "company" ? "Company" : "Person"}
                     </Badge>
                   </TableCell>
-                  <TableCell>{contact.phone || "\u2014"}</TableCell>
-                  <TableCell>{contact.email || "\u2014"}</TableCell>
+                  <TableCell>{contact.phone || "\—"}</TableCell>
+                  <TableCell>{contact.email || "\—"}</TableCell>
                   <TableCell>
                     <Badge
                       variant={
@@ -206,6 +219,12 @@ export default function ContactListPage() {
           </Table>
         </div>
       )}
+
+      <CreateContactModal
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={handleCreated}
+      />
     </div>
   )
 }

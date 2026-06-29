@@ -79,8 +79,8 @@ export default function CounterpartyListPage() {
   }
 
   const renderRating = (rating: number | null | undefined) => {
-    if (rating == null) return "\u2014"
-    return "\u2605 ".repeat(rating).trim()
+    if (rating == null) return "\—"
+    return "\★ ".repeat(rating).trim()
   }
 
   return (
@@ -181,9 +181,9 @@ export default function CounterpartyListPage() {
                       {cp.name}
                     </Link>
                   </TableCell>
-                  <TableCell>{cp.inn || "\u2014"}</TableCell>
-                  <TableCell>{cp.phone || "\u2014"}</TableCell>
-                  <TableCell>{cp.email || "\u2014"}</TableCell>
+                  <TableCell>{cp.inn || "\—"}</TableCell>
+                  <TableCell>{cp.phone || "\—"}</TableCell>
+                  <TableCell>{cp.email || "\—"}</TableCell>
                   <TableCell>{renderRating(cp.rating)}</TableCell>
                   <TableCell>
                     <Badge
