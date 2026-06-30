@@ -144,6 +144,3 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Failed to create task', message }, { status: 500 })
   }
 }
-
-// Экспорт допустимых значений для клиентского использования (если нужно).
-export { TASK_TYPES, TASK_STATUSES }
