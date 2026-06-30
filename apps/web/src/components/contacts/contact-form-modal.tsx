@@ -168,6 +168,23 @@ export function ContactFormModal({
       setError("Укажите телефон — он обязателен для всех контактов.");
       return;
     }
+    // Phone validation: только цифры, +, пробелы, дефисы, скобки
+    if (phone.trim()) {
+      const cleaned = phone.trim().replace(/[\s\-()]/g, "");
+      if (!/^\+?\d{7,15}$/.test(cleaned)) {
+        setError("Неверный формат телефона. Допустимы цифры, +, пробелы, дефисы, скобки (7–15 цифр).");
+        return;
+      }
+    }
+
+    // Employee phone validation
+    if (addEmployee && empPhone.trim()) {
+      const empCleaned = empPhone.trim().replace(/[\s\-()]/g, "");
+      if (!/^\+?\d{7,15}$/.test(empCleaned)) {
+        setError("Неверный формат телефона сотрудника.");
+        return;
+      }
+    }
 
     const payload: ContactCreateInput = {
       type,

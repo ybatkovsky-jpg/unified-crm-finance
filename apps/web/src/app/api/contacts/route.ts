@@ -88,6 +88,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
+    // Phone format validation
+    if (typeof body.phone === 'string' && body.phone.trim()) {
+      const cleaned = body.phone.trim().replace(/[\s\-()]/g, '')
+      if (!/^\+?\d{7,15}$/.test(cleaned)) {
+        return NextResponse.json(
+          { error: 'Validation failed', message: 'phone must contain 7–15 digits (allowed: +, spaces, dashes, parentheses)' },
+          { status: 400 }
+        )
+      }
+    }
+
     // companyId validation: can only be set for person contacts
     if (body.companyId) {
       if (body.type !== 'person') {
