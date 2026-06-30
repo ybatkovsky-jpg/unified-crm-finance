@@ -35,8 +35,34 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { contactsApi, ApiClientError } from "@/lib/api/contacts";
-import { validateContactFields, validatePhone } from "@/lib/validation/contact";
 import type { ContactCreateInput, ContactData } from "@/lib/api/types";
+
+// ── Inline validators (избегаем импорта из lib/validation — Turbopack) ──
+const NAME_RE = /^[\p{L}\s\-.\u0301']+$/u
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PHONE_CLEAN_RE = /^\+?\d{7,15}$/
+
+function validateFormFields(fields: {
+  firstName?: string | null; lastName?: string | null; middleName?: string | null
+  companyName?: string | null; position?: string | null
+  email?: string | null; phone?: string | null
+  inn?: string | null; kpp?: string | null; ogrn?: string | null
+}): string | null {
+  if (fields.firstName && !NAME_RE.test(fields.firstName)) return 'Имя должно содержать только буквы, пробелы и дефисы.'
+  if (fields.lastName && !NAME_RE.test(fields.lastName)) return 'Фамилия должна содержать только буквы, пробелы и дефисы.'
+  if (fields.middleName && !NAME_RE.test(fields.middleName)) return 'Отчество должно содержать только буквы, пробелы и дефисы.'
+  if (fields.companyName && !/^[\p{L}\d\s\-.,'"«»№&/\\()]+$/u.test(fields.companyName)) return 'Название компании содержит недопустимые символы.'
+  if (fields.position && !/^[\p{L}\s\-./]+$/u.test(fields.position)) return 'Должность должна содержать только буквы, пробелы и дефисы.'
+  if (fields.email && !EMAIL_RE.test(fields.email)) return 'Неверный формат email.'
+  if (fields.phone) {
+    const cleaned = fields.phone.replace(/[\s\-()]/g, '')
+    if (!PHONE_CLEAN_RE.test(cleaned)) return 'Телефон должен содержать 7–15 цифр.'
+  }
+  if (fields.inn && !/^\d{10,12}$/.test(fields.inn)) return 'ИНН должен содержать 10 или 12 цифр.'
+  if (fields.kpp && !/^\d{9}$/.test(fields.kpp)) return 'КПП должен содержать 9 цифр.'
+  if (fields.ogrn && !/^\d{13}$/.test(fields.ogrn)) return 'ОГРН должен содержать 13 цифр.'
+  return null
+}
 
 interface ContactFormModalProps {
   open: boolean;
@@ -171,7 +197,7 @@ export function ContactFormModal({
     }
 
     // Валидация всех полей
-    const fieldError = validateContactFields({
+    const fieldError = validateFormFields({
       firstName: type === "person" ? firstName : null,
       lastName,
       middleName,
@@ -190,9 +216,9 @@ export function ContactFormModal({
 
     // Employee phone validation
     if (addEmployee && empPhone.trim()) {
-      const empPhoneErr = validatePhone(empPhone)
-      if (empPhoneErr) {
-        setError(`Телефон сотрудника: ${empPhoneErr}`)
+      const cleaned = empPhone.trim().replace(/[\s\-()]/g, "")
+      if (!PHONE_CLEAN_RE.test(cleaned)) {
+        setError("Телефон сотрудника: должен содержать 7–15 цифр.")
         return
       }
     }
