@@ -7,20 +7,10 @@ import {
   ROLE_MATRIX,
   effectiveSections,
 } from '@/lib/auth/roles';
+import { SECTION_HOME } from '@/components/layout/section-home';
 
 const PUBLIC = new Set(['/login', '/api/health']);
 const PUBLIC_PREFIXES = ['/api/auth/', '/_next/'];
-
-const SECTION_HOME: Record<string, string> = {
-  crm: '/deals',
-  projects: '/projects',
-  procurement: '/procurement',
-  finance: '/finance',
-  accounting: '/accounting',
-  analytics: '/analytics',
-  settings: '/settings',
-  org: '/org/board',
-};
 
 function roleHome(rawRoleCodes: string[]): string {
   const codes = rawRoleCodes.filter(isRoleCode);

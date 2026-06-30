@@ -168,10 +168,24 @@ export const NAV_SECTIONS: NavSection[] = [
  */
 export function getActiveSection(pathname: string, isDirector: boolean): NavSection {
   const sections = NAV_SECTIONS.filter((s) => (s.directorOnly ? isDirector : true))
-  return (
-    sections.find((s) => pathname === s.matchPrefix || pathname.startsWith(s.matchPrefix + "/")) ??
-    sections[0]
+
+  // Прямое совпадение по matchPrefix
+  const matched = sections.find(
+    (s) => pathname === s.matchPrefix || pathname.startsWith(s.matchPrefix + "/")
   )
+  if (matched) return matched
+
+  // CRM включает /deals, /projects, /contracts (не под /crm)
+  const crmSection = sections.find((s) => s.id === "crm")
+  if (crmSection && (
+    pathname.startsWith("/deals") ||
+    pathname.startsWith("/projects") ||
+    pathname.startsWith("/contracts")
+  )) {
+    return crmSection
+  }
+
+  return sections[0]
 }
 
 /** Users icon re-exported for the sidebar footer avatar fallback. */

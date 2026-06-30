@@ -27,9 +27,7 @@ export function KanbanColumn({
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id,
-    data: {
-      stageId: id,
-    },
+    data: { stageId: id },
   })
 
   const totalAmount = deals.reduce((sum, deal) => sum + Number(deal.amount || 0), 0)
@@ -37,13 +35,13 @@ export function KanbanColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col w-80 min-w-80 transition-all duration-200 ${
+      className={`flex flex-col w-80 min-w-80 h-full transition-all duration-200 ${
         isOver ? "ring-2 ring-primary/50 bg-accent/30 rounded-lg" : ""
       }`}
     >
-      <Card className="h-full">
+      <Card className="flex flex-col h-full min-h-0">
         <CardHeader
-          className="pb-3"
+          className="pb-3 shrink-0"
           style={{
             borderTopColor: color || undefined,
             borderTopWidth: "4px",
@@ -70,8 +68,8 @@ export function KanbanColumn({
             </p>
           )}
         </CardHeader>
-        <CardContent className="pt-0">
-          <div className="space-y-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+        <CardContent className="pt-0 flex-1 min-h-0 overflow-y-auto">
+          <div className="space-y-3">
             {deals.map((deal) => (
               <DraggableDealCard key={deal.id} deal={deal} />
             ))}

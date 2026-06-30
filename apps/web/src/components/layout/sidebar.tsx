@@ -17,6 +17,7 @@ import { Sofa, ChevronsLeft, ChevronsRight, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { NAV_SECTIONS, getActiveSection } from "./nav-config"
+import { SECTION_HOME } from "./section-home"
 import { useMe } from "./use-me"
 
 const COLLAPSE_KEY = "pm.sidebar.collapsed"
@@ -70,9 +71,9 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
           const isActive = activeSection.id === section.id
           const Icon = section.icon
           return (
-            <Link
+              <Link
               key={section.id}
-              href={section.children[0].href}
+              href={SECTION_HOME[section.id] ?? section.children[0].href}
               title={collapsed ? section.label : undefined}
               className={cn(
                 "group/section relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",

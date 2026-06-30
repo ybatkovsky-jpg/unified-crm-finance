@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { RefreshCwIcon } from "lucide-react"
+import { RefreshCwIcon, Plus } from "lucide-react"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
 import { pipelinesApi } from "@/lib/api/pipelines"
 import type { DealData, DealStageData } from "@/lib/api/types"
@@ -22,7 +22,6 @@ export default function DealsPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
   const [movingDealId, setMovingDealId] = useState<string | null>(null)
 
-  // Fetch pipeline and its stages from the pipeline API
   const fetchPipeline = useCallback(async () => {
     try {
       const pipelinesResponse = await pipelinesApi.getPipelines()
@@ -30,19 +29,13 @@ export default function DealsPage() {
         console.warn("No active pipelines found")
         return null
       }
-
-      // Use the first active pipeline
       const pipeline = pipelinesResponse.data[0]
       setPipelineId(pipeline.id)
-
-      // Fetch pipeline with stages
       const pipelineWithStages = await pipelinesApi.getPipeline(pipeline.id)
       setStages(pipelineWithStages.data.DealStage)
-
       return pipeline.id
     } catch (err) {
       console.warn("Failed to fetch pipeline, falling back to default:", err)
-      // Fallback to hardcoded ID if API fails
       setPipelineId("default-pipeline-id")
       return null
     }
@@ -53,17 +46,12 @@ export default function DealsPage() {
       setLoading(true)
       setError(null)
       try {
-        // First fetch pipeline to get stages
         const fetchedPipelineId = await fetchPipeline()
         if (!fetchedPipelineId && !pipelineId) {
-          // If pipeline fetch failed, still try to load deals
           console.warn("Pipeline not loaded, loading deals anyway")
         }
-
-        // Then fetch deals
         const params: Record<string, string> = {}
         if (status !== "all") params.status = status
-
         const response = await dealsApi.getDeals(
           Object.keys(params).length > 0 ? params : undefined
         )
@@ -88,13 +76,10 @@ export default function DealsPage() {
   const handleMoveDeal = async (dealId: string, toStageId: string) => {
     setMovingDealId(dealId)
     try {
-      // For now, use a dummy user ID - in real app this comes from session
       const response = await dealsApi.moveDeal(dealId, {
         stageId: toStageId,
-        changedBy: currentUserId, // TODO: Get from auth session
+        changedBy: currentUserId,
       })
-
-      // Update local state with the full deal from API (includes relations)
       setDeals((prev) =>
         prev.map((deal) =>
           deal.id === dealId ? response.data : deal
@@ -102,7 +87,6 @@ export default function DealsPage() {
       )
     } catch (err) {
       console.error("Failed to move deal:", err)
-      // Refetch to restore correct state from server
       fetchDeals(statusFilter)
     } finally {
       setMovingDealId(null)
@@ -113,15 +97,43 @@ export default function DealsPage() {
     fetchDeals(statusFilter)
   }
 
-  // Get first stage for creating new deals
   const firstStageId = stages.length > 0 ? stages[0].id : ""
-  // TODO: Get from auth session when implemented
   const currentUserId = "current-user-id"
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full py-12">
+        <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
+        <span className="ml-2 text-muted-foreground">Загрузка сделок...</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-3 py-8">
+        <p className="text-destructive">{error}</p>
+        <Button variant="outline" onClick={handleRetry}>
+          <RefreshCwIcon className="size-4" />
+          <span className="ml-1.5">Повторить</span>
+        </Button>
+      </div>
+    )
+  }
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Сделки</h1>
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
+        <div className="flex items-center gap-4">
+          <h1 className="text-xl font-semibold">Сделки</h1>
+          <FilterBar
+            statusFilter={statusFilter}
+            onStatusChange={(value) => setStatusFilter(value as StatusFilter)}
+            onRefresh={() => fetchDeals(statusFilter)}
+            loading={loading}
+          />
+        </div>
         {firstStageId && (
           <CreateDealModal
             pipelineId={pipelineId}
@@ -131,55 +143,24 @@ export default function DealsPage() {
         )}
       </div>
 
-      <Card>
-        <CardContent className="pt-6">
-          <FilterBar
-            statusFilter={statusFilter}
-            onStatusChange={(value) => setStatusFilter(value as StatusFilter)}
-            onRefresh={() => fetchDeals(statusFilter)}
-            loading={loading}
+      {/* Kanban — fills remaining height */}
+      <div className="flex-1 min-h-0 px-6 pb-4">
+        {stages.length > 0 ? (
+          <KanbanBoard
+            deals={deals}
+            stages={stages}
+            onMoveDeal={handleMoveDeal}
           />
-        </CardContent>
-      </Card>
-
-      {loading && (
-        <div className="flex items-center justify-center py-12">
-          <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Загрузка сделок...</span>
-        </div>
-      )}
-
-      {error && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center gap-3 py-8">
-              <p className="text-destructive">{error}</p>
-              <Button variant="outline" onClick={handleRetry}>
-                <RefreshCwIcon className="size-4" />
-                <span className="ml-1.5">Повторить</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {!loading && !error && stages.length > 0 && (
-        <KanbanBoard
-          deals={deals}
-          stages={stages}
-          onMoveDeal={handleMoveDeal}
-        />
-      )}
-
-      {!loading && !error && stages.length === 0 && (
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground py-8">
-              Этапы воронки не найдены. Пожалуйста, запустите скрипт начального заполнения.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+        ) : (
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-center text-muted-foreground py-8">
+                Этапы воронки не найдены. Пожалуйста, запустите скрипт начального заполнения.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   )
 }

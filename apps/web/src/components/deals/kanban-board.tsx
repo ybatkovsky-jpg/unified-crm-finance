@@ -21,23 +21,18 @@ export function KanbanBoard({ deals, stages, onMoveDeal }: KanbanBoardProps) {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
-
     if (!over) return
-
     const dealId = active.id as string
     const toStageId = over.id as string
-
     if (dealId && toStageId) {
       onMoveDeal(dealId, toStageId)
     }
   }
 
-  // Group deals by stage
   const dealsByStage = new Map<string, DealData[]>()
   stages.forEach((stage) => {
     dealsByStage.set(stage.id, [])
   })
-
   deals.forEach((deal) => {
     if (dealsByStage.has(deal.stageId)) {
       dealsByStage.get(deal.stageId)!.push(deal)
@@ -46,7 +41,7 @@ export function KanbanBoard({ deals, stages, onMoveDeal }: KanbanBoardProps) {
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div className="flex gap-4 h-full overflow-x-auto pb-2">
         {stages.map((stage) => (
           <KanbanColumn
             key={stage.id}
