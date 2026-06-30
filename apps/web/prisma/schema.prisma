@@ -1083,6 +1083,12 @@ model Task {
   parentTaskId               String?
   /// Почему провалена (клиент не явился, нет доступа и т.п.).
   failedReason               String?
+  /// PLAT-06: шаблон-источник, если задача — инстанс орг-шаблона.
+  templateId                 String?
+  /// PLAT-06: плановая дата инстанса (для идемпотентности материализации).
+  plannedDate                DateTime?
+  /// PLAT-06: функция компании, к которой привязана орг-задача.
+  orgFunctionId              String?
   createdBy                  String
   createdAt                  DateTime  @default(now())
   updatedAt                  DateTime
@@ -1094,6 +1100,10 @@ model Task {
   Contact                    Contact?  @relation(fields: [contactId], references: [id])
   OriginalTask               Task?     @relation("TaskLineage", fields: [originalTaskId], references: [id])
   ParentTask                 Task?     @relation("TaskReschedule", fields: [parentTaskId], references: [id])
+  /// PLAT-06: шаблон, породивший инстанс (null для проектных/разовых задач).
+  TaskTemplate               TaskTemplate? @relation(fields: [templateId], references: [id])
+  /// PLAT-06: функция компании, к которой привязана орг-задача.
+  OrgFunction                OrgFunction?  @relation(fields: [orgFunctionId], references: [id])
   Other_Task_OriginalTask    Task[]    @relation("TaskLineage")
   Other_Task_ParentTask      Task[]    @relation("TaskReschedule")
 
@@ -1107,6 +1117,94 @@ model Task {
   @@index([type])
   @@index([originalTaskId])
   @@index([parentTaskId])
+  @@index([templateId, plannedDate])
+  @@index([orgFunctionId])
+}
+
+/// PLAT-06: Отдел компании (Продажи, Производство, Закупки/Склад, Финансы...).
+/// Верхний уровень орг-иерархии; внутри — OrgFunction.
+model Department {
+  id          String      @id
+  name        String      @unique
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime
+  deletedAt   DateTime?
+  OrgFunction OrgFunction[]
+
+  @@index([deletedAt])
+}
+
+/// PLAT-06: Функция компании (реклама, налоги, аренда, инвентаризация...).
+/// Принадлежит отделу; на функцию назначаются люди (FunctionAssignment),
+/// у функции есть задачи/шаблоны (TaskTemplate, Task).
+model OrgFunction {
+  id               String             @id
+  departmentId     String
+  name             String
+  description      String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime
+  deletedAt        DateTime?
+  Department       Department         @relation(fields: [departmentId], references: [id])
+  FunctionAssignment FunctionAssignment[]
+  TaskTemplate     TaskTemplate[]
+  Task             Task[]
+
+  @@unique([departmentId, name])
+  @@index([departmentId, deletedAt])
+  @@index([deletedAt])
+}
+
+/// PLAT-06: Назначение человека на функцию.
+/// role: 'head' (руководитель функции, видит все задачи функции) | 'responsible' (исполнитель).
+/// Один человек может иметь несколько функций (несколько строк).
+model FunctionAssignment {
+  id         String     @id
+  functionId String
+  userId     String
+  /// 'head' | 'responsible' (контролируется в коде).
+  role       String     @default("responsible")
+  createdAt  DateTime   @default(now())
+  OrgFunction OrgFunction @relation(fields: [functionId], references: [id], onDelete: Cascade)
+  User       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([functionId, userId, role])
+  @@index([functionId])
+  @@index([userId])
+}
+
+/// PLAT-06: Шаблон задачи функции — разовой (rrule = null) или повторяющейся (RFC-5545 rrule).
+/// Из шаблона материализуются инстансы Task при наступлении срока (лениво).
+model TaskTemplate {
+  id                String   @id
+  /// null = общая задача без привязки к функции.
+  functionId        String?
+  title             String
+  description       String?
+  priority          String   @default("medium")
+  /// RFC-5545 строка (FREQ=MONTHLY;BYMONTHDAY=25;...); null = разовая задача.
+  rrule             String?
+  /// Начало отсчёта рекурренции / срок для разовой задачи.
+  dtStart           DateTime
+  /// until: конец рекурренции (null = бессрочно).
+  dtEnd             DateTime?
+  isActive          Boolean  @default(true)
+  /// function_responsible | function_head | fixed | unassigned (контролируется в коде).
+  assigneeStrategy  String   @default("function_responsible")
+  fixedAssigneeId   String?
+  createdBy         String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime
+  deletedAt         DateTime?
+  OrgFunction       OrgFunction? @relation(fields: [functionId], references: [id])
+  User_TaskTemplate_createdByToUser   User   @relation("TaskTemplate_createdByToUser", fields: [createdBy], references: [id])
+  User_TaskTemplate_fixedAssigneeToUser User? @relation("TaskTemplate_fixedAssigneeToUser", fields: [fixedAssigneeId], references: [id])
+  Task              Task[]
+
+  @@index([functionId])
+  @@index([isActive])
+  @@index([deletedAt])
 }
 
 model Transaction {
@@ -1206,6 +1304,12 @@ model User {
   AcceptanceAct_SignedBy                            AcceptanceAct[]        @relation("AcceptanceAct_SignedBy")
   DesignerBonus_Designer                            DesignerBonus[]        @relation("DesignerBonus_Designer")
   UserRole                                          UserRole[]
+  /// PLAT-06: назначения на функции компании (одно лицо → несколько функций).
+  FunctionAssignment                                FunctionAssignment[]
+  /// PLAT-06: созданные шаблоны задач.
+  TaskTemplate_TaskTemplate_createdByToUser         TaskTemplate[]         @relation("TaskTemplate_createdByToUser")
+  /// PLAT-06: шаблоны, где пользователь — фиксированный исполнитель.
+  TaskTemplate_TaskTemplate_fixedAssigneeToUser     TaskTemplate[]         @relation("TaskTemplate_fixedAssigneeToUser")
 
   @@index([deletedAt])
   @@index([isActive])

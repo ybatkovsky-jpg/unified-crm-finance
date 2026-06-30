@@ -11,7 +11,7 @@ import type { Task, Prisma } from '@prisma/client'
 import { randomUUID } from 'node:crypto'
 
 /** Контролируемые значения type/status (модель хранит String, валидация — в коде). */
-export const TASK_TYPES = ['measurement_1', 'measurement_2', 'installation', 'general', 'client'] as const
+export const TASK_TYPES = ['measurement_1', 'measurement_2', 'installation', 'general', 'client', 'org'] as const
 export type TaskType = (typeof TASK_TYPES)[number]
 
 export const TASK_STATUSES = ['todo', 'in_progress', 'done', 'failed', 'cancelled'] as const
@@ -24,6 +24,7 @@ export const TASK_TYPE_LABELS: Record<string, string> = {
   installation: 'Монтаж',
   general: 'Общая',
   client: 'Клиентская',
+  org: 'Орг-задача',
 }
 
 export type TaskCreateInput = Omit<
@@ -192,6 +193,45 @@ export class TaskRepository {
   async recreate(id: string, newDueDate: Date, failedReason: string, assigneeId?: string): Promise<Task> {
     if (!failedReason?.trim()) throw new Error('failedReason is required to recreate')
     return this.reschedule(id, newDueDate, { failedReason, cancel: false, assigneeId })
+  }
+
+  /**
+   * PLAT-06: Орг-задачи (type='org') с учётом видимости.
+   * - Директор: все орг-задачи.
+   * - Руководитель функции (head): задачи функций, где он head.
+   * - Ответственный: задачи, назначенные на него (assigneeId).
+   * @param orgFunctionIds — функции, которые пользователь возглавляет (head). [] для не-head.
+   */
+  async findOrgTasks(opts: {
+    userId: string
+    isDirector?: boolean
+    headFunctionIds?: string[]
+    filters?: { status?: string; functionId?: string; assigneeId?: string }
+  }): Promise<Task[]> {
+    const { userId, isDirector = false, headFunctionIds = [], filters = {} } = opts
+    const where: Prisma.TaskWhereInput = { deletedAt: null, type: 'org' }
+
+    if (filters.status) where.status = filters.status
+    if (filters.functionId) where.orgFunctionId = filters.functionId
+    if (filters.assigneeId) where.assigneeId = filters.assigneeId
+
+    if (!isDirector) {
+      // Видимость: свои assigneeId ИЛИ функции, где head.
+      const headClause: Prisma.TaskWhereInput = headFunctionIds.length
+        ? { orgFunctionId: { in: headFunctionIds } }
+        : { id: '__none__' } // невозможное условие если нет head-функций
+      where.OR = [{ assigneeId: userId }, headClause]
+    }
+
+    const args: Prisma.TaskFindManyArgs = {
+      where,
+      include: {
+        ...ASSIGNEE_INCLUDE,
+        OrgFunction: { select: { id: true, name: true, Department: { select: { id: true, name: true } } } },
+      },
+      orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+    }
+    return prisma.task.findMany(args)
   }
 
   /** Мягкое удаление. */

@@ -7,13 +7,20 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { tasks, TASK_TYPES, TASK_STATUSES } from '../../../lib/db/tasks'
-import { notifyTaskOverdue } from '../../../lib/notifications/events'
+import { tasks, TASK_TYPES, TASK_STATUSES } from '@/lib/db/tasks'
+import { notifyTaskOverdue } from '@/lib/notifications/events'
+import { taskTemplates } from '@/lib/db/task-templates'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const sp = request.nextUrl.searchParams
     const overdue = sp.get('overdue') === '1'
+
+    // PLAT-06: ленивая материализация инстансов повторяющихся орг-шаблонов
+    // (fire-and-forget — как просрочка, не блокирует ответ).
+    void taskTemplates.materializeInstances().catch((err) =>
+      console.error('[tasks GET] org materialization failed:', err)
+    )
 
     const data = await tasks.findWithFilters({
       projectId: sp.get('projectId') ?? undefined,

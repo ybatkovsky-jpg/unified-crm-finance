@@ -19,6 +19,7 @@ const SECTION_HOME: Record<string, string> = {
   accounting: '/accounting',
   analytics: '/analytics',
   settings: '/settings',
+  org: '/org/board',
 };
 
 function roleHome(rawRoleCodes: string[]): string {

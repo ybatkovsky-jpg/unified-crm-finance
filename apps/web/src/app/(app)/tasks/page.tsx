@@ -176,7 +176,7 @@ export default function MyTasksPage() {
                         <span className="text-xs text-muted-foreground ml-2">↻ перенос</span>
                       )}
                     </td>
-                    <td className="p-3"><Badge variant="outline">{typeLabel(t.type)}</Badge></td>
+                    <td className="p-3"><Badge variant={t.type === "org" ? "default" : "outline"}>{typeLabel(t.type)}</Badge></td>
                     <td className="p-3"><Badge variant={STATUS_VARIANTS[t.status]}>{STATUS_LABELS[t.status] ?? t.status}</Badge></td>
                     <td className="p-3">
                       {t.dueDate ? (
@@ -251,6 +251,7 @@ function typeLabel(type: string): string {
     installation: "Монтаж",
     general: "Общая",
     client: "Клиентская",
+    org: "Орг-задача",
   }
   return labels[type] ?? type
 }

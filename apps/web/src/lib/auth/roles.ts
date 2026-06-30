@@ -21,7 +21,8 @@ export type Section =
   | 'finance'
   | 'accounting'
   | 'analytics'
-  | 'settings';
+  | 'settings'
+  | 'org';
 
 export interface RoleSpec {
   label: string;
@@ -32,37 +33,37 @@ export interface RoleSpec {
 export const ROLE_MATRIX: Record<RoleCode, RoleSpec> = {
   director: {
     label: 'Директор',
-    sections: ['crm', 'projects', 'tasks', 'procurement', 'finance', 'accounting', 'analytics', 'settings'],
+    sections: ['crm', 'projects', 'tasks', 'org', 'procurement', 'finance', 'accounting', 'analytics', 'settings'],
     viewAllProjects: true,
   },
   manager_designer: {
     label: 'Менеджер-дизайнер',
-    sections: ['crm', 'projects', 'tasks', 'procurement', 'finance', 'analytics'],
+    sections: ['crm', 'projects', 'tasks', 'org', 'procurement', 'finance', 'analytics'],
     viewAllProjects: false,
   },
   technologist: {
     label: 'Технолог',
-    sections: ['projects', 'tasks', 'procurement', 'analytics'],
+    sections: ['projects', 'tasks', 'org', 'procurement', 'analytics'],
     viewAllProjects: true,
   },
   supply: {
     label: 'Снабженец',
-    sections: ['projects', 'tasks', 'procurement', 'finance', 'analytics'],
+    sections: ['projects', 'tasks', 'org', 'procurement', 'finance', 'analytics'],
     viewAllProjects: true,
   },
   installer: {
     label: 'Монтажник',
-    sections: ['projects', 'tasks', 'analytics'],
+    sections: ['projects', 'tasks', 'org', 'analytics'],
     viewAllProjects: false,
   },
   accountant: {
     label: 'Бухгалтер',
-    sections: ['finance', 'accounting', 'analytics', 'procurement', 'tasks'],
+    sections: ['finance', 'accounting', 'analytics', 'procurement', 'tasks', 'org'],
     viewAllProjects: true,
   },
   storekeeper: {
     label: 'Кладовщик',
-    sections: ['procurement', 'tasks'],
+    sections: ['procurement', 'tasks', 'org'],
     viewAllProjects: false,
   },
 };
@@ -104,6 +105,7 @@ export function pathToSection(pathname: string): Section | null {
   }
   if (pathname.startsWith('/projects')) return 'projects';
   if (pathname.startsWith('/tasks')) return 'tasks';
+  if (pathname.startsWith('/org')) return 'org';
   if (pathname.startsWith('/procurement')) return 'procurement';
   if (pathname.startsWith('/finance')) return 'finance';
   if (pathname.startsWith('/accounting')) return 'accounting';

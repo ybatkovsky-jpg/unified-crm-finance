@@ -306,6 +306,56 @@ async function main() {
     }
   }
 
+  // === Орг-структура: отделы → функции (PLAT-06, PRODUCT-SPEC) ===
+  // Дефолтная иерархия: пользователь назначает людей через UI. Идемпотентно по имени.
+  const orgStructure: Array<{ dept: string; functions: string[] }> = [
+    {
+      dept: 'Продажи',
+      functions: ['Лиды и квалификация', 'Презентации/КП', 'Договоры'],
+    },
+    {
+      dept: 'Производство',
+      functions: ['Замеры', 'Спецификация/ТЗ', 'Контроль производства', 'Монтаж'],
+    },
+    {
+      dept: 'Закупки и склад',
+      functions: ['Закупки материалов', 'Работа с поставщиками', 'Складской учёт', 'Инвентаризация'],
+    },
+    {
+      dept: 'Финансы и бухгалтерия',
+      functions: ['Оплата налогов', 'Выплата зарплат', 'Оплата аренды', 'Банк-клиент', 'Отчётность'],
+    },
+    {
+      dept: 'Маркетинг и реклама',
+      functions: ['Реклама (2ГИС)', 'SMM/соцсети', 'Контент для сайта'],
+    },
+  ];
+  let orgDeptsSeeded = 0;
+  let orgFnsSeeded = 0;
+  for (const item of orgStructure) {
+    // Отдел — upsert по имени (name @unique).
+    const dept = await prisma.department.upsert({
+      where: { name: item.dept },
+      update: { updatedAt: now() },
+      create: { id: mkId(), name: item.dept, updatedAt: now() },
+    });
+    orgDeptsSeeded++;
+    for (const fnName of item.functions) {
+      // Функция — unique [departmentId, name]. findFirst-guard (upsert по композитному ключу).
+      const existingFn = await prisma.orgFunction.findFirst({
+        where: { departmentId: dept.id, name: fnName },
+        select: { id: true },
+      });
+      if (!existingFn) {
+        await prisma.orgFunction.create({
+          data: { id: mkId(), departmentId: dept.id, name: fnName, updatedAt: now() },
+        });
+        orgFnsSeeded++;
+      }
+    }
+  }
+  console.log(`  ✓ Org structure (PLAT-06): ${orgDeptsSeeded} departments, ${orgFnsSeeded} new functions`);
+
   console.log('✅ Seeding complete');
   console.log('');
   console.log('Login: admin@local / admin123');

@@ -40,6 +40,7 @@ import {
   ListTodo,
   CalendarClock,
   UsersRound,
+  Network,
 } from "lucide-react"
 
 export interface NavChild {
@@ -82,6 +83,17 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: "Мои задачи", href: "/tasks", icon: CheckSquare },
       { label: "Просроченные", href: "/tasks/overdue", icon: CalendarClock },
       { label: "Все задачи", href: "/tasks/all", icon: UsersRound },
+    ],
+  },
+  {
+    id: "org",
+    label: "Орг-платформа",
+    matchPrefix: "/org",
+    icon: Network,
+    children: [
+      { label: "Доска задач", href: "/org/board", icon: ListTodo },
+      { label: "Шаблоны задач", href: "/org/templates", icon: CalendarClock },
+      { label: "Структура", href: "/org/structure", icon: Network },
     ],
   },
   {
