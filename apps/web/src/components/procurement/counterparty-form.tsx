@@ -125,7 +125,7 @@ export function CounterpartyForm({ open, onOpenChange, onSuccess }: Counterparty
       if (err instanceof ApiClientError) {
         setFormError(err.message)
       } else {
-        setFormError("Failed to create counterparty. Please try again.")
+        setFormError("Не удалось создать контрагента. Пожалуйста, попробуйте снова.")
       }
     } finally {
       setSubmitting(false)

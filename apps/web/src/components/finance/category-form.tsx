@@ -121,7 +121,7 @@ export function CategoryForm({ open, onOpenChange, onSuccess, category }: Catego
       if (err instanceof ApiClientError) {
         setFormError(err.message)
       } else {
-        setFormError("Failed to save category. Please try again.")
+        setFormError("Не удалось сохранить категорию. Пожалуйста, попробуйте снова.")
       }
     } finally {
       setSubmitting(false)
@@ -144,7 +144,7 @@ export function CategoryForm({ open, onOpenChange, onSuccess, category }: Catego
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Category" : "Create Category"}</DialogTitle>
+          <DialogTitle>{isEditing ? "Редактировать категорию" : "Создать категорию"}</DialogTitle>
           <DialogDescription>
             {isEditing
               ? "Update category details."
@@ -206,11 +206,11 @@ export function CategoryForm({ open, onOpenChange, onSuccess, category }: Catego
 
             {/* Parent */}
             <div className="grid gap-2">
-              <Label htmlFor="parentId">Parent Category</Label>
+              <Label htmlFor="parentId">Родительская категория</Label>
               {parentsLoading ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="size-4 animate-spin" />
-                  Loading categories...
+                  Загрузка категорий...
                 </div>
               ) : (
                 <Select
@@ -220,11 +220,11 @@ export function CategoryForm({ open, onOpenChange, onSuccess, category }: Catego
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="No parent (top-level)" />
+                    <SelectValue placeholder="Нет родителя (верхний уровень)" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="__none__">No parent (top-level)</SelectItem>
+                      <SelectItem value="__none__">Нет родителя (верхний уровень)</SelectItem>
                       {filteredParentOptions.map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.name} ({c.type})
@@ -265,11 +265,11 @@ export function CategoryForm({ open, onOpenChange, onSuccess, category }: Catego
               onClick={() => handleOpenChange(false)}
               disabled={submitting}
             >
-              Cancel
+              Отмена
             </Button>
             <Button type="submit" disabled={submitting}>
               {submitting && <Loader2 className="size-4 animate-spin" />}
-              {submitting ? "Saving..." : isEditing ? "Save" : "Create"}
+              {submitting ? "Сохранение..." : isEditing ? "Сохранить" : "Создать"}
             </Button>
           </DialogFooter>
         </form>

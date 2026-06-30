@@ -57,7 +57,7 @@ export default function PaymentListPage() {
       const res = await cashflowPaymentsApi.getPayments(Object.keys(params).length ? params : undefined)
       setPayments(res.data)
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : "Failed to load payments.")
+      setError(err instanceof ApiClientError ? err.message : "Не удалось загрузить платежи.")
     } finally { setLoading(false) }
   }, [])
 
@@ -92,7 +92,7 @@ export default function PaymentListPage() {
         })
       }
       setFormOpen(false); fetchPayments(statusFilter)
-    } catch (err) { setFError(err instanceof ApiClientError ? err.message : "Failed to save.") }
+    } catch (err) { setFError(err instanceof ApiClientError ? err.message : "Не удалось сохранить.") }
     finally { setSubmitting(false) }
   }
 
@@ -100,7 +100,7 @@ export default function PaymentListPage() {
     if (!window.confirm(`Delete payment?`)) return
     setDeletingId(p.id)
     try { await cashflowPaymentsApi.deletePayment(p.id); fetchPayments(statusFilter) }
-    catch (err) { setError(err instanceof ApiClientError ? err.message : "Failed to delete.") }
+    catch (err) { setError(err instanceof ApiClientError ? err.message : "Не удалось удалить.") }
     finally { setDeletingId(null) }
   }
 
@@ -112,7 +112,7 @@ export default function PaymentListPage() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Cash Flow Payments</h1>
-        <Button onClick={openCreate}>Create</Button>
+        <Button onClick={openCreate}>Создать</Button>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -126,9 +126,9 @@ export default function PaymentListPage() {
           <div className="flex flex-col gap-1.5">
             <label className="text-sm text-muted-foreground">Status</label>
             <Select value={statusFilter} onValueChange={v => { if (v) setStatusFilter(v) }}>
-              <SelectTrigger className="w-40"><SelectValue placeholder="All" /></SelectTrigger>
+              <SelectTrigger className="w-40"><SelectValue placeholder="Все" /></SelectTrigger>
               <SelectContent><SelectGroup>
-                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="all">Все</SelectItem>
                 {STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
               </SelectGroup></SelectContent>
             </Select>
@@ -136,15 +136,15 @@ export default function PaymentListPage() {
         </CardContent>
       </Card>
 
-      {loading && <div className="flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Loading...</span></div>}
-      {error && <Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error}</p><Button variant="outline" onClick={() => fetchPayments(statusFilter)}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Retry</span></Button></div></CardContent></Card>}
-      {!loading && !error && payments.length === 0 && <Card><CardContent className="pt-6"><p className="text-center text-muted-foreground py-8">No payments found</p></CardContent></Card>}
+      {loading && <div className="flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Загрузка...</span></div>}
+      {error && <Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error}</p><Button variant="outline" onClick={() => fetchPayments(statusFilter)}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Повторить</span></Button></div></CardContent></Card>}
+      {!loading && !error && payments.length === 0 && <Card><CardContent className="pt-6"><p className="text-center text-muted-foreground py-8">Платежи не найдены</p></CardContent></Card>}
 
       {!loading && !error && payments.length > 0 && (
         <div className="rounded-xl border bg-card overflow-hidden">
           <Table>
             <TableHeader><TableRow>
-              <TableHead>Date</TableHead><TableHead>Description</TableHead><TableHead>Type</TableHead><TableHead className="text-right">Amount</TableHead><TableHead>Status</TableHead><TableHead>Due Date</TableHead><TableHead className="w-[100px]">Actions</TableHead>
+              <TableHead>Дата</TableHead><TableHead>Описание</TableHead><TableHead>Тип</TableHead><TableHead className="text-right">Сумма</TableHead><TableHead>Статус</TableHead><TableHead>Срок</TableHead><TableHead className="w-[100px]">Действия</TableHead>
             </TableRow></TableHeader>
             <TableBody>
               {payments.map(p => (
@@ -171,24 +171,24 @@ export default function PaymentListPage() {
 
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="sm:max-w-md" showCloseButton={false}>
-          <DialogHeader><DialogTitle>{editingPayment ? "Edit Payment" : "Create Payment"}</DialogTitle><DialogDescription>{editingPayment ? "Update payment details." : "Plan a new payment."}</DialogDescription></DialogHeader>
+          <DialogHeader><DialogTitle>{editingPayment ? "Редактировать платёж" : "Создать платёж"}</DialogTitle><DialogDescription>{editingPayment ? "Обновить данные платежа." : "Запланировать новый платёж."}</DialogDescription></DialogHeader>
           <form onSubmit={handleSubmit}>
             {fError && <div className="mb-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">{fError}</div>}
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2"><Label>Date *</Label><Input type="date" value={fDate} onChange={e => setFDate(e.target.value)} /></div>
-                <div className="grid gap-2"><Label>Amount *</Label><Input type="number" value={fAmount} onChange={e => setFAmount(e.target.value)} min="0" step="any" /></div>
+                <div className="grid gap-2"><Label>Дата *</Label><Input type="date" value={fDate} onChange={e => setFDate(e.target.value)} /></div>
+                <div className="grid gap-2"><Label>Сумма *</Label><Input type="number" value={fAmount} onChange={e => setFAmount(e.target.value)} min="0" step="any" /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2"><Label>Type *</Label><Select value={fType} onValueChange={v => { if (v) setFType(v) }}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectGroup><SelectItem value="income">Income</SelectItem><SelectItem value="expense">Expense</SelectItem></SelectGroup></SelectContent></Select></div>
-                <div className="grid gap-2"><Label>Status</Label><Select value={fStatus} onValueChange={v => { if (v) setFStatus(v) }}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectGroup>{STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectGroup></SelectContent></Select></div>
+                <div className="grid gap-2"><Label>Тип *</Label><Select value={fType} onValueChange={v => { if (v) setFType(v) }}><SelectTrigger><SelectValue placeholder="Выбрать" /></SelectTrigger><SelectContent><SelectGroup><SelectItem value="income">Доход</SelectItem><SelectItem value="expense">Расход</SelectItem></SelectGroup></SelectContent></Select></div>
+                <div className="grid gap-2"><Label>Статус</Label><Select value={fStatus} onValueChange={v => { if (v) setFStatus(v) }}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectGroup>{STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectGroup></SelectContent></Select></div>
               </div>
-              <div className="grid gap-2"><Label>Due Date</Label><Input type="date" value={fDueDate} onChange={e => setFDueDate(e.target.value)} /></div>
-              <div className="grid gap-2"><Label>Description</Label><Input value={fDescription} onChange={e => setFDescription(e.target.value)} placeholder="Payment description" /></div>
+              <div className="grid gap-2"><Label>Срок</Label><Input type="date" value={fDueDate} onChange={e => setFDueDate(e.target.value)} /></div>
+              <div className="grid gap-2"><Label>Описание</Label><Input value={fDescription} onChange={e => setFDescription(e.target.value)} placeholder="Описание платежа" /></div>
             </div>
             <DialogFooter className="mt-6">
-              <Button type="button" variant="outline" onClick={() => setFormOpen(false)} disabled={submitting}>Cancel</Button>
-              <Button type="submit" disabled={submitting}>{submitting && <Loader2 className="size-4 animate-spin" />}{submitting ? "Saving..." : editingPayment ? "Save" : "Create"}</Button>
+              <Button type="button" variant="outline" onClick={() => setFormOpen(false)} disabled={submitting}>Отмена</Button>
+              <Button type="submit" disabled={submitting}>{submitting && <Loader2 className="size-4 animate-spin" />}{submitting ? "Сохранение..." : editingPayment ? "Сохранить" : "Создать"}</Button>
             </DialogFooter>
           </form>
         </DialogContent>

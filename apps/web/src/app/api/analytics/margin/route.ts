@@ -8,11 +8,16 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../lib/db/prisma'
-import { parsePeriodToDateRange } from '../../../../lib/periods'
+import { prisma } from '@/lib/db/prisma'
+import { parsePeriodToDateRange } from '@/lib/periods'
+import { getSession } from '@/lib/auth/session'
+import { analyticsManagerScope } from '@/lib/auth/analytics-rbac'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const searchParams = request.nextUrl.searchParams
     const period = searchParams.get('period') ?? 'all'
     const sortBy = searchParams.get('sortBy') ?? 'profit'
@@ -21,12 +26,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Parse period date filter (滚动ное окно "3m"/"6m"/"12m" или "all").
     const range = parsePeriodToDateRange(period)
 
+    // RBAC-fix: не-viewAllProjects видят только свои проекты.
+    const managerScope = analyticsManagerScope(session)
+
     const txWhere: Record<string, unknown> = { deletedAt: null }
     if (range) txWhere.date = { gte: range.start, lte: range.end }
 
     // Fetch projects with their transactions and cost sources
     const projects = await prisma.project.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null, ...(managerScope ? { managerId: managerScope } : {}) },
       select: {
         id: true,
         name: true,

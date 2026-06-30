@@ -2,17 +2,32 @@
  * PATCH /api/tasks/[id] — редактирование задачи (reassign, dueDate, status). PLAT-01.
  * Перенос даты — здесь (простой PATCH dueDate). Полный перенос с lineage — /reschedule.
  * DELETE — мягкое удаление.
+ *
+ * IDOR-fix: доступ по сессии — директор либо assignee/createdBy задачи.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { tasks } from '../../../../lib/db/tasks'
+import { tasks } from '@/lib/db/tasks'
+import { getSession } from '@/lib/auth/session'
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const { id } = await params
+
+    // IDOR-fix: проверка владения.
+    const existing = await tasks.findById(id)
+    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    const isDirector = session.roleCodes.includes('director')
+    if (!isDirector && existing.assigneeId !== session.id && existing.createdBy !== session.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const body = await request.json()
 
     const updateData: Record<string, unknown> = {}
@@ -41,7 +56,19 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const { id } = await params
+
+    // IDOR-fix: проверка владения.
+    const existing = await tasks.findById(id)
+    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    const isDirector = session.roleCodes.includes('director')
+    if (!isDirector && existing.assigneeId !== session.id && existing.createdBy !== session.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     await tasks.softDelete(id)
     return NextResponse.json({ data: { id }, message: 'Task deleted' })
   } catch (error) {

@@ -63,7 +63,7 @@ export default function CounterpartyListPage() {
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to load counterparties. Please try again.")
+        setError("Не удалось загрузить контрагентов. Пожалуйста, попробуйте снова.")
       }
     } finally {
       setLoading(false)
@@ -129,7 +129,7 @@ export default function CounterpartyListPage() {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading counterparties...</span>
+          <span className="ml-2 text-muted-foreground">Загрузка контрагентов...</span>
         </div>
       )}
 
@@ -151,7 +151,7 @@ export default function CounterpartyListPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground py-8">
-              No counterparties found
+              Контрагенты не найдены
             </p>
           </CardContent>
         </Card>
@@ -162,12 +162,12 @@ export default function CounterpartyListPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>INN</TableHead>
-                <TableHead>Phone</TableHead>
+                <TableHead>Название</TableHead>
+                <TableHead>ИНН</TableHead>
+                <TableHead>Телефон</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Type</TableHead>
+                <TableHead>Рейтинг</TableHead>
+                <TableHead>Тип</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

@@ -72,7 +72,7 @@ export default function DealsPage() {
         if (err instanceof ApiClientError) {
           setError(err.message)
         } else {
-          setError("Failed to load deals. Please try again.")
+          setError("Не удалось загрузить сделки. Пожалуйста, попробуйте снова.")
         }
       } finally {
         setLoading(false)
@@ -145,7 +145,7 @@ export default function DealsPage() {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading deals...</span>
+          <span className="ml-2 text-muted-foreground">Загрузка сделок...</span>
         </div>
       )}
 
@@ -156,7 +156,7 @@ export default function DealsPage() {
               <p className="text-destructive">{error}</p>
               <Button variant="outline" onClick={handleRetry}>
                 <RefreshCwIcon className="size-4" />
-                <span className="ml-1.5">Retry</span>
+                <span className="ml-1.5">Повторить</span>
               </Button>
             </div>
           </CardContent>
@@ -175,7 +175,7 @@ export default function DealsPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground py-8">
-              No pipeline stages found. Please run the seed script.
+              Этапы воронки не найдены. Пожалуйста, запустите скрипт начального заполнения.
             </p>
           </CardContent>
         </Card>

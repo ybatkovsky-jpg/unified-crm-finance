@@ -68,7 +68,7 @@ export default function TransactionListPage() {
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to load transactions.")
+        setError("Не удалось загрузить транзакции.")
       }
     } finally {
       setLoading(false)
@@ -87,7 +87,7 @@ export default function TransactionListPage() {
       fetchTransactions(typeFilter, statusFilter)
     } catch (err) {
       if (err instanceof ApiClientError) setError(err.message)
-      else setError("Failed to delete transaction.")
+      else setError("Не удалось удалить транзакцию.")
     } finally {
       setDeletingId(null)
     }
@@ -185,7 +185,7 @@ export default function TransactionListPage() {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading transactions...</span>
+          <span className="ml-2 text-muted-foreground">Загрузка транзакций...</span>
         </div>
       )}
 
@@ -206,7 +206,7 @@ export default function TransactionListPage() {
       {!loading && !error && transactions.length === 0 && (
         <Card>
           <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground py-8">No transactions found</p>
+            <p className="text-center text-muted-foreground py-8">Транзакции не найдены</p>
           </CardContent>
         </Card>
       )}
@@ -216,13 +216,13 @@ export default function TransactionListPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead>Дата</TableHead>
+                <TableHead>Описание</TableHead>
+                <TableHead>Категория</TableHead>
+                <TableHead>Тип</TableHead>
+                <TableHead className="text-right">Сумма</TableHead>
+                <TableHead>Статус</TableHead>
+                <TableHead className="w-[100px]">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

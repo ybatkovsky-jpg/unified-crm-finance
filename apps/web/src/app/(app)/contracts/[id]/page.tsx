@@ -240,7 +240,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
               <p className="text-destructive">{error}</p>
               <Button variant="outline" onClick={() => router.back()}>
                 <ArrowLeft className="size-4" />
-                <span className="ml-1.5">Go Back</span>
+                <span className="ml-1.5">Назад</span>
               </Button>
             </div>
           </CardContent>
@@ -410,7 +410,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
                   <div className="flex gap-2 pt-2">
                     <Button onClick={handleSave} disabled={saving}>
                       <Save className="size-4" />
-                      <span className="ml-1.5">{saving ? "Saving..." : "Save"}</span>
+                      <span className="ml-1.5">{saving ? "Сохранение..." : "Сохранить"}</span>
                     </Button>
                     <Button variant="outline" onClick={handleCancel}>
                       <X className="size-4" />

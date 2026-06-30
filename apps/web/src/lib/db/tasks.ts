@@ -35,6 +35,7 @@ export type TaskCreateInput = Omit<
 
 export interface TaskFilters {
   projectId?: string
+  dealId?: string
   assigneeId?: string
   status?: string
   type?: string
@@ -63,6 +64,7 @@ export class TaskRepository {
     const where: Prisma.TaskWhereInput = { deletedAt: null }
 
     if (filters.projectId) where.projectId = filters.projectId
+    if (filters.dealId) where.dealId = filters.dealId
     if (filters.assigneeId) where.assigneeId = filters.assigneeId
     if (filters.status) where.status = filters.status
     if (filters.type) where.type = filters.type

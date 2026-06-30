@@ -8,13 +8,34 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { tasks, TASK_TYPES, TASK_STATUSES } from '@/lib/db/tasks'
-import { notifyTaskOverdue } from '@/lib/notifications/events'
+import { notifyTaskOverdue, notifyProjectDeadline } from '@/lib/notifications/events'
 import { taskTemplates } from '@/lib/db/task-templates'
+import { getSession } from '@/lib/auth/session'
+import { prisma } from '@/lib/db/prisma'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const sp = request.nextUrl.searchParams
     const overdue = sp.get('overdue') === '1'
+    const dealId = sp.get('dealId') ?? undefined
+
+    // IDOR-fix: если запрашивают задачи по сделке, проверить доступ к сделке.
+    if (dealId) {
+      const isDirector = session.roleCodes.includes('director')
+      if (!isDirector) {
+        const deal = await prisma.deal.findUnique({
+          where: { id: dealId, deletedAt: null },
+          select: { managerId: true },
+        })
+        if (!deal) return NextResponse.json({ error: 'Сделка не найдена' }, { status: 404 })
+        if (deal.managerId !== session.id) {
+          return NextResponse.json({ error: 'Forbidden', message: 'Нет доступа к задачам этой сделки' }, { status: 403 })
+        }
+      }
+    }
 
     // PLAT-06: ленивая материализация инстансов повторяющихся орг-шаблонов
     // (fire-and-forget — как просрочка, не блокирует ответ).
@@ -22,9 +43,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       console.error('[tasks GET] org materialization failed:', err)
     )
 
+    // IDOR-fix: director видит все задачи; прочие — только свои (assigneeId=session.id),
+    // если не запрашивают чужого assigneeId явно (что для не-director → свои).
+    const isDirector = session.roleCodes.includes('director')
+    const requestedAssignee = sp.get('assigneeId')
+    const effectiveAssignee = isDirector ? (requestedAssignee ?? undefined) : (requestedAssignee ?? session.id)
+
     const data = await tasks.findWithFilters({
       projectId: sp.get('projectId') ?? undefined,
-      assigneeId: sp.get('assigneeId') ?? undefined,
+      dealId: sp.get('dealId') ?? undefined,
+      assigneeId: effectiveAssignee,
       status: sp.get('status') ?? undefined,
       type: sp.get('type') ?? undefined,
       dueBefore: sp.get('dueBefore') ?? undefined,
@@ -42,6 +70,27 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         .map((t) => notifyTaskOverdue(t.assigneeId!, t.title, t.id, new Date(t.dueDate!)))
     ).catch((err) => console.error('[tasks GET] overdue notifications failed:', err))
 
+    // PLAT-02: ленивая проверка дедлайнов проектов (60 дней) — создаём уведомления
+    // менеджерам проектов, приближающихся к дедлайну.
+    const deadline60d = new Date(now + 60 * 24 * 60 * 60 * 1000)
+    void prisma.project.findMany({
+      where: {
+        deletedAt: null,
+        status: { notIn: ['completed', 'closed'] },
+        endDate: { not: null, lte: deadline60d, gte: new Date() },
+      },
+      select: { id: true, name: true, managerId: true, endDate: true },
+    }).then((projects) =>
+      Promise.all(
+        projects
+          .filter((p) => p.managerId && p.endDate)
+          .map((p) => {
+            const daysLeft = Math.ceil((new Date(p.endDate!).getTime() - now) / (24 * 60 * 60 * 1000))
+            return notifyProjectDeadline(p.managerId!, p.name, p.id, daysLeft)
+          })
+      )
+    ).catch((err) => console.error('[tasks GET] project deadline notifications failed:', err))
+
     return NextResponse.json({ data, count: data.length })
   } catch (error) {
     console.error('Failed to fetch tasks:', error)
@@ -54,6 +103,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const body = await request.json()
 
     if (!body.title) {
@@ -74,7 +126,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       projectId: body.projectId ?? null,
       dealId: body.dealId ?? null,
       assigneeId: body.assigneeId ?? null,
-      createdBy: body.createdBy ?? 'system',
+      // IDOR-fix: createdBy всегда из сессии (раньше 'system' — несуществующий FK).
+      createdBy: session.id,
     }
 
     const task = await tasks.create(createData)

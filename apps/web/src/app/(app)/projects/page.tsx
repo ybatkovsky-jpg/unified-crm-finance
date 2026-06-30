@@ -31,7 +31,7 @@ import { CreateProjectModal } from "@/components/projects/create-project-modal"
 type StatusFilter = "all" | "lead" | "active" | "completed" | "paused"
 
 function formatCurrency(amount: number | null | undefined, currency: string = "RUB"): string {
-  if (amount == null) return "\—"
+  if (amount == null) return "—"
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency: currency,
@@ -39,7 +39,7 @@ function formatCurrency(amount: number | null | undefined, currency: string = "R
 }
 
 function formatDate(date: Date | string | null | undefined): string {
-  if (!date) return "\—"
+  if (!date) return "—"
   const d = typeof date === "string" ? new Date(date) : date
   return d.toLocaleDateString("ru-RU")
 }
@@ -60,18 +60,18 @@ function getStatusVariant(status: string): "default" | "secondary" | "outline" |
 }
 
 function getManagerName(project: ProjectData): string {
-  if (!project.manager) return "\—"
-  return project.manager.name || project.manager.email || "\—"
+  if (!project.manager) return "—"
+  return project.manager.name || project.manager.email || "—"
 }
 
 function getContactName(project: ProjectData): string {
-  if (!project.contact) return "\—"
+  if (!project.contact) return "—"
   if (project.contact.type === "company") {
-    return project.contact.companyName || "\—"
+    return project.contact.companyName || "—"
   }
   return [project.contact.lastName, project.contact.firstName]
     .filter(Boolean)
-    .join(" ") || "\—"
+    .join(" ") || "—"
 }
 
 type ManagerOption = {
@@ -84,7 +84,7 @@ function extractManagerOptions(projects: ProjectData[]): ManagerOption[] {
 
   for (const project of projects) {
     if (project.manager) {
-      const name = project.manager.name || project.manager.email || `\П\о\л\ь\з\о\в\а\т\е\л\ь ${project.manager.id}`
+      const name = project.manager.name || project.manager.email || `Пользователь ${project.manager.id}`
 
       if (!managersMap.has(project.manager.id)) {
         managersMap.set(project.manager.id, { id: project.manager.id, name })
@@ -185,7 +185,7 @@ export default function ProjectsPage() {
         setError(err.message)
       } else {
         console.error("[Projects] Unexpected error:", err)
-        setError("Failed to load projects. Please try again.")
+        setError("Не удалось загрузить проекты. Пожалуйста, попробуйте снова.")
       }
     } finally {
       setLoading(false)
@@ -208,7 +208,7 @@ export default function ProjectsPage() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">\П\р\о\е\к\т\ы</h1>
+        <h1 className="text-2xl font-semibold">Проекты</h1>
         <CreateProjectModal onCreate={handleProjectCreated} />
       </div>
 
@@ -216,7 +216,7 @@ export default function ProjectsPage() {
         <CardContent className="pt-6">
           <div className="flex gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-muted-foreground">\С\т\а\т\у\с</label>
+              <label className="text-sm text-muted-foreground">Статус</label>
               <Select
                 value={statusFilter}
                 onValueChange={(value) => {
@@ -224,21 +224,21 @@ export default function ProjectsPage() {
                 }}
               >
                 <SelectTrigger className="w-40">
-                  <SelectValue placeholder="\В\с\е \с\т\а\т\у\с\ы" />
+                  <SelectValue placeholder="Все статусы" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="all">\В\с\е \с\т\а\т\у\с\ы</SelectItem>
-                    <SelectItem value="lead">\Л\и\д</SelectItem>
-                    <SelectItem value="active">\А\к\т\и\в\н\ы\й</SelectItem>
-                    <SelectItem value="completed">\З\а\в\е\р\ш\ё\н</SelectItem>
-                    <SelectItem value="paused">\П\а\у\з\а</SelectItem>
+                    <SelectItem value="all">Все статусы</SelectItem>
+                    <SelectItem value="lead">Лид</SelectItem>
+                    <SelectItem value="active">Активный</SelectItem>
+                    <SelectItem value="completed">Завершён</SelectItem>
+                    <SelectItem value="paused">Пауза</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-muted-foreground">\М\е\н\е\д\ж\е\р</label>
+              <label className="text-sm text-muted-foreground">Менеджер</label>
               <Select
                 value={managerFilter}
                 onValueChange={(value) => {
@@ -246,11 +246,11 @@ export default function ProjectsPage() {
                 }}
               >
                 <SelectTrigger className="w-64">
-                  <SelectValue placeholder="\В\с\е \м\е\н\е\д\ж\е\р\ы" />
+                  <SelectValue placeholder="Все менеджеры" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="all">\В\с\е \м\е\н\е\д\ж\е\р\ы</SelectItem>
+                    <SelectItem value="all">Все менеджеры</SelectItem>
                     {managerOptions.map((manager) => (
                       <SelectItem key={manager.id} value={manager.id}>
                         {manager.name}
@@ -267,7 +267,7 @@ export default function ProjectsPage() {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading projects...</span>
+          <span className="ml-2 text-muted-foreground">Загрузка проектов...</span>
         </div>
       )}
 
@@ -278,7 +278,7 @@ export default function ProjectsPage() {
               <p className="text-destructive">{error}</p>
               <Button variant="outline" onClick={handleRetry}>
                 <RefreshCwIcon className="size-4" />
-                <span className="ml-1.5">Retry</span>
+                <span className="ml-1.5">Повторить</span>
               </Button>
             </div>
           </CardContent>
@@ -289,7 +289,7 @@ export default function ProjectsPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground py-8">
-              No projects found
+              Проекты не найдены
             </p>
           </CardContent>
         </Card>
@@ -300,15 +300,15 @@ export default function ProjectsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>\Н\о\м\е\р</TableHead>
-                <TableHead>\Н\а\з\в\а\н\и\е</TableHead>
-                <TableHead>\С\т\а\т\у\с</TableHead>
-                <TableHead>\М\е\н\е\д\ж\е\р</TableHead>
-                <TableHead>\К\л\и\е\н\т</TableHead>
-                <TableHead>\Д\а\т\а \н\а\ч\а\л\а</TableHead>
-                <TableHead>\Д\а\т\а \о\к\о\н\ч\а\н\и\я</TableHead>
-                <TableHead>\С\у\м\м\а \к\о\н\т\р\а\к\т\а</TableHead>
-                <TableHead>\С\п\е\ц\и\ф\и\к\а\ц\и\я</TableHead>
+                <TableHead>Номер</TableHead>
+                <TableHead>Название</TableHead>
+                <TableHead>Статус</TableHead>
+                <TableHead>Менеджер</TableHead>
+                <TableHead>Клиент</TableHead>
+                <TableHead>Дата начала</TableHead>
+                <TableHead>Дата окончания</TableHead>
+                <TableHead>Сумма контракта</TableHead>
+                <TableHead>Спецификация</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -319,7 +319,7 @@ export default function ProjectsPage() {
                       href={`/projects/${project.id}`}
                       className="text-primary hover:underline"
                     >
-                      {project.externalNumber || "\—"}
+                      {project.externalNumber || "—"}
                     </Link>
                   </TableCell>
                   <TableCell>

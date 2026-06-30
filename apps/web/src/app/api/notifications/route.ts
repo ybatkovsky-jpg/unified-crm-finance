@@ -1,28 +1,26 @@
 /**
- * Notifications Collection API
+ * Notifications Collection API — PLAT-02. (IDOR-fix: сессионный пользователь)
  *
- * GET /api/notifications — list notifications for current user
- * POST /api/notifications — create a notification
- * PATCH /api/notifications/mark-all-read — mark all as read
+ * GET  /api/notifications          — свои уведомления (session.id; query unreadOnly/type/limit)
+ * GET  /api/notifications?userId=  — userId из query ИГНОРИРУЕТСЯ (всегда session.id)
+ * POST /api/notifications          — создать (director — любому; прочие — только себе)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { notifications } from '../../../lib/db/notifications'
+import { notifications } from '@/lib/db/notifications'
+import { getSession } from '@/lib/auth/session'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    // IDOR-fix: всегда используем session.id; userId из query игнорируется.
+    const userId = session.id
     const searchParams = request.nextUrl.searchParams
-    const userId = searchParams.get('userId')
     const unreadOnly = searchParams.get('unreadOnly') === 'true'
     const type = searchParams.get('type')
     const limit = searchParams.get('limit')
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Validation failed', message: 'userId is required' },
-        { status: 400 }
-      )
-    }
 
     const [data, unreadCount] = await Promise.all([
       notifications.findByUser(userId, {
@@ -45,17 +43,28 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const body = await request.json()
 
-    if (!body.userId || !body.title || !body.message) {
+    if (!body.title || !body.message) {
       return NextResponse.json(
-        { error: 'Validation failed', message: 'userId, title, and message are required' },
+        { error: 'Validation failed', message: 'title and message are required' },
         { status: 400 }
       )
     }
 
+    // IDOR-fix: director может создать любому; прочие — только себе.
+    const isDirector = session.roleCodes.includes('director')
+    const targetUserId = body.userId
+    if (targetUserId && targetUserId !== session.id && !isDirector) {
+      return NextResponse.json({ error: 'Forbidden', message: 'Нельзя создавать уведомления другим пользователям' }, { status: 403 })
+    }
+    const userId = targetUserId ?? session.id
+
     const newNotification = await notifications.create({
-      userId: body.userId,
+      userId,
       type: body.type ?? 'system',
       title: body.title,
       message: body.message,

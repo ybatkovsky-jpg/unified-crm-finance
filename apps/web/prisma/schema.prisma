@@ -685,21 +685,25 @@ model LeadSource {
 }
 
 model Notification {
-  id        String    @id
-  userId    String
-  type      String
-  title     String
-  message   String
-  level     String    @default("info")
-  link      String?
-  isRead    Boolean   @default(false)
-  readAt    DateTime?
-  metadata  Json?
-  createdAt DateTime  @default(now())
-  User      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String    @id
+  userId     String
+  type       String
+  title      String
+  message    String
+  level      String    @default("info")
+  link       String?
+  isRead     Boolean   @default(false)
+  readAt     DateTime?
+  metadata   Json?
+  /// Идемпотентность уведомлений (PLAT-02 IDOR/dedupe fix): непрочитанное с тем же
+  /// dedupeKey не дублируется. null для уведомлений без идемпотентности.
+  dedupeKey  String?
+  createdAt  DateTime  @default(now())
+  User       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([createdAt])
   @@index([userId, isRead])
+  @@index([userId, dedupeKey, isRead])
 }
 
 model PeriodClose {
@@ -1109,6 +1113,7 @@ model Task {
 
   @@index([deletedAt])
   @@index([projectId])
+  @@index([dealId])
   @@index([contactId])
   @@index([assigneeId])
   @@index([dueDate])

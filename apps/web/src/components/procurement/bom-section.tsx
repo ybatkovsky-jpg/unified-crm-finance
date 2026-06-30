@@ -202,7 +202,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
       if (err instanceof ApiClientError && err.statusCode === 404) {
         setState({ kind: "no-bom" })
       } else {
-        const msg = err instanceof ApiClientError ? err.message : "Failed to load BOM"
+        const msg = err instanceof ApiClientError ? err.message : "Не удалось загрузить спецификацию"
         setState({ kind: "error", message: msg })
       }
     }
@@ -313,7 +313,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
       setState({ kind: "has-bom", bom, items: bom.items || [] })
       setExcelFile(null)
     } catch (err) {
-      const msg = err instanceof ApiClientError ? err.message : "Failed to create BOM"
+      const msg = err instanceof ApiClientError ? err.message : "Не удалось создать спецификацию"
       setState({ kind: "error", message: msg })
     }
   }
@@ -337,7 +337,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
       const bom = response.data
       setState({ kind: "has-bom", bom, items: [] })
     } catch (err) {
-      const msg = err instanceof ApiClientError ? err.message : "Failed to create BOM"
+      const msg = err instanceof ApiClientError ? err.message : "Не удалось создать спецификацию"
       setState({ kind: "error", message: msg })
     }
   }
@@ -372,7 +372,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
         items: [...state.items, created],
       })
     } catch (err) {
-      const msg = err instanceof ApiClientError ? err.message : "Failed to add item"
+      const msg = err instanceof ApiClientError ? err.message : "Не удалось добавить позицию"
       setActionError(msg)
     }
   }
@@ -388,7 +388,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
         items: state.items.filter((i) => i.id !== itemId),
       })
     } catch (err) {
-      const msg = err instanceof ApiClientError ? err.message : "Failed to delete item"
+      const msg = err instanceof ApiClientError ? err.message : "Не удалось удалить позицию"
       setActionError(msg)
     }
   }
@@ -420,7 +420,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
         items: state.items.map((i) => (i.id === itemId ? response.data : i)),
       })
     } catch (err) {
-      const msg = err instanceof ApiClientError ? err.message : "Failed to save"
+      const msg = err instanceof ApiClientError ? err.message : "Не удалось сохранить"
       setActionError(msg)
     } finally {
       setEditingCell(null)
@@ -470,7 +470,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
         supplierId: effectiveId || null,
       })
     } catch (err) {
-      const msg = err instanceof ApiClientError ? err.message : "Failed to update supplier"
+      const msg = err instanceof ApiClientError ? err.message : "Не удалось обновить поставщика"
       setActionError(msg)
       // Revert on failure — refetch
       fetchBOM()
@@ -487,7 +487,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
       const response = await bomApi.lockBOM(state.bom.id)
       setState({ kind: "has-bom", bom: response.data, items: state.items })
     } catch (err) {
-      const msg = err instanceof ApiClientError ? err.message : "Failed to lock BOM"
+      const msg = err instanceof ApiClientError ? err.message : "Не удалось заблокировать спецификацию"
       setActionError(msg)
     }
   }
@@ -498,7 +498,7 @@ export function BOMSection({ projectId }: { projectId: string }) {
       const response = await bomApi.unlockBOM(state.bom.id)
       setState({ kind: "has-bom", bom: response.data, items: state.items })
     } catch (err) {
-      const msg = err instanceof ApiClientError ? err.message : "Failed to unlock BOM"
+      const msg = err instanceof ApiClientError ? err.message : "Не удалось разблокировать спецификацию"
       setActionError(msg)
     }
   }

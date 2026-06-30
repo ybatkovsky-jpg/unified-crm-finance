@@ -110,7 +110,7 @@ export function InteractionForm({
         onSuccess?.();
       } catch (err) {
         const message =
-          err instanceof ApiClientError ? err.message : "Failed to create interaction";
+          err instanceof ApiClientError ? err.message : "Не удалось создать взаимодействие";
         console.error("InteractionForm submit error:", err);
         setError(message);
       } finally {

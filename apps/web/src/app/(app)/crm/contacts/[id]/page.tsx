@@ -44,7 +44,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
           setError(err.message)
         }
       } else {
-        setError("Failed to load contact. Please try again.")
+        setError("Не удалось загрузить контакт. Пожалуйста, попробуйте снова.")
       }
       console.error("Contact fetch error:", err)
     } finally {
@@ -70,7 +70,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex items-center justify-center py-12">
           <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading contact...</span>
+          <span className="ml-2 text-muted-foreground">Загрузка контакта...</span>
         </div>
       </div>
     )

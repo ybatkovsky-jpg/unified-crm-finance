@@ -63,7 +63,7 @@ export default function CategoryListPage() {
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to load categories. Please try again.")
+        setError("Не удалось загрузить категории. Пожалуйста, попробуйте снова.")
       }
     } finally {
       setLoading(false)
@@ -92,7 +92,7 @@ export default function CategoryListPage() {
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to delete category.")
+        setError("Не удалось удалить категорию.")
       }
     } finally {
       setDeletingId(null)
@@ -213,7 +213,7 @@ export default function CategoryListPage() {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading categories...</span>
+          <span className="ml-2 text-muted-foreground">Загрузка категорий...</span>
         </div>
       )}
 
@@ -235,7 +235,7 @@ export default function CategoryListPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground py-8">
-              No categories found
+              Категории не найдены
             </p>
           </CardContent>
         </Card>
@@ -246,12 +246,12 @@ export default function CategoryListPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[300px]">Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Parent</TableHead>
-                <TableHead className="w-[80px]">Order</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="w-[300px]">Название</TableHead>
+                <TableHead>Тип</TableHead>
+                <TableHead>Родитель</TableHead>
+                <TableHead className="w-[80px]">Порядок</TableHead>
+                <TableHead>Статус</TableHead>
+                <TableHead className="w-[100px]">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

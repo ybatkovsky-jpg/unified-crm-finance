@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deals } from '../../../lib/db/deals'
 import { mapErrorToResponse } from '../../../lib/api/error-mapping'
+import { notifyNewLead } from '@/lib/notifications/events'
 
 /**
  * GET /api/deals
@@ -127,6 +128,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const newDeal = await deals.create(createData)
+
+    // PLAT-02: уведомить менеджера о новом лиде (побочный эффект).
+    if (newDeal.managerId) {
+      void notifyNewLead(newDeal.managerId, newDeal.title, newDeal.id).catch((err) =>
+        console.error('[deals POST] notifyNewLead failed:', err)
+      )
+    }
 
     return NextResponse.json({ data: newDeal }, { status: 201 })
   } catch (error) {

@@ -48,7 +48,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
         if (err.statusCode === 404) setError("Transaction not found")
         else setError(err.message)
       } else {
-        setError("Failed to load transaction.")
+        setError("Не удалось загрузить транзакцию.")
       }
     } finally {
       setLoading(false)
@@ -66,7 +66,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
       fetchTransaction()
     } catch (err) {
       if (err instanceof ApiClientError) setError(err.message)
-      else setError("Failed to delete transaction.")
+      else setError("Не удалось удалить транзакцию.")
     } finally {
       setDeleting(false)
     }
@@ -77,7 +77,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-center py-12">
           <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading transaction...</span>
+          <span className="ml-2 text-muted-foreground">Загрузка транзакции...</span>
         </div>
       </div>
     )

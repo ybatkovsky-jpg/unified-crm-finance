@@ -250,6 +250,11 @@ export class DealRepository {
     }
 
     // PLAT-02: уведомления о смене стадии. Побочный эффект — не ломает транзакцию.
+    // Только если стадия реально изменилась (защита от повторного перехода в ту же стадию).
+    if (fromStageId === toStageId || !fromStageId) {
+      return updated
+    }
+
     // Нужны имена стадий для текста уведомления.
     const fromStage = fromStageId
       ? await prisma.dealStage.findUnique({ where: { id: fromStageId }, select: { name: true } })

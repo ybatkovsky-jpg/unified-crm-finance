@@ -7,9 +7,17 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../lib/db/prisma'
+import { getSession } from '@/lib/auth/session'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // RBAC-fix: procurement-метрики доступны director и supply.
+    const canView = session.roleCodes.includes('director') || session.roleCodes.includes('supply')
+    if (!canView) {
+      return NextResponse.json({ error: 'Forbidden', message: 'Нет доступа к метрикам закупок' }, { status: 403 })
+    }
     const searchParams = request.nextUrl.searchParams
     const period = searchParams.get('period') ?? 'all'
 
@@ -61,7 +69,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Warehouse stats
     const warehouseItemCount = await prisma.warehouseItem.count()
-    const stockValueAgg = await prisma.warehouseItem.aggregate({
+    // Семантический фикс: это кол-во единиц, а не ₽ (стоимость). Переименовано stockValue → stockQuantity.
+    const stockQuantityAgg = await prisma.warehouseItem.aggregate({
       _sum: { quantity: true },
     })
 
@@ -84,7 +93,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           deliveryCount,
           totalProcurementSpend,
           warehouseItemCount,
-          stockValue: stockValueAgg._sum.quantity ?? 0,
+          stockQuantity: stockQuantityAgg._sum.quantity ?? 0,
         },
         topSuppliers,
         monthlyTrend,

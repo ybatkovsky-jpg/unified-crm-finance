@@ -124,7 +124,7 @@ export function CreateDealModal({
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to create deal. Please try again.")
+        setError("Не удалось создать сделку. Пожалуйста, попробуйте снова.")
       }
     } finally {
       setLoading(false)

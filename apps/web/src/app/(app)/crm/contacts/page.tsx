@@ -164,7 +164,7 @@ export default function ContactListPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground py-8">
-              No contacts found
+              Контакты не найдены
             </p>
           </CardContent>
         </Card>
@@ -175,11 +175,11 @@ export default function ContactListPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Phone</TableHead>
+                <TableHead>Имя</TableHead>
+                <TableHead>Тип</TableHead>
+                <TableHead>Телефон</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Статус</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

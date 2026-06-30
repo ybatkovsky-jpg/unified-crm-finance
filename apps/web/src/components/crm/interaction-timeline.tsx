@@ -83,7 +83,7 @@ export function InteractionTimeline({ contactId }: InteractionTimelineProps) {
       setItems(response.data as unknown as TimelineItem[]);
     } catch (err) {
       const message =
-        err instanceof ApiClientError ? err.message : "Failed to load interactions";
+        err instanceof ApiClientError ? err.message : "Не удалось загрузить взаимодействия";
       console.error("InteractionTimeline fetch error:", err);
       setError(message);
     } finally {
@@ -99,7 +99,7 @@ export function InteractionTimeline({ contactId }: InteractionTimelineProps) {
     return (
       <div className="flex items-center justify-center py-12 text-muted-foreground">
         <Loader2 className="mr-2 size-4 animate-spin" />
-        Loading interactions…
+        Загрузка взаимодействий…
       </div>
     );
   }

@@ -126,7 +126,7 @@ export function TransactionForm({
       if (err instanceof ApiClientError) {
         setFormError(err.message)
       } else {
-        setFormError("Failed to save transaction.")
+        setFormError("Не удалось сохранить транзакцию.")
       }
     } finally {
       setSubmitting(false)
@@ -142,7 +142,7 @@ export function TransactionForm({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Transaction" : "Create Transaction"}</DialogTitle>
+          <DialogTitle>{isEditing ? "Редактировать транзакцию" : "Создать транзакцию"}</DialogTitle>
           <DialogDescription>
             {isEditing
               ? "Update transaction details."
@@ -161,16 +161,16 @@ export function TransactionForm({
             {/* Category */}
             <div className="grid gap-2">
               <Label htmlFor="category">
-                Category <span className="text-destructive">*</span>
+                Категория <span className="text-destructive">*</span>
               </Label>
               {catsLoading ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="size-4 animate-spin" /> Loading...
+                  <Loader2 className="size-4 animate-spin" /> Загрузка...
                 </div>
               ) : (
                 <Select value={categoryId} onValueChange={(v) => { if (v) setCategoryId(v) }}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="Выберите категорию" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -283,11 +283,11 @@ export function TransactionForm({
               onClick={() => handleOpenChange(false)}
               disabled={submitting}
             >
-              Cancel
+              Отмена
             </Button>
             <Button type="submit" disabled={submitting}>
               {submitting && <Loader2 className="size-4 animate-spin" />}
-              {submitting ? "Saving..." : isEditing ? "Save" : "Create"}
+              {submitting ? "Сохранение..." : isEditing ? "Сохранить" : "Создать"}
             </Button>
           </DialogFooter>
         </form>

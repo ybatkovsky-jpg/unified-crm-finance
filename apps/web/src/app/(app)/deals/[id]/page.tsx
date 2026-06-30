@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, File, Download, Trash2, Upload, Package, ChevronDown } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, File, Download, Trash2, Upload, Package, ChevronDown, Plus, ListTodo, Clock, AlertCircle, CheckCircle2 } from "lucide-react"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
 import { pipelinesApi } from "@/lib/api/pipelines"
 import { filesApi } from "@/lib/api/files"
 import { contractsApi } from "@/lib/api/contracts"
+import { createTask, getTasks, updateTask, type TaskData } from "@/lib/api/tasks"
 import { getLeadSources } from "@/lib/api/lead-source"
 import { getLossReasonLabel } from "@/lib/loss-reasons"
 import type { DealData, DealStageData, FileUploadFile, LeadSourceData } from "@/lib/api/types"
@@ -23,9 +24,54 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { DealHistoryTimeline } from "@/components/deals/deal-history-timeline"
 import { FileUpload } from "@/components/shared/file-upload"
 import { FilePreview, useFilePreview } from "@/components/shared/file-preview"
+
+const TASK_STATUS_LABELS: Record<string, string> = {
+  todo: "К выполнению",
+  in_progress: "В работе",
+  done: "Готово",
+  failed: "Провалена",
+  cancelled: "Отменена",
+}
+
+const TASK_STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+  todo: "secondary",
+  in_progress: "default",
+  done: "outline",
+  failed: "destructive",
+  cancelled: "outline",
+}
+
+const TASK_PRIORITY_LABELS: Record<string, string> = {
+  low: "Низкий",
+  medium: "Средний",
+  high: "Высокий",
+}
+
+function formatDate(d: string | Date): string {
+  return new Date(d).toLocaleDateString("ru-RU")
+}
+
+function formatDateTime(d: string | Date): string {
+  const date = new Date(d)
+  return date.toLocaleDateString("ru-RU") + " " + date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
+}
+
+function isOverdue(t: TaskData): boolean {
+  if (!t.dueDate) return false
+  if (["done", "cancelled", "failed"].includes(t.status)) return false
+  return new Date(t.dueDate) < new Date()
+}
 
 export default function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -58,6 +104,23 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   const [historyOpen, setHistoryOpen] = useState(false)
   const [leadSources, setLeadSources] = useState<LeadSourceData[]>([])
 
+  // Tasks state
+  const [tasks, setTasks] = useState<TaskData[]>([])
+  const [tasksLoading, setTasksLoading] = useState(false)
+  const [tasksError, setTasksError] = useState<string | null>(null)
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false)
+  const [taskSaving, setTaskSaving] = useState(false)
+  const [taskBusy, setTaskBusy] = useState(false)
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    dueDate: "",
+    dueTime: "",
+    priority: "medium",
+    assigneeId: "",
+  })
+  const [users, setUsers] = useState<Array<{ id: string; name: string | null; email: string }>>([])
+
   const unwrapParams = useCallback(async () => {
     return await params
   }, [params])
@@ -84,7 +147,6 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
       if (response.data.pipelineId) {
         try {
           const pipeline = await pipelinesApi.getPipeline(response.data.pipelineId)
-          // Pipeline API returns stages under PascalCase `DealStage` (Prisma shape).
           setStages((pipeline.data as unknown as { DealStage?: DealStageData[] }).DealStage ?? [])
         } catch {
           setStages([])
@@ -93,7 +155,6 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
 
       // Load file data for attachments
       if (response.data.drawingFile) {
-        const fileResponse = await filesApi.getFile(response.data.drawingFile.id)
         setDrawingFiles([{
           id: response.data.drawingFile.id,
           file: new (globalThis as any).File([], response.data.drawingFile.fileName, { type: response.data.drawingFile.mimeType || 'application/octet-stream' }),
@@ -102,7 +163,6 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         }])
       }
       if (response.data.actFile) {
-        const fileResponse = await filesApi.getFile(response.data.actFile.id)
         setActFiles([{
           id: response.data.actFile.id,
           file: new (globalThis as any).File([], response.data.actFile.fileName, { type: response.data.actFile.mimeType || 'application/octet-stream' }),
@@ -114,18 +174,46 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to load deal. Please try again.")
+        setError("Не удалось загрузить сделку. Пожалуйста, попробуйте снова.")
       }
     } finally {
       setLoading(false)
     }
   }, [])
 
+  // Fetch tasks for this deal
+  const fetchTasks = useCallback(async (dealId: string) => {
+    setTasksLoading(true)
+    setTasksError(null)
+    try {
+      // Fetch tasks via direct API call with dealId filter
+      const res = await fetch(`/api/tasks?dealId=${dealId}`)
+      if (!res.ok) throw new Error("Не удалось загрузить задачи")
+      const json = await res.json()
+      setTasks(json.data ?? [])
+    } catch (err) {
+      setTasksError(err instanceof Error ? err.message : "Не удалось загрузить задачи")
+    } finally {
+      setTasksLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     unwrapParams().then(({ id }) => {
       fetchDeal(id)
+      fetchTasks(id)
     })
-  }, [unwrapParams, fetchDeal])
+  }, [unwrapParams, fetchDeal, fetchTasks])
+
+  // Load users for task assignee dropdown
+  useEffect(() => {
+    if (taskDialogOpen && users.length === 0) {
+      fetch("/api/users/list")
+        .then((r) => r.json())
+        .then((d: { data?: typeof users }) => setUsers(d.data ?? []))
+        .catch(() => {})
+    }
+  }, [taskDialogOpen, users.length])
 
   // Move deal to a different stage via /move (records history, server derives actor).
   const handleMoveStage = async (stageId: string) => {
@@ -165,7 +253,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to save deal. Please try again.")
+        setError("Не удалось сохранить сделку. Пожалуйста, попробуйте снова.")
       }
     } finally {
       setSaving(false)
@@ -248,6 +336,48 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     }
   }
 
+  // Task handlers
+  const handleCreateTask = async () => {
+    if (!deal || !newTask.title.trim()) return
+    setTaskSaving(true)
+    setError(null)
+    try {
+      let dueDateStr: string | undefined = undefined
+      if (newTask.dueDate) {
+        const timeStr = newTask.dueTime || "23:59"
+        dueDateStr = new Date(`${newTask.dueDate}T${timeStr}:00`).toISOString()
+      }
+      await createTask({
+        title: newTask.title.trim(),
+        description: newTask.description.trim() || undefined,
+        type: "general",
+        priority: newTask.priority,
+        dueDate: dueDateStr,
+        dealId: deal.id,
+        assigneeId: newTask.assigneeId || undefined,
+      })
+      setTaskDialogOpen(false)
+      setNewTask({ title: "", description: "", dueDate: "", dueTime: "", priority: "medium", assigneeId: "" })
+      await fetchTasks(deal.id)
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : "Не удалось создать задачу")
+    } finally {
+      setTaskSaving(false)
+    }
+  }
+
+  const handleTaskDone = async (taskId: string) => {
+    setTaskBusy(true)
+    try {
+      await updateTask(taskId, { status: "done" })
+      await fetchTasks(deal!.id)
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : "Не удалось обновить задачу")
+    } finally {
+      setTaskBusy(false)
+    }
+  }
+
   const handleUploadDrawing = async (fileItem: FileUploadFile) => {
     setUploadingDrawing(true)
     try {
@@ -257,10 +387,8 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         entityId: deal?.id || 'temp',
       })
 
-      // Update deal with new drawing file ID
       if (deal) {
         await dealsApi.updateDeal(deal.id, { drawingFileId: response.data.id })
-        // Refresh deal data
         const updatedResponse = await dealsApi.getDeal(deal.id)
         setDeal(updatedResponse.data)
       }
@@ -268,7 +396,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to upload drawing file.")
+        setError("Не удалось загрузить чертёж.")
       }
       throw err
     } finally {
@@ -285,10 +413,8 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         entityId: deal?.id || 'temp',
       })
 
-      // Update deal with new act file ID
       if (deal) {
         await dealsApi.updateDeal(deal.id, { actFileId: response.data.id })
-        // Refresh deal data
         const updatedResponse = await dealsApi.getDeal(deal.id)
         setDeal(updatedResponse.data)
       }
@@ -296,7 +422,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to upload act file.")
+        setError("Не удалось загрузить акт.")
       }
       throw err
     } finally {
@@ -309,14 +435,13 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     try {
       await dealsApi.updateDeal(deal.id, { drawingFileId: null })
       setDrawingFiles([])
-      // Refresh deal data
       const updatedResponse = await dealsApi.getDeal(deal.id)
       setDeal(updatedResponse.data)
     } catch (err) {
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to remove drawing file.")
+        setError("Не удалось удалить чертёж.")
       }
     }
   }
@@ -326,14 +451,13 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     try {
       await dealsApi.updateDeal(deal.id, { actFileId: null })
       setActFiles([])
-      // Refresh deal data
       const updatedResponse = await dealsApi.getDeal(deal.id)
       setDeal(updatedResponse.data)
     } catch (err) {
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to remove act file.")
+        setError("Не удалось удалить акт.")
       }
     }
   }
@@ -347,7 +471,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         mimeType: response.data.file.mimeType || undefined,
       })
     } catch (err) {
-      setError("Failed to load file for preview.")
+      setError("Не удалось загрузить файл для предпросмотра.")
     }
   }
 
@@ -355,7 +479,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     return (
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-center py-12">
-          <div className="text-muted-foreground">Loading deal...</div>
+          <div className="text-muted-foreground">Загрузка сделки...</div>
         </div>
       </div>
     )
@@ -370,7 +494,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
               <p className="text-destructive">{error}</p>
               <Button variant="outline" onClick={() => router.back()}>
                 <ArrowLeft className="size-4" />
-                <span className="ml-1.5">Go Back</span>
+                <span className="ml-1.5">Назад</span>
               </Button>
             </div>
           </CardContent>
@@ -384,6 +508,8 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   const stageColor = deal.stage?.color || "#94a3b8"
   const isWon = deal.stage?.isWonStage
   const isLost = deal.stage?.isLostStage
+
+  const activeTasks = tasks.filter((t) => !["done", "cancelled"].includes(t.status))
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -454,6 +580,14 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                 <span className="ml-1.5">
                   {creatingProject ? "Создание..." : deal.projectId ? "Открыть проект" : "Создать проект и договор"}
                 </span>
+              </Button>
+              {/* Create Task Button */}
+              <Button
+                variant="outline"
+                onClick={() => setTaskDialogOpen(true)}
+              >
+                <Plus className="size-4" />
+                <span className="ml-1.5">Добавить задачу</span>
               </Button>
             </>
           )}
@@ -571,11 +705,11 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                   <div className="flex gap-2 pt-2">
                     <Button onClick={handleSave} disabled={saving}>
                       <Save className="size-4" />
-                      <span className="ml-1.5">{saving ? "Saving..." : "Save"}</span>
+                      <span className="ml-1.5">{saving ? "Сохранение..." : "Сохранить"}</span>
                     </Button>
                     <Button variant="outline" onClick={handleCancel}>
                       <X className="size-4" />
-                      <span className="ml-1.5">Cancel</span>
+                      <span className="ml-1.5">Отмена</span>
                     </Button>
                   </div>
                 </>
@@ -599,7 +733,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                         <p className="font-medium">
                           {deal.expectedCloseDate
                             ? new Date(deal.expectedCloseDate).toLocaleDateString("ru-RU")
-                            : "\—"}
+                            : "—"}
                         </p>
                       </div>
                     </div>
@@ -642,6 +776,104 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
             </CardContent>
           </Card>
 
+          {/* Tasks Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ListTodo className="size-4" />
+                  Задачи по сделке
+                  {activeTasks.length > 0 && (
+                    <Badge variant="secondary" className="text-[10px]">{activeTasks.length} активных</Badge>
+                  )}
+                </div>
+                <Button variant="outline" size="sm" onClick={() => setTaskDialogOpen(true)}>
+                  <Plus className="size-3.5" />
+                  <span className="ml-1">Добавить</span>
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {tasksLoading && (
+                <div className="text-center py-4 text-muted-foreground text-sm">Загрузка задач...</div>
+              )}
+              {tasksError && (
+                <div className="text-center py-4 text-destructive text-sm">{tasksError}</div>
+              )}
+              {!tasksLoading && !tasksError && tasks.length === 0 && (
+                <div className="text-center py-6 text-muted-foreground text-sm">
+                  <ListTodo className="size-8 mx-auto mb-2 opacity-40" />
+                  Нет задач по этой сделке. Нажмите «Добавить», чтобы создать первую задачу.
+                </div>
+              )}
+              {!tasksLoading && !tasksError && tasks.length > 0 && (
+                <div className="space-y-2">
+                  {tasks.map((t) => {
+                    const overdue = isOverdue(t)
+                    const assignee = (t as any).User_Task_assigneeIdToUser
+                    return (
+                      <div
+                        key={t.id}
+                        className={`flex items-start justify-between gap-3 rounded-lg border p-3 ${
+                          t.status === "done" ? "opacity-60 bg-muted/30" : ""
+                        } ${overdue ? "border-red-300 bg-red-50/50 dark:border-red-900 dark:bg-red-950/20" : ""}`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-medium ${t.status === "done" ? "line-through" : ""}`}>
+                              {t.title}
+                            </span>
+                            <Badge variant={TASK_STATUS_VARIANTS[t.status] ?? "outline"} className="text-[10px]">
+                              {TASK_STATUS_LABELS[t.status] ?? t.status}
+                            </Badge>
+                            {overdue && (
+                              <Badge variant="destructive" className="text-[10px]">
+                                <AlertCircle className="size-3 mr-0.5" />
+                                Просрочена
+                              </Badge>
+                            )}
+                          </div>
+                          {t.description && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{t.description}</p>
+                          )}
+                          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                            {t.dueDate && (
+                              <span className="flex items-center gap-1">
+                                <Clock className="size-3" />
+                                {formatDateTime(t.dueDate)}
+                              </span>
+                            )}
+                            {assignee && (
+                              <span className="flex items-center gap-1">
+                                <User className="size-3" />
+                                {assignee.name || assignee.email}
+                              </span>
+                            )}
+                            <Badge variant="outline" className="text-[10px]">
+                              {TASK_PRIORITY_LABELS[t.priority] ?? t.priority}
+                            </Badge>
+                          </div>
+                        </div>
+                        {t.status !== "done" && t.status !== "cancelled" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={taskBusy}
+                            onClick={() => handleTaskDone(t.id)}
+                            className="shrink-0"
+                          >
+                            <CheckCircle2 className="size-3.5" />
+                            <span className="ml-1 text-xs">Готово</span>
+                          </Button>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Related */}
           <Card>
             <CardHeader>
@@ -667,7 +899,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                             .join(" ")}
                     </a>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\—</p>
+                    <p className="text-sm text-muted-foreground">—</p>
                   )}
                 </div>
               </div>
@@ -677,9 +909,9 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                 <div>
                   <p className="text-xs text-muted-foreground">Менеджер</p>
                   {deal.manager ? (
-                    <p className="text-sm font-medium">{deal.manager.name || "\—"}</p>
+                    <p className="text-sm font-medium">{deal.manager.name || "—"}</p>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\—</p>
+                    <p className="text-sm text-muted-foreground">—</p>
                   )}
                 </div>
               </div>
@@ -723,7 +955,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
             <CardContent className="space-y-6">
               {/* Drawing File */}
               <div>
-                <Label className="text-sm font-medium">Чертеж (Drawing)</Label>
+                <Label className="text-sm font-medium">Чертёж</Label>
                 <p className="text-xs text-muted-foreground mb-3">Прикрепите файл чертежа к сделке</p>
 
                 {deal.drawingFile ? (
@@ -742,7 +974,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => handlePreviewFile(deal.drawingFile!.id, deal.drawingFile!.fileName)}
-                        title="Preview"
+                        title="Предпросмотр"
                       >
                         <Download className="size-4" />
                       </Button>
@@ -751,7 +983,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                         size="icon-sm"
                         onClick={handleRemoveDrawing}
                         disabled={uploadingDrawing}
-                        title="Remove"
+                        title="Удалить"
                       >
                         <Trash2 className="size-4" />
                       </Button>
@@ -772,8 +1004,8 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
 
               {/* Acceptance Act File */}
               <div>
-                <Label className="text-sm font-medium">Акт приема-сдачи (Acceptance Act)</Label>
-                <p className="text-xs text-muted-foreground mb-3">Прикрепите акт приема-сдачи к сделке</p>
+                <Label className="text-sm font-medium">Акт приёма-сдачи</Label>
+                <p className="text-xs text-muted-foreground mb-3">Прикрепите акт приёма-сдачи к сделке</p>
 
                 {deal.actFile ? (
                   <div className="flex items-center justify-between rounded-lg border bg-card p-3">
@@ -791,7 +1023,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => handlePreviewFile(deal.actFile!.id, deal.actFile!.fileName)}
-                        title="Preview"
+                        title="Предпросмотр"
                       >
                         <Download className="size-4" />
                       </Button>
@@ -800,7 +1032,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                         size="icon-sm"
                         onClick={handleRemoveAct}
                         disabled={uploadingAct}
-                        title="Remove"
+                        title="Удалить"
                       >
                         <Trash2 className="size-4" />
                       </Button>
@@ -889,6 +1121,107 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           </Card>
         </div>
       </div>
+
+      {/* Create Task Dialog */}
+      <Dialog open={taskDialogOpen} onOpenChange={(open) => {
+        if (!open) {
+          setNewTask({ title: "", description: "", dueDate: "", dueTime: "", priority: "medium", assigneeId: "" })
+        }
+        setTaskDialogOpen(open)
+      }}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ListTodo className="size-5" />
+              Новая задача
+            </DialogTitle>
+            <DialogDescription>
+              Создать задачу для сделки «{deal.title}»
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="task-title">Название *</Label>
+              <Input
+                id="task-title"
+                placeholder="Название задачи"
+                value={newTask.title}
+                onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="task-desc">Описание</Label>
+              <Textarea
+                id="task-desc"
+                placeholder="Описание задачи..."
+                value={newTask.description}
+                onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="task-date">Дата дедлайна</Label>
+                <Input
+                  id="task-date"
+                  type="date"
+                  value={newTask.dueDate}
+                  onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="task-time">Время</Label>
+                <Input
+                  id="task-time"
+                  type="time"
+                  value={newTask.dueTime}
+                  onChange={(e) => setNewTask({ ...newTask, dueTime: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Приоритет</Label>
+              <Select value={newTask.priority} onValueChange={(v) => v && setNewTask({ ...newTask, priority: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Выберите приоритет" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Низкий</SelectItem>
+                  <SelectItem value="medium">Средний</SelectItem>
+                  <SelectItem value="high">Высокий</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Исполнитель</Label>
+              <Select value={newTask.assigneeId} onValueChange={(v) => v && setNewTask({ ...newTask, assigneeId: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Выберите исполнителя" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map((u) => (
+                    <SelectItem key={u.id} value={u.id}>{u.name ?? u.email}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTaskDialogOpen(false)}>
+              Отмена
+            </Button>
+            <Button onClick={handleCreateTask} disabled={taskSaving || !newTask.title.trim()}>
+              {taskSaving ? "Создание..." : "Создать задачу"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* File Preview Dialog */}
       <FilePreview

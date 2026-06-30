@@ -26,7 +26,8 @@ export function NotificationBell() {
     if (!userId) return
     setLoading(true)
     try {
-      const res = await fetch(`/api/notifications?userId=${userId}&limit=10`)
+      // userId берётся из сессии на сервере — не передаём в query (IDOR-fix).
+      const res = await fetch(`/api/notifications?limit=10`)
       if (!res.ok) return
       const json = await parseJson<{ data: NotificationItem[]; unreadCount: number }>(res)
       setNotifications(json.data)
@@ -63,11 +64,11 @@ export function NotificationBell() {
   const markAllRead = async () => {
     if (!userId) return
     try {
-      // mark-all: передаём реальный userId в теле; id в пути игнорируется роутом.
-      await fetch(`/api/notifications/${userId}`, {
+      // mark-all: id в пути игнорируется; userId берётся из сессии (IDOR-fix).
+      await fetch(`/api/notifications/_all`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ markAllRead: true, userId }),
+        body: JSON.stringify({ markAllRead: true }),
       })
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
       setUnreadCount(0)

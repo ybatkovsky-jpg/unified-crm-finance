@@ -186,7 +186,7 @@ export function CreateProjectModal({ onCreate }: CreateProjectModalProps) {
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to create project. Please try again.")
+        setError("Не удалось создать проект. Пожалуйста, попробуйте снова.")
       }
     } finally {
       setLoading(false)

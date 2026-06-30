@@ -70,7 +70,7 @@ export function BudgetWidget({ projectId }: BudgetWidgetProps) {
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to load budgets.")
+        setError("Не удалось загрузить бюджеты.")
       }
     } finally {
       setLoading(false)
@@ -158,7 +158,7 @@ export function BudgetWidget({ projectId }: BudgetWidgetProps) {
       if (err instanceof ApiClientError) {
         setFormError(err.message)
       } else {
-        setFormError("Failed to save budget.")
+        setFormError("Не удалось сохранить бюджет.")
       }
     } finally {
       setSubmitting(false)
@@ -175,7 +175,7 @@ export function BudgetWidget({ projectId }: BudgetWidgetProps) {
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to delete budget.")
+        setError("Не удалось удалить бюджет.")
       }
     } finally {
       setDeletingId(null)

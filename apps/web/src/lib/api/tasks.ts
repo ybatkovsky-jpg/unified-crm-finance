@@ -36,6 +36,7 @@ export interface TaskUpdateInput {
 
 export interface TaskListParams {
   projectId?: string
+  dealId?: string
   assigneeId?: string
   status?: string
   type?: string
@@ -60,6 +61,7 @@ export async function createTask(data: TaskCreateInput): Promise<{ data: TaskDat
 export async function getTasks(params: TaskListParams = {}): Promise<{ data: TaskData[]; count: number }> {
   const sp = new URLSearchParams()
   if (params.projectId) sp.set('projectId', params.projectId)
+  if (params.dealId) sp.set('dealId', params.dealId)
   if (params.assigneeId) sp.set('assigneeId', params.assigneeId)
   if (params.status) sp.set('status', params.status)
   if (params.type) sp.set('type', params.type)

@@ -25,7 +25,7 @@ function f(a: number): string {
   return new Intl.NumberFormat("ru-RU", { style: "currency", currency: "RUB", maximumFractionDigits: 0 }).format(a)
 }
 
-const PERIODS = [{ v: "3m", l: "3 months" }, { v: "6m", l: "6 months" }, { v: "12m", l: "12 months" }, { v: "all", l: "All time" }]
+const PERIODS = [{ v: "3m", l: "3 мес." }, { v: "6m", l: "6 мес." }, { v: "12m", l: "12 мес." }, { v: "all", l: "Всё время" }]
 
 export default function TeamPerformancePage() {
   const [data, setData] = useState<TeamData | null>(null)
@@ -39,7 +39,7 @@ export default function TeamPerformancePage() {
       const res = await fetch(`/api/analytics/team-performance?period=${period}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       setData((await parseJson<{ data: TeamData }>(res)).data)
-    } catch (err) { setError(err instanceof ApiClientError ? err.message : "Failed to load.") }
+    } catch (err) { setError(err instanceof ApiClientError ? err.message : "Не удалось загрузить.") }
     finally { setLoading(false) }
   }, [period])
 
@@ -49,27 +49,27 @@ export default function TeamPerformancePage() {
   const maxDeals = data ? Math.max(...data.managers.map(m => m.dealCount), 1) : 1
 
   if (loading) return <div className="container mx-auto p-6 flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Загрузка...</span></div>
-  if (error || !data) return <div className="container mx-auto p-6"><Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error || "No data"}</p><Button variant="outline" onClick={fetchData}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Повторить</span></Button></div></CardContent></Card></div>
+  if (error || !data) return <div className="container mx-auto p-6"><Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error || "Нет данных"}</p><Button variant="outline" onClick={fetchData}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Повторить</span></Button></div></CardContent></Card></div>
 
   const { managers, summary } = data
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Team Performance</h1>
+        <h1 className="text-2xl font-semibold">Эффективность команды</h1>
         <Select value={period} onValueChange={v => { if (v) setPeriod(v) }}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent><SelectGroup>{PERIODS.map(p => <SelectItem key={p.v} value={p.v}>{p.l}</SelectItem>)}</SelectGroup></SelectContent></Select>
       </div>
 
       <div className="grid grid-cols-4 gap-4">
-        <Card><CardContent className="pt-6 text-center"><div className="text-2xl font-bold">{summary.managerCount}</div><div className="text-sm text-muted-foreground">Managers</div></CardContent></Card>
-        <Card><CardContent className="pt-6 text-center"><div className="text-2xl font-bold">{summary.totalDeals}</div><div className="text-sm text-muted-foreground">Total Deals</div></CardContent></Card>
-        <Card><CardContent className="pt-6 text-center"><div className="text-2xl font-bold">{f(summary.totalAmount)}</div><div className="text-sm text-muted-foreground">Total Amount</div></CardContent></Card>
-        <Card><CardContent className="pt-6 text-center"><div className="text-2xl font-bold">{summary.avgConversion}%</div><div className="text-sm text-muted-foreground">Avg Conversion</div></CardContent></Card>
+        <Card><CardContent className="pt-6 text-center"><div className="text-2xl font-bold">{summary.managerCount}</div><div className="text-sm text-muted-foreground">Менеджеров</div></CardContent></Card>
+        <Card><CardContent className="pt-6 text-center"><div className="text-2xl font-bold">{summary.totalDeals}</div><div className="text-sm text-muted-foreground">Всего сделок</div></CardContent></Card>
+        <Card><CardContent className="pt-6 text-center"><div className="text-2xl font-bold">{f(summary.totalAmount)}</div><div className="text-sm text-muted-foreground">Общая сумма</div></CardContent></Card>
+        <Card><CardContent className="pt-6 text-center"><div className="text-2xl font-bold">{summary.avgConversion}%</div><div className="text-sm text-muted-foreground">Ср. конверсия</div></CardContent></Card>
       </div>
 
       {/* Amount comparison bar chart */}
       <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2"><UsersIcon className="size-5" />Deal Amount by Manager</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="flex items-center gap-2"><UsersIcon className="size-5" />Сумма сделок по менеджерам</CardTitle></CardHeader>
         <CardContent>
           <div className="space-y-2">
             {managers.map(m => (
