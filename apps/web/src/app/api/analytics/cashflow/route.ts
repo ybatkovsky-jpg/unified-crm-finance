@@ -2,19 +2,29 @@
  * GET /api/analytics/cashflow
  *
  * Cash flow projection: upcoming planned + scheduled payments.
- * Query params: projectId (optional), months (default: 3)
+ * Query params: projectId (optional), months (default: 6)
  *
  * Returns: monthly cash flow forecast with incoming/outgoing totals.
+ *
+ * RBAC: не-viewAllProjects видят только свои проекты (PLAT-03..05 RBAC fix).
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../lib/db/prisma'
+import { prisma } from '@/lib/db/prisma'
+import { getSession } from '@/lib/auth/session'
+import { analyticsManagerScope } from '@/lib/auth/analytics-rbac'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const searchParams = request.nextUrl.searchParams
     const projectId = searchParams.get('projectId')
     const months = parseInt(searchParams.get('months') ?? '6')
+
+    // RBAC: не-viewAllProjects — только свои проекты.
+    const managerScope = analyticsManagerScope(session)
 
     const now = new Date()
     const endDate = new Date(now.getFullYear(), now.getMonth() + months, 0, 23, 59, 59)
@@ -26,6 +36,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (projectId) {
       where.projectId = projectId
+    }
+
+    // RBAC: фильтр по менеджеру через связь Project.
+    if (managerScope) {
+      where.Project = { managerId: managerScope }
     }
 
     const payments = await prisma.cashFlowPayment.findMany({

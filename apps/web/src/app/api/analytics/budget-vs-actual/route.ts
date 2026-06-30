@@ -5,14 +5,21 @@
  * Query params: projectId (required)
  *
  * Returns: per-budget comparison with budget amount, actual spend, variance.
+ *
+ * RBAC: не-viewAllProjects видят только свои проекты (PLAT-03..05 RBAC fix).
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../lib/db/prisma'
-import { parsePeriodToDateRange } from '../../../../lib/periods'
+import { prisma } from '@/lib/db/prisma'
+import { parsePeriodToDateRange } from '@/lib/periods'
+import { getSession } from '@/lib/auth/session'
+import { analyticsManagerScope } from '@/lib/auth/analytics-rbac'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const searchParams = request.nextUrl.searchParams
     const projectId = searchParams.get('projectId')
 
@@ -21,6 +28,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         { error: 'Validation failed', message: 'projectId is required' },
         { status: 400 }
       )
+    }
+
+    // RBAC: не-viewAllProjects — только свои проекты.
+    const managerScope = analyticsManagerScope(session)
+    if (managerScope) {
+      const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        select: { managerId: true },
+      })
+      if (!project || project.managerId !== managerScope) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
     }
 
     // Fetch all budgets for this project
