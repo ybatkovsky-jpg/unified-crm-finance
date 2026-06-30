@@ -5,7 +5,7 @@
  * - GET: List all contacts (excluding soft-deleted)
  * - POST: Create a new contact
  *
- * GET /api/contacts
+ * GET /api/contacts?type=&status=&companyId=
  * POST /api/contacts
  */
 
@@ -23,10 +23,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const searchParams = request.nextUrl.searchParams
     const type = searchParams.get('type')
     const status = searchParams.get('status')
+    const companyId = searchParams.get('companyId')
 
     const where: Record<string, unknown> = {}
     if (type) where.type = type
     if (status) where.status = status
+    if (companyId) where.companyId = companyId
 
     const allContacts = await contacts.findMany({
       where: Object.keys(where).length > 0 ? where : undefined,
@@ -86,6 +88,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
+    // companyId validation: can only be set for person contacts
+    if (body.companyId) {
+      if (body.type !== 'person') {
+        return NextResponse.json(
+          { error: 'Validation failed', message: 'companyId can only be set for person contacts' },
+          { status: 400 }
+        )
+      }
+      const company = await contacts.findUnique(body.companyId)
+      if (!company || company.type !== 'company') {
+        return NextResponse.json(
+          { error: 'Validation failed', message: 'companyId must reference an existing company contact' },
+          { status: 400 }
+        )
+      }
+    }
+
     // Prepare creation data (id/updatedAt filled by repository)
     const createData = {
       type: body.type,
@@ -104,6 +123,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       notes: body.notes || null,
       sourceId: body.sourceId || null,
       ownerId: body.ownerId || null,
+      companyId: body.companyId || null,
       status: body.status || 'active',
       tags: body.tags || [],
       attributes: body.attributes || null,

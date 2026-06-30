@@ -44,6 +44,7 @@ export interface ApiListResponse<T> {
 export interface ContactFilters {
   type?: 'person' | 'company';
   status?: string;
+  companyId?: string;
 }
 
 /**
@@ -79,6 +80,7 @@ export interface ContactCreateInput {
   notes?: string | null;
   sourceId?: string | null;
   ownerId?: string | null;
+  companyId?: string | null;
   status?: string | null;
   tags?: string[] | null;
   attributes?: Record<string, unknown> | null;
@@ -104,6 +106,7 @@ export interface ContactUpdateInput {
   notes?: string | null;
   sourceId?: string | null;
   ownerId?: string | null;
+  companyId?: string | null;
   status?: string | null;
   tags?: string[] | null;
   attributes?: Record<string, unknown> | null;

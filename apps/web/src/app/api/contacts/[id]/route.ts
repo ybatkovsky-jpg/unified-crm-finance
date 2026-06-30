@@ -2,7 +2,7 @@
  * Single Contact API Endpoint
  *
  * CRUD API for individual Contact by ID:
- * - GET: Fetch a single contact
+ * - GET: Fetch a single contact (with Employees for companies)
  * - PUT: Update a contact
  * - DELETE: Soft-delete a contact
  *
@@ -23,6 +23,7 @@ interface RouteParams {
  * GET /api/contacts/[id]
  *
  * Fetches a single contact by ID.
+ * For company contacts, includes Employees list.
  * Returns 404 if contact doesn't exist or is soft-deleted.
  */
 export async function GET(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
@@ -36,7 +37,10 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
       )
     }
 
-    const contact = await contacts.findUnique(id)
+    const contact = await contacts.findUnique(id, {
+      Company: { select: { id: true, companyName: true } },
+      Employees: { select: { id: true, firstName: true, lastName: true, position: true, phone: true, email: true } },
+    })
 
     if (!contact) {
       return NextResponse.json(
@@ -98,6 +102,33 @@ export async function PUT(request: NextRequest, { params }: RouteParams): Promis
       )
     }
 
+    // companyId validation
+    if (body.companyId !== undefined) {
+      if (body.companyId && body.companyId === id) {
+        return NextResponse.json(
+          { error: 'Validation failed', message: 'companyId cannot reference self' },
+          { status: 400 }
+        )
+      }
+      // Only person contacts can have companyId
+      const targetType = body.type ?? existing.type
+      if (body.companyId && targetType !== 'person') {
+        return NextResponse.json(
+          { error: 'Validation failed', message: 'companyId can only be set for person contacts' },
+          { status: 400 }
+        )
+      }
+      if (body.companyId) {
+        const company = await contacts.findUnique(body.companyId)
+        if (!company || company.type !== 'company') {
+          return NextResponse.json(
+            { error: 'Validation failed', message: 'companyId must reference an existing company contact' },
+            { status: 400 }
+          )
+        }
+      }
+    }
+
     // Prepare update data (only include provided fields)
     const updateData: ContactUpdateInput = {}
     if (body.type !== undefined) updateData.type = body.type
@@ -116,6 +147,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams): Promis
     if (body.notes !== undefined) updateData.notes = body.notes
     if (body.sourceId !== undefined) updateData.sourceId = body.sourceId
     if (body.ownerId !== undefined) updateData.ownerId = body.ownerId
+    if (body.companyId !== undefined) updateData.companyId = body.companyId
     if (body.status !== undefined) updateData.status = body.status
     if (body.tags !== undefined) updateData.tags = body.tags
     if (body.attributes !== undefined) updateData.attributes = body.attributes

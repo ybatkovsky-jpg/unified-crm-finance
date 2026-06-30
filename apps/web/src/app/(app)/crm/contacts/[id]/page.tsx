@@ -2,12 +2,17 @@
 
 import { useState, useEffect, useCallback, use } from "react"
 import Link from "next/link"
-import { RefreshCwIcon, ArrowLeftIcon, PhoneIcon, MailIcon, Building2Icon, UserIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import {
+  RefreshCwIcon, ArrowLeftIcon, PhoneIcon, MailIcon, Building2Icon, UserIcon,
+  Pencil, Trash2, UserPlus,
+} from "lucide-react"
 
 import { contactsApi, ApiClientError } from "@/lib/api/contacts"
 import type { ContactData } from "@/lib/api/types"
 import { InteractionTimeline } from "@/components/crm/interaction-timeline"
 import { InteractionForm } from "@/components/crm/interaction-form"
+import { ContactFormModal } from "@/components/contacts/contact-form-modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,18 +22,36 @@ const MOCK_AUTHOR_ID = "00000000-0000-0000-0000-000000000001"
 
 function getDisplayName(contact: ContactData): string {
   if (contact.type === "company") {
-    return contact.companyName || "\—"
+    return contact.companyName || "—"
   }
-  return [contact.lastName, contact.firstName].filter(Boolean).join(" ") || "\—"
+  return [contact.lastName, contact.firstName].filter(Boolean).join(" ") || "—"
+}
+
+type EmployeeInfo = {
+  id: string
+  firstName: string | null
+  lastName: string | null
+  position: string | null
+  phone: string | null
+  email: string | null
+}
+
+type CompanyInfo = {
+  id: string
+  companyName: string | null
 }
 
 export default function ContactDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const contactId = id
+  const router = useRouter()
   const [contact, setContact] = useState<ContactData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [timelineKey, setTimelineKey] = useState(0)
+  const [editOpen, setEditOpen] = useState(false)
+  const [addEmployeeOpen, setAddEmployeeOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchContact = useCallback(async () => {
     setLoading(true)
@@ -39,7 +62,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
     } catch (err) {
       if (err instanceof ApiClientError) {
         if (err.statusCode === 404) {
-          setError("Contact not found")
+          setError("Контакт не найден")
         } else {
           setError(err.message)
         }
@@ -61,9 +84,34 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
   }
 
   const handleInteractionSuccess = () => {
-    // Trigger timeline refresh by updating key
     setTimelineKey((prev) => prev + 1)
   }
+
+  const handleEditSuccess = () => {
+    setEditOpen(false)
+    fetchContact()
+  }
+
+  const handleDelete = async () => {
+    if (!contact) return
+    const name = getDisplayName(contact)
+    if (!window.confirm(`Удалить контакт «${name}»?\nКонтакт будет помечен как удалённый.`)) return
+    setDeleting(true)
+    try {
+      await contactsApi.deleteContact(contact.id)
+      router.push("/crm/contacts")
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(err.message)
+      } else {
+        setError("Не удалось удалить контакт.")
+      }
+      setDeleting(false)
+    }
+  }
+
+  const employees = (contact as any)?.Employees as EmployeeInfo[] | undefined
+  const company = (contact as any)?.Company as CompanyInfo | undefined
 
   if (loading) {
     return (
@@ -82,16 +130,16 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
         <Card>
           <CardContent className="pt-6">
             <div className="flex flex-col items-center gap-3 py-8">
-              <p className="text-destructive">{error || "Contact not found"}</p>
+              <p className="text-destructive">{error || "Контакт не найден"}</p>
               <div className="flex gap-3">
                 <Button variant="outline" onClick={handleRetry}>
                   <RefreshCwIcon className="size-4" />
-                  <span className="ml-1.5">Retry</span>
+                  <span className="ml-1.5">Повторить</span>
                 </Button>
                 <Link href="/crm/contacts">
                   <Button variant="outline">
                     <ArrowLeftIcon className="size-4" />
-                    <span className="ml-1.5">Back to Contacts</span>
+                    <span className="ml-1.5">К списку контактов</span>
                   </Button>
                 </Link>
               </div>
@@ -107,7 +155,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
       {/* Back navigation */}
       <Link href="/crm/contacts" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary">
         <ArrowLeftIcon className="size-4 mr-1" />
-        Back to Contacts
+        К списку контактов
       </Link>
 
       {/* Contact details header */}
@@ -127,14 +175,30 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
                 <Badge
                   variant={contact.type === "company" ? "secondary" : "default"}
                 >
-                  {contact.type === "company" ? "Company" : "Person"}
+                  {contact.type === "company" ? "Юрлицо" : "Физлицо"}
                 </Badge>
                 <Badge
                   variant={contact.status === "active" ? "default" : "outline"}
                 >
-                  {contact.status === "active" ? "Active" : "Inactive"}
+                  {contact.status === "active" ? "Активен" : "Неактивен"}
                 </Badge>
               </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+                <Pencil className="size-4" />
+                <span className="ml-1.5">Редактировать</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-destructive hover:text-destructive"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                <Trash2 className="size-4" />
+                <span className="ml-1.5">{deleting ? "Удаление…" : "Удалить"}</span>
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -143,7 +207,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
             {contact.phone && (
               <div className="flex items-center gap-2 text-sm">
                 <PhoneIcon className="size-4 text-muted-foreground" />
-                <span className="text-muted-foreground">Phone:</span>
+                <span className="text-muted-foreground">Телефон:</span>
                 <span>{contact.phone}</span>
               </div>
             )}
@@ -156,37 +220,104 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
             )}
             {contact.type === "person" && contact.position && (
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-muted-foreground">Position:</span>
+                <span className="text-muted-foreground">Должность:</span>
                 <span>{contact.position}</span>
               </div>
             )}
             {contact.type === "company" && contact.inn && (
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-muted-foreground">INN:</span>
+                <span className="text-muted-foreground">ИНН:</span>
                 <span>{contact.inn}</span>
+              </div>
+            )}
+            {contact.type === "company" && contact.kpp && (
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground">КПП:</span>
+                <span>{contact.kpp}</span>
+              </div>
+            )}
+            {contact.type === "company" && contact.ogrn && (
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground">ОГРН:</span>
+                <span>{contact.ogrn}</span>
+              </div>
+            )}
+            {/* Company link for person contacts */}
+            {contact.type === "person" && company && (
+              <div className="flex items-center gap-2 text-sm col-span-2">
+                <Building2Icon className="size-4 text-muted-foreground" />
+                <span className="text-muted-foreground">Организация:</span>
+                <Link href={`/crm/contacts/${company.id}`} className="text-primary hover:underline">
+                  {company.companyName || "—"}
+                </Link>
               </div>
             )}
           </div>
           {contact.address && (
             <div className="mt-4 text-sm">
-              <span className="text-muted-foreground">Address:</span>
+              <span className="text-muted-foreground">Адрес:</span>
               <span className="ml-2">{contact.address}</span>
             </div>
           )}
           {contact.notes && (
             <div className="mt-4 text-sm">
-              <span className="text-muted-foreground">Notes:</span>
+              <span className="text-muted-foreground">Заметки:</span>
               <p className="mt-1 text-muted-foreground">{contact.notes}</p>
             </div>
           )}
         </CardContent>
       </Card>
 
+      {/* Employees section (only for company contacts) */}
+      {contact.type === "company" && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Сотрудники</CardTitle>
+              <Button variant="outline" size="sm" onClick={() => setAddEmployeeOpen(true)}>
+                <UserPlus className="size-4" />
+                <span className="ml-1.5">Добавить</span>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {!employees || employees.length === 0 ? (
+              <p className="text-muted-foreground text-sm py-4 text-center">
+                Нет сотрудников. Нажмите «Добавить» чтобы создать.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {employees.map((emp) => (
+                  <Link
+                    key={emp.id}
+                    href={`/crm/contacts/${emp.id}`}
+                    className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                  >
+                    <div>
+                      <p className="font-medium text-sm">
+                        {[emp.lastName, emp.firstName].filter(Boolean).join(" ") || "—"}
+                      </p>
+                      {emp.position && (
+                        <p className="text-xs text-muted-foreground">{emp.position}</p>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground text-right">
+                      {emp.phone && <p>{emp.phone}</p>}
+                      {emp.email && <p>{emp.email}</p>}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Interactions section */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Interactions</CardTitle>
+            <CardTitle>Взаимодействия</CardTitle>
             <InteractionForm
               contactId={contactId}
               authorId={MOCK_AUTHOR_ID}
@@ -198,6 +329,25 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
           <InteractionTimeline key={timelineKey} contactId={contactId} />
         </CardContent>
       </Card>
+
+      {/* Edit modal */}
+      <ContactFormModal
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        contact={contact}
+        onSuccess={handleEditSuccess}
+      />
+
+      {/* Add employee modal — pre-fills companyId */}
+      <ContactFormModal
+        open={addEmployeeOpen}
+        onOpenChange={setAddEmployeeOpen}
+        defaultCompanyId={contactId}
+        onSuccess={() => {
+          setAddEmployeeOpen(false)
+          fetchContact()
+        }}
+      />
     </div>
   )
 }

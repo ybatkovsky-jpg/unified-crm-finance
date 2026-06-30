@@ -211,6 +211,10 @@ model Contact {
   deletedAt       DateTime?
   LeadSource      LeadSource?   @relation(fields: [sourceId], references: [id])
   User            User?         @relation(fields: [ownerId], references: [id])
+  /// FK на юрлицо — связь физлица с компанией. Только для type='person'.
+  companyId       String?
+  Company         Contact?      @relation("ContactCompany", fields: [companyId], references: [id])
+  Employees       Contact[]     @relation("ContactCompany")
   Contract        Contract[]
   Deal            Deal[]
   Event           Event[]
@@ -225,6 +229,7 @@ model Contact {
   @@index([inn])
   @@index([phone])
   @@index([email])
+  @@index([companyId])
 }
 
 model Contract {
