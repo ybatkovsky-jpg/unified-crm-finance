@@ -40,6 +40,8 @@ fi
 
 # ── 3. Next.js ─────────────────────────────────────────
 echo "[3/3] Next.js (Turbopack) — порт $PORT..."
+echo "  Очистка кэша .next..."
+rm -rf "$APP_DIR/.next" 2>/dev/null
 echo ""
 echo "============================================"
 echo "  Готово! Открой http://localhost:$PORT"
@@ -48,4 +50,4 @@ echo "  Остановка: Ctrl+C"
 echo "============================================"
 echo ""
 
-npx next dev -p "$PORT"
+TURBOPACK_WORKERS=1 npx next dev -p "$PORT"

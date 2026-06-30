@@ -59,6 +59,8 @@ if %errorlevel% neq 0 (
 
 :: ── 3. Next.js dev server ──────────────────────────────
 echo [3/3] Next.js (Turbopack) — порт %PORT%...
+echo   Очистка кэша .next...
+if exist "%APP_DIR%\.next" rmdir /s /q "%APP_DIR%\.next" >nul 2>&1
 echo.
 echo ============================================
 echo   Готово! Открой http://localhost:%PORT%
@@ -66,4 +68,5 @@ echo   Логин: admin@local / admin123
 echo   Остановка: Ctrl+C
 echo ============================================
 echo.
+set TURBOPACK_WORKERS=1
 call npx next dev -p %PORT%
