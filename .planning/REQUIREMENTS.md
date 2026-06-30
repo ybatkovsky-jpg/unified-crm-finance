@@ -71,6 +71,7 @@
 - [x] **PLAT-03**: Аналитика воронки продаж: конверсия по стадиям + причины отказов.
 - [x] **PLAT-04**: Аналитика маржи проектов (текущая/закрытая, алерты).
 - [x] **PLAT-05**: Аналитика команды: нагрузка и результативность.
+- [x] **PLAT-06**: Орг-платформа задач — иерархия отдел→функция→назначения (head/responsible), шаблоны задач с RRULE-повторением (реклама, налоги, аренда), ленивая материализация инстансов по наступлению срока. *(post-milestone)*
 
 ## Future Requirements (отложено)
 - Гарантийные заявки/сервис (обращений почти нет — пока только срок).
@@ -90,28 +91,28 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| AUTH-04 | Phase 1 | Pending |
-| AUTH-05 | Phase 1 | Pending |
-| CORE-01 | Phase 2 | Pending |
-| CORE-02 | Phase 2 | Pending |
-| CORE-03 | Phase 2 | Pending |
-| CORE-04 | Phase 2 | Pending |
-| UI-01 | Phase 3 | Pending |
-| UI-02 | Phase 3 | Pending |
-| UI-03 | Phase 3 | Pending |
-| UI-04 | Phase 3 | Pending |
-| UI-05 | Phase 3 | Pending |
-| CRM-01 | Phase 4 | Pending |
-| CRM-02 | Phase 4 | Pending |
-| CRM-03 | Phase 4 | Pending |
-| CRM-04 | Phase 4 | Pending |
-| CRM-05 | Phase 4 | Pending |
-| CRM-06 | Phase 4 | Pending |
-| CRM-07 | Phase 4 | Pending |
-| CRM-08 | Phase 4 | Pending |
+| AUTH-01 | Phase 1 | ✅ Validated |
+| AUTH-02 | Phase 1 | ✅ Validated |
+| AUTH-03 | Phase 1 | ✅ Validated |
+| AUTH-04 | Phase 1 | ✅ Validated |
+| AUTH-05 | Phase 1 | ✅ Validated |
+| CORE-01 | Phase 2 | ✅ Validated |
+| CORE-02 | Phase 2 | ✅ Validated |
+| CORE-03 | Phase 2 | ✅ Validated |
+| CORE-04 | Phase 2 | ✅ Validated |
+| UI-01 | Phase 3 | ✅ Validated |
+| UI-02 | Phase 3 | ✅ Validated |
+| UI-03 | Phase 3 | ✅ Validated |
+| UI-04 | Phase 3 | ✅ Validated |
+| UI-05 | Phase 3 | ✅ Validated |
+| CRM-01 | Phase 4 | ✅ Validated |
+| CRM-02 | Phase 4 | ✅ Validated |
+| CRM-03 | Phase 4 | ✅ Validated |
+| CRM-04 | Phase 4 | ✅ Validated |
+| CRM-05 | Phase 4 | ✅ Validated |
+| CRM-06 | Phase 4 | ✅ Validated |
+| CRM-07 | Phase 4 | ✅ Validated |
+| CRM-08 | Phase 4 | ✅ Validated |
 | PROJ-01 | Phase 5 | ✅ Validated |
 | PROJ-02 | Phase 5 | ✅ Validated |
 | PROJ-03 | Phase 5 | ✅ Validated |
@@ -141,5 +142,6 @@
 | PLAT-03 | Phase 10 | ✅ Validated |
 | PLAT-04 | Phase 10 | ✅ Validated |
 | PLAT-05 | Phase 10 | ✅ Validated |
+| PLAT-06 | Post-milestone | ✅ Validated |
 
-**Coverage:** 51/51 v1 требований замаплено и validated — milestone v1.0 COMPLETE.
+**Coverage:** 52/52 требований замаплено и validated — milestone v1.0 + PLAT-06 COMPLETE.

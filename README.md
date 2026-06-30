@@ -1,8 +1,8 @@
 # Unified CRM Finance
 
-Единая CRM-система, объединяющая управление закупками ([zakuppro](https://github.com/ybatkovsky-jpg/zakuppro)) и контроль финансов с элементами CRM ([finpro](https://github.com/ybatkovsky-jpg/finpro)) в один программный комплекс. Цель — дать компании единую точку входа для ведения клиентов, сделок, договоров, проектов, закупок и управленческого учёта.
+Единая ERP-система для ООО «ПРО Мебель» (производство и монтаж мебели на заказ, B2B+B2C). Объединяет управление закупками ([zakuppro](https://github.com/ybatkovsky-jpg/zakuppro)) и контроль финансов с элементами CRM ([finpro](https://github.com/ybatkovsky-jpg/finpro)) в один программный комплекс — единая точка входа для ведения клиентов, сделок, договоров, проектов, закупок, производства, финансов и управленческого учёта.
 
-**Статус:** M001–M008 завершены ✅ | Активная разработка продолжается
+**Статус:** ✅ Milestone v1.0 COMPLETE — все 10 фаз + PLAT-06 (Орг-платформа задач). 52/52 требований validated.
 
 ---
 
@@ -11,14 +11,18 @@
 ```
 unified-crm-finance/
 ├── apps/
-│   ├── web/                       # Next.js 16 фронтенд (React 19, Tailwind CSS v4, shadcn/ui)
+│   ├── web/                       # Next.js 16 приложение (React 19, Tailwind CSS v4, shadcn/ui)
 │   │   └── src/
-│   │       ├── app/               # App Router: CRM, Deals, Projects, Contracts, Procurement, Finance, Analytics
-│   │       ├── components/        # UI-компоненты (shadcn/ui) + модульные виджеты
-│   │       └── lib/               # API клиенты, репозитории, Prisma, email, webhooks
-│   └── worker/                    # Python FastAPI воркер (consumer, health, Celery)
-├── docs/                          # Спецификация (22 файла)
+│   │       ├── app/               # App Router: страницы + ~131 API-роут
+│   │       ├── components/        # UI-компоненты (shadcn/base-ui) + модульные виджеты
+│   │       └── lib/               # API клиенты, репозитории (Prisma), утилиты, auth
+│   └── worker/                    # Python FastAPI воркер (consumer, health) — stub/scaffolding
+├── prisma/                        # Схема БД (68 моделей) + миграции + seed
+├── docs/                          # Спецификация (историческая, см. disclaimer)
+├── .planning/                     # Канонический планировочный слой (ROADMAP/STATE/REQUIREMENTS)
+├── .gsd/                          # GSD-контекст (синхронизирован с .planning) + PRODUCT-SPEC
 ├── docker-compose.yml             # PostgreSQL 16 + RabbitMQ + MinIO
+├── DEVELOPMENT.md                 # Quick-start для разработчика
 ├── LICENSE                        # Проприетарная лицензия
 └── README.md
 ```
@@ -26,99 +30,99 @@ unified-crm-finance/
 ## Быстрый старт
 
 ```bash
-# Установка зависимостей
+# Установка зависимостей (в apps/web)
 cd apps/web && npm install
 
-# Применение миграций Prisma
-npx prisma generate && npx prisma db push
+# Применение миграций Prisma + сид
+npx prisma generate && npx prisma migrate dev
+npx tsx prisma/seed.ts
 
-# Запуск dev-сервера
-npm run dev
-# → http://localhost:3000 → дашборд
+# Запуск dev-сервера (в apps/web нет секции scripts → через npx)
+npx next dev -p 3000
+# → http://localhost:3000 → редирект на /login
 ```
+
+**Логин для тестов:** `admin@local` / `admin123` (роль `director`, создаётся сидом).
+
+> ⚠️ Локальный PostgreSQL поднимается **нативно** (Docker Desktop отдаёт HTTP 500 на этой машине). Подробности в [`.gsd/integration/HANDOFF.md`](.gsd/integration/HANDOFF.md) §3.
 
 ## Ключевые решения
 
 | Решение | Выбор | Обоснование |
 |---------|-------|-------------|
-| Архитектура | Модульный монолит на Next.js + FastAPI | Единый стек, гибридный backend |
-| Frontend | Next.js 16 + React 19 + TypeScript + shadcn/ui | Единый стек обоих исходных проектов |
-| Backend | Next.js API Routes + Python FastAPI | Next.js для UI-логики; Python для фоновых задач |
-| База данных | PostgreSQL 16 + Prisma 6 ORM | 42+ сущности, UUID PK, мягкое удаление |
-| Очереди | RabbitMQ + Celery | Проверено в zakuppro |
-| Аутентификация | NextAuth + JWT, RBAC | Уже реализовано в finpro |
+| Архитектура | Модульный монолит на Next.js | Единый стек, SSR + API Routes |
+| Frontend | Next.js 16 + React 19 + TypeScript 6 + Tailwind v4 + shadcn/ui (base-ui) | Современный SSR-стек |
+| Backend | Next.js API Routes + Repository pattern | Типизированные репозитории над Prisma |
+| База данных | PostgreSQL 16 + Prisma 6 ORM | 68 моделей, UUID PK, мягкое удаление, Decimal(15,2) |
+| Аутентификация | JWT (jose) + bcryptjs, RBAC (7 ролей, M:N) | Сессии в cookie |
+| Внешние сервисы | RabbitMQ + MinIO (S3) | Очереди, файлы (worker — stub) |
 
 ## Статус разработки
 
-| Milestone | Статус | Модули |
-|-----------|--------|--------|
-| **M001** — Инфраструктура и модель данных | ✅ Завершён | Monorepo, Docker, Prisma schema (42 модели), NextAuth, CI/CD |
-| **M002** — CRM модуль | ✅ Завершён | Контакты, компании, взаимодействия, timeline |
-| **M003/M009** — Сделки и контракты | ✅ Завершён | Pipeline (8 стадий), Kanban, drag-and-drop, конвертация в контракт |
-| **M004** — Проекты | ✅ Завершён | Gantt, этапы, production, загрузка файлов |
-| **M005** — Закупки | ✅ Завершён | Контрагенты, BOM, заявки, счета, сверка, согласование, склад, поставки |
-| **M006** — Финансы | ✅ Завершён | Категории, бюджеты, транзакции, платежи, дашборд |
-| **M007** — Аналитика | ✅ Завершён | Воронка продаж, P&L, команда, закупки, сводный дашборд |
-| **M008** — Уведомления | ✅ Завершён | Email, in-app (колокольчик), webhooks |
+| Фаза | Статус | Содержание |
+|------|--------|------------|
+| **Phase 1** — Доступ и авторизация (RBAC) | ✅ | Экран входа, сессии, админка пользователей/ролей, middleware-изоляция (7 ролей) |
+| **Phase 2** — Стабилизация ядра | ✅ | Create-потоки, тесты, дни до конца проекта, schema drift |
+| **Phase 3** — Редизайн UI | ✅ | Левый сайдбар + поднав, шапка, лендинг на канбан, Framer Motion, мобильный вид |
+| **Phase 4** — CRM | ✅ | Источники лида, канбан сделок, КП с версионированием, замер#1, отказы, договор→проект, бонус дизайнера |
+| **Phase 5** — Спецификация и закупки | ✅ | Воронка проекта, замер#2, спецификация, закупки по поставщикам, email-запрос + автосверка |
+| **Phase 6** — Производство, логистика, монтаж | ✅ | Аутсорс-производство (навыки), доставка, многозаходный монтаж, доп. работы |
+| **Phase 7** — Акт, закрытие, гарантия | ✅ | Подписание акта (физ/юрлица), условия закрытия, гарантия 2 года |
+| **Phase 8** — Финансы | ✅ | Платежи 70/30, импорт банк-выписки, наличные, маржа, долги, выплата бонуса |
+| **Phase 9** — Управленческий учёт | ✅ | 12 статей расходов, P&L (УСН), план/факт, ДДС (`/accounting`) |
+| **Phase 10** — Задачи, уведомления, аналитика | ✅ | Задачи-выезды (lineage), in-app уведомления, аналитика воронки/маржи/команды |
+| **PLAT-06** — Орг-платформа задач | ✅ | Отделы→функции→назначения, RRULE-повторяющиеся задачи (реклама/налоги/аренда), ленивая материализация |
 
-## Что уже работает
+## Модули
 
 ### CRM & Продажи
 - **Контакты** (`/crm/contacts`) — список, детальная страница, timeline взаимодействий
-- **Сделки** (`/deals`) — Kanban-доска с drag-and-drop по 8 стадиям, конвертация в контракт
-- **Контракты** (`/contracts`) — версионность (MAX+1), подписанты, шаблоны
+- **Сделки** (`/deals`) — Kanban drag-and-drop по стадиям, источники, причины отказов, конвертация в договор+проект
+- **Контракты** (`/contracts`) — версионность, подписанты, сквозная нумерация `ПМ{год}-NNNN`
+- **Коммерческие предложения** — версионирование (tier'ы), PDF
 
 ### Проекты
-- **Проекты** (`/projects`) — детали, этапы, Gantt-график, production-трекинг
-- **Бюджеты** — виджет бюджета на странице проекта, группировка по периодам
+- **Проекты** (`/projects`) — воронка (замер#2 → спецификация → закупки → производство → монтаж → акт → закрытие), этапы, гарантия
+- **Производство** — аутсорс-партнёры с навыками (ДСП/камень/стекло/бетон), режим материала
+- **Монтаж** — многозаходный, прогрессивные статусы, требование 30% перед началом
+- **Акт и закрытие** — подписание (физлица — монтажник, юрлица — менеджер), чек-лист условий
 
-### Закупки
+### Закупки и склад
 - **Контрагенты** (`/procurement/counterparties`) — CRUD, типы, история
-- **BOM** — загрузка Excel, редактируемая таблица, назначение поставщиков
-- **Запросы** (`/procurement/purchase-requests`) — статус-машина, отправка поставщикам
-- **Счета** (`/procurement/invoices`) — сверка, reconciliation, статус-машина
-- **Согласования** (`/procurement/approvals`) — approve/reject, уведомления
+- **BOM/Спецификация** — редактируемая таблица, назначение поставщиков по позиции
+- **Закупки** (`/procurement/purchase-requests`) — воронка, email-запрос, автосверка
+- **Счета** (`/procurement/invoices`) — сверка, reconciliation
 - **Склад** (`/procurement/warehouse`) — остатки, транзакции (in/out/reserve/release)
 - **Поставки** (`/procurement/deliveries`) — статус-трекинг, автообновление склада
 
-### Финансы
-- **Категории** (`/finance/categories`) — иерархия, доходы/расходы
-- **Транзакции** (`/finance/transactions`) — доходы/расходы, фильтры, сводки
-- **Платежи** (`/finance/payments`) — план/график/оплачено/отменено
-- **Дашборд** (`/finance`) — баланс, доходы/расходы, бюджеты, предстоящие платежи
+### Финансы и управленческий учёт
+- **Финансы** (`/finance`) — категории, транзакции, платежи проекта (70/30), банк-выписка, маржа, долги
+- **Учёт** (`/accounting`) — 12 статей расходов, P&L, план/факт, ДДС (директор + бухгалтер)
 
-### Аналитика
-- **Воронка продаж** (`/analytics/funnel`) — конверсия по стадиям, суммы
-- **P&L / Маржа** (`/analytics/margin`) — прибыльность проектов, топ-5
-- **Команда** (`/analytics/team`) — метрики менеджеров, сравнение
-- **Закупки** (`/analytics/procurement`) — циклы, поставщики, тренды
-- **Сводный дашборд** (`/analytics`) — KPI-карточки, мини-виджеты
-
-### Инфраструктура
-- **Уведомления** — in-app колокольчик в навбаре, mark-as-read, email-отправка
-- **Webhooks** — подписки, диспатч событий, retry с backoff
-- **API** — Repository pattern, typed API clients, 35+ эндпоинтов
+### Платформа
+- **Задачи** (`/tasks`) — выезды (замер/монтаж) и общие, с переносом/пересозданием, lineage
+- **Орг-платформа** (`/org`) — отделы→функции→задачи компании (реклама, налоги, аренда), RRULE-повторение, шаблоны
+- **Уведомления** — in-app колокольчик, mark-as-read, события (смена стадии, оплата, просрочка)
+- **Аналитика** (`/analytics`) — воронка продаж, P&L/маржа, команда, закупки, сводный дашборд
 
 ## Технологический стек
 
 | Слой | Технологии |
 |------|-----------|
-| **Frontend** | Next.js 16, React 19, TypeScript 6, Tailwind CSS v4, shadcn/ui (Radix) |
-| **UI паттерны** | Loading/error/empty states, optimistic updates, drag-and-drop (@dnd-kit) |
-| **API** | Next.js API Routes, typed fetch clients, ApiClientError |
-| **База данных** | PostgreSQL 16 (prod), SQLite (dev), Prisma 6 ORM, Repository pattern |
-| **Worker** | Python FastAPI, Celery, RabbitMQ (aio-pika), SQLAlchemy async |
-| **Хранилище** | MinIO (S3-совместимое), @aws-sdk/client-s3 |
-| **CI/CD** | GitHub Actions (lint, typecheck, test, build, deploy) |
+| **Frontend** | Next.js 16, React 19, TypeScript 6, Tailwind CSS v4, shadcn/ui (base-ui), Framer Motion, @dnd-kit |
+| **API** | Next.js API Routes (~131 эндпоинт), Repository pattern, typed fetch clients, ApiClientError |
+| **База данных** | PostgreSQL 16, Prisma 6 ORM, 68 моделей, UUID PK, Decimal(15,2) |
+| **Auth** | JWT (jose), bcryptjs, RBAC (7 ролей, M:N user↔role) |
+| **Внешние сервисы** | RabbitMQ (aio-pika), MinIO (@aws-sdk/client-s3) |
+| **Тесты** | node:test + tsx (реальная БД, префиксный cleanup) |
 
 ## Спецификация
 
-Полная спецификация в [`docs/`](docs/):
-- [`00-executive-summary.md`](docs/00-executive-summary.md) — резюме для стейкхолдеров
-- [`03-target-architecture.md`](docs/03-target-architecture.md) — целевая архитектура
-- [`04-tech-stack.md`](docs/04-tech-stack.md) — стек технологий
-- [`05-data-model.md`](docs/05-data-model.md) — модель данных (42 сущности)
-- [`18-roadmap.md`](docs/18-roadmap.md) — дорожная карта
+- **Каноническое ТЗ:** [`.gsd/integration/PRODUCT-SPEC.md`](.gsd/integration/PRODUCT-SPEC.md) — полное ТЗ из интервью с заказчиком (приоритет над всем).
+- **Планирование:** [`.planning/`](.planning/) — ROADMAP, STATE, REQUIREMENTS (фазовая схема, источник правды по фазам).
+- **Руководство разработчика:** [`.gsd/integration/HANDOFF.md`](.gsd/integration/HANDOFF.md) — контекст, запуск окружения, грабли.
+
+> ⚠️ **`docs/` (20 техдоков) — исторические**, созданы на старте (2026-06-19) и местами расходятся с реальностью (стек, модель данных). Не использовать как источник правды — канон в `PRODUCT-SPEC.md` и `.planning/`.
 
 ## Связанные репозитории
 

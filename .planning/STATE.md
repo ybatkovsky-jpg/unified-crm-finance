@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
+milestone_name: ERP ПРО Мебель — доводка до спеки
 status: complete
-last_updated: "2026-06-30T00:20:00.000Z"
-last_activity: 2026-06-30 -- Phase 10 (platform PLAT-01..05: tasks, notifications, analytics) completed — milestone v1.0 COMPLETE
+last_updated: "2026-06-30T15:00:00.000Z"
+last_activity: 2026-06-30 -- PLAT-06 «Орг-платформа задач» (отделы→функции→повторяющиеся задачи) добавлен пост-milestone; документация синхронизирована с реальностью
 progress:
   total_phases: 10
   completed_phases: 10
@@ -17,50 +17,52 @@ progress:
 
 **Active Milestone:** v1.0 «ERP ПРО Мебель — доводка до спеки» — COMPLETE ✅
 **Active Phase:** ✅ Phase 10 complete — платформа (задачи, уведомления, аналитика) — milestone завершён
-**Requirements Status:** 51 active · 51 validated · 0 deferred · 0 out of scope
+**Requirements Status:** 52 active · 52 validated · 0 deferred · 0 out of scope (51 в milestone + PLAT-06 post-milestone)
 
 ## Project Reference
 
 **Core value:** Единое пространство для всех бизнес-процессов (от закупок до финансов) — одно окно для управления всем циклом сделки/проекта с консистентными данными и прозрачностью статусов.
-**Current focus:** Довести единый ERP до продуктового ТЗ — авторизация/RBAC, UI-редизайн, стабилизация ядра, CRM, проектный цикл (закупки/производство/монтаж), финансы, управленческий учёт, платформа (задачи/уведомления/аналитика).
-**Canonical sources:** `.planning/REQUIREMENTS.md` (51 REQ-ID) + `.gsd/integration/PRODUCT-SPEC.md`.
-**Stack:** Next.js 16 + React 19 + Prisma 6 + PostgreSQL. Каркас из 58 моделей и ~83 API-роутов недоделан — доводим/чиним + добавляем недостающее.
+**Current focus:** Milestone v1.0 завершён (Phase 1–10). Дополнительно реализован модуль PLAT-06 «Орг-платформа задач». Дальнейшее — Future requirements и починка известных багов (см. ревью Phase 10).
+**Canonical sources:** `.planning/REQUIREMENTS.md` (52 REQ-ID) + `.gsd/integration/PRODUCT-SPEC.md`.
+**Stack:** Next.js 16 + React 19 + Prisma 6 + PostgreSQL. Схема: 68 моделей, ~131 API-роут.
 
 ## Current Position
 
-Phase: 1 — COMPLETE
+Phase: 10 — COMPLETE (milestone v1.0 завершён)
 Plan: —
-Status: Phase 1 complete
-Last activity: 2026-06-28 -- Phase 1 marked complete
+Status: Milestone COMPLETE + PLAT-06 post-milestone
+Last activity: 2026-06-30 -- PLAT-06 «Орг-платформа задач» реализован; документация приведена в порядок
 
 ### Progress bar
 
 ```
-[░░░░░░░░░░] 0% — 0/10 phases
+[██████████] 100% — 10/10 phases (+ PLAT-06 post-milestone)
 ```
 
 ## Performance Metrics
 
-- Phases defined: 10
-- Requirements mapped: 51/51 (100%)
-- Plans defined: 0
-- Decisions logged: 1
+- Phases defined: 10 (все complete)
+- Requirements mapped: 52/52 (100%) — 51 в milestone + PLAT-06
+- Plans defined: 10 (все complete)
+- Decisions logged: 12
+- Schema models: 68
+- API routes: ~131
 
 ## Milestone Registry
 
 > Прежние записи M001–M010 в старом STATE.md были фикцией (фактическое состояние: авторизации НЕТ, create-потоки падают, ~40 ошибок типов, ~298 битых тестов). Реальный milestone v1.0 стартует с Phase 1 ниже.
 
-- [x] **Phase 1:** Доступ и авторизация (RBAC) — AUTH (5)
-- [x] **Phase 2:** Стабилизация ядра — CORE (4)
-- [x] **Phase 3:** Редизайн UI — UI (5)
-- [x] **Phase 4:** CRM — сделки и КП — CRM (4/8) ✅ 2026-06-29
-- [x] **Phase 5:** Проект — стабилизация + аудит-фиксы ✅ 2026-06-29
+- [x] **Phase 1:** Доступ и авторизация (RBAC) — AUTH (5) ✅ 2026-06-28
+- [x] **Phase 2:** Стабилизация ядра — CORE (4) ✅ 2026-06-28
+- [x] **Phase 3:** Редизайн UI — UI (5) ✅ 2026-06-28
+- [x] **Phase 4:** CRM — сделки и КП — CRM (8) ✅ 2026-06-29
+- [x] **Phase 5:** Проект — спецификация и закупки — PROJ-01..07 (7) ✅ 2026-06-29
 - [x] **Phase 6:** Производство, логистика, монтаж — PROJ-08..11 (4) ✅ 2026-06-29
-- [x] **Phase 5b:** Спецификация и закупки — PROJ-01..07 (7) ✅ 2026-06-29
 - [x] **Phase 7:** Акт, закрытие проекта, гарантия — PROJ-12..14 (3) ✅ 2026-06-29
 - [x] **Phase 8:** Финансы — FIN-01..06 (6) ✅ 2026-06-29
 - [x] **Phase 9:** Управленческий учёт — ACCT-01..04 (4) ✅ 2026-06-29
 - [x] **Phase 10:** Задачи, уведомления, аналитика — PLAT-01..05 (5) ✅ 2026-06-30
+- [x] **PLAT-06:** Орг-платформа задач — отделы→функции→назначения, RRULE-повторяющиеся задачи, ленивая материализация ✅ 2026-06-30 (post-milestone)
 
 ## Accumulated Context
 
@@ -80,15 +82,24 @@ Last activity: 2026-06-28 -- Phase 1 marked complete
 - 2026-06-30 (Phase 10): Time-based события (60 дней, просрочка задачи) — ленивый расчёт при чтении (как статусы проекта Phase 5), без cron/worker. Уведомления создаются в GET-эндпоинтах по факту обнаружения, idempotent через metadata.dedupeKey.
 - 2026-06-30 (Phase 10): Task lineage — originalTaskId (корень цепочки) + parentTaskId (предыдущая при переносе) + failedReason. Reschedule = пометить старую failed + создать новую-копию с переносом даты и сохранением lineage. Репо lib/db/tasks.ts по паттерну budgets.ts.
 - 2026-06-30 (Phase 10): Известный баг — Task.createdBy это FK на User, но create-measurement-task шлёт 'system' (несуществующий). Не регрессия Phase 10 (существовало ранее), но при реальном использовании нужен реальный userId из сессии.
+- 2026-06-30 (PLAT-06): Орг-платформа задач — иерархия Department→OrgFunction→FunctionAssignment (head/responsible, один человек→несколько функций), TaskTemplate с RFC-5545 RRULE (библиотека rrule), ленивая материализация инстансов при наступлении срока (идемпотентно по templateId+plannedDate), видимость директор+head+исполнитель. Гибрид: отдельный раздел /org + инстансы в общем /tasks. RBAC-секция 'org' добавлена всем ролям.
+- 2026-06-30 (Ревью Phase 10): Найдены критические проблемы безопасности/целостности (см. Todos): IDOR уведомлений и задач (нет проверки сессии/владельца в роутах), dedupeKey-фильтр не работает (дубли при каждом чтении), RBAC-дыра в аналитике (менеджеры видят чужие финансы), семантический баг stockValue. Требуют отдельной починки.
 
 ### Todos
 
 - Получить образец файлa банк-выписки 1С/TXT от Озон/Тинькофф (PRODUCT-SPEC п.11, открытый вопрос #4) — для точной доработки парсера FIN-02 (сейчас по стандарту 1C + эвристики).
 - Подтвердить матрицу видимости проектов (PRODUCT-SPEC п.1, открытый вопрос #1) — влияет на AUTH-04/AUTH-05.
 - ~~Подтвердить каналы уведомлений~~ ✅ решено Phase 10: только in-app, Telegram/email → Future.
-- Собрать дизайн-референсы для «сексуального и плавного» UI — влияет на Phase 3/UI-04.
 - Future: Telegram-бот + email для уведомлений (PLAT-02 расширение) — когда будет готов bot token/SMTP.
 - Bug: Task.createdBy FK='system' в create-measurement-task (нужен реальный userId из сессии).
+- **Ревью Phase 10 — критические находки (требуют починки):**
+  - 🔴 IDOR уведомлений: `api/notifications/*` не проверяют сессию — любой читает/создаёт чужие уведомления (userId из query/body).
+  - 🔴 IDOR задач: `api/tasks/*` не проверяют сессию/владельца — любой меняет/удаляет чужие задачи.
+  - 🔴 dedupeKey не работает: `events.ts:36-49` findFirst без фильтра по metadata → дубли task_overdue при каждом чтении.
+  - 🔴 RBAC-дыра аналитики: `api/analytics/*` не фильтруют по viewAllProjects — менеджеры видят чужие финансы/маржу.
+  - 🟠 Семантический баг: `procurement-metrics` stockValue = кол-во единиц, отображается как ₽.
+  - 🟠 N+1: team-performance (5N+ запросов), budget-vs-actual.
+  - 🟡 Нет тестов для Phase 10 модулей (tasks/notifications/analytics).
 
 ### Blockers
 
@@ -96,7 +107,7 @@ Last activity: 2026-06-28 -- Phase 1 marked complete
 
 ## Session Continuity
 
-**Last session:** 2026-06-30 — Phase 10 (платформа PLAT-01..05) завершена. **MILESTONE v1.0 COMPLETE — все 10 фаз, 51/51 требований validated.**
-PLAT-01: задачи (Task lineage originalTaskId/parentTaskId/failedReason, repo lib/db/tasks.ts, API GET-фильтры+PATCH+reschedule+recreate, раздел «Задачи» в навигации + 3 страницы /tasks/overdue/all, assignee в create-measurement-task). PLAT-02: in-app уведомления (колокол починен MOCK_USER_ID→me.id, lib/notifications/events.ts с dedupeKey, trigger-points в deals.moveStage/инвойс-оплата/project-payment/ленивая просрочка задач). PLAT-03: воронка причин отказов (lossReasonBreakdown через LOSS_REASONS). PLAT-04: маржа сплит open/closed (marginByStatus). PLAT-05: команда win-rate + нагрузка (activeTaskCount/overdueTaskCount/activeProjectCount/wonAmount).
-**Next action:** Milestone завершён. Дальнейшее — Future requirements (Telegram/email уведомления, гарантийные заявки, телефония, инвентаризация) и баг Task.createdBy='system'.
-**Resume command:** Milestone v1.0 готов. Для новых задач — определить следующий milestone или поработать над Future-требованиями.
+**Last session:** 2026-06-30 — PLAT-06 «Орг-платформа задач» реализован (отделы→функции→назначения, RRULE-повторяющиеся задачи с ленивой материализацией). Проведено ревью Phase 10 (найдены 4 критических + 2 важных проблемы безопасности/целостности). Документация приведена в порядок: синхронизированы .gsd + .planning под фазовую схему, README переписан, docs/ заморожены как исторические, починен конфликт Prisma root/app.
+**MILESTONE v1.0 COMPLETE** — все 10 фаз + PLAT-06, 52/52 требований validated.
+**Next action:** (1) починка критических находок ревью Phase 10 (IDOR, dedupeKey, RBAC аналитики); (2) Future requirements (Telegram/email, гарантии, телефония); (3) новые модули по запросу.
+**Resume command:** Milestone v1.0 + PLAT-06 готовы. Сначала закрыть known-баги из ревью, затем — следующий milestone.
