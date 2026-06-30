@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { contactsApi, ApiClientError } from "@/lib/api/contacts";
+import { validateContactFields, validatePhone } from "@/lib/validation/contact";
 import type { ContactCreateInput, ContactData } from "@/lib/api/types";
 
 interface ContactFormModalProps {
@@ -168,21 +169,31 @@ export function ContactFormModal({
       setError("Укажите телефон — он обязателен для всех контактов.");
       return;
     }
-    // Phone validation: только цифры, +, пробелы, дефисы, скобки
-    if (phone.trim()) {
-      const cleaned = phone.trim().replace(/[\s\-()]/g, "");
-      if (!/^\+?\d{7,15}$/.test(cleaned)) {
-        setError("Неверный формат телефона. Допустимы цифры, +, пробелы, дефисы, скобки (7–15 цифр).");
-        return;
-      }
+
+    // Валидация всех полей
+    const fieldError = validateContactFields({
+      firstName: type === "person" ? firstName : null,
+      lastName,
+      middleName,
+      companyName: type === "company" ? companyName : null,
+      position: type === "person" ? position : null,
+      email,
+      phone,
+      inn: type === "company" ? inn : null,
+      kpp: type === "company" ? kpp : null,
+      ogrn: type === "company" ? ogrn : null,
+    })
+    if (fieldError) {
+      setError(fieldError)
+      return
     }
 
     // Employee phone validation
     if (addEmployee && empPhone.trim()) {
-      const empCleaned = empPhone.trim().replace(/[\s\-()]/g, "");
-      if (!/^\+?\d{7,15}$/.test(empCleaned)) {
-        setError("Неверный формат телефона сотрудника.");
-        return;
+      const empPhoneErr = validatePhone(empPhone)
+      if (empPhoneErr) {
+        setError(`Телефон сотрудника: ${empPhoneErr}`)
+        return
       }
     }
 

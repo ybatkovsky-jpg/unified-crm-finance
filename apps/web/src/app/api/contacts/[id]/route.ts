@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { contacts } from '../../../../lib/db/contacts'
 import type { ContactUpdateInput } from '../../../../lib/db/contacts'
+import { validateContactFields } from '../../../../lib/validation/contact'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -129,15 +130,24 @@ export async function PUT(request: NextRequest, { params }: RouteParams): Promis
       }
     }
 
-    // Phone format validation (if provided)
-    if (body.phone !== undefined && typeof body.phone === 'string' && body.phone.trim()) {
-      const cleaned = body.phone.trim().replace(/[\s\-()]/g, '')
-      if (!/^\+?\d{7,15}$/.test(cleaned)) {
-        return NextResponse.json(
-          { error: 'Validation failed', message: 'phone must contain 7–15 digits (allowed: +, spaces, dashes, parentheses)' },
-          { status: 400 }
-        )
-      }
+    // Full field validation (for provided fields)
+    const fieldError = validateContactFields({
+      firstName: body.firstName,
+      lastName: body.lastName,
+      middleName: body.middleName,
+      companyName: body.companyName,
+      position: body.position,
+      email: body.email,
+      phone: body.phone,
+      inn: body.inn,
+      kpp: body.kpp,
+      ogrn: body.ogrn,
+    })
+    if (fieldError) {
+      return NextResponse.json(
+        { error: 'Validation failed', message: fieldError },
+        { status: 400 }
+      )
     }
 
     // Prepare update data (only include provided fields)

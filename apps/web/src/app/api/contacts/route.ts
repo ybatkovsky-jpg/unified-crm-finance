@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { contacts } from '../../../lib/db/contacts'
+import { validateContactFields } from '../../../lib/validation/contact'
 
 /**
  * GET /api/contacts
@@ -88,15 +89,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // Phone format validation
-    if (typeof body.phone === 'string' && body.phone.trim()) {
-      const cleaned = body.phone.trim().replace(/[\s\-()]/g, '')
-      if (!/^\+?\d{7,15}$/.test(cleaned)) {
-        return NextResponse.json(
-          { error: 'Validation failed', message: 'phone must contain 7–15 digits (allowed: +, spaces, dashes, parentheses)' },
-          { status: 400 }
-        )
-      }
+    // Full field validation
+    const fieldError = validateContactFields({
+      firstName: body.type === 'person' ? body.firstName : null,
+      lastName: body.lastName,
+      middleName: body.middleName,
+      companyName: body.type === 'company' ? body.companyName : null,
+      position: body.type === 'person' ? body.position : null,
+      email: body.email,
+      phone: body.phone,
+      inn: body.type === 'company' ? body.inn : null,
+      kpp: body.type === 'company' ? body.kpp : null,
+      ogrn: body.type === 'company' ? body.ogrn : null,
+    })
+    if (fieldError) {
+      return NextResponse.json(
+        { error: 'Validation failed', message: fieldError },
+        { status: 400 }
+      )
     }
 
     // companyId validation: can only be set for person contacts
