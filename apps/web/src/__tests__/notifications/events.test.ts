@@ -20,7 +20,7 @@ vi.mock('@/lib/db/notifications', () => ({
   },
 }))
 
-import { notify, notifyTaskOverdue, notifyNewLead, notifyDealStageChange } from './events'
+import { notify, notifyTaskOverdue, notifyNewLead, notifyDealStageChange } from '../../lib/notifications/events'
 import { prisma } from '@/lib/db/prisma'
 import { notifications } from '@/lib/db/notifications'
 

@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // ── Mocks (vi.fn inside factory — no external vars, избегаем hoisting) ──
-vi.mock('./prisma', () => {
+vi.mock('../../lib/db/prisma', () => {
   // Создаём единый mock-объект prisma, который $transaction вернёт как tx.
   const mockTask = {
     findUnique: vi.fn(),
@@ -30,8 +30,8 @@ vi.mock('./prisma', () => {
   return { prisma: mockPrisma }
 })
 
-import { tasks } from './tasks'
-import { prisma } from './prisma'
+import { tasks } from '../../lib/db/tasks'
+import { prisma } from '../../lib/db/prisma'
 
 // ── Helpers ────────────────────────────────────────────────────────
 function makeTask(overrides: Record<string, unknown> = {}) {

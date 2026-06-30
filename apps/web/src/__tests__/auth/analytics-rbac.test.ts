@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { analyticsManagerScope, requireAnalyticsSession } from './analytics-rbac'
-import type { SessionUser } from './session'
+import { analyticsManagerScope, requireAnalyticsSession } from '../../lib/auth/analytics-rbac'
+import type { SessionUser } from '../../lib/auth/session'
 
 function makeSession(roleCodes: string[], id = 'user-1'): SessionUser {
   return {
