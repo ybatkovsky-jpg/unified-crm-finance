@@ -6,7 +6,6 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     include: ['src/__tests__/**/*.test.ts'],
-    // Тесты в __tests__ — Next.js/Turbopack их игнорирует (не компилирует как часть приложения).
   },
   resolve: {
     alias: {
