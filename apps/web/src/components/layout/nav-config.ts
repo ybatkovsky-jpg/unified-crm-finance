@@ -41,6 +41,7 @@ import {
   CalendarClock,
   UsersRound,
   Network,
+  Image,
 } from "lucide-react"
 
 export interface NavChild {
@@ -157,6 +158,7 @@ export const NAV_SECTIONS: NavSection[] = [
     icon: Settings,
     directorOnly: true,
     children: [
+      { label: "Общие", href: "/settings/general", icon: Image },
       { label: "Пользователи", href: "/settings/users", icon: UserCog },
     ],
   },

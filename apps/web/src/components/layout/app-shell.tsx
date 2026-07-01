@@ -15,7 +15,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Sidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
-      <div className="flex min-h-dvh flex-col lg:pl-[var(--sidebar-width)]">
+      <div className="flex min-h-dvh flex-col bg-gradient-to-br from-indigo-50/60 via-background to-background dark:from-indigo-950/20 lg:pl-[var(--sidebar-width)]">
         <Topbar onOpenMobile={() => setMobileOpen(true)} />
         <main className="flex-1">{children}</main>
       </div>

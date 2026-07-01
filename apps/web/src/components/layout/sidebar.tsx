@@ -19,12 +19,14 @@ import { buttonVariants } from "@/components/ui/button"
 import { NAV_SECTIONS, getActiveSection } from "./nav-config"
 import { SECTION_HOME } from "./section-home"
 import { useMe } from "./use-me"
+import { useBrand } from "./use-brand"
 
 const COLLAPSE_KEY = "pm.sidebar.collapsed"
 
 export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; onMobileClose: () => void }) {
   const pathname = usePathname()
   const { isDirector } = useMe()
+  const { brand } = useBrand()
 
   const [collapsed, setCollapsed] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -53,8 +55,16 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
           collapsed && "justify-center px-0"
         )}
       >
-        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-          <Sofa className="size-4.5" />
+        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground shadow-sm overflow-hidden">
+          {brand?.logoUrl ? (
+            <img
+              src={brand.logoUrl}
+              alt="Логотип"
+              className="h-full w-full object-contain"
+            />
+          ) : (
+            <Sofa className="size-4.5" />
+          )}
         </span>
         {!collapsed && (
           <span className="flex flex-col leading-tight">
