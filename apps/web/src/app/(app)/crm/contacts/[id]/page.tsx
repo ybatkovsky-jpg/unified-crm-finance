@@ -16,6 +16,7 @@ import { ContactFormModal } from "@/components/contacts/contact-form-modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useMe } from "@/components/layout/use-me"
 
 // Mock author ID for MVP - will be replaced with real auth context
 const MOCK_AUTHOR_ID = "00000000-0000-0000-0000-000000000001"
@@ -45,6 +46,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
   const { id } = use(params)
   const contactId = id
   const router = useRouter()
+  const { me, isAdmin } = useMe()
   const [contact, setContact] = useState<ContactData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -184,6 +186,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
                 </Badge>
               </div>
             </div>
+            {(isAdmin || contact?.ownerId === me?.id) && (
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
                 <Pencil className="size-4" />
@@ -200,6 +203,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
                 <span className="ml-1.5">{deleting ? "Удаление…" : "Удалить"}</span>
               </Button>
             </div>
+            )}
           </div>
         </CardHeader>
         <CardContent>

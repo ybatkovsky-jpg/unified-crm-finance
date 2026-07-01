@@ -257,7 +257,7 @@ export function CreateProjectModal({ onCreate }: CreateProjectModalProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="status">Статус</Label>
-                <Select value={status} onValueChange={(value) => setStatus(value ?? "lead")}>
+                <Select value={status} onValueChange={(value) => setStatus(value ?? "lead")} items={Object.fromEntries(STATUS_OPTIONS.map((o) => [o.value, o.label]))}>
                   <SelectTrigger id="status">
                     <SelectValue />
                   </SelectTrigger>
@@ -273,7 +273,11 @@ export function CreateProjectModal({ onCreate }: CreateProjectModalProps) {
 
               <div className="grid gap-2">
                 <Label htmlFor="managerId">Менеджер</Label>
-                <Select value={managerId} onValueChange={(value) => setManagerId(value ?? "")}>
+                <Select
+                  value={managerId}
+                  onValueChange={(value) => setManagerId(value ?? "")}
+                  items={Object.fromEntries([["", "Не выбран"], ...managers.map((o) => [o.value, o.label])])}
+                >
                   <SelectTrigger id="managerId">
                     <SelectValue placeholder="Не выбран" />
                   </SelectTrigger>
@@ -293,7 +297,7 @@ export function CreateProjectModal({ onCreate }: CreateProjectModalProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="currency">Валюта</Label>
-                <Select value={currency} onValueChange={(value) => setCurrency(value ?? "RUB")}>
+                <Select value={currency} onValueChange={(value) => setCurrency(value ?? "RUB")} items={Object.fromEntries(CURRENCY_OPTIONS.map((o) => [o.value, o.label]))}>
                   <SelectTrigger id="currency">
                     <SelectValue />
                   </SelectTrigger>

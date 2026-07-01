@@ -246,6 +246,10 @@ export default function InvoiceReconcilePage() {
                           <Select
                             value={it.bomItemId ?? "__none__"}
                             onValueChange={(v) => handleMatch(it.id, v ?? "__none__")}
+                            items={Object.fromEntries([
+                              ["__none__", "— Не сопоставлено —"],
+                              ...orderItems.map((oi) => [oi.id, oi.name]),
+                            ])}
                           >
                             <SelectTrigger className="w-full min-w-[180px]">
                               <SelectValue placeholder="Не сопоставлено" />

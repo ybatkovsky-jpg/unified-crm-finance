@@ -383,6 +383,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
                     <Select
                       value={editForm.status}
                       onValueChange={(value) => setEditForm({ ...editForm, status: value ?? "draft" })}
+                      items={{ draft: "Черновик", active: "Активный", signed: "Подписан", expired: "Истёк", cancelled: "Отменён" }}
                     >
                       <SelectTrigger id="status">
                         <SelectValue />

@@ -222,6 +222,7 @@ export default function ProjectsPage() {
                 onValueChange={(value) => {
                   if (value) setStatusFilter(value as StatusFilter)
                 }}
+                items={{ all: "Все статусы", lead: "Лид", active: "Активный", completed: "Завершён", paused: "Пауза" }}
               >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Все статусы" />
@@ -244,6 +245,10 @@ export default function ProjectsPage() {
                 onValueChange={(value) => {
                   if (value) setManagerFilter(value)
                 }}
+                items={Object.fromEntries([
+                  ["all", "Все менеджеры"],
+                  ...managerOptions.map((m) => [m.id, m.name]),
+                ])}
               >
                 <SelectTrigger className="w-64">
                   <SelectValue placeholder="Все менеджеры" />

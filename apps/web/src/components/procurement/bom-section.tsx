@@ -878,6 +878,13 @@ export function BOMSection({ projectId }: { projectId: string }) {
                             onValueChange={(value) =>
                               handleSupplierChange(item.id, value ?? "")
                             }
+                            items={Object.fromEntries([
+                              ["", "— Не выбран —"],
+                              ...suppliers.map((s) => [
+                                s.id,
+                                `${s.name}${s.inn ? ` (ИНН ${s.inn})` : ""}`,
+                              ]),
+                            ])}
                           >
                             <SelectTrigger size="sm" className="w-full min-w-[140px]">
                               <SelectValue />

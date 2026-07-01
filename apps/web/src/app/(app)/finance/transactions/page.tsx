@@ -26,6 +26,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useMe } from "@/components/layout/use-me"
 
 type TypeFilter = "all" | "income" | "expense"
 type StatusFilter = "all" | "confirmed" | "pending"
@@ -43,6 +44,7 @@ function formatCurrency(amount: number): string {
 }
 
 export default function TransactionListPage() {
+  const { isAdmin } = useMe()
   const [transactions, setTransactions] = useState<TransactionData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -149,7 +151,7 @@ export default function TransactionListPage() {
           <div className="flex gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm text-muted-foreground">Type</label>
-              <Select value={typeFilter} onValueChange={(v) => { if (v) setTypeFilter(v as TypeFilter) }}>
+              <Select value={typeFilter} onValueChange={(v) => { if (v) setTypeFilter(v as TypeFilter) }} items={{ all: "All types", income: "Income", expense: "Expense" }}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
@@ -164,7 +166,7 @@ export default function TransactionListPage() {
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm text-muted-foreground">Status</label>
-              <Select value={statusFilter} onValueChange={(v) => { if (v) setStatusFilter(v as StatusFilter) }}>
+              <Select value={statusFilter} onValueChange={(v) => { if (v) setStatusFilter(v as StatusFilter) }} items={{ all: "All statuses", confirmed: "Confirmed", pending: "Pending" }}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
@@ -247,6 +249,8 @@ export default function TransactionListPage() {
                   <TableCell>{renderStatusBadge(tx.status)}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
+                      {isAdmin && (
+                      <>
                       <Button variant="ghost" size="icon" className="size-8" onClick={() => setEditingTx(tx)} title="Edit">
                         <PencilIcon className="size-4" />
                       </Button>
@@ -256,6 +260,8 @@ export default function TransactionListPage() {
                       >
                         <Trash2Icon className="size-4" />
                       </Button>
+                      </>
+                      )}
                       <Link href={`/finance/transactions/${tx.id}`}>
                         <Button variant="ghost" size="icon" className="size-8" title="View">
                           <ChevronRightIcon className="size-4" />

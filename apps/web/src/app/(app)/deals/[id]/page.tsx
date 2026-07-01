@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, File, Download, Trash2, Upload, Package, ChevronDown, Plus, ListTodo, Clock, AlertCircle, CheckCircle2 } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, File, Download, Trash2, Upload, Package, ChevronDown, Plus, ListTodo, Clock, AlertCircle, CheckCircle2, MessageSquare } from "lucide-react"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
 import { pipelinesApi } from "@/lib/api/pipelines"
 import { filesApi } from "@/lib/api/files"
@@ -14,6 +14,7 @@ import type { DealData, DealStageData, FileUploadFile, LeadSourceData } from "@/
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { useMe } from "@/components/layout/use-me"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -33,6 +34,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { DealHistoryTimeline } from "@/components/deals/deal-history-timeline"
+import { DealComments } from "@/components/deals/deal-comments"
 import { FileUpload } from "@/components/shared/file-upload"
 import { FilePreview, useFilePreview } from "@/components/shared/file-preview"
 
@@ -75,6 +77,7 @@ function isOverdue(t: TaskData): boolean {
 
 export default function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
+  const { me, isAdmin } = useMe()
   const [deal, setDeal] = useState<DealData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -514,83 +517,32 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="size-4" />
-          </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold">{deal.title}</h1>
-              <Badge
-                style={{
-                  backgroundColor: stageColor,
-                  color: "#fff",
-                }}
-              >
-                {deal.stage.name}
-              </Badge>
-              {isWon && <Badge variant="default">Выиграна</Badge>}
-              {isLost && <Badge variant="destructive">Проиграна</Badge>}
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              {deal.number} · {deal.pipeline.name}
-              {deal.source && (
-                <Badge variant="secondary" className="ml-2 text-xs">
-                  {deal.source.name}
-                </Badge>
-              )}
-            </p>
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+          <ArrowLeft className="size-4" />
+        </Button>
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-semibold">{deal.title}</h1>
+            <Badge
+              style={{
+                backgroundColor: stageColor,
+                color: "#fff",
+              }}
+            >
+              {deal.stage.name}
+            </Badge>
+            {isWon && <Badge variant="default">Выиграна</Badge>}
+            {isLost && <Badge variant="destructive">Проиграна</Badge>}
           </div>
-        </div>
-        <div className="flex gap-2">
-          {!isEditing && (
-            <>
-              <Button onClick={() => { setIsEditing(true); getLeadSources().then(r => setLeadSources(r.data)).catch(() => {}) }}>
-                <Edit2 className="size-4" />
-                <span className="ml-1.5">Изменить</span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  if (!deal) return
-                  setCreatingProject(true)
-                  setError(null)
-                  try {
-                    const res = await fetch(`/api/deals/${deal.id}/convert-to-project`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ name: deal.title, contactId: deal.contactId }),
-                    })
-                    if (!res.ok) {
-                      const errData = await res.json().catch(() => ({}))
-                      throw new Error(errData.message || `HTTP ${res.status}`)
-                    }
-                    const { data: result } = await res.json()
-                    router.push(`/projects/${result.project.id}`)
-                  } catch (err) {
-                    setError(err instanceof Error ? err.message : 'Не удалось создать проект и договор.')
-                  } finally {
-                    setCreatingProject(false)
-                  }
-                }}
-                disabled={creatingProject || !!deal.projectId}
-              >
-                <Package className="size-4" />
-                <span className="ml-1.5">
-                  {creatingProject ? "Создание..." : deal.projectId ? "Открыть проект" : "Создать проект и договор"}
-                </span>
-              </Button>
-              {/* Create Task Button */}
-              <Button
-                variant="outline"
-                onClick={() => setTaskDialogOpen(true)}
-              >
-                <Plus className="size-4" />
-                <span className="ml-1.5">Добавить задачу</span>
-              </Button>
-            </>
-          )}
+          <p className="text-sm text-muted-foreground mt-1">
+            {deal.number} · {deal.pipeline.name}
+            {deal.source && (
+              <Badge variant="secondary" className="ml-2 text-xs">
+                {deal.source.name}
+              </Badge>
+            )}
+          </p>
         </div>
       </div>
 
@@ -602,10 +554,10 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         </Card>
       )}
 
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Deal Details */}
-        <div className="lg:col-span-2 space-y-6">
+      {/* Main Content — двухколоночный макет */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ===== ЛЕВАЯ КОЛОНКА: информация ===== */}
+        <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Детали сделки</CardTitle>
@@ -638,6 +590,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                       <Select
                         value={editForm.currency}
                         onValueChange={(value) => setEditForm({ ...editForm, currency: value ?? "RUB" })}
+                        items={{ RUB: "RUB", USD: "USD", EUR: "EUR" }}
                       >
                         <SelectTrigger id="currency">
                           <SelectValue />
@@ -673,21 +626,22 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
 
                   <div className="grid gap-2">
                     <Label htmlFor="source">Источник</Label>
-                    <Select
-                      value={editForm.sourceId}
-                      onValueChange={(value) => setEditForm({ ...editForm, sourceId: value ?? "" })}
-                    >
-                      <SelectTrigger id="source">
-                        <SelectValue placeholder="Выберите источник..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {leadSources.map((ls) => (
-                          <SelectItem key={ls.id} value={ls.id}>
-                            {ls.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <Select
+                        value={editForm.sourceId}
+                        onValueChange={(value) => setEditForm({ ...editForm, sourceId: value ?? "" })}
+                        items={Object.fromEntries(leadSources.map((ls) => [ls.id, ls.name]))}
+                      >
+                        <SelectTrigger id="source">
+                          <SelectValue placeholder="Выберите источник..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {leadSources.map((ls) => (
+                            <SelectItem key={ls.id} value={ls.id}>
+                              {ls.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                   </div>
 
                   {isLost && (
@@ -772,104 +726,6 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                   )}
                 </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Tasks Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ListTodo className="size-4" />
-                  Задачи по сделке
-                  {activeTasks.length > 0 && (
-                    <Badge variant="secondary" className="text-[10px]">{activeTasks.length} активных</Badge>
-                  )}
-                </div>
-                <Button variant="outline" size="sm" onClick={() => setTaskDialogOpen(true)}>
-                  <Plus className="size-3.5" />
-                  <span className="ml-1">Добавить</span>
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {tasksLoading && (
-                <div className="text-center py-4 text-muted-foreground text-sm">Загрузка задач...</div>
-              )}
-              {tasksError && (
-                <div className="text-center py-4 text-destructive text-sm">{tasksError}</div>
-              )}
-              {!tasksLoading && !tasksError && tasks.length === 0 && (
-                <div className="text-center py-6 text-muted-foreground text-sm">
-                  <ListTodo className="size-8 mx-auto mb-2 opacity-40" />
-                  Нет задач по этой сделке. Нажмите «Добавить», чтобы создать первую задачу.
-                </div>
-              )}
-              {!tasksLoading && !tasksError && tasks.length > 0 && (
-                <div className="space-y-2">
-                  {tasks.map((t) => {
-                    const overdue = isOverdue(t)
-                    const assignee = (t as any).User_Task_assigneeIdToUser
-                    return (
-                      <div
-                        key={t.id}
-                        className={`flex items-start justify-between gap-3 rounded-lg border p-3 ${
-                          t.status === "done" ? "opacity-60 bg-muted/30" : ""
-                        } ${overdue ? "border-red-300 bg-red-50/50 dark:border-red-900 dark:bg-red-950/20" : ""}`}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-sm font-medium ${t.status === "done" ? "line-through" : ""}`}>
-                              {t.title}
-                            </span>
-                            <Badge variant={TASK_STATUS_VARIANTS[t.status] ?? "outline"} className="text-[10px]">
-                              {TASK_STATUS_LABELS[t.status] ?? t.status}
-                            </Badge>
-                            {overdue && (
-                              <Badge variant="destructive" className="text-[10px]">
-                                <AlertCircle className="size-3 mr-0.5" />
-                                Просрочена
-                              </Badge>
-                            )}
-                          </div>
-                          {t.description && (
-                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{t.description}</p>
-                          )}
-                          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                            {t.dueDate && (
-                              <span className="flex items-center gap-1">
-                                <Clock className="size-3" />
-                                {formatDateTime(t.dueDate)}
-                              </span>
-                            )}
-                            {assignee && (
-                              <span className="flex items-center gap-1">
-                                <User className="size-3" />
-                                {assignee.name || assignee.email}
-                              </span>
-                            )}
-                            <Badge variant="outline" className="text-[10px]">
-                              {TASK_PRIORITY_LABELS[t.priority] ?? t.priority}
-                            </Badge>
-                          </div>
-                        </div>
-                        {t.status !== "done" && t.status !== "cancelled" && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={taskBusy}
-                            onClick={() => handleTaskDone(t.id)}
-                            className="shrink-0"
-                          >
-                            <CheckCircle2 className="size-3.5" />
-                            <span className="ml-1 text-xs">Готово</span>
-                          </Button>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
               )}
             </CardContent>
           </Card>
@@ -1054,7 +910,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           </Card>
         </div>
 
-        {/* Sidebar */}
+        {/* ===== ПРАВАЯ КОЛОНКА: действия ===== */}
         <div className="space-y-6">
           {/* Stage Info — inline selector */}
           <Card>
@@ -1066,6 +922,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                 value={deal.stageId}
                 onValueChange={(value) => value && handleMoveStage(value)}
                 disabled={movingStage || stages.length === 0}
+                items={Object.fromEntries(stages.map((s) => [s.id, s.name]))}
               >
                 <SelectTrigger className="w-full">
                   <span className="flex items-center gap-2">
@@ -1100,6 +957,176 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
               {movingStage && (
                 <p className="text-xs text-center text-muted-foreground">Смена этапа…</p>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Действия */}
+          {!isEditing && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="size-4" />
+                  Действия
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                {(isAdmin || deal.managerId === me?.id) && (
+                  <Button onClick={() => { setIsEditing(true); getLeadSources().then(r => setLeadSources(r.data)).catch(() => {}) }}>
+                    <Edit2 className="size-4" />
+                    <span className="ml-1.5">Изменить</span>
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    if (!deal) return
+                    setCreatingProject(true)
+                    setError(null)
+                    try {
+                      const res = await fetch(`/api/deals/${deal.id}/convert-to-project`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: deal.title, contactId: deal.contactId }),
+                      })
+                      if (!res.ok) {
+                        const errData = await res.json().catch(() => ({}))
+                        throw new Error(errData.message || `HTTP ${res.status}`)
+                      }
+                      const { data: result } = await res.json()
+                      router.push(`/projects/${result.project.id}`)
+                    } catch (err) {
+                      setError(err instanceof Error ? err.message : 'Не удалось создать проект и договор.')
+                    } finally {
+                      setCreatingProject(false)
+                    }
+                  }}
+                  disabled={creatingProject || !!deal.projectId}
+                >
+                  <Package className="size-4" />
+                  <span className="ml-1.5">
+                    {creatingProject ? "Создание..." : deal.projectId ? "Открыть проект" : "Создать проект и договор"}
+                  </span>
+                </Button>
+                <Button variant="outline" onClick={() => setTaskDialogOpen(true)}>
+                  <Plus className="size-4" />
+                  <span className="ml-1.5">Добавить задачу</span>
+                </Button>
+                <Button variant="outline" onClick={handleConvertToContract} disabled={converting}>
+                  <FileText className="size-4" />
+                  <span className="ml-1.5">{converting ? "Конвертация..." : "В контракт"}</span>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Tasks Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ListTodo className="size-4" />
+                  Задачи по сделке
+                  {activeTasks.length > 0 && (
+                    <Badge variant="secondary" className="text-[10px]">{activeTasks.length} активных</Badge>
+                  )}
+                </div>
+                <Button variant="outline" size="sm" onClick={() => setTaskDialogOpen(true)}>
+                  <Plus className="size-3.5" />
+                  <span className="ml-1">Добавить</span>
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {tasksLoading && (
+                <div className="text-center py-4 text-muted-foreground text-sm">Загрузка задач...</div>
+              )}
+              {tasksError && (
+                <div className="text-center py-4 text-destructive text-sm">{tasksError}</div>
+              )}
+              {!tasksLoading && !tasksError && tasks.length === 0 && (
+                <div className="text-center py-6 text-muted-foreground text-sm">
+                  <ListTodo className="size-8 mx-auto mb-2 opacity-40" />
+                  Нет задач по этой сделке. Нажмите «Добавить», чтобы создать первую задачу.
+                </div>
+              )}
+              {!tasksLoading && !tasksError && tasks.length > 0 && (
+                <div className="space-y-2">
+                  {tasks.map((t) => {
+                    const overdue = isOverdue(t)
+                    const assignee = (t as any).User_Task_assigneeIdToUser
+                    return (
+                      <div
+                        key={t.id}
+                        className={`flex items-start justify-between gap-3 rounded-lg border p-3 ${
+                          t.status === "done" ? "opacity-60 bg-muted/30" : ""
+                        } ${overdue ? "border-red-300 bg-red-50/50 dark:border-red-900 dark:bg-red-950/20" : ""}`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-medium ${t.status === "done" ? "line-through" : ""}`}>
+                              {t.title}
+                            </span>
+                            <Badge variant={TASK_STATUS_VARIANTS[t.status] ?? "outline"} className="text-[10px]">
+                              {TASK_STATUS_LABELS[t.status] ?? t.status}
+                            </Badge>
+                            {overdue && (
+                              <Badge variant="destructive" className="text-[10px]">
+                                <AlertCircle className="size-3 mr-0.5" />
+                                Просрочена
+                              </Badge>
+                            )}
+                          </div>
+                          {t.description && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{t.description}</p>
+                          )}
+                          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                            {t.dueDate && (
+                              <span className="flex items-center gap-1">
+                                <Clock className="size-3" />
+                                {formatDateTime(t.dueDate)}
+                              </span>
+                            )}
+                            {assignee && (
+                              <span className="flex items-center gap-1">
+                                <User className="size-3" />
+                                {assignee.name || assignee.email}
+                              </span>
+                            )}
+                            <Badge variant="outline" className="text-[10px]">
+                              {TASK_PRIORITY_LABELS[t.priority] ?? t.priority}
+                            </Badge>
+                          </div>
+                        </div>
+                        {t.status !== "done" && t.status !== "cancelled" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={taskBusy}
+                            onClick={() => handleTaskDone(t.id)}
+                            className="shrink-0"
+                          >
+                            <CheckCircle2 className="size-3.5" />
+                            <span className="ml-1 text-xs">Готово</span>
+                          </Button>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Комментарии */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="size-4" />
+                Комментарии
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DealComments dealId={deal.id} />
             </CardContent>
           </Card>
 
@@ -1185,7 +1212,11 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
 
             <div className="space-y-1.5">
               <Label>Приоритет</Label>
-              <Select value={newTask.priority} onValueChange={(v) => v && setNewTask({ ...newTask, priority: v })}>
+              <Select
+                value={newTask.priority}
+                onValueChange={(v) => v && setNewTask({ ...newTask, priority: v })}
+                items={{ low: "Низкий", medium: "Средний", high: "Высокий" }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Выберите приоритет" />
                 </SelectTrigger>
@@ -1199,7 +1230,11 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
 
             <div className="space-y-1.5">
               <Label>Исполнитель</Label>
-              <Select value={newTask.assigneeId} onValueChange={(v) => v && setNewTask({ ...newTask, assigneeId: v })}>
+              <Select
+                value={newTask.assigneeId}
+                onValueChange={(v) => v && setNewTask({ ...newTask, assigneeId: v })}
+                items={Object.fromEntries(users.map((u) => [u.id, u.name ?? u.email]))}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Выберите исполнителя" />
                 </SelectTrigger>

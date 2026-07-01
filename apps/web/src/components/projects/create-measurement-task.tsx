@@ -158,7 +158,11 @@ export function CreateMeasurementTask({ projectId, projectName, contactId, measu
 
               <div className="space-y-1.5">
                 <Label>Исполнитель</Label>
-                <Select value={assigneeId} onValueChange={(v) => { if (v) setAssigneeId(v) }}>
+                <Select
+                  value={assigneeId}
+                  onValueChange={(v) => { if (v) setAssigneeId(v) }}
+                  items={Object.fromEntries(users.map((u) => [u.id, u.name ?? u.email]))}
+                >
                   <SelectTrigger><SelectValue placeholder="Выберите исполнителя" /></SelectTrigger>
                   <SelectContent><SelectGroup>
                     {users.map((u) => (

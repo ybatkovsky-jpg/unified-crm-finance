@@ -141,6 +141,7 @@ export default function ContractsPage() {
                 onValueChange={(value) => {
                   if (value) setStatusFilter(value as StatusFilter)
                 }}
+                items={{ all: "Все статусы", draft: "Черновик", active: "Действует", expired: "Истёк", terminated: "Расторгнут" }}
               >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Все статусы" />
@@ -163,6 +164,15 @@ export default function ContractsPage() {
                 onValueChange={(value) => {
                   if (value) setContactFilter(value)
                 }}
+                items={Object.fromEntries([
+                  ["all", "Все контрагенты"],
+                  ...contacts.map((contact) => [
+                    contact.id,
+                    contact.type === "company"
+                      ? contact.companyName || `Компания ${contact.id}`
+                      : [contact.lastName, contact.firstName].filter(Boolean).join(" ") || `Контакт ${contact.id}`,
+                  ]),
+                ])}
               >
                 <SelectTrigger className="w-64">
                   <SelectValue placeholder="Все контрагенты" />

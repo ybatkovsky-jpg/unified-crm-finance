@@ -84,7 +84,7 @@ export default function AllTasksPage() {
         <h1 className="text-2xl font-semibold flex items-center gap-2">
           <UsersRoundIcon className="size-6" /> Все задачи
         </h1>
-        <Select value={statusFilter} onValueChange={(v) => { if (v) setStatusFilter(v) }}>
+        <Select value={statusFilter} onValueChange={(v) => { if (v) setStatusFilter(v) }} items={{ all: "Все статусы", todo: "К выполнению", in_progress: "В работе", done: "Готово", failed: "Провалены", cancelled: "Отменены" }}>
           <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
           <SelectContent><SelectGroup>
             <SelectItem value="all">Все статусы</SelectItem>

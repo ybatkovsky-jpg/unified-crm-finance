@@ -82,6 +82,7 @@ export default function InvoiceListPage() {
             <Select
               value={statusFilter}
               onValueChange={(value) => value && setStatusFilter(value as StatusFilter)}
+              items={{ all: "Все статусы", ...STATUS_LABELS }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Все статусы" />

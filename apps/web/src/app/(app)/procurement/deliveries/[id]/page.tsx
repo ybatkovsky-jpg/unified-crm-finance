@@ -148,7 +148,7 @@ export default function DeliveryDetailPage() {
             <>
               <div className="flex flex-col gap-1.5 w-48">
                 <Label>Перевести в</Label>
-                <Select value={nextStatus} onValueChange={(v) => v && setNextStatus(v as DeliveryStatus)}>
+                <Select value={nextStatus} onValueChange={(v) => v && setNextStatus(v as DeliveryStatus)} items={STATUS_LABELS}>
                   <SelectTrigger>
                     <SelectValue placeholder="Выберите статус" />
                   </SelectTrigger>

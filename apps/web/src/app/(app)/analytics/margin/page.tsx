@@ -69,8 +69,8 @@ export default function MarginPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">P&L / Анализ маржинальности</h1>
         <div className="flex gap-2">
-          <Select value={period} onValueChange={v => { if (v) setPeriod(v) }}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent><SelectGroup>{PERIODS.map(p => <SelectItem key={p.v} value={p.v}>{p.l}</SelectItem>)}</SelectGroup></SelectContent></Select>
-          <Select value={sortBy} onValueChange={v => { if (v) setSortBy(v) }}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent><SelectGroup><SelectItem value="profit">По прибыли</SelectItem><SelectItem value="margin">По марже %</SelectItem><SelectItem value="revenue">По выручке</SelectItem></SelectGroup></SelectContent></Select>
+          <Select value={period} onValueChange={v => { if (v) setPeriod(v) }} items={Object.fromEntries(PERIODS.map(p => [p.v, p.l]))}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent><SelectGroup>{PERIODS.map(p => <SelectItem key={p.v} value={p.v}>{p.l}</SelectItem>)}</SelectGroup></SelectContent></Select>
+          <Select value={sortBy} onValueChange={v => { if (v) setSortBy(v) }} items={{ profit: "По прибыли", margin: "По марже %", revenue: "По выручке" }}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent><SelectGroup><SelectItem value="profit">По прибыли</SelectItem><SelectItem value="margin">По марже %</SelectItem><SelectItem value="revenue">По выручке</SelectItem></SelectGroup></SelectContent></Select>
         </div>
       </div>
 

@@ -26,6 +26,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useMe } from "@/components/layout/use-me"
 
 type TypeFilter = "all" | "person" | "company"
 type StatusFilter = "all" | "active" | "inactive"
@@ -38,6 +39,7 @@ function getDisplayName(contact: ContactData): string {
 }
 
 export default function ContactListPage() {
+  const { me, isAdmin } = useMe()
   const [contacts, setContacts] = useState<ContactData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -136,6 +138,7 @@ export default function ContactListPage() {
                 onValueChange={(value) => {
                   if (value) setTypeFilter(value as TypeFilter)
                 }}
+                items={{ all: "Все типы", person: "Физлица", company: "Юрлица" }}
               >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Все типы" />
@@ -157,6 +160,7 @@ export default function ContactListPage() {
                 onValueChange={(value) => {
                   if (value) setStatusFilter(value as StatusFilter)
                 }}
+                items={{ all: "Все статусы", active: "Активные", inactive: "Неактивные" }}
               >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Все статусы" />
@@ -255,6 +259,7 @@ export default function ContactListPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>
+                    {(isAdmin || contact.ownerId === me?.id) && (
                     <div className="flex items-center gap-1">
                       <Button
                         variant="ghost"
@@ -276,6 +281,7 @@ export default function ContactListPage() {
                         <Trash2 className="size-4" />
                       </Button>
                     </div>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

@@ -100,6 +100,7 @@ export default function CounterpartyListPage() {
                 onValueChange={(value) => {
                   if (value) setTypeFilter(value as TypeFilter)
                 }}
+                items={{ all: "All types", supplier: "Supplier" }}
               >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All types" />

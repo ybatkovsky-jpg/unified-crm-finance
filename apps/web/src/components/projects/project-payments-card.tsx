@@ -209,7 +209,7 @@ export function ProjectPaymentsCard({ projectId, onUpdate }: ProjectPaymentsCard
             </div>
             <div className="grid gap-2">
               <Label>Способ оплаты</Label>
-              <Select value={method} onValueChange={(v) => setMethod((v ?? "bank") as PaymentMethod)}>
+              <Select value={method} onValueChange={(v) => setMethod((v ?? "bank") as PaymentMethod)} items={{ bank: "Безналичный (банк)", cash: "Наличные", card: "Карта / эквайринг" }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="bank">Безналичный (банк)</SelectItem>

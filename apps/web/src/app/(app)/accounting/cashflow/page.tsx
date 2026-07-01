@@ -115,7 +115,7 @@ export default function CashflowPage() {
         <h1 className="text-2xl font-semibold flex items-center gap-2">
           <BanknoteIcon className="size-6" /> ДДС — движение денежных средств
         </h1>
-        <Select value={period} onValueChange={(v) => { if (v) setPeriod(v) }}>
+        <Select value={period} onValueChange={(v) => { if (v) setPeriod(v) }} items={Object.fromEntries(PERIODS.map((p) => [p.v, p.l]))}>
           <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
           <SelectContent><SelectGroup>
             {PERIODS.map((p) => <SelectItem key={p.v} value={p.v}>{p.l}</SelectItem>)}

@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
+import { useMe } from "@/components/layout/use-me"
 
 const STATUSES = ["planned", "scheduled", "paid", "cancelled"] as const
 
@@ -31,6 +32,7 @@ function statusVariant(s: string): "default" | "secondary" | "outline" | "destru
 }
 
 export default function PaymentListPage() {
+  const { isAdmin } = useMe()
   const [payments, setPayments] = useState<CashFlowPaymentData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -125,7 +127,7 @@ export default function PaymentListPage() {
         <CardContent className="pt-6">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm text-muted-foreground">Status</label>
-            <Select value={statusFilter} onValueChange={v => { if (v) setStatusFilter(v) }}>
+            <Select value={statusFilter} onValueChange={v => { if (v) setStatusFilter(v) }} items={Object.fromEntries([["all", "Все"], ...STATUSES.map(s => [s, s])])}>
               <SelectTrigger className="w-40"><SelectValue placeholder="Все" /></SelectTrigger>
               <SelectContent><SelectGroup>
                 <SelectItem value="all">Все</SelectItem>
@@ -157,8 +159,12 @@ export default function PaymentListPage() {
                   <TableCell className="text-muted-foreground">{p.dueDate ? formatDate(p.dueDate) : "—"}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
+                      {isAdmin && (
+                      <>
                       <Button variant="ghost" size="icon" className="size-8" onClick={() => openEdit(p)}><PencilIcon className="size-4" /></Button>
                       <Button variant="ghost" size="icon" className="size-8 text-destructive" onClick={() => handleDelete(p)} disabled={deletingId === p.id}><Trash2Icon className="size-4" /></Button>
+                      </>
+                      )}
                       <Link href={`/finance/payments/${p.id}`}><Button variant="ghost" size="icon" className="size-8"><ChevronRightIcon className="size-4" /></Button></Link>
                     </div>
                   </TableCell>
@@ -180,8 +186,8 @@ export default function PaymentListPage() {
                 <div className="grid gap-2"><Label>Сумма *</Label><Input type="number" value={fAmount} onChange={e => setFAmount(e.target.value)} min="0" step="any" /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2"><Label>Тип *</Label><Select value={fType} onValueChange={v => { if (v) setFType(v) }}><SelectTrigger><SelectValue placeholder="Выбрать" /></SelectTrigger><SelectContent><SelectGroup><SelectItem value="income">Доход</SelectItem><SelectItem value="expense">Расход</SelectItem></SelectGroup></SelectContent></Select></div>
-                <div className="grid gap-2"><Label>Статус</Label><Select value={fStatus} onValueChange={v => { if (v) setFStatus(v) }}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectGroup>{STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectGroup></SelectContent></Select></div>
+                <div className="grid gap-2"><Label>Тип *</Label><Select value={fType} onValueChange={v => { if (v) setFType(v) }} items={{ income: "Доход", expense: "Расход" }}><SelectTrigger><SelectValue placeholder="Выбрать" /></SelectTrigger><SelectContent><SelectGroup><SelectItem value="income">Доход</SelectItem><SelectItem value="expense">Расход</SelectItem></SelectGroup></SelectContent></Select></div>
+                <div className="grid gap-2"><Label>Статус</Label><Select value={fStatus} onValueChange={v => { if (v) setFStatus(v) }} items={Object.fromEntries(STATUSES.map(s => [s, s]))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectGroup>{STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectGroup></SelectContent></Select></div>
               </div>
               <div className="grid gap-2"><Label>Срок</Label><Input type="date" value={fDueDate} onChange={e => setFDueDate(e.target.value)} /></div>
               <div className="grid gap-2"><Label>Описание</Label><Input value={fDescription} onChange={e => setFDescription(e.target.value)} placeholder="Описание платежа" /></div>

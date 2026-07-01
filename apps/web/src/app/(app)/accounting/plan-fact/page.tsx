@@ -109,7 +109,7 @@ export default function PlanFactPage() {
         <h1 className="text-2xl font-semibold flex items-center gap-2">
           <GitCompareArrowsIcon className="size-6" /> План / факт по статьям
         </h1>
-        <Select value={period} onValueChange={(v) => { if (v) setPeriod(v) }}>
+        <Select value={period} onValueChange={(v) => { if (v) setPeriod(v) }} items={Object.fromEntries(monthOptions().map((p) => [p.v, p.l]))}>
           <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
           <SelectContent><SelectGroup>
             {monthOptions().map((p) => <SelectItem key={p.v} value={p.v}>{p.l}</SelectItem>)}

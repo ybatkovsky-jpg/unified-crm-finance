@@ -144,7 +144,7 @@ export default function WarehouseDetailPage() {
         <CardContent className="flex flex-wrap items-end gap-3">
           <div className="flex flex-col gap-1.5 w-44">
             <Label>Тип</Label>
-            <Select value={txType} onValueChange={(v) => v && setTxType(v as WarehouseTransactionType)}>
+            <Select value={txType} onValueChange={(v) => v && setTxType(v as WarehouseTransactionType)} items={TYPE_LABELS}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

@@ -57,7 +57,7 @@ export default function TeamPerformancePage() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Эффективность команды</h1>
-        <Select value={period} onValueChange={v => { if (v) setPeriod(v) }}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent><SelectGroup>{PERIODS.map(p => <SelectItem key={p.v} value={p.v}>{p.l}</SelectItem>)}</SelectGroup></SelectContent></Select>
+        <Select value={period} onValueChange={v => { if (v) setPeriod(v) }} items={Object.fromEntries(PERIODS.map(p => [p.v, p.l]))}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent><SelectGroup>{PERIODS.map(p => <SelectItem key={p.v} value={p.v}>{p.l}</SelectItem>)}</SelectGroup></SelectContent></Select>
       </div>
 
       <div className="grid grid-cols-4 gap-4">

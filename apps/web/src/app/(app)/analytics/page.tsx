@@ -78,7 +78,7 @@ export default function AnalyticsDashboardPage() {
           <h1 className="text-2xl font-semibold">Analytics Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-1">Key business metrics at a glance</p>
         </div>
-        <Select value={period} onValueChange={v => { if (v) setPeriod(v) }}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent><SelectGroup>{PERIODS.map(p => <SelectItem key={p.v} value={p.v}>{p.l}</SelectItem>)}</SelectGroup></SelectContent></Select>
+        <Select value={period} onValueChange={v => { if (v) setPeriod(v) }} items={Object.fromEntries(PERIODS.map(p => [p.v, p.l]))}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent><SelectGroup>{PERIODS.map(p => <SelectItem key={p.v} value={p.v}>{p.l}</SelectItem>)}</SelectGroup></SelectContent></Select>
       </div>
 
       {/* Top KPI Cards */}

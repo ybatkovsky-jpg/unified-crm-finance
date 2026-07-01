@@ -122,7 +122,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [closeDialogOpen, setCloseDialogOpen] = useState(false)
   const [readiness, setReadiness] = useState<ClosureReadiness | null>(null)
   const [readinessLoading, setReadinessLoading] = useState(false)
-  const { me } = useMe()
+  const { me, isAdmin } = useMe()
   const filePreview = useFilePreview()
 
   const unwrapParams = useCallback(async () => {
@@ -583,6 +583,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       <Select
                         value={editForm.status}
                         onValueChange={(value) => setEditForm({ ...editForm, status: value ?? "lead" })}
+                        items={{ lead: "Лид", active: "Активный", completed: "Завершён", paused: "Пауза" }}
                       >
                         <SelectTrigger id="status">
                           <SelectValue />
@@ -601,6 +602,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       <Select
                         value={editForm.currency}
                         onValueChange={(value) => setEditForm({ ...editForm, currency: value ?? "RUB" })}
+                        items={{ RUB: "RUB", USD: "USD", EUR: "EUR" }}
                       >
                         <SelectTrigger id="currency">
                           <SelectValue />
@@ -763,6 +765,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <ProductionList
                 key={productionRefresh}
                 projectId={project.id}
+                canEdit={isAdmin || project.managerId === me?.id}
                 onUpdate={() => setProductionRefresh((prev) => prev + 1)}
               />
             </CardContent>
@@ -786,6 +789,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <InstallationList
                 key={installationRefresh}
                 projectId={project.id}
+                canEdit={isAdmin || project.managerId === me?.id}
                 onUpdate={() => setInstallationRefresh((prev) => prev + 1)}
               />
             </CardContent>
@@ -810,6 +814,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <ChangeOrderList
                 key={changeOrderRefresh}
                 projectId={project.id}
+                canEdit={isAdmin || project.managerId === me?.id}
                 onUpdate={() => setChangeOrderRefresh((prev) => prev + 1)}
               />
             </CardContent>
@@ -868,7 +873,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           <BOMSection projectId={project.id} />
 
           {/* Budget */}
-          <BudgetWidget projectId={project.id} />
+          <BudgetWidget projectId={project.id} canEdit={isAdmin || project.managerId === me?.id} />
 
           {/* File Attachments */}
           <Card>

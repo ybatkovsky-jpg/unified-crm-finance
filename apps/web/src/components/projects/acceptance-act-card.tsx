@@ -176,7 +176,7 @@ export function AcceptanceActCard({ projectId, contactType, onUpdate }: Acceptan
               </DialogHeader>
               <div className="grid gap-2 py-2">
                 <label className="text-sm font-medium">Способ подписи</label>
-                <Select value={signMethod} onValueChange={(v) => setSignMethod((v ?? "paper") as AcceptanceSignMethod)}>
+                <Select value={signMethod} onValueChange={(v) => setSignMethod((v ?? "paper") as AcceptanceSignMethod)} items={{ paper: "Бумага", edo: "ЭДО" }}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

@@ -180,7 +180,7 @@ export function CategoryForm({ open, onOpenChange, onSuccess, category }: Catego
                 <Label htmlFor="type">
                   Type <span className="text-destructive">*</span>
                 </Label>
-                <Select value={type} onValueChange={(value) => { if (value) setType(value) }}>
+                <Select value={type} onValueChange={(value) => { if (value) setType(value) }} items={{ income: "Income", expense: "Expense" }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
@@ -218,6 +218,10 @@ export function CategoryForm({ open, onOpenChange, onSuccess, category }: Catego
                   onValueChange={(value) => {
                     setParentId(value === "__none__" ? null : value)
                   }}
+                  items={Object.fromEntries([
+                    ["__none__", "Нет родителя (верхний уровень)"],
+                    ...filteredParentOptions.map((c) => [c.id, `${c.name} (${c.type})`]),
+                  ])}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Нет родителя (верхний уровень)" />
@@ -243,6 +247,7 @@ export function CategoryForm({ open, onOpenChange, onSuccess, category }: Catego
                 <Select
                   value={isActive ? "active" : "inactive"}
                   onValueChange={(value) => setIsActive(value === "active")}
+                  items={{ active: "Active", inactive: "Inactive" }}
                 >
                   <SelectTrigger>
                     <SelectValue />

@@ -347,6 +347,13 @@ export function ContactFormModal({
                   <Select
                     value={companyId || "__none__"}
                     onValueChange={(v) => setCompanyId(v === "__none__" ? null : v)}
+                    items={Object.fromEntries([
+                      ["__none__", "Без организации"],
+                      ...companies.map((c) => [
+                        c.id,
+                        c.inn ? `${c.companyName} (ИНН ${c.inn})` : c.companyName,
+                      ]),
+                    ])}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Без организации" />

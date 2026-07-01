@@ -359,6 +359,7 @@ export function ProductionDetailCard({ production, onUpdate }: ProductionDetailC
                   value={production.status}
                   onValueChange={handleStatusChange}
                   disabled={loading}
+                  items={STATUS_LABELS}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue />

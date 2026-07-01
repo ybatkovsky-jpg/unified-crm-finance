@@ -168,7 +168,13 @@ export function TransactionForm({
                   <Loader2 className="size-4 animate-spin" /> Загрузка...
                 </div>
               ) : (
-                <Select value={categoryId} onValueChange={(v) => { if (v) setCategoryId(v) }}>
+                <Select
+                  value={categoryId}
+                  onValueChange={(v) => { if (v) setCategoryId(v) }}
+                  items={Object.fromEntries(
+                    categories.filter((c) => c.isActive).map((c) => [c.id, `${c.name} (${c.type})`])
+                  )}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Выберите категорию" />
                   </SelectTrigger>
@@ -191,7 +197,7 @@ export function TransactionForm({
                 <Label htmlFor="type">
                   Type <span className="text-destructive">*</span>
                 </Label>
-                <Select value={type} onValueChange={(v) => { if (v) setType(v) }}>
+                <Select value={type} onValueChange={(v) => { if (v) setType(v) }} items={{ income: "Income", expense: "Expense" }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
@@ -234,7 +240,7 @@ export function TransactionForm({
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="status">Status</Label>
-                <Select value={status} onValueChange={(v) => { if (v) setStatus(v) }}>
+                <Select value={status} onValueChange={(v) => { if (v) setStatus(v) }} items={{ confirmed: "Confirmed", pending: "Pending" }}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -262,7 +268,11 @@ export function TransactionForm({
             {/* Payment method (FIN-03) */}
             <div className="grid gap-2">
               <Label htmlFor="paymentMethod">Способ оплаты</Label>
-              <Select value={paymentMethod || "__none__"} onValueChange={(v) => setPaymentMethod(!v || v === "__none__" ? "" : v)}>
+              <Select
+                value={paymentMethod || "__none__"}
+                onValueChange={(v) => setPaymentMethod(!v || v === "__none__" ? "" : v)}
+                items={{ __none__: "Не указан", bank: "Безналичный (банк)", cash: "Наличные", card: "Карта / эквайринг" }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Не указан" />
                 </SelectTrigger>

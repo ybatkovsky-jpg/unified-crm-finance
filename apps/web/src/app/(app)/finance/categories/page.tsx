@@ -24,12 +24,14 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useMe } from "@/components/layout/use-me"
 import { CategoryForm } from "@/components/finance/category-form"
 
 type TypeFilter = "all" | "income" | "expense"
 type StatusFilter = "all" | "active" | "inactive"
 
 export default function CategoryListPage() {
+  const { isAdmin } = useMe()
   const [categories, setCategories] = useState<CategoryData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -172,6 +174,7 @@ export default function CategoryListPage() {
                 onValueChange={(value) => {
                   if (value) setTypeFilter(value as TypeFilter)
                 }}
+                items={{ all: "All types", income: "Income", expense: "Expense" }}
               >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All types" />
@@ -193,6 +196,7 @@ export default function CategoryListPage() {
                 onValueChange={(value) => {
                   if (value) setStatusFilter(value as StatusFilter)
                 }}
+                items={{ all: "All statuses", active: "Active", inactive: "Inactive" }}
               >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All statuses" />
@@ -276,6 +280,7 @@ export default function CategoryListPage() {
                     <TableCell>{cat.order}</TableCell>
                     <TableCell>{renderStatusBadge(cat.isActive)}</TableCell>
                     <TableCell>
+                      {isAdmin && (
                       <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
@@ -297,6 +302,7 @@ export default function CategoryListPage() {
                           <Trash2Icon className="size-4" />
                         </Button>
                       </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 )

@@ -178,7 +178,11 @@ export function CreateDealModal({
 
               <div className="grid gap-2">
                 <Label htmlFor="currency">Валюта</Label>
-                <Select value={currency} onValueChange={(value) => setCurrency(value ?? "RUB")}>
+                <Select
+                  value={currency}
+                  onValueChange={(value) => setCurrency(value ?? "RUB")}
+                  items={{ RUB: "RUB", USD: "USD", EUR: "EUR" }}
+                >
                   <SelectTrigger id="currency">
                     <SelectValue />
                   </SelectTrigger>
@@ -284,7 +288,11 @@ export function CreateDealModal({
 
             <div className="grid gap-2">
               <Label htmlFor="source">Источник</Label>
-              <Select value={sourceId} onValueChange={(value) => setSourceId(value ?? "")}>
+              <Select
+                value={sourceId}
+                onValueChange={(value) => setSourceId(value ?? "")}
+                items={Object.fromEntries(leadSources.map((ls) => [ls.id, ls.name]))}
+              >
                 <SelectTrigger id="source">
                   <SelectValue placeholder="Выберите источник..." />
                 </SelectTrigger>

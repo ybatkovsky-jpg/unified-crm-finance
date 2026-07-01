@@ -137,7 +137,7 @@ export function InteractionForm({
             <label className="text-xs font-medium text-muted-foreground">
               Type
             </label>
-            <Select value={type} onValueChange={handleTypeChange}>
+            <Select value={type} onValueChange={handleTypeChange} items={Object.fromEntries(INTERACTION_TYPES.map((t) => [t.value, t.label]))}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
@@ -156,7 +156,7 @@ export function InteractionForm({
               <label className="text-xs font-medium text-muted-foreground">
                 Direction
               </label>
-              <Select value={direction} onValueChange={handleDirectionChange}>
+              <Select value={direction} onValueChange={handleDirectionChange} items={Object.fromEntries(DIRECTIONS.map((d) => [d.value, d.label]))}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select direction" />
                 </SelectTrigger>

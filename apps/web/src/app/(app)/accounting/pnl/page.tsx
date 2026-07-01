@@ -108,7 +108,7 @@ export default function PnlPage() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">P&L — прибыли и убытки</h1>
-        <Select value={period} onValueChange={(v) => { if (v) setPeriod(v) }}>
+        <Select value={period} onValueChange={(v) => { if (v) setPeriod(v) }} items={Object.fromEntries(PERIODS.map((p) => [p.v, p.l]))}>
           <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
           <SelectContent><SelectGroup>
             {PERIODS.map((p) => <SelectItem key={p.v} value={p.v}>{p.l}</SelectItem>)}

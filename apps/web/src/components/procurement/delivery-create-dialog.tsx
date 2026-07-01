@@ -119,7 +119,11 @@ export function DeliveryCreateDialog({ open, onOpenChange, onSuccess, preselecte
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
             <Label>Счёт</Label>
-            <Select value={invoiceId} onValueChange={(v) => v && setInvoiceId(v)}>
+            <Select
+              value={invoiceId}
+              onValueChange={(v) => v && setInvoiceId(v)}
+              items={Object.fromEntries(invoices.map((inv) => [inv.id, inv.invoiceNumber || inv.number]))}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Выберите счёт" />
               </SelectTrigger>
@@ -140,7 +144,11 @@ export function DeliveryCreateDialog({ open, onOpenChange, onSuccess, preselecte
 
           <div className="space-y-1.5">
             <Label>Тип доставки</Label>
-            <Select value={deliveryType} onValueChange={(v) => v && setDeliveryType(v)}>
+            <Select
+              value={deliveryType}
+              onValueChange={(v) => v && setDeliveryType(v)}
+              items={Object.fromEntries(DELIVERY_TYPE_OPTIONS.map((opt) => [opt.value, opt.label]))}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

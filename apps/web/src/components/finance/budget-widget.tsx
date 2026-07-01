@@ -37,9 +37,10 @@ import {
 
 interface BudgetWidgetProps {
   projectId: string
+  canEdit?: boolean
 }
 
-export function BudgetWidget({ projectId }: BudgetWidgetProps) {
+export function BudgetWidget({ projectId, canEdit = true }: BudgetWidgetProps) {
   const [budgets, setBudgets] = useState<BudgetData[]>([])
   const [categories, setCategories] = useState<CategoryData[]>([])
   const [loading, setLoading] = useState(true)
@@ -299,6 +300,8 @@ export function BudgetWidget({ projectId }: BudgetWidgetProps) {
                           <span className="text-sm font-medium">
                             {formatCurrency(Number(budget.amount))}
                           </span>
+                          {canEdit && (
+                          <>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -318,6 +321,8 @@ export function BudgetWidget({ projectId }: BudgetWidgetProps) {
                           >
                             <Trash2 className="size-3.5" />
                           </Button>
+                          </>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -359,6 +364,12 @@ export function BudgetWidget({ projectId }: BudgetWidgetProps) {
                 <Select
                   value={formCategoryId}
                   onValueChange={(v) => { if (v) setFormCategoryId(v) }}
+                  items={Object.fromEntries(
+                    categories.filter((c) => c.isActive).map((c) => [
+                      c.id,
+                      `${c.name} (${c.type === "income" ? "Доход" : "Расход"})`,
+                    ])
+                  )}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Выберите категорию" />
@@ -385,6 +396,19 @@ export function BudgetWidget({ projectId }: BudgetWidgetProps) {
                 <Select
                   value={formPeriod}
                   onValueChange={(v) => { if (v) setFormPeriod(v) }}
+                  items={{
+                    "2026": "2026 (год)",
+                    "2026-Q1": "Q1 2026",
+                    "2026-Q2": "Q2 2026",
+                    "2026-Q3": "Q3 2026",
+                    "2026-Q4": "Q4 2026",
+                    "2026-01": "Январь 2026",
+                    "2026-02": "Февраль 2026",
+                    "2026-03": "Март 2026",
+                    "2026-04": "Апрель 2026",
+                    "2026-05": "Май 2026",
+                    "2026-06": "Июнь 2026",
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Выберите период" />
