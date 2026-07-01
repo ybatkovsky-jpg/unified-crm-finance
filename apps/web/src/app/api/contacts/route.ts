@@ -93,6 +93,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       position: body.position || null, notes: body.notes || null,
       sourceId: body.sourceId || null, ownerId: body.ownerId || null, companyId: body.companyId || null,
       status: body.status || 'active', tags: body.tags || [], attributes: body.attributes || null,
+      passportSeries: body.passportSeries || null,
+      passportNumber: body.passportNumber || null,
+      passportIssuedBy: body.passportIssuedBy || null,
+      passportIssuedAt: body.passportIssuedAt ? new Date(body.passportIssuedAt) : null,
+      passportCode: body.passportCode || null,
+      registrationAddress: body.registrationAddress || null,
     }
 
     const newContact = await contacts.create(createData)

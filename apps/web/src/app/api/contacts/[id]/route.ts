@@ -101,10 +101,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams): Promis
     }
 
     // Build update payload
-    const fields = ['type','firstName','lastName','middleName','companyName','inn','kpp','ogrn','email','phone','address','physicalAddress','position','notes','sourceId','ownerId','companyId','status','tags','attributes']
+    const fields = ['type','firstName','lastName','middleName','companyName','inn','kpp','ogrn','email','phone','address','physicalAddress','position','notes','sourceId','ownerId','companyId','status','tags','attributes','passportSeries','passportNumber','passportIssuedBy','passportCode','registrationAddress']
     const updateData: Record<string, unknown> = {}
     for (const f of fields) {
       if (body[f] !== undefined) updateData[f] = body[f]
+    }
+    if (body.passportIssuedAt !== undefined) {
+      updateData.passportIssuedAt = body.passportIssuedAt ? new Date(body.passportIssuedAt) : null
     }
 
     const updated = await contacts.update(id, updateData as any)

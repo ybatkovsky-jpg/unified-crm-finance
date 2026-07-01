@@ -120,11 +120,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       sourceId: body.sourceId || null,
       amount: body.amount ?? 0,
       currency: body.currency ?? 'RUB',
-      expectedCloseDate: body.expectedCloseDate || null,
+      expectedCloseDate: body.expectedCloseDate ? new Date(body.expectedCloseDate) : null,
       managerId: body.managerId || null,
       description: body.description || null,
       lossReason: body.lossReason || null,
       attributes: body.attributes || null,
+      objectAddress: body.objectAddress || null,
     }
 
     const newDeal = await deals.create(createData)

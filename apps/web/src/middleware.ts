@@ -10,7 +10,7 @@ import {
 import { SECTION_HOME } from '@/components/layout/section-home';
 
 const PUBLIC = new Set(['/login', '/api/health']);
-const PUBLIC_PREFIXES = ['/api/auth/', '/_next/'];
+const PUBLIC_PREFIXES = ['/api/auth/', '/_next/', '/api/files/download'];
 
 function roleHome(rawRoleCodes: string[]): string {
   const codes = rawRoleCodes.filter(isRoleCode);

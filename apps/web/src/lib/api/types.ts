@@ -84,6 +84,12 @@ export interface ContactCreateInput {
   status?: string | null;
   tags?: string[] | null;
   attributes?: Record<string, unknown> | null;
+  passportSeries?: string | null;
+  passportNumber?: string | null;
+  passportIssuedBy?: string | null;
+  passportIssuedAt?: string | null;
+  passportCode?: string | null;
+  registrationAddress?: string | null;
 }
 
 /**
@@ -110,6 +116,12 @@ export interface ContactUpdateInput {
   status?: string | null;
   tags?: string[] | null;
   attributes?: Record<string, unknown> | null;
+  passportSeries?: string | null;
+  passportNumber?: string | null;
+  passportIssuedBy?: string | null;
+  passportIssuedAt?: string | null;
+  passportCode?: string | null;
+  registrationAddress?: string | null;
 }
 
 /**
@@ -338,6 +350,7 @@ export interface DealCreateInput {
   description?: string | null;
   lossReason?: string | null;
   attributes?: Record<string, unknown> | null;
+  objectAddress?: string | null;
   drawingFileId?: string | null;
   actFileId?: string | null;
 }
@@ -354,6 +367,7 @@ export interface DealUpdateInput {
   lossReason?: string | null;
   sourceId?: string | null;
   attributes?: Record<string, unknown> | null;
+  objectAddress?: string | null;
   contactId?: string | null;
   managerId?: string | null;
   drawingFileId?: string | null;

@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { files } from '../../../lib/db/files'
-import { uploadFile, generateStorageKey } from '../../../lib/storage/s3'
+import { uploadFile, generateStorageKey, storageMode } from '../../../lib/storage/s3'
 
 // Max upload size from environment (default 50MB)
 const MAX_UPLOAD_SIZE = Number(process.env.MAX_UPLOAD_SIZE_MB || 50) * 1024 * 1024
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       storageKey,
       mimeType,
       size: file.size,
-      bucket: process.env.S3_BUCKET || 'default',
+      bucket: storageMode() === 's3' ? (process.env.S3_BUCKET || 'default') : 'local',
       uploadedBy,
     })
 

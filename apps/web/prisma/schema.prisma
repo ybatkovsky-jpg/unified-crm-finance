@@ -206,6 +206,13 @@ model Contact {
   status          String        @default("active")
   tags            Json?         @default("[]")
   attributes      Json?
+  /// Паспортные данные (для физлиц) — автоподстановка в договор.
+  passportSeries      String?
+  passportNumber      String?
+  passportIssuedBy    String?
+  passportIssuedAt    DateTime?
+  passportCode        String?
+  registrationAddress String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime
   deletedAt       DateTime?
@@ -217,6 +224,7 @@ model Contact {
   Employees       Contact[]     @relation("ContactCompany")
   Contract        Contract[]
   Deal            Deal[]
+  DealContact     DealContact[]
   Event           Event[]
   Interaction     Interaction[]
   Lead            Lead[]
@@ -355,6 +363,8 @@ model Deal {
   lossReason        String?
   sourceId          String?
   attributes        Json?
+  /// Адрес объекта, на который делается заказ.
+  objectAddress     String?
   contractId        String?       @unique
   projectId         String?       @unique
   drawingFileId     String?
@@ -370,6 +380,7 @@ model Deal {
   LeadSource        LeadSource?   @relation(fields: [sourceId], references: [id])
   Pipeline          Pipeline      @relation(fields: [pipelineId], references: [id])
   DealHistory       DealHistory[]
+  DealContact       DealContact[]
   Event             Event[]
   Task              Task[]
   User              User?         @relation(fields: [managerId], references: [id])
@@ -382,6 +393,22 @@ model Deal {
   @@index([managerId])
   @@index([stageId])
   @@index([sourceId])
+}
+
+/// Связь сделки с контактными лицами по ролям (customer, designer, installer, other).
+model DealContact {
+  id        String   @id
+  dealId    String
+  contactId String
+  /// customer | designer | installer | other
+  role      String
+  Deal      Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  Contact   Contact  @relation(fields: [contactId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([dealId, contactId, role])
+  @@index([dealId])
+  @@index([contactId])
 }
 
 model DealHistory {

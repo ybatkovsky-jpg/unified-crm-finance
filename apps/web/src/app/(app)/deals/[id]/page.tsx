@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/dialog"
 import { DealHistoryTimeline } from "@/components/deals/deal-history-timeline"
 import { DealComments } from "@/components/deals/deal-comments"
+import { DealContactsSection } from "@/components/deals/deal-contacts-section"
 import { FileUpload } from "@/components/shared/file-upload"
 import { FilePreview, useFilePreview } from "@/components/shared/file-preview"
 
@@ -91,6 +92,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     currency: "RUB",
     expectedCloseDate: "",
     description: "",
+    objectAddress: "",
     lossReason: "",
     sourceId: "",
   })
@@ -142,6 +144,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           ? new Date(response.data.expectedCloseDate).toISOString().split('T')[0]
           : "",
         description: response.data.description || "",
+        objectAddress: (response.data as any).objectAddress || "",
         lossReason: response.data.lossReason || "",
         sourceId: response.data.source?.id || "",
       })
@@ -246,6 +249,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         currency: editForm.currency,
         expectedCloseDate: editForm.expectedCloseDate || undefined,
         description: editForm.description || undefined,
+        objectAddress: editForm.objectAddress || undefined,
         lossReason: editForm.lossReason || undefined,
         sourceId: editForm.sourceId || undefined,
       })
@@ -273,6 +277,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           ? new Date(deal.expectedCloseDate).toISOString().split('T')[0]
           : "",
         description: deal.description || "",
+        objectAddress: (deal as any).objectAddress || "",
         lossReason: deal.lossReason || "",
         sourceId: deal.source?.id || "",
       })
@@ -615,6 +620,16 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                   </div>
 
                   <div className="grid gap-2">
+                    <Label htmlFor="objectAddress">Адрес объекта</Label>
+                    <Input
+                      id="objectAddress"
+                      value={editForm.objectAddress}
+                      onChange={(e) => setEditForm({ ...editForm, objectAddress: e.target.value })}
+                      placeholder="г. Москва, ул. Ленина, д. 1"
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
                     <Label htmlFor="description">Описание</Label>
                     <Textarea
                       id="description"
@@ -705,6 +720,13 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                   )}
 
+                  {(deal as any).objectAddress && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Адрес объекта</p>
+                      <p className="text-sm">{(deal as any).objectAddress}</p>
+                    </div>
+                  )}
+
                   {deal.description && (
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Описание</p>
@@ -773,6 +795,9 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
               </div>
             </CardContent>
           </Card>
+
+          {/* Deal Contacts — multi-contact with roles */}
+          <DealContactsSection dealId={deal.id} />
 
           {/* Deal History — collapsible (collapsed by default) */}
           <Card>

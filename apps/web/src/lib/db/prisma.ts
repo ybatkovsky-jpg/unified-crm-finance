@@ -24,7 +24,7 @@ export const prisma =
   globalForPrisma.prisma ??
   withDecimalNumbers(
     new PrismaClient({
-      log: process.env.NODE_ENV === 'development'
+      log: process.env.PRISMA_LOG_QUERY === '1'
         ? ['query', 'error', 'warn']
         : ['error'],
     }),

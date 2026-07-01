@@ -12,7 +12,7 @@
  *  - company → название/ИНН/КПП/ОГРН + опциональное создание сотрудника
  */
 import { useEffect, useState, useCallback } from "react";
-import { UserPlus, Loader2 } from "lucide-react";
+import { UserPlus, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 
 import {
   Dialog,
@@ -103,6 +103,15 @@ export function ContactFormModal({
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
 
+  // Passport fields (person only)
+  const [showPassport, setShowPassport] = useState(false);
+  const [passportSeries, setPassportSeries] = useState("");
+  const [passportNumber, setPassportNumber] = useState("");
+  const [passportIssuedBy, setPassportIssuedBy] = useState("");
+  const [passportIssuedAt, setPassportIssuedAt] = useState("");
+  const [passportCode, setPassportCode] = useState("");
+  const [registrationAddress, setRegistrationAddress] = useState("");
+
   // Employee sub-form (only for company CREATE mode)
   const [addEmployee, setAddEmployee] = useState(false);
   const [empFirstName, setEmpFirstName] = useState("");
@@ -149,6 +158,14 @@ export function ContactFormModal({
       setPhone(contact.phone || "");
       setEmail(contact.email || "");
       setNotes(contact.notes || "");
+      const c = contact as any;
+      setPassportSeries(c.passportSeries || "");
+      setPassportNumber(c.passportNumber || "");
+      setPassportIssuedBy(c.passportIssuedBy || "");
+      setPassportIssuedAt(c.passportIssuedAt ? String(c.passportIssuedAt).slice(0, 10) : "");
+      setPassportCode(c.passportCode || "");
+      setRegistrationAddress(c.registrationAddress || "");
+      setShowPassport(!!(c.passportSeries || c.passportNumber || c.passportIssuedBy));
       setAddEmployee(false);
     } else {
       // CREATE mode — reset
@@ -165,6 +182,13 @@ export function ContactFormModal({
       setPhone("");
       setEmail("");
       setNotes("");
+      setPassportSeries("");
+      setPassportNumber("");
+      setPassportIssuedBy("");
+      setPassportIssuedAt("");
+      setPassportCode("");
+      setRegistrationAddress("");
+      setShowPassport(false);
       setAddEmployee(false);
       setEmpFirstName("");
       setEmpLastName("");
@@ -236,6 +260,12 @@ export function ContactFormModal({
       payload.lastName = lastName.trim() || null;
       payload.middleName = middleName.trim() || null;
       payload.position = position.trim() || null;
+      payload.passportSeries = passportSeries.trim() || null;
+      payload.passportNumber = passportNumber.trim() || null;
+      payload.passportIssuedBy = passportIssuedBy.trim() || null;
+      payload.passportIssuedAt = passportIssuedAt || null;
+      payload.passportCode = passportCode.trim() || null;
+      payload.registrationAddress = registrationAddress.trim() || null;
     } else {
       payload.companyName = companyName.trim();
       payload.inn = inn.trim() || null;
@@ -422,6 +452,42 @@ export function ContactFormModal({
               <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ivan@example.com" type="email" />
             </Field>
           </div>
+
+          {/* Passport fields — person only, collapsible */}
+          {type === "person" && (
+            <div className="border rounded-lg">
+              <button
+                type="button"
+                onClick={() => setShowPassport(!showPassport)}
+                className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium hover:bg-muted/50 transition-colors"
+              >
+                <span>Паспортные данные</span>
+                {showPassport ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+              </button>
+              {showPassport && (
+                <div className="grid grid-cols-2 gap-3 px-3 pb-3">
+                  <Field label="Серия">
+                    <Input value={passportSeries} onChange={(e) => setPassportSeries(e.target.value)} placeholder="0000" />
+                  </Field>
+                  <Field label="Номер">
+                    <Input value={passportNumber} onChange={(e) => setPassportNumber(e.target.value)} placeholder="000000" />
+                  </Field>
+                  <Field label="Кем выдан" className="col-span-2">
+                    <Input value={passportIssuedBy} onChange={(e) => setPassportIssuedBy(e.target.value)} placeholder="Отделом УФМС России по…" />
+                  </Field>
+                  <Field label="Дата выдачи">
+                    <Input value={passportIssuedAt} onChange={(e) => setPassportIssuedAt(e.target.value)} type="date" />
+                  </Field>
+                  <Field label="Код подразделения">
+                    <Input value={passportCode} onChange={(e) => setPassportCode(e.target.value)} placeholder="000-000" />
+                  </Field>
+                  <Field label="Адрес регистрации" className="col-span-2">
+                    <Input value={registrationAddress} onChange={(e) => setRegistrationAddress(e.target.value)} placeholder="г. Москва, ул.…" />
+                  </Field>
+                </div>
+              )}
+            </div>
+          )}
 
           <Field label="Заметки">
             <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Доп. информация" />

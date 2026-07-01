@@ -139,6 +139,7 @@ export async function PATCH(
     if (body.lossReason !== undefined) updateData.lossReason = body.lossReason || null
     if (body.sourceId !== undefined) updateData.sourceId = body.sourceId || null
     if (body.attributes !== undefined) updateData.attributes = body.attributes
+    if (body.objectAddress !== undefined) updateData.objectAddress = body.objectAddress || null
     if (body.contactId !== undefined) updateData.contactId = body.contactId || null
     if (body.managerId !== undefined) updateData.managerId = body.managerId || null
     if (body.drawingFileId !== undefined) updateData.drawingFileId = body.drawingFileId || null

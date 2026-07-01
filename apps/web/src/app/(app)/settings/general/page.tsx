@@ -5,6 +5,7 @@ import { Image as ImageIcon, Trash2, Loader2, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileUpload, type FileUploadFile } from "@/components/shared/file-upload"
+import { notifyBrandUpdated } from "@/components/layout/use-brand"
 
 interface BrandData {
   logoFileId: string | null
@@ -65,6 +66,7 @@ export default function GeneralSettingsPage() {
       if (!brandRes.ok) throw new Error("Не удалось сохранить логотип")
 
       setSuccess("Логотип обновлён")
+      notifyBrandUpdated()
       await fetchBrand()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось загрузить логотип")
@@ -87,6 +89,7 @@ export default function GeneralSettingsPage() {
       })
       if (!res.ok) throw new Error("Не удалось удалить логотип")
       setSuccess("Логотип удалён")
+      notifyBrandUpdated()
       await fetchBrand()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось удалить логотип")
