@@ -14,6 +14,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { budgets } from '../../../../lib/db/budgets'
 import type { BudgetUpdateInput } from '../../../../lib/db/budgets'
+import { getSession } from '@/lib/auth/session'
+import { canModify } from '@/lib/auth/permissions'
+import { getProjectManagerId } from '@/lib/db/projects'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -83,6 +86,15 @@ export async function PATCH(
       )
     }
 
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const existing = await budgets.findById(id)
+    if (!existing) return NextResponse.json({ error: 'Not found', message: 'Budget not found' }, { status: 404 })
+    const managerId = existing.projectId ? await getProjectManagerId(existing.projectId) : null
+    if (!canModify(session, managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     // Prepare update data (only include provided fields)
     const updateData: BudgetUpdateInput = {}
     if (body.amount !== undefined) updateData.amount = body.amount
@@ -142,6 +154,15 @@ export async function DELETE(
         { error: 'Validation failed', message: 'id is required' },
         { status: 400 }
       )
+    }
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const existing = await budgets.findById(id)
+    if (!existing) return NextResponse.json({ error: 'Not found', message: 'Budget not found' }, { status: 404 })
+    const managerId = existing.projectId ? await getProjectManagerId(existing.projectId) : null
+    if (!canModify(session, managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const deletedBudget = await budgets.delete(id)

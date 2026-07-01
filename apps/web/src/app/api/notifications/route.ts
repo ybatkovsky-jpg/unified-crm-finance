@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { notifications } from '@/lib/db/notifications'
 import { getSession } from '@/lib/auth/session'
+import { isAdminOrDirector } from '@/lib/auth/permissions'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // IDOR-fix: director может создать любому; прочие — только себе.
-    const isDirector = session.roleCodes.includes('director')
+    const isDirector = isAdminOrDirector(session)
     const targetUserId = body.userId
     if (targetUserId && targetUserId !== session.id && !isDirector) {
       return NextResponse.json({ error: 'Forbidden', message: 'Нельзя создавать уведомления другим пользователям' }, { status: 403 })

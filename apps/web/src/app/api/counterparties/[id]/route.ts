@@ -14,6 +14,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { counterparties } from '../../../../lib/db/counterparties'
 import type { CounterpartyUpdateInput } from '../../../../lib/db/counterparties'
+import { getSession } from '@/lib/auth/session'
+import { isAdmin } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -92,6 +94,10 @@ export async function PUT(
       )
     }
 
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isAdmin(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
     // Verify counterparty exists first
     const existing = await counterparties.findUnique(id)
     if (!existing) {
@@ -154,6 +160,10 @@ export async function DELETE(
         { status: 400 }
       )
     }
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isAdmin(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const deletedCounterparty = await counterparties.softDelete(id)
 

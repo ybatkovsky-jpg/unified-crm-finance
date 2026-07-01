@@ -23,6 +23,12 @@ async function main() {
   // === Роли ===
   const roles = [
     {
+      code: 'admin',
+      name: 'Админ',
+      description: 'Полный административный доступ — редактирование и удаление любых сущностей',
+      permissions: { sections: ['crm', 'projects', 'tasks', 'org', 'procurement', 'finance', 'accounting', 'analytics', 'settings'], viewAllProjects: true },
+    },
+    {
       code: 'director',
       name: 'Директор',
       description: 'Полный доступ ко всему',
@@ -89,7 +95,7 @@ async function main() {
       updatedAt: now(),
     },
   });
-  const ownerRole = await prisma.role.findUnique({ where: { code: 'director' } });
+  const ownerRole = await prisma.role.findUnique({ where: { code: 'admin' } });
   if (ownerRole) {
     await prisma.userRole.upsert({
       where: { userId_roleId: { userId: owner.id, roleId: ownerRole.id } },

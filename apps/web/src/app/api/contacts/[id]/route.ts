@@ -9,6 +9,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { contacts } from '../../../../lib/db/contacts'
+import { getSession } from '@/lib/auth/session'
+import { canModify } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -38,8 +40,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams): Promis
     const body = await request.json()
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const existing = await contacts.findUnique(id)
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    // Админ — всё; остальные — только свои контакты (ownerId может быть null).
+    if (!canModify(session, !!existing.ownerId && existing.ownerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     if (body.type === 'person' && body.firstName === '') {
       return NextResponse.json({ error: 'Validation failed', message: 'firstName cannot be empty' }, { status: 400 })
@@ -109,6 +119,17 @@ export async function DELETE(request: NextRequest, { params }: RouteParams): Pro
   try {
     const { id } = await params
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const existing = await contacts.findUnique(id)
+    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    // Админ — всё; остальные — только свои контакты (ownerId может быть null).
+    if (!canModify(session, !!existing.ownerId && existing.ownerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     await contacts.softDelete(id)
     return NextResponse.json({ data: { id }, message: 'Contact soft-deleted successfully' })

@@ -15,6 +15,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { bom } from '../../../../../lib/db/bom'
 import type { BOMItemUpdateInput } from '../../../../../lib/db/bom'
 import { prisma } from '../../../../../lib/db/prisma'
+import { getSession } from '@/lib/auth/session'
+import { canModify } from '@/lib/auth/permissions'
+import { getProjectManagerId } from '@/lib/db/projects'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -86,13 +89,19 @@ export async function PATCH(
     // Check if the BOM is locked (editing items of a locked BOM is forbidden)
     const existing = await prisma.bOMItem.findUnique({
       where: { id },
-      include: { BOM: { select: { status: true } } },
+      include: { BOM: { select: { status: true, projectId: true } } },
     })
     if (!existing) {
       return NextResponse.json(
         { error: 'Not found', message: `BOMItem with id ${id} not found` },
         { status: 404 }
       )
+    }
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const managerId = existing.BOM.projectId ? await getProjectManagerId(existing.BOM.projectId) : null
+    if (!canModify(session, managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     if (existing.BOM.status === 'locked') {
       return NextResponse.json(
@@ -159,13 +168,19 @@ export async function DELETE(
     // Check if the BOM is locked (deleting items of a locked BOM is forbidden)
     const existing = await prisma.bOMItem.findUnique({
       where: { id },
-      include: { BOM: { select: { status: true } } },
+      include: { BOM: { select: { status: true, projectId: true } } },
     })
     if (!existing) {
       return NextResponse.json(
         { error: 'Not found', message: `BOMItem with id ${id} not found` },
         { status: 404 }
       )
+    }
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const managerId = existing.BOM.projectId ? await getProjectManagerId(existing.BOM.projectId) : null
+    if (!canModify(session, managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     if (existing.BOM.status === 'locked') {
       return NextResponse.json(

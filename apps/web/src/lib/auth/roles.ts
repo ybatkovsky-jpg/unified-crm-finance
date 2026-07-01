@@ -5,6 +5,7 @@
  */
 
 export type RoleCode =
+  | 'admin'
   | 'director'
   | 'manager_designer'
   | 'technologist'
@@ -31,6 +32,11 @@ export interface RoleSpec {
 }
 
 export const ROLE_MATRIX: Record<RoleCode, RoleSpec> = {
+  admin: {
+    label: 'Админ',
+    sections: ['crm', 'projects', 'tasks', 'org', 'procurement', 'finance', 'accounting', 'analytics', 'settings'],
+    viewAllProjects: true,
+  },
   director: {
     label: 'Директор',
     sections: ['crm', 'projects', 'tasks', 'org', 'procurement', 'finance', 'accounting', 'analytics', 'settings'],

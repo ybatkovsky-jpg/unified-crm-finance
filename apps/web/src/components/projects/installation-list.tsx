@@ -19,6 +19,7 @@ import type { InstallationData } from "@/lib/api/types"
 
 interface InstallationListProps {
   projectId: string
+  canEdit?: boolean
   onUpdate?: () => void
 }
 
@@ -43,7 +44,7 @@ function formatDate(date: string | null): string {
   return new Date(date).toLocaleDateString("ru-RU")
 }
 
-export function InstallationList({ projectId, onUpdate }: InstallationListProps) {
+export function InstallationList({ projectId, canEdit = true, onUpdate }: InstallationListProps) {
   const [items, setItems] = useState<InstallationData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -167,6 +168,7 @@ export function InstallationList({ projectId, onUpdate }: InstallationListProps)
                     {nextStatus === "completed" && <><Check className="size-3 mr-1" />Завершить</>}
                   </Button>
                 )}
+                {canEdit && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -175,6 +177,7 @@ export function InstallationList({ projectId, onUpdate }: InstallationListProps)
                 >
                   <Trash2 className="size-4" />
                 </Button>
+                )}
               </div>
             </div>
 

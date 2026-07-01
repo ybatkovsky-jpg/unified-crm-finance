@@ -19,6 +19,7 @@ import type { ChangeOrderData } from "@/lib/api/types"
 
 interface ChangeOrderListProps {
   projectId: string
+  canEdit?: boolean
   onUpdate?: () => void
 }
 
@@ -36,7 +37,7 @@ const STATUS_VARIANTS: Record<string, "default" | "secondary" | "outline" | "des
   cancelled: "destructive",
 }
 
-export function ChangeOrderList({ projectId, onUpdate }: ChangeOrderListProps) {
+export function ChangeOrderList({ projectId, canEdit = true, onUpdate }: ChangeOrderListProps) {
   const [items, setItems] = useState<ChangeOrderData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -167,6 +168,7 @@ export function ChangeOrderList({ projectId, onUpdate }: ChangeOrderListProps) {
                   Выполнено
                 </Button>
               )}
+              {canEdit && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -175,6 +177,7 @@ export function ChangeOrderList({ projectId, onUpdate }: ChangeOrderListProps) {
               >
                 <Trash2 className="size-4" />
               </Button>
+              )}
             </div>
           </div>
 

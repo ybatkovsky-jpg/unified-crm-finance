@@ -13,6 +13,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { productions } from '@/lib/db/production'
+import { getSession } from '@/lib/auth/session'
+import { isAdmin } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -64,6 +66,10 @@ export async function PATCH(
     const { id } = await params
     const body = await request.json()
 
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isAdmin(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
     // Verify stage exists
     const existing = await productions.findStage(id)
     if (!existing) {
@@ -114,6 +120,10 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { id } = await params
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isAdmin(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const deletedStage = await productions.deleteStage(id)
 

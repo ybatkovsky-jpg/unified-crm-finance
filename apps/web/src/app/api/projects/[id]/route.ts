@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { projects } from '@/lib/db/projects'
 import { requireSession } from '@/lib/auth/session'
+import { canModify } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/db/prisma'
 
 interface RouteParams {
@@ -141,6 +142,11 @@ export async function PATCH(
 
     const session = await requireSession()
 
+    // Админ — всё; остальные — только свои проекты.
+    if (!canModify(session, existing.managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     // Prepare update data (only allow specific fields)
     const updateData: Record<string, unknown> = {}
     if (body.name !== undefined) updateData.name = body.name
@@ -184,6 +190,21 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { id } = await params
+
+    const session = await requireSession()
+
+    const existing = await projects.findUnique(id)
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Project not found', message: `Project with id ${id} not found` },
+        { status: 404 }
+      )
+    }
+
+    // Админ — всё; остальные — только свои проекты.
+    if (!canModify(session, existing.managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const deletedProject = await projects.softDelete(id)
 

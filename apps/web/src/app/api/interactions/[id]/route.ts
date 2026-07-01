@@ -14,6 +14,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { interactions } from '../../../../lib/db/interactions'
 import type { InteractionUpdateInput } from '../../../../lib/db/interactions'
+import { getSession } from '@/lib/auth/session'
+import { canModify } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -82,6 +84,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams): Promis
       )
     }
 
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!canModify(session, existing.authorId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     // Validate type if provided
     const VALID_TYPES = ['call', 'meeting', 'email', 'note', 'task'] as const
     if (body.type !== undefined && !VALID_TYPES.includes(body.type)) {
@@ -139,6 +147,20 @@ export async function DELETE(request: NextRequest, { params }: RouteParams): Pro
         { error: 'Validation failed', message: 'id is required' },
         { status: 400 }
       )
+    }
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const existing = await interactions.findUnique(id)
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Not found', message: `Interaction with id ${id} not found` },
+        { status: 404 }
+      )
+    }
+    if (!canModify(session, existing.authorId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const deletedInteraction = await interactions.delete(id)

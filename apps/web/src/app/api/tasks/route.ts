@@ -11,6 +11,7 @@ import { tasks, TASK_TYPES, TASK_STATUSES } from '@/lib/db/tasks'
 import { notifyTaskOverdue, notifyProjectDeadline } from '@/lib/notifications/events'
 import { taskTemplates } from '@/lib/db/task-templates'
 import { getSession } from '@/lib/auth/session'
+import { isAdminOrDirector } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/db/prisma'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // IDOR-fix: если запрашивают задачи по сделке, проверить доступ к сделке.
     if (dealId) {
-      const isDirector = session.roleCodes.includes('director')
+      const isDirector = isAdminOrDirector(session)
       if (!isDirector) {
         const deal = await prisma.deal.findUnique({
           where: { id: dealId, deletedAt: null },
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // IDOR-fix: director видит все задачи; прочие — только свои (assigneeId=session.id),
     // если не запрашивают чужого assigneeId явно (что для не-director → свои).
-    const isDirector = session.roleCodes.includes('director')
+    const isDirector = isAdminOrDirector(session)
     const requestedAssignee = sp.get('assigneeId')
     const effectiveAssignee = isDirector ? (requestedAssignee ?? undefined) : (requestedAssignee ?? session.id)
 

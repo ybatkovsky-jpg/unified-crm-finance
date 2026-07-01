@@ -9,6 +9,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { installations } from '@/lib/db/installation';
+import { getSession } from '@/lib/auth/session';
+import { canModify } from '@/lib/auth/permissions';
+import { getProjectManagerId } from '@/lib/db/projects';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -21,6 +24,15 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
+
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const existing = await installations.findById(id);
+    if (!existing) return NextResponse.json({ error: 'Not found', message: 'Installation not found' }, { status: 404 });
+    const managerId = existing.projectId ? await getProjectManagerId(existing.projectId) : null;
+    if (!canModify(session, managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     if (!body.status) {
       return NextResponse.json(

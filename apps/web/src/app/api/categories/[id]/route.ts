@@ -14,6 +14,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { categories } from '../../../../lib/db/categories'
 import type { CategoryUpdateInput } from '../../../../lib/db/categories'
+import { getSession } from '@/lib/auth/session'
+import { isAdmin } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -76,6 +78,10 @@ export async function PATCH(
   try {
     const { id } = await params
     const body = await request.json()
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isAdmin(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     if (!id) {
       return NextResponse.json(
@@ -154,6 +160,10 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { id } = await params
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isAdmin(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     if (!id) {
       return NextResponse.json(

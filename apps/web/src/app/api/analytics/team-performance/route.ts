@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { parsePeriodToDateRange } from '@/lib/periods'
 import { getSession } from '@/lib/auth/session'
+import { isAdminOrDirector } from '@/lib/auth/permissions'
 
 interface UserPerf {
   userId: string
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const session = await getSession()
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     // RBAC-fix: эффективность команды — только директор (раскрывает данные всех сотрудников).
-    if (!session.roleCodes.includes('director')) {
+    if (!isAdminOrDirector(session)) {
       return NextResponse.json({ error: 'Forbidden', message: 'Только директор видит аналитику команды' }, { status: 403 })
     }
 

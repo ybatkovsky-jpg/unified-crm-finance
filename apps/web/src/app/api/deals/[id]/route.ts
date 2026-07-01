@@ -13,6 +13,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { deals } from '@/lib/db/deals'
+import { getSession } from '@/lib/auth/session'
+import { canModify } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -110,6 +112,9 @@ export async function PATCH(
     const { id } = await params
     const body = await request.json()
 
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     // Verify deal exists
     const existing = await deals.findUnique(id)
     if (!existing) {
@@ -117,6 +122,11 @@ export async function PATCH(
         { error: 'Deal not found', message: `Deal with id ${id} not found` },
         { status: 404 }
       )
+    }
+
+    // Админ — всё; остальные — только свои сделки.
+    if (!canModify(session, existing.managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Prepare update data (coerce types from form values)
@@ -166,6 +176,22 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { id } = await params
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const existing = await deals.findUnique(id)
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Deal not found', message: `Deal with id ${id} not found` },
+        { status: 404 }
+      )
+    }
+
+    // Админ — всё; остальные — только свои сделки.
+    if (!canModify(session, existing.managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const deletedDeal = await deals.softDelete(id)
 

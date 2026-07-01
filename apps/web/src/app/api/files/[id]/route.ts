@@ -12,6 +12,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { files } from '../../../../lib/db/files'
 import { getPresignedUrl, deleteFile as deleteFromStorage } from '../../../../lib/storage/s3'
+import { getSession } from '@/lib/auth/session'
+import { canModify } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -111,6 +113,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams): Pro
         { error: 'Not found', message: `File with id ${id} not found` },
         { status: 404 }
       )
+    }
+
+    // Админ — всё; остальные — только свои файлы (uploadedBy может быть null).
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!canModify(session, !!existingFile.uploadedBy && existingFile.uploadedBy === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Check if we should also remove from storage

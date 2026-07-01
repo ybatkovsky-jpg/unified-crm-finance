@@ -8,13 +8,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../lib/db/prisma'
 import { getSession } from '@/lib/auth/session'
+import { isAdminOrDirector } from '@/lib/auth/permissions'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const session = await getSession()
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     // RBAC-fix: procurement-метрики доступны director и supply.
-    const canView = session.roleCodes.includes('director') || session.roleCodes.includes('supply')
+    const canView = isAdminOrDirector(session) || session.roleCodes.includes('supply')
     if (!canView) {
       return NextResponse.json({ error: 'Forbidden', message: 'Нет доступа к метрикам закупок' }, { status: 403 })
     }

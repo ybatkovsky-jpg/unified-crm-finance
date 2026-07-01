@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { org } from '@/lib/db/org'
 import { getSession } from '@/lib/auth/session'
+import { isAdminOrDirector } from '@/lib/auth/permissions'
 
 export async function GET(): Promise<NextResponse> {
   try {
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const session = await getSession()
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    if (!session.roleCodes.includes('director')) {
+    if (!isAdminOrDirector(session)) {
       return NextResponse.json({ error: 'Forbidden', message: 'Только директор может редактировать орг-структуру' }, { status: 403 })
     }
 

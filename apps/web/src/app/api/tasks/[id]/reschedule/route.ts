@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { tasks } from '@/lib/db/tasks'
 import { getSession } from '@/lib/auth/session'
+import { isAdminOrDirector } from '@/lib/auth/permissions'
 
 export async function POST(
   request: NextRequest,
@@ -24,7 +25,7 @@ export async function POST(
     // IDOR-fix: проверка владения.
     const existing = await tasks.findById(id)
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    const isDirector = session.roleCodes.includes('director')
+    const isDirector = isAdminOrDirector(session)
     if (!isDirector && existing.assigneeId !== session.id && existing.createdBy !== session.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
