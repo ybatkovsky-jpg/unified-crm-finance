@@ -1,16 +1,23 @@
 /**
- * Deal Contacts API — связь сделки с контактными лицами по ролям.
+ * Deal Contacts API — связь сделки с контактными лицами.
  *
  * GET    /api/deals/:id/contacts          — список контактов сделки
- * POST   /api/deals/:id/contacts          — добавить контакт { contactId, role }
- * DELETE /api/deals/:id/contacts           — убрать контакт { contactId, role? }
+ * POST   /api/deals/:id/contacts          — добавить:
+ *   - простой режим: { contactId, role }
+ *   - создание физлица: { mode: 'individual', person, role }
+ *   - создание организации+сотрудники: { mode: 'company', company, employees, companyRole }
+ * DELETE /api/deals/:id/contacts?contactId=&role= — отвязать (не удаляет Contact)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { dealContacts, isDealContactRole } from '@/lib/db/deal-contacts'
+import { dealContacts } from '@/lib/db/deal-contacts'
 import { deals } from '@/lib/db/deals'
 import { getSession } from '@/lib/auth/session'
-import { randomUUID } from 'node:crypto'
+import {
+  addIndividualToDeal,
+  addCompanyWithEmployeesToDeal,
+  unlinkContactFromDeal,
+} from '@/lib/services/deal-contact-service'
 
 export async function GET(
   _request: NextRequest,
@@ -48,14 +55,25 @@ export async function POST(
     if (!deal) return NextResponse.json({ error: 'Deal not found' }, { status: 404 })
 
     const body = await request.json()
+
+    // ── Режим: создание физлица с паспортом ──
+    if (body.mode === 'individual') {
+      const result = await addIndividualToDeal(id, body)
+      return NextResponse.json({ data: result }, { status: 201 })
+    }
+
+    // ── Режим: организация + сотрудники ──
+    if (body.mode === 'company') {
+      const result = await addCompanyWithEmployeesToDeal(id, body)
+      return NextResponse.json({ data: result }, { status: 201 })
+    }
+
+    // ── Простой режим: привязать существующий контакт с ролью ──
     const contactId = body.contactId
-    const role = body.role ?? 'customer'
+    const role = typeof body.role === 'string' && body.role.trim() ? body.role.trim() : 'Контакт'
 
     if (!contactId) {
       return NextResponse.json({ error: 'contactId is required' }, { status: 400 })
-    }
-    if (!isDealContactRole(role)) {
-      return NextResponse.json({ error: `Invalid role: ${role}` }, { status: 400 })
     }
 
     await dealContacts.add(id, contactId, role)
@@ -63,10 +81,12 @@ export async function POST(
     return NextResponse.json({ data: items }, { status: 201 })
   } catch (error) {
     console.error('Failed to add deal contact:', error)
-    return NextResponse.json(
-      { error: 'Failed to add deal contact', message: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    )
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    // Валидационные ошибки → 400
+    const status = message.includes('обязатель') || message.includes('не является') || message.includes('не найден')
+      ? 400
+      : 500
+    return NextResponse.json({ error: 'Failed to add deal contact', message }, { status })
   }
 }
 
@@ -90,13 +110,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'contactId is required' }, { status: 400 })
     }
 
-    if (role) {
-      await dealContacts.remove(id, contactId, role)
-    } else {
-      await dealContacts.removeAllForContact(id, contactId)
-    }
+    const result = await unlinkContactFromDeal(
+      id,
+      contactId,
+      role || undefined,
+    )
 
-    return NextResponse.json({ data: { deleted: true } })
+    return NextResponse.json({ data: { deleted: result.count } })
   } catch (error) {
     console.error('Failed to remove deal contact:', error)
     return NextResponse.json(

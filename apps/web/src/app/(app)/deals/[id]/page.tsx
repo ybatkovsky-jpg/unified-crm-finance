@@ -535,13 +535,13 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                 color: "#fff",
               }}
             >
-              {deal.stage.name}
+              {deal.stage?.name}
             </Badge>
             {isWon && <Badge variant="default">Выиграна</Badge>}
             {isLost && <Badge variant="destructive">Проиграна</Badge>}
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            {deal.number} · {deal.pipeline.name}
+            {deal.number} · {deal.pipeline?.name}
             {deal.source && (
               <Badge variant="secondary" className="ml-2 text-xs">
                 {deal.source.name}
@@ -797,7 +797,11 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           </Card>
 
           {/* Deal Contacts — multi-contact with roles */}
-          <DealContactsSection dealId={deal.id} />
+          <DealContactsSection
+            dealId={deal.id}
+            contactId={deal.contactId ?? null}
+            onCustomerChange={() => fetchDeal(deal.id)}
+          />
 
           {/* Deal History — collapsible (collapsed by default) */}
           <Card>
@@ -974,9 +978,9 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                   ))}
                 </SelectContent>
               </Select>
-              {deal.stage.probability > 0 && (
+              {deal.stage?.probability ? deal.stage.probability > 0 : false && (
                 <p className="text-xs text-center text-muted-foreground">
-                  Вероятность: {deal.stage.probability}%
+                  Вероятность: {deal.stage?.probability}%
                 </p>
               )}
               {movingStage && (
