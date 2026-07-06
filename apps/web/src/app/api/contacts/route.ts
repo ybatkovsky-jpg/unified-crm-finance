@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { contacts } from '../../../lib/db/contacts'
+import { prisma } from '../../../lib/db/prisma'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -20,11 +21,29 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (status) where.status = status
     if (companyId) where.companyId = companyId
 
-    const all = await contacts.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
-      orderBy: { createdAt: 'desc' },
+    // Pagination
+    const page = Math.max(1, parseInt(sp.get('page') || '1'))
+    const pageSize = Math.min(100, Math.max(1, parseInt(sp.get('pageSize') || '50')))
+    const skip = (page - 1) * pageSize
+    const whereClause = Object.keys(where).length > 0 ? where : undefined
+
+    const [all, totalCount] = await Promise.all([
+      contacts.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'desc' },
+        take: pageSize,
+        skip,
+      }),
+      prisma.contact.count({ where: whereClause as any }),
+    ])
+    return NextResponse.json({
+      data: all,
+      count: all.length,
+      totalCount,
+      page,
+      pageSize,
+      totalPages: Math.ceil(totalCount / pageSize),
     })
-    return NextResponse.json({ data: all, count: all.length })
   } catch (error) {
     console.error('Failed to fetch contacts:', error)
     return NextResponse.json({ error: 'Failed to fetch contacts', message: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })

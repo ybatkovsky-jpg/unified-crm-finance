@@ -270,6 +270,7 @@ model Contract {
   @@index([dealId])
   @@index([status])
   @@index([contactId])
+  @@index([deletedAt])
 }
 
 model ContractSigner {
@@ -345,6 +346,7 @@ model Counterparty {
 
   @@index([type])
   @@index([inn])
+  @@index([deletedAt])
 }
 
 model Deal {
@@ -393,6 +395,7 @@ model Deal {
   @@index([managerId])
   @@index([stageId])
   @@index([sourceId])
+  @@index([deletedAt])
 }
 
 /// Связь сделки с контактными лицами по ролям (customer, designer, installer, other).

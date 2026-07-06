@@ -32,6 +32,10 @@ export async function GET(
   try {
     const { id } = await params
 
+    // IDOR-fix: проверка сессии и прав доступа
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const deal = await deals.findUnique(id, {
       DealStage: true,
       Pipeline: true,
@@ -57,6 +61,11 @@ export async function GET(
         { error: 'Deal not found', message: `Deal with id ${id} not found` },
         { status: 404 }
       )
+    }
+
+    // Проверка владельца: менеджер сделки или админ
+    if (!canModify(session, deal.managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Map Prisma PascalCase relations to API lowercase shape.

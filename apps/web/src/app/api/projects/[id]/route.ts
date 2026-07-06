@@ -35,6 +35,10 @@ export async function GET(
   try {
     const { id } = await params
 
+    // IDOR-fix: проверка сессии и прав доступа
+    const session = await requireSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const project = await projects.findUnique(
       id,
       {
@@ -75,6 +79,11 @@ export async function GET(
         { error: 'Project not found', message: `Project with id ${id} not found` },
         { status: 404 }
       )
+    }
+
+    // Проверка владельца: менеджер проекта или админ
+    if (!canModify(session, project.managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Manually fetch Deal if dealId exists (no @relation back to Project in schema)

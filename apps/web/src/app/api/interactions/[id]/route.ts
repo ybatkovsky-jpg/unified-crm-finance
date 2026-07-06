@@ -38,6 +38,10 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
       )
     }
 
+    // IDOR-fix: проверка сессии и прав доступа
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const interaction = await interactions.findUnique(id)
 
     if (!interaction) {
@@ -45,6 +49,11 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
         { error: 'Not found', message: `Interaction with id ${id} not found` },
         { status: 404 }
       )
+    }
+
+    // Проверка владельца: автор взаимодействия или админ
+    if (!canModify(session, interaction.authorId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     return NextResponse.json({ data: interaction })

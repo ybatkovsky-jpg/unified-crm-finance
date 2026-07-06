@@ -145,6 +145,7 @@ describe('TaskRepository', () => {
         title: 'Test',
         type: 'general',
         status: 'todo',
+        createdBy: 'user-1',
       })
 
       expect(result).toEqual(task)
@@ -153,20 +154,20 @@ describe('TaskRepository', () => {
 
     it('бросает ошибку при невалидном type', async () => {
       await expect(
-        tasks.create({ title: 'Test', type: 'invalid_type' as any, status: 'todo' })
+        tasks.create({ title: 'Test', type: 'invalid_type' as any, status: 'todo', createdBy: 'user-1' })
       ).rejects.toThrow('Invalid task type')
     })
 
     it('бросает ошибку при невалидном status', async () => {
       await expect(
-        tasks.create({ title: 'Test', type: 'general', status: 'invalid_status' as any })
+        tasks.create({ title: 'Test', type: 'general', status: 'invalid_status' as any, createdBy: 'user-1' })
       ).rejects.toThrow('Invalid task status')
     })
 
     it('проверяет существование assignee', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null)
       await expect(
-        tasks.create({ title: 'Test', type: 'general', status: 'todo', assigneeId: 'bad-user' })
+        tasks.create({ title: 'Test', type: 'general', status: 'todo', assigneeId: 'bad-user', createdBy: 'user-1' })
       ).rejects.toThrow('Assignee bad-user not found')
     })
 
@@ -174,7 +175,7 @@ describe('TaskRepository', () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null)
       vi.mocked(prisma.project.findUnique).mockResolvedValueOnce(null)
       await expect(
-        tasks.create({ title: 'Test', type: 'general', status: 'todo', projectId: 'bad-project' })
+        tasks.create({ title: 'Test', type: 'general', status: 'todo', projectId: 'bad-project', createdBy: 'user-1' })
       ).rejects.toThrow('Project bad-project not found')
     })
   })

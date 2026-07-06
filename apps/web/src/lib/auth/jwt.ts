@@ -1,10 +1,11 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-const SECRET = new TextEncoder().encode(
-  process.env.AUTH_SECRET || 'dev-insecure-secret-change-me'
-);
-const ISSUER = 'pro-mebel-erp';
-const AUDIENCE = 'pro-mebel-erp-users';
+if (!process.env.AUTH_SECRET) {
+  throw new Error('FATAL: AUTH_SECRET environment variable is required');
+}
+const SECRET = new TextEncoder().encode(process.env.AUTH_SECRET);
+const ISSUER = process.env.AUTH_ISSUER || 'pro-mebel-erp';
+const AUDIENCE = process.env.AUTH_AUDIENCE || 'pro-mebel-erp-users';
 
 export interface SessionPayload {
   sub: string; // user id

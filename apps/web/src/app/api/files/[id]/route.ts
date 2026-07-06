@@ -39,6 +39,10 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
       )
     }
 
+    // IDOR-fix: проверка сессии и прав доступа
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const file = await files.findUnique(id)
 
     if (!file) {
@@ -46,6 +50,11 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
         { error: 'Not found', message: `File with id ${id} not found` },
         { status: 404 }
       )
+    }
+
+    // Проверка владельца: админ — всё; остальные — только свои файлы
+    if (!canModify(session, !!file.uploadedBy && file.uploadedBy === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Parse expiresIn from query params (max 24 hours)

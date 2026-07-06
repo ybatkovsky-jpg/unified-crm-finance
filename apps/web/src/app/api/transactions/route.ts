@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { transactions } from '../../../lib/db/transactions'
 import type { TransactionFilters } from '../../../lib/db/transactions'
+import { getSession } from '../../../lib/auth/session'
 
 /**
  * GET /api/transactions
@@ -82,6 +83,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
 
     // Validate required fields
@@ -123,7 +132,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       status: body.status ?? 'confirmed',
       paymentMethod: body.paymentMethod ?? null,
       paymentType: body.paymentType ?? null,
-      createdBy: body.createdBy ?? 'system',
+      createdBy: session.id,
     }
 
     const newTransaction = await transactions.create(createData)

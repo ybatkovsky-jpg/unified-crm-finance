@@ -21,12 +21,22 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
     const { id } = await params
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
+    // IDOR-fix: проверка сессии
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const contact = await contacts.findUnique(id, {
       Company: { select: { id: true, companyName: true } },
       Employees: { select: { id: true, firstName: true, lastName: true, position: true, phone: true, email: true } },
     })
 
     if (!contact) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    // Проверка владельца: админ — всё; остальные — только свои контакты
+    if (!canModify(session, !!contact.ownerId && contact.ownerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     return NextResponse.json({ data: contact })
   } catch (error) {
     console.error('Failed to fetch contact:', error)

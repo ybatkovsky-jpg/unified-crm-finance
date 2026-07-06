@@ -978,7 +978,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                   ))}
                 </SelectContent>
               </Select>
-              {deal.stage?.probability ? deal.stage.probability > 0 : false && (
+              {deal && deal.stage?.probability != null && deal.stage.probability > 0 && (
                 <p className="text-xs text-center text-muted-foreground">
                   Вероятность: {deal.stage?.probability}%
                 </p>

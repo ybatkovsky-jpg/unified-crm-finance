@@ -10,7 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 function LoginForm() {
   const router = useRouter()
   const params = useSearchParams()
-  const [email, setEmail] = useState("admin@local")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -89,9 +89,6 @@ function LoginForm() {
           {loading ? "Вход…" : "Войти"}
         </button>
 
-        <p className="text-xs text-center text-muted-foreground">
-          Первый вход: admin@local / admin123
-        </p>
       </form>
     </div>
   )

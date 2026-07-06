@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { files } from '../../../lib/db/files'
 import { uploadFile, generateStorageKey, storageMode } from '../../../lib/storage/s3'
+import { getSession } from '../../../lib/auth/session'
 
 // Max upload size from environment (default 50MB)
 const MAX_UPLOAD_SIZE = Number(process.env.MAX_UPLOAD_SIZE_MB || 50) * 1024 * 1024
@@ -47,11 +48,20 @@ const ALLOWED_MIME_TYPES = new Set([
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     const entityType = (formData.get('entityType') as string) || 'general'
     const entityId = (formData.get('entityId') as string) || 'temp'
-    const uploadedBy = (formData.get('uploadedBy') as string) || null
+    // Безопасность: uploadedBy всегда из сессии, игнорируем клиентское значение
+    const uploadedBy = session.id
 
     // Validate file presence
     if (!file) {

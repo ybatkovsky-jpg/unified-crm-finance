@@ -41,6 +41,10 @@ export async function GET(
       )
     }
 
+    // IDOR-fix: проверка сессии и прав доступа
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const transaction = await transactions.findById(id)
 
     if (!transaction) {
@@ -48,6 +52,11 @@ export async function GET(
         { error: 'Not found', message: `Transaction with id ${id} not found` },
         { status: 404 }
       )
+    }
+
+    // Проверка владельца: автор транзакции или админ
+    if (!canModify(session, transaction.createdBy === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     return NextResponse.json({ data: transaction })
