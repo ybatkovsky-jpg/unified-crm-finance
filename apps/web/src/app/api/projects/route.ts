@@ -46,10 +46,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (contactId) where.contactId = contactId
     if (dealId) where.dealId = dealId
 
-    const allProjects = await projects.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
-      orderBy: { createdAt: 'desc' },
-      include: {
+    // Pagination
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+    const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') || '50')))
+    const skip = (page - 1) * pageSize
+    const whereClause = Object.keys(where).length > 0 ? where : undefined
+
+    const [allProjects, totalCount] = await Promise.all([
+      projects.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'desc' },
+        take: pageSize,
+        skip,
+        include: {
         ProjectStage: {
           orderBy: { order: 'asc' },
         },
@@ -68,9 +77,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         Contact: true,
         User: true,
       },
-    } as const)
+    } as const),
+      prisma.project.count({ where: whereClause as any }),
+    ])
 
-    return NextResponse.json({ data: allProjects, count: allProjects.length })
+    return NextResponse.json({
+      data: allProjects,
+      count: allProjects.length,
+      totalCount,
+      page,
+      pageSize,
+      totalPages: Math.ceil(totalCount / pageSize),
+    })
   } catch (error) {
     console.error('Failed to fetch projects:', error)
     return NextResponse.json(

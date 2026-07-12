@@ -97,7 +97,7 @@ export function ProjectGantt({ projectId, stages }: ProjectGanttProps) {
           console.log("[ProjectGantt] Stage updated successfully")
         } catch (err) {
           console.error("[ProjectGantt] Failed to update stage:", err)
-          setError(err instanceof Error ? err.message : "Failed to update stage")
+          setError(err instanceof Error ? err.message : "Не удалось обновить этап")
           // Revert the move on error
           if (itemsDataSet.current) {
             const originalItem = stages.find(s => s.id === item.id)
@@ -115,7 +115,7 @@ export function ProjectGantt({ projectId, stages }: ProjectGanttProps) {
       })
     } catch (err) {
       console.error("[ProjectGantt] Failed to initialize timeline:", err)
-      setError("Failed to initialize timeline")
+      setError("Не удалось инициализировать временную шкалу")
     }
 
     return () => {

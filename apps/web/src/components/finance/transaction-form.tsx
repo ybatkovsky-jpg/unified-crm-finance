@@ -126,7 +126,7 @@ export function TransactionForm({
       if (err instanceof ApiClientError) {
         setFormError(err.message)
       } else {
-        setFormError("Failed to save transaction.")
+        setFormError("Не удалось сохранить транзакцию.")
       }
     } finally {
       setSubmitting(false)
@@ -142,7 +142,7 @@ export function TransactionForm({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Transaction" : "Create Transaction"}</DialogTitle>
+          <DialogTitle>{isEditing ? "Редактировать транзакцию" : "Создать транзакцию"}</DialogTitle>
           <DialogDescription>
             {isEditing
               ? "Update transaction details."
@@ -161,16 +161,22 @@ export function TransactionForm({
             {/* Category */}
             <div className="grid gap-2">
               <Label htmlFor="category">
-                Category <span className="text-destructive">*</span>
+                Категория <span className="text-destructive">*</span>
               </Label>
               {catsLoading ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="size-4 animate-spin" /> Loading...
+                  <Loader2 className="size-4 animate-spin" /> Загрузка...
                 </div>
               ) : (
-                <Select value={categoryId} onValueChange={(v) => { if (v) setCategoryId(v) }}>
+                <Select
+                  value={categoryId}
+                  onValueChange={(v) => { if (v) setCategoryId(v) }}
+                  items={Object.fromEntries(
+                    categories.filter((c) => c.isActive).map((c) => [c.id, `${c.name} (${c.type})`])
+                  )}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="Выберите категорию" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -191,7 +197,7 @@ export function TransactionForm({
                 <Label htmlFor="type">
                   Type <span className="text-destructive">*</span>
                 </Label>
-                <Select value={type} onValueChange={(v) => { if (v) setType(v) }}>
+                <Select value={type} onValueChange={(v) => { if (v) setType(v) }} items={{ income: "Income", expense: "Expense" }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
@@ -234,7 +240,7 @@ export function TransactionForm({
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="status">Status</Label>
-                <Select value={status} onValueChange={(v) => { if (v) setStatus(v) }}>
+                <Select value={status} onValueChange={(v) => { if (v) setStatus(v) }} items={{ confirmed: "Confirmed", pending: "Pending" }}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -262,7 +268,11 @@ export function TransactionForm({
             {/* Payment method (FIN-03) */}
             <div className="grid gap-2">
               <Label htmlFor="paymentMethod">Способ оплаты</Label>
-              <Select value={paymentMethod || "__none__"} onValueChange={(v) => setPaymentMethod(!v || v === "__none__" ? "" : v)}>
+              <Select
+                value={paymentMethod || "__none__"}
+                onValueChange={(v) => setPaymentMethod(!v || v === "__none__" ? "" : v)}
+                items={{ __none__: "Не указан", bank: "Безналичный (банк)", cash: "Наличные", card: "Карта / эквайринг" }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Не указан" />
                 </SelectTrigger>
@@ -283,11 +293,11 @@ export function TransactionForm({
               onClick={() => handleOpenChange(false)}
               disabled={submitting}
             >
-              Cancel
+              Отмена
             </Button>
             <Button type="submit" disabled={submitting}>
               {submitting && <Loader2 className="size-4 animate-spin" />}
-              {submitting ? "Saving..." : isEditing ? "Save" : "Create"}
+              {submitting ? "Сохранение..." : isEditing ? "Сохранить" : "Создать"}
             </Button>
           </DialogFooter>
         </form>

@@ -13,6 +13,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { productions } from '@/lib/db/production'
+import { getSession } from '@/lib/auth/session'
+import { canModify } from '@/lib/auth/permissions'
+import { getProjectManagerId } from '@/lib/db/projects'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -79,6 +82,13 @@ export async function PATCH(
       )
     }
 
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const managerId = existing.projectId ? await getProjectManagerId(existing.projectId) : null
+    if (!canModify(session, managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     // Prepare update data (only allow specific fields)
     const updateData: Record<string, unknown> = {}
     if (body.status !== undefined) updateData.status = body.status
@@ -126,6 +136,20 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { id } = await params
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const existing = await productions.findUnique(id)
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Production not found', message: `Production with id ${id} not found` },
+        { status: 404 }
+      )
+    }
+    const managerId = existing.projectId ? await getProjectManagerId(existing.projectId) : null
+    if (!canModify(session, managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const deletedProduction = await productions.softDelete(id)
 

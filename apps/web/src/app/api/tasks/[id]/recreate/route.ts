@@ -8,14 +8,28 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { tasks } from '../../../../../lib/db/tasks'
+import { tasks } from '@/lib/db/tasks'
+import { getSession } from '@/lib/auth/session'
+import { isAdminOrDirector } from '@/lib/auth/permissions'
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const { id } = await params
+
+    // IDOR-fix: проверка владения.
+    const existing = await tasks.findById(id)
+    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    const isDirector = isAdminOrDirector(session)
+    if (!isDirector && existing.assigneeId !== session.id && existing.createdBy !== session.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const body = await request.json()
 
     if (!body.dueDate) {

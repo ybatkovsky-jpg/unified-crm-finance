@@ -78,6 +78,7 @@ export class ContactApiClient {
       this.url('/contacts', {
         type: params?.type,
         status: params?.status,
+        companyId: params?.companyId,
       }),
       {
         headers: this.defaultHeaders,

@@ -50,13 +50,13 @@ import { FileUpload } from "@/components/shared/file-upload"
 import { FilePreview, useFilePreview } from "@/components/shared/file-preview"
 
 function formatDate(date: Date | string | null | undefined): string {
-  if (!date) return "\—"
+  if (!date) return "—"
   const d = typeof date === "string" ? new Date(date) : date
   return d.toLocaleDateString("ru-RU")
 }
 
 function formatCurrency(amount: number | null | undefined, currency: string = "RUB"): string {
-  if (amount == null) return "\—"
+  if (amount == null) return "—"
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency: currency,
@@ -122,7 +122,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [closeDialogOpen, setCloseDialogOpen] = useState(false)
   const [readiness, setReadiness] = useState<ClosureReadiness | null>(null)
   const [readinessLoading, setReadinessLoading] = useState(false)
-  const { me } = useMe()
+  const { me, isAdmin } = useMe()
   const filePreview = useFilePreview()
 
   const unwrapParams = useCallback(async () => {
@@ -171,7 +171,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         setError(err.message)
       } else {
         console.error("[ProjectDetail] Unexpected error:", err)
-        setError("Failed to load project. Please try again.")
+        setError("Не удалось загрузить проект. Пожалуйста, попробуйте снова.")
       }
     } finally {
       setLoading(false)
@@ -214,7 +214,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to save project. Please try again.")
+        setError("Не удалось сохранить проект. Пожалуйста, попробуйте снова.")
       }
     } finally {
       setSaving(false)
@@ -271,7 +271,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to upload specification file.")
+        setError("Не удалось загрузить файл спецификации.")
       }
       throw err
     } finally {
@@ -359,7 +359,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     return (
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-center py-12">
-          <div className="text-muted-foreground">Loading project...</div>
+          <div className="text-muted-foreground">Загрузка проекта...</div>
         </div>
       </div>
     )
@@ -374,7 +374,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <p className="text-destructive">{error}</p>
               <Button variant="outline" onClick={() => router.back()}>
                 <ArrowLeft className="size-4" />
-                <span className="ml-1.5">Go Back</span>
+                <span className="ml-1.5">Назад</span>
               </Button>
             </div>
           </CardContent>
@@ -401,7 +401,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              {project.externalNumber || "\—"}
+              {project.externalNumber || "—"}
             </p>
           </div>
         </div>
@@ -518,11 +518,11 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <div className="flex gap-2">
               <Button onClick={handleSave} disabled={saving}>
                 <Save className="size-4" />
-                <span className="ml-1.5">{saving ? "Saving..." : "\С\о\х\р\а\н\и\т\ь"}</span>
+                <span className="ml-1.5">{saving ? "Сохранение..." : "Сохранить"}</span>
               </Button>
               <Button variant="outline" onClick={handleCancel}>
                 <X className="size-4" />
-                <span className="ml-1.5">\О\т\м\е\н\а</span>
+                <span className="ml-1.5">Отмена</span>
               </Button>
             </div>
           )}
@@ -554,13 +554,13 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>\Д\е\т\а\л\и \п\р\о\е\к\т\а</CardTitle>
+              <CardTitle>Детали проекта</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {isEditing ? (
                 <>
                   <div className="grid gap-2">
-                    <Label htmlFor="name">\Н\а\з\в\а\н\и\е</Label>
+                    <Label htmlFor="name">Название</Label>
                     <Input
                       id="name"
                       value={editForm.name}
@@ -569,7 +569,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="externalNumber">\Н\о\м\е\р \п\р\о\е\к\т\а</Label>
+                    <Label htmlFor="externalNumber">Номер проекта</Label>
                     <Input
                       id="externalNumber"
                       value={editForm.externalNumber}
@@ -579,28 +579,30 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="status">\С\т\а\т\у\с</Label>
+                      <Label htmlFor="status">Статус</Label>
                       <Select
                         value={editForm.status}
                         onValueChange={(value) => setEditForm({ ...editForm, status: value ?? "lead" })}
+                        items={{ lead: "Лид", active: "Активный", completed: "Завершён", paused: "Пауза" }}
                       >
                         <SelectTrigger id="status">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="lead">\Л\и\д</SelectItem>
-                          <SelectItem value="active">\А\к\т\и\в\н\ы\й</SelectItem>
-                          <SelectItem value="completed">\З\а\в\е\р\ш\ё\н</SelectItem>
-                          <SelectItem value="paused">\П\а\у\з\а</SelectItem>
+                          <SelectItem value="lead">Лид</SelectItem>
+                          <SelectItem value="active">Активный</SelectItem>
+                          <SelectItem value="completed">Завершён</SelectItem>
+                          <SelectItem value="paused">Пауза</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="grid gap-2">
-                      <Label htmlFor="currency">\В\а\л\ю\т\а</Label>
+                      <Label htmlFor="currency">Валюта</Label>
                       <Select
                         value={editForm.currency}
                         onValueChange={(value) => setEditForm({ ...editForm, currency: value ?? "RUB" })}
+                        items={{ RUB: "RUB", USD: "USD", EUR: "EUR" }}
                       >
                         <SelectTrigger id="currency">
                           <SelectValue />
@@ -616,7 +618,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="contractAmount">\С\у\м\м\а \к\о\н\т\р\а\к\т\а</Label>
+                      <Label htmlFor="contractAmount">Сумма контракта</Label>
                       <Input
                         id="contractAmount"
                         type="number"
@@ -626,7 +628,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     </div>
 
                     <div className="grid gap-2">
-                      <Label htmlFor="marginTarget">\М\а\р\ж\а (%)</Label>
+                      <Label htmlFor="marginTarget">Маржа (%)</Label>
                       <Input
                         id="marginTarget"
                         type="number"
@@ -639,7 +641,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="startDate">\Д\а\т\а \н\а\ч\а\л\а</Label>
+                      <Label htmlFor="startDate">Дата начала</Label>
                       <Input
                         id="startDate"
                         type="date"
@@ -649,7 +651,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     </div>
 
                     <div className="grid gap-2">
-                      <Label htmlFor="endDate">\Д\а\т\а \о\к\о\н\ч\а\н\и\я</Label>
+                      <Label htmlFor="endDate">Дата окончания</Label>
                       <Input
                         id="endDate"
                         type="date"
@@ -660,7 +662,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="description">\О\п\и\с\а\н\и\е</Label>
+                    <Label htmlFor="description">Описание</Label>
                     <Textarea
                       id="description"
                       value={editForm.description}
@@ -675,7 +677,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     <div className="flex items-center gap-2">
                       <DollarSign className="size-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">\С\у\м\м\а \к\о\н\т\р\а\к\т\а</p>
+                        <p className="text-xs text-muted-foreground">Сумма контракта</p>
                         <p className="font-medium">
                           {formatCurrency(Number(project.contractAmount), project.currency)}
                         </p>
@@ -685,7 +687,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     <div className="flex items-center gap-2">
                       <Calendar className="size-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">\Д\а\т\а \н\а\ч\а\л\а</p>
+                        <p className="text-xs text-muted-foreground">Дата начала</p>
                         <p className="font-medium">{formatDate(project.startDate)}</p>
                       </div>
                     </div>
@@ -695,7 +697,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     <div className="flex items-center gap-2">
                       <Calendar className="size-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">\Д\а\т\а \о\к\о\н\ч\а\н\и\я</p>
+                        <p className="text-xs text-muted-foreground">Дата окончания</p>
                         <p className="font-medium">{formatDate(project.endDate)}</p>
                       </div>
                     </div>
@@ -704,7 +706,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       <div className="flex items-center gap-2">
                         <DollarSign className="size-4 text-muted-foreground" />
                         <div>
-                          <p className="text-xs text-muted-foreground">\М\а\р\ж\а</p>
+                          <p className="text-xs text-muted-foreground">Маржа</p>
                           <p className="font-medium">{project.marginTarget}%</p>
                         </div>
                       </div>
@@ -713,7 +715,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
                   {project.description && (
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">\О\п\и\с\а\н\и\е</p>
+                      <p className="text-xs text-muted-foreground mb-1">Описание</p>
                       <p className="text-sm">{project.description}</p>
                     </div>
                   )}
@@ -727,7 +729,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Layers className="size-4" />
-                \Э\т\а\п\ы \п\р\о\е\к\т\а
+                Этапы проекта
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -763,6 +765,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <ProductionList
                 key={productionRefresh}
                 projectId={project.id}
+                canEdit={isAdmin || project.managerId === me?.id}
                 onUpdate={() => setProductionRefresh((prev) => prev + 1)}
               />
             </CardContent>
@@ -786,6 +789,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <InstallationList
                 key={installationRefresh}
                 projectId={project.id}
+                canEdit={isAdmin || project.managerId === me?.id}
                 onUpdate={() => setInstallationRefresh((prev) => prev + 1)}
               />
             </CardContent>
@@ -810,6 +814,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <ChangeOrderList
                 key={changeOrderRefresh}
                 projectId={project.id}
+                canEdit={isAdmin || project.managerId === me?.id}
                 onUpdate={() => setChangeOrderRefresh((prev) => prev + 1)}
               />
             </CardContent>
@@ -868,21 +873,21 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           <BOMSection projectId={project.id} />
 
           {/* Budget */}
-          <BudgetWidget projectId={project.id} />
+          <BudgetWidget projectId={project.id} canEdit={isAdmin || project.managerId === me?.id} />
 
           {/* File Attachments */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Upload className="size-4" />
-                \Ф\а\й\л\ы \п\р\о\е\к\т\а
+                Файлы проекта
               </CardTitle>
             </CardHeader>
             <CardContent>
               {isEditing ? (
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-sm">\Т\е\х\н\и\ч\е\с\к\и\е \с\п\е\ц\и\ф\и\к\а\ц\и\и</Label>
+                    <Label className="text-sm">Технические спецификации</Label>
                     <div className="mt-2">
                       <FileUpload
                         accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.dwg,.dxf"
@@ -907,7 +912,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                         <div>
                           <p className="text-sm font-medium">{specFile.fileName}</p>
                           <p className="text-xs text-muted-foreground">
-                            {specFile.mimeType || 'Unknown type'} • {(specFile.size / 1024).toFixed(1)} KB
+                            {specFile.mimeType || 'Неизвестный тип'} • {(specFile.size / 1024).toFixed(1)} KB
                           </p>
                         </div>
                       </div>
@@ -921,7 +926,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     </div>
                     )
                   })() : (
-                    <p className="text-sm text-muted-foreground">\Ф\а\й\л\ы \н\е \п\р\и\к\р\е\п\л\е\н\ы</p>
+                    <p className="text-sm text-muted-foreground">Файлы не прикреплены</p>
                   )}
                 </div>
               )}
@@ -933,14 +938,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <LinkIcon className="size-4" />
-                \С\в\я\з\а\н\н\ы\е \с\у\щ\н\о\с\т\и
+                Связанные сущности
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
                 <Building2 className="size-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">\К\л\и\е\н\т</p>
+                  <p className="text-xs text-muted-foreground">Клиент</p>
                   {project.contact ? (
                     <a
                       href={`/crm/contacts/${project.contact.id}`}
@@ -953,7 +958,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                             .join(" ")}
                     </a>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\—</p>
+                    <p className="text-sm text-muted-foreground">—</p>
                   )}
                 </div>
               </div>
@@ -961,11 +966,11 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <div className="flex items-center gap-3">
                 <User className="size-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">\М\е\н\е\д\ж\е\р</p>
+                  <p className="text-xs text-muted-foreground">Менеджер</p>
                   {project.manager ? (
-                    <p className="text-sm font-medium">{project.manager.name || "\—"}</p>
+                    <p className="text-sm font-medium">{project.manager.name || "—"}</p>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\—</p>
+                    <p className="text-sm text-muted-foreground">—</p>
                   )}
                 </div>
               </div>
@@ -973,7 +978,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <div className="flex items-center gap-3">
                 <FileText className="size-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">\С\д\е\л\к\а</p>
+                  <p className="text-xs text-muted-foreground">Сделка</p>
                   {project.deal ? (
                     <a
                       href={`/deals/${project.deal.id}`}
@@ -982,7 +987,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       {project.deal.title}
                     </a>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\—</p>
+                    <p className="text-sm text-muted-foreground">—</p>
                   )}
                 </div>
               </div>
@@ -990,7 +995,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <div className="flex items-center gap-3">
                 <FileText className="size-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">\К\о\н\т\р\а\к\т</p>
+                  <p className="text-xs text-muted-foreground">Контракт</p>
                   {project.contract ? (
                     <a
                       href={`/contracts/${project.contract.id}`}
@@ -999,7 +1004,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       {project.contract.title}
                     </a>
                   ) : (
-                    <p className="text-sm text-muted-foreground">\—</p>
+                    <p className="text-sm text-muted-foreground">—</p>
                   )}
                 </div>
               </div>
@@ -1014,7 +1019,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="size-4" />
-                \К\о\м\а\н\д\а
+                Команда
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -1029,7 +1034,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-medium">
-                          {member.User?.name || member.User?.email || "\—"}
+                          {member.User?.name || member.User?.email || "—"}
                         </p>
                         <p className="text-xs text-muted-foreground">{member.role}</p>
                       </div>
@@ -1037,7 +1042,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">\Н\е\т \ч\л\е\н\о\в \к\о\м\а\н\д\ы</p>
+                <p className="text-sm text-muted-foreground">Нет членов команды</p>
               )}
             </CardContent>
           </Card>

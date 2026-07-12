@@ -7,6 +7,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { webhookDispatcher } from '../../../../lib/webhooks/dispatch'
+import { getSession } from '@/lib/auth/session'
+import { isAdmin } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -19,6 +21,10 @@ export async function PATCH(
   try {
     const { id } = await params
     const body = await request.json()
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isAdmin(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const sub = webhookDispatcher.toggleSubscription(id, body.isActive ?? true)
     if (!sub) {
@@ -39,6 +45,10 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { id } = await params
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isAdmin(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
     const deleted = webhookDispatcher.removeSubscription(id)
     if (!deleted) {
       return NextResponse.json({ error: 'Not found', message: 'Subscription not found' }, { status: 404 })

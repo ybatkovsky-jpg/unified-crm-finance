@@ -14,6 +14,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { transactions } from '../../../../lib/db/transactions'
 import type { TransactionUpdateInput } from '../../../../lib/db/transactions'
+import { getSession } from '@/lib/auth/session'
+import { canModify } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -39,6 +41,10 @@ export async function GET(
       )
     }
 
+    // IDOR-fix: проверка сессии и прав доступа
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const transaction = await transactions.findById(id)
 
     if (!transaction) {
@@ -46,6 +52,11 @@ export async function GET(
         { error: 'Not found', message: `Transaction with id ${id} not found` },
         { status: 404 }
       )
+    }
+
+    // Проверка владельца: автор транзакции или админ
+    if (!canModify(session, transaction.createdBy === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     return NextResponse.json({ data: transaction })
@@ -80,6 +91,21 @@ export async function PATCH(
         { error: 'Validation failed', message: 'id is required' },
         { status: 400 }
       )
+    }
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const existing = await transactions.findById(id)
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Not found', message: `Transaction with id ${id} not found` },
+        { status: 404 }
+      )
+    }
+    // createdBy — автор транзакции; админ может всё.
+    if (!canModify(session, existing.createdBy === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Validate type if provided
@@ -153,6 +179,20 @@ export async function DELETE(
         { error: 'Validation failed', message: 'id is required' },
         { status: 400 }
       )
+    }
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const existing = await transactions.findById(id)
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Not found', message: `Transaction with id ${id} not found` },
+        { status: 404 }
+      )
+    }
+    if (!canModify(session, existing.createdBy === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const deletedTransaction = await transactions.softDelete(id)

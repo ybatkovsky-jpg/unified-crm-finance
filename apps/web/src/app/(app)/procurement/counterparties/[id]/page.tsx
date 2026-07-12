@@ -40,7 +40,7 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
           setError(err.message)
         }
       } else {
-        setError("Failed to load counterparty. Please try again.")
+        setError("Не удалось загрузить контрагента. Пожалуйста, попробуйте снова.")
       }
       console.error("Counterparty fetch error:", err)
     } finally {
@@ -85,7 +85,7 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex items-center justify-center py-12">
           <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading counterparty...</span>
+          <span className="ml-2 text-muted-foreground">Загрузка контрагента...</span>
         </div>
       </div>
     )
@@ -282,8 +282,8 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="details">Details</TabsTrigger>
-          <TabsTrigger value="purchase-requests">Purchase Requests</TabsTrigger>
-          <TabsTrigger value="invoices">Invoices</TabsTrigger>
+          <TabsTrigger value="purchase-requests">Заявки на закупку</TabsTrigger>
+          <TabsTrigger value="invoices">Счета</TabsTrigger>
           <TabsTrigger value="deliveries">Deliveries</TabsTrigger>
         </TabsList>
 
@@ -294,13 +294,13 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
         <TabsContent value="purchase-requests">
           <Card>
             <CardHeader>
-              <CardTitle>Purchase Requests</CardTitle>
+              <CardTitle>Заявки на закупку</CardTitle>
             </CardHeader>
             <CardContent>
               <CounterpartyHistory
                 data={purchaseRequests}
                 columns={purchaseRequestColumns}
-                emptyMessage={loadingTab ? "Loading..." : "No purchase requests yet"}
+                emptyMessage={loadingTab ? "Загрузка..." : "Заявок на закупку пока нет"}
               />
             </CardContent>
           </Card>
@@ -309,13 +309,13 @@ export default function CounterpartyDetailPage({ params }: { params: Promise<{ i
         <TabsContent value="invoices">
           <Card>
             <CardHeader>
-              <CardTitle>Invoices</CardTitle>
+              <CardTitle>Счета</CardTitle>
             </CardHeader>
             <CardContent>
               <CounterpartyHistory
                 data={invoices}
                 columns={invoiceColumns}
-                emptyMessage={loadingTab ? "Loading..." : "No invoices yet"}
+                emptyMessage={loadingTab ? "Загрузка..." : "Счетов пока нет"}
               />
             </CardContent>
           </Card>

@@ -270,7 +270,11 @@ export default function OrgStructurePage() {
             <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_auto] gap-2 items-end">
               <div className="space-y-1.5">
                 <Label>Отдел</Label>
-                <Select value={newFnDept} onValueChange={(v) => setNewFnDept(v ?? "")}>
+                <Select
+                  value={newFnDept}
+                  onValueChange={(v) => setNewFnDept(v ?? "")}
+                  items={Object.fromEntries(departments.map((d) => [d.id, d.name]))}
+                >
                   <SelectTrigger><SelectValue placeholder="Выберите" /></SelectTrigger>
                   <SelectContent>
                     {departments.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
@@ -299,7 +303,11 @@ export default function OrgStructurePage() {
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
               <Label>Сотрудник</Label>
-              <Select value={assignUserSel} onValueChange={(v) => setAssignUserSel(v ?? "")}>
+              <Select
+                value={assignUserSel}
+                onValueChange={(v) => setAssignUserSel(v ?? "")}
+                items={Object.fromEntries(users.map((u) => [u.id, `${u.name} (${u.email})`]))}
+              >
                 <SelectTrigger><SelectValue placeholder="Выберите" /></SelectTrigger>
                 <SelectContent>
                   {users.map((u) => <SelectItem key={u.id} value={u.id}>{u.name} ({u.email})</SelectItem>)}
@@ -308,7 +316,7 @@ export default function OrgStructurePage() {
             </div>
             <div className="space-y-1.5">
               <Label>Роль</Label>
-              <Select value={assignRoleSel} onValueChange={(v) => setAssignRoleSel(v as "head" | "responsible")}>
+              <Select value={assignRoleSel} onValueChange={(v) => setAssignRoleSel(v as "head" | "responsible")} items={{ responsible: "Ответственный", head: "Руководитель (видит все задачи функции)" }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="responsible">Ответственный</SelectItem>

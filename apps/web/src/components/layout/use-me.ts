@@ -39,5 +39,6 @@ export function useMe() {
   }, [pathname])
 
   const isDirector = !!me?.roleCodes?.includes("director")
-  return { me, loading, isDirector }
+  const isAdmin = !!me?.roleCodes?.includes("admin")
+  return { me, loading, isDirector, isAdmin }
 }

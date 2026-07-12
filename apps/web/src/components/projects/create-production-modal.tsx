@@ -203,6 +203,7 @@ export function CreateProductionModal({ projectId, onCreate }: CreateProductionM
               <Select
                 value={type || ""}
                 onValueChange={(value) => setType(value as "PLATE" | "COUNTERTOP")}
+                items={Object.fromEntries(PRODUCTION_TYPE_OPTIONS.map((o) => [o.value, o.label]))}
               >
                 <SelectTrigger id="type">
                   <SelectValue />
@@ -224,6 +225,10 @@ export function CreateProductionModal({ projectId, onCreate }: CreateProductionM
                 value={partnerId || "none"}
                 onValueChange={(value) => value && setPartnerId(value === "none" ? "" : value)}
                 disabled={loadingPartners}
+                items={Object.fromEntries([
+                  ["none", "— Без партнёра —"],
+                  ...partners.map((p) => [p.id, p.name]),
+                ])}
               >
                 <SelectTrigger id="partner">
                   <SelectValue placeholder={loadingPartners ? "Загрузка..." : "Выберите партнёра"} />
@@ -265,6 +270,7 @@ export function CreateProductionModal({ projectId, onCreate }: CreateProductionM
               <Select
                 value={materialMode}
                 onValueChange={(value) => value && setMaterialMode(value)}
+                items={Object.fromEntries(MATERIAL_MODE_OPTIONS.map((o) => [o.value, o.label]))}
               >
                 <SelectTrigger id="materialMode">
                   <SelectValue />

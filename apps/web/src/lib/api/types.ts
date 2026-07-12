@@ -44,6 +44,7 @@ export interface ApiListResponse<T> {
 export interface ContactFilters {
   type?: 'person' | 'company';
   status?: string;
+  companyId?: string;
 }
 
 /**
@@ -79,9 +80,16 @@ export interface ContactCreateInput {
   notes?: string | null;
   sourceId?: string | null;
   ownerId?: string | null;
+  companyId?: string | null;
   status?: string | null;
   tags?: string[] | null;
   attributes?: Record<string, unknown> | null;
+  passportSeries?: string | null;
+  passportNumber?: string | null;
+  passportIssuedBy?: string | null;
+  passportIssuedAt?: string | null;
+  passportCode?: string | null;
+  registrationAddress?: string | null;
 }
 
 /**
@@ -104,9 +112,16 @@ export interface ContactUpdateInput {
   notes?: string | null;
   sourceId?: string | null;
   ownerId?: string | null;
+  companyId?: string | null;
   status?: string | null;
   tags?: string[] | null;
   attributes?: Record<string, unknown> | null;
+  passportSeries?: string | null;
+  passportNumber?: string | null;
+  passportIssuedBy?: string | null;
+  passportIssuedAt?: string | null;
+  passportCode?: string | null;
+  registrationAddress?: string | null;
 }
 
 /**
@@ -335,6 +350,7 @@ export interface DealCreateInput {
   description?: string | null;
   lossReason?: string | null;
   attributes?: Record<string, unknown> | null;
+  objectAddress?: string | null;
   drawingFileId?: string | null;
   actFileId?: string | null;
 }
@@ -351,6 +367,7 @@ export interface DealUpdateInput {
   lossReason?: string | null;
   sourceId?: string | null;
   attributes?: Record<string, unknown> | null;
+  objectAddress?: string | null;
   contactId?: string | null;
   managerId?: string | null;
   drawingFileId?: string | null;

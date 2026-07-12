@@ -211,45 +211,45 @@ export class DealRepository {
       }
     }
 
-    // Record history
-    await prisma.dealHistory.create({
-      data: {
-        id: randomUUID(),
-        dealId,
-        fromStageId,
-        toStageId,
-        comment: comment ?? null,
-        changedBy,
-        changedAt: new Date(),
-      },
-    });
-
-    // Update deal stage + lossReason
-    const updateData: Prisma.DealUncheckedUpdateInput = {
-      stageId: toStageId,
-      updatedAt: new Date(),
-    };
-    if (lossReason !== undefined) {
-      updateData.lossReason = lossReason;
-    }
-
-    const updated = await prisma.deal.update({
-      where: { id: dealId },
-      data: updateData,
-    });
-
-    // Set closedAt if moved to won/lost stage
-    if (stage.isWonStage || stage.isLostStage) {
-      await prisma.deal.update({
-        where: { id: dealId },
+    // Атомарно: история + обновление стадии + closeDate
+    const updated = await prisma.$transaction(async (tx) => {
+      await tx.dealHistory.create({
         data: {
-          actualCloseDate: new Date(),
-          closedAt: new Date(),
+          id: randomUUID(),
+          dealId,
+          fromStageId,
+          toStageId,
+          comment: comment ?? null,
+          changedBy,
+          changedAt: new Date(),
         },
       });
-    }
+
+      const updateData: Prisma.DealUncheckedUpdateInput = {
+        stageId: toStageId,
+        updatedAt: new Date(),
+      };
+      if (lossReason !== undefined) {
+        updateData.lossReason = lossReason;
+      }
+      // Если стадия выигрышная/проигрышная — сразу ставим дату закрытия
+      if (stage.isWonStage || stage.isLostStage) {
+        updateData.actualCloseDate = new Date();
+        updateData.closedAt = new Date();
+      }
+
+      return tx.deal.update({
+        where: { id: dealId },
+        data: updateData,
+      });
+    });
 
     // PLAT-02: уведомления о смене стадии. Побочный эффект — не ломает транзакцию.
+    // Только если стадия реально изменилась (защита от повторного перехода в ту же стадию).
+    if (fromStageId === toStageId || !fromStageId) {
+      return updated
+    }
+
     // Нужны имена стадий для текста уведомления.
     const fromStage = fromStageId
       ? await prisma.dealStage.findUnique({ where: { id: fromStageId }, select: { name: true } })

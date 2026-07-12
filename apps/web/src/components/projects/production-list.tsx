@@ -20,6 +20,7 @@ import type { ProductionData } from "@/lib/api/types"
 
 interface ProductionListProps {
   projectId: string
+  canEdit?: boolean
   onUpdate?: () => void
 }
 
@@ -58,7 +59,7 @@ function getStageStatusColor(status: string): string {
   return STAGE_STATUS_COLORS[status] || STAGE_STATUS_COLORS.pending
 }
 
-export function ProductionList({ projectId, onUpdate }: ProductionListProps) {
+export function ProductionList({ projectId, canEdit = true, onUpdate }: ProductionListProps) {
   const [productions, setProductions] = useState<ProductionData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -156,6 +157,7 @@ export function ProductionList({ projectId, onUpdate }: ProductionListProps) {
                 {STATUS_LABELS[production.status] || production.status}
               </Badge>
             </div>
+            {canEdit && (
             <Button
               variant="ghost"
               size="icon"
@@ -164,6 +166,7 @@ export function ProductionList({ projectId, onUpdate }: ProductionListProps) {
             >
               <Trash2 className="size-4" />
             </Button>
+            )}
           </div>
 
           {/* Partner Info */}

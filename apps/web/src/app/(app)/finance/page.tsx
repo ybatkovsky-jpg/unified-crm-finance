@@ -54,7 +54,7 @@ export default function FinanceDashboardPage() {
       const json = await parseJson<{ data: FinanceSummary }>(res)
       setSummary(json.data)
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : "Failed to load dashboard.")
+      setError(err instanceof ApiClientError ? err.message : "Не удалось загрузить панель.")
     } finally { setLoading(false) }
   }, [])
 
@@ -63,7 +63,7 @@ export default function FinanceDashboardPage() {
   if (loading) {
     return (
       <div className="container mx-auto p-6">
-        <div className="flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Loading dashboard...</span></div>
+        <div className="flex justify-center py-12"><RefreshCwIcon className="size-6 animate-spin text-muted-foreground" /><span className="ml-2 text-muted-foreground">Загрузка панели...</span></div>
       </div>
     )
   }
@@ -71,7 +71,7 @@ export default function FinanceDashboardPage() {
   if (error || !summary) {
     return (
       <div className="container mx-auto p-6">
-        <Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error || "Failed to load"}</p><Button variant="outline" onClick={fetchSummary}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Retry</span></Button></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex flex-col items-center gap-3 py-8"><p className="text-destructive">{error || "Не удалось загрузить"}</p><Button variant="outline" onClick={fetchSummary}><RefreshCwIcon className="size-4" /><span className="ml-1.5">Повторить</span></Button></div></CardContent></Card>
       </div>
     )
   }
@@ -80,7 +80,7 @@ export default function FinanceDashboardPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Finance Dashboard</h1>
+      <h1 className="text-2xl font-semibold">Финансовая панель</h1>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -122,7 +122,7 @@ export default function FinanceDashboardPage() {
           </CardHeader>
           <CardContent>
             {transactions.recent.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-4 text-center">No transactions yet</p>
+              <p className="text-muted-foreground text-sm py-4 text-center">Транзакций пока нет</p>
             ) : (
               <div className="space-y-2">
                 {transactions.recent.slice(0, 5).map(tx => (

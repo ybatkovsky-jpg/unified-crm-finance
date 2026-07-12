@@ -122,7 +122,7 @@ export function FilePreview({
         <div className="flex size-full min-h-[400px] items-center justify-center bg-muted/30">
           <img
             src={previewSrc}
-            alt={fileName || "Preview"}
+            alt={fileName || "Предпросмотр"}
             className="max-h-[70vh] max-w-full rounded-md object-contain shadow-sm"
             onError={handleImageError}
           />
@@ -265,17 +265,17 @@ export function FilePreview({
         {(fileName || mimeType) && (
           <div className="flex flex-row items-center justify-between border-t bg-muted/30 px-4 py-2 text-xs">
             <div className="flex flex-col">
-              <span className="font-medium">{fileName || "Unknown file"}</span>
+              <span className="font-medium">{fileName || "Неизвестный файл"}</span>
               {mimeType && (
                 <span className="text-muted-foreground">{mimeType}</span>
               )}
             </div>
             {canPreview(mimeType) ? (
               <span className="text-green-600 dark:text-green-400">
-                Preview available
+                Предпросмотр доступен
               </span>
             ) : (
-              <span className="text-muted-foreground">Preview unavailable</span>
+              <span className="text-muted-foreground">Предпросмотр недоступен</span>
             )}
           </div>
         )}

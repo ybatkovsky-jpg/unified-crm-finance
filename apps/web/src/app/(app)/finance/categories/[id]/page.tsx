@@ -38,7 +38,7 @@ export default function CategoryDetailPage({ params }: { params: Promise<{ id: s
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to load category. Please try again.")
+        setError("Не удалось загрузить категорию. Пожалуйста, попробуйте снова.")
       }
       console.error("Category fetch error:", err)
     } finally {
@@ -67,7 +67,7 @@ export default function CategoryDetailPage({ params }: { params: Promise<{ id: s
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to delete category.")
+        setError("Не удалось удалить категорию.")
       }
     } finally {
       setDeleting(false)
@@ -136,7 +136,7 @@ export default function CategoryDetailPage({ params }: { params: Promise<{ id: s
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex items-center justify-center py-12">
           <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading category...</span>
+          <span className="ml-2 text-muted-foreground">Загрузка категории...</span>
         </div>
       </div>
     )

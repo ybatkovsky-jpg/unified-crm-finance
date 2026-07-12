@@ -248,6 +248,7 @@ export default function PurchaseRequestDetailPage() {
             <Select
               value={status}
               onValueChange={(v) => v && handleStatusChange(v as PurchaseRequestStatus)}
+              items={STATUS_LABELS}
             >
               <SelectTrigger className="w-44">
                 <SelectValue />

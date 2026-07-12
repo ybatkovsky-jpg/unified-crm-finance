@@ -206,13 +206,25 @@ model Contact {
   status          String        @default("active")
   tags            Json?         @default("[]")
   attributes      Json?
+  /// Паспортные данные (для физлиц) — автоподстановка в договор.
+  passportSeries      String?
+  passportNumber      String?
+  passportIssuedBy    String?
+  passportIssuedAt    DateTime?
+  passportCode        String?
+  registrationAddress String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime
   deletedAt       DateTime?
   LeadSource      LeadSource?   @relation(fields: [sourceId], references: [id])
   User            User?         @relation(fields: [ownerId], references: [id])
+  /// FK на юрлицо — связь физлица с компанией. Только для type='person'.
+  companyId       String?
+  Company         Contact?      @relation("ContactCompany", fields: [companyId], references: [id])
+  Employees       Contact[]     @relation("ContactCompany")
   Contract        Contract[]
   Deal            Deal[]
+  DealContact     DealContact[]
   Event           Event[]
   Interaction     Interaction[]
   Lead            Lead[]
@@ -225,6 +237,7 @@ model Contact {
   @@index([inn])
   @@index([phone])
   @@index([email])
+  @@index([companyId])
 }
 
 model Contract {
@@ -257,6 +270,7 @@ model Contract {
   @@index([dealId])
   @@index([status])
   @@index([contactId])
+  @@index([deletedAt])
 }
 
 model ContractSigner {
@@ -332,6 +346,7 @@ model Counterparty {
 
   @@index([type])
   @@index([inn])
+  @@index([deletedAt])
 }
 
 model Deal {
@@ -350,6 +365,8 @@ model Deal {
   lossReason        String?
   sourceId          String?
   attributes        Json?
+  /// Адрес объекта, на который делается заказ.
+  objectAddress     String?
   contractId        String?       @unique
   projectId         String?       @unique
   drawingFileId     String?
@@ -365,6 +382,7 @@ model Deal {
   LeadSource        LeadSource?   @relation(fields: [sourceId], references: [id])
   Pipeline          Pipeline      @relation(fields: [pipelineId], references: [id])
   DealHistory       DealHistory[]
+  DealContact       DealContact[]
   Event             Event[]
   Task              Task[]
   User              User?         @relation(fields: [managerId], references: [id])
@@ -377,6 +395,23 @@ model Deal {
   @@index([managerId])
   @@index([stageId])
   @@index([sourceId])
+  @@index([deletedAt])
+}
+
+/// Связь сделки с контактными лицами по ролям (customer, designer, installer, other).
+model DealContact {
+  id        String   @id
+  dealId    String
+  contactId String
+  /// customer | designer | installer | other
+  role      String
+  Deal      Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  Contact   Contact  @relation(fields: [contactId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([dealId, contactId, role])
+  @@index([dealId])
+  @@index([contactId])
 }
 
 model DealHistory {
@@ -685,21 +720,25 @@ model LeadSource {
 }
 
 model Notification {
-  id        String    @id
-  userId    String
-  type      String
-  title     String
-  message   String
-  level     String    @default("info")
-  link      String?
-  isRead    Boolean   @default(false)
-  readAt    DateTime?
-  metadata  Json?
-  createdAt DateTime  @default(now())
-  User      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String    @id
+  userId     String
+  type       String
+  title      String
+  message    String
+  level      String    @default("info")
+  link       String?
+  isRead     Boolean   @default(false)
+  readAt     DateTime?
+  metadata   Json?
+  /// Идемпотентность уведомлений (PLAT-02 IDOR/dedupe fix): непрочитанное с тем же
+  /// dedupeKey не дублируется. null для уведомлений без идемпотентности.
+  dedupeKey  String?
+  createdAt  DateTime  @default(now())
+  User       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([createdAt])
   @@index([userId, isRead])
+  @@index([userId, dedupeKey, isRead])
 }
 
 model PeriodClose {
@@ -1109,6 +1148,7 @@ model Task {
 
   @@index([deletedAt])
   @@index([projectId])
+  @@index([dealId])
   @@index([contactId])
   @@index([assigneeId])
   @@index([dueDate])

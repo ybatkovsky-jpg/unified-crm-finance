@@ -82,7 +82,7 @@ export default function SalesFunnelPage() {
           <h1 className="text-2xl font-semibold">Sales Funnel</h1>
           {funnel && <p className="text-sm text-muted-foreground mt-1">{funnel.summary.pipelineName}</p>}
         </div>
-        <Select value={period} onValueChange={v => { if (v) setPeriod(v) }}>
+        <Select value={period} onValueChange={v => { if (v) setPeriod(v) }} items={Object.fromEntries(PERIODS.map(p => [p.value, p.label]))}>
           <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
           <SelectContent><SelectGroup>
             {PERIODS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}

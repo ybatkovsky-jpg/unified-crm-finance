@@ -270,7 +270,16 @@ export default function OrgTemplatesPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Функция</Label>
-                <Select value={functionId} onValueChange={(v) => setFunctionId(v ?? "")}>
+                <Select
+                  value={functionId}
+                  onValueChange={(v) => setFunctionId(v ?? "")}
+                  items={Object.fromEntries(
+                    functions.map((f) => [
+                      f.id,
+                      f.Department?.name ? `${f.Department.name} → ${f.name}` : f.name,
+                    ])
+                  )}
+                >
                   <SelectTrigger><SelectValue placeholder="Без функции" /></SelectTrigger>
                   <SelectContent>
                     {functions.map((f) => (
@@ -283,7 +292,7 @@ export default function OrgTemplatesPage() {
               </div>
               <div className="space-y-1.5">
                 <Label>Приоритет</Label>
-                <Select value={priority} onValueChange={(v) => setPriority(v ?? "medium")}>
+                <Select value={priority} onValueChange={(v) => setPriority(v ?? "medium")} items={PRIORITY_LABELS}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {Object.entries(PRIORITY_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
@@ -308,7 +317,7 @@ export default function OrgTemplatesPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Исполнитель</Label>
-                <Select value={strategy} onValueChange={(v) => setStrategy(v ?? "function_responsible")}>
+                <Select value={strategy} onValueChange={(v) => setStrategy(v ?? "function_responsible")} items={STRATEGY_LABELS}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {Object.entries(STRATEGY_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
@@ -318,7 +327,11 @@ export default function OrgTemplatesPage() {
               {strategy === "fixed" && (
                 <div className="space-y-1.5">
                   <Label>Сотрудник</Label>
-                  <Select value={fixedAssigneeId} onValueChange={(v) => setFixedAssigneeId(v ?? "")}>
+                  <Select
+                    value={fixedAssigneeId}
+                    onValueChange={(v) => setFixedAssigneeId(v ?? "")}
+                    items={Object.fromEntries(users.map((u) => [u.id, u.name]))}
+                  >
                     <SelectTrigger><SelectValue placeholder="Выберите" /></SelectTrigger>
                     <SelectContent>
                       {users.map((u) => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}

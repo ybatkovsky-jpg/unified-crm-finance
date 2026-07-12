@@ -86,28 +86,33 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       prisma.transaction.count({ where: { ...txWhere, status: 'pending' } }),
     ])
 
-    // 6. Category breakdown (top 5)
+    // 6. Category breakdown (top 5) — один groupBy вместо N+1
     const categories = await prisma.category.findMany({
       where: { isActive: true },
       select: { id: true, name: true, type: true },
     })
 
-    const categoryBreakdown = await Promise.all(
-      categories.slice(0, 5).map(async (cat) => {
-        const agg = await prisma.transaction.aggregate({
-          where: { ...txWhere, categoryId: cat.id },
-          _sum: { amount: true },
-          _count: true,
-        })
-        return {
-          categoryId: cat.id,
-          categoryName: cat.name,
-          type: cat.type,
-          totalAmount: Number(agg._sum.amount ?? 0),
-          transactionCount: agg._count,
-        }
-      })
-    )
+    const top5 = categories.slice(0, 5)
+    const top5Ids = top5.map((c) => c.id)
+
+    const breakdownRaw = await prisma.transaction.groupBy({
+      by: ['categoryId'],
+      where: { ...txWhere, categoryId: { in: top5Ids } },
+      _sum: { amount: true },
+      _count: true,
+    })
+
+    const breakdownMap = new Map(breakdownRaw.map((r) => [r.categoryId, r]))
+    const categoryBreakdown = top5.map((cat) => {
+      const agg = breakdownMap.get(cat.id)
+      return {
+        categoryId: cat.id,
+        categoryName: cat.name,
+        type: cat.type,
+        totalAmount: Number(agg?._sum.amount ?? 0),
+        transactionCount: agg?._count ?? 0,
+      }
+    })
 
     return NextResponse.json({
       data: {

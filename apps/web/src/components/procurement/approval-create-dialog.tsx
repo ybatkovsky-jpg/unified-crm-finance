@@ -100,7 +100,16 @@ export function ApprovalCreateDialog({ open, onOpenChange, onSuccess }: Props) {
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
             <Label>Счёт (одобренный)</Label>
-            <Select value={invoiceId} onValueChange={(v) => v && setInvoiceId(v)}>
+            <Select
+              value={invoiceId}
+              onValueChange={(v) => v && setInvoiceId(v)}
+              items={Object.fromEntries(
+                approved.map((inv) => [
+                  inv.id,
+                  `${inv.invoiceNumber || inv.number} — ${Number(inv.totalAmount ?? 0).toLocaleString("ru-RU")} ₽`,
+                ])
+              )}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Выберите счёт" />
               </SelectTrigger>

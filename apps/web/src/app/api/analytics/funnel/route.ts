@@ -6,12 +6,17 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../lib/db/prisma'
-import { parsePeriodToDateRange } from '../../../../lib/periods'
-import { LOSS_REASONS } from '../../../../lib/loss-reasons'
+import { prisma } from '@/lib/db/prisma'
+import { parsePeriodToDateRange } from '@/lib/periods'
+import { LOSS_REASONS } from '@/lib/loss-reasons'
+import { getSession } from '@/lib/auth/session'
+import { analyticsManagerScope } from '@/lib/auth/analytics-rbac'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const searchParams = request.nextUrl.searchParams
     const pipelineId = searchParams.get('pipelineId')
     const period = searchParams.get('period') ?? 'all'
@@ -20,12 +25,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const range = parsePeriodToDateRange(period)
     const dateFrom = range?.start
 
+    // RBAC-fix: не-viewAllProjects видят только свои сделки.
+    const managerScope = analyticsManagerScope(session)
+    const dealWhere: Record<string, unknown> = {}
+    if (range) dealWhere.createdAt = { gte: range.start, lte: range.end }
+    if (managerScope) dealWhere.managerId = managerScope
+
     // Fetch pipeline stages with deal counts
     const stages = await prisma.dealStage.findMany({
       where: pipelineId ? { pipelineId } : {},
       include: {
         Deal: {
-          where: range ? { createdAt: { gte: range.start, lte: range.end } } : {},
+          where: dealWhere,
           select: { id: true, amount: true, createdAt: true },
         },
       },
@@ -81,7 +92,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         where: {
           stageId: { in: lostStageIds },
           deletedAt: null,
-          ...(range ? { createdAt: { gte: range.start, lte: range.end } } : {}),
+          ...dealWhere, // RBAC + period
         },
         select: { amount: true, lossReason: true },
       })

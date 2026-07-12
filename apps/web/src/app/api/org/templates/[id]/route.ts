@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { taskTemplates } from '@/lib/db/task-templates'
 import { getSession } from '@/lib/auth/session'
+import { isAdminOrDirector } from '@/lib/auth/permissions'
 
 export async function PATCH(
   request: NextRequest,
@@ -14,7 +15,7 @@ export async function PATCH(
   try {
     const session = await getSession()
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    if (!session.roleCodes.includes('director')) {
+    if (!isAdminOrDirector(session)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     const { id } = await params
@@ -48,7 +49,7 @@ export async function DELETE(
   try {
     const session = await getSession()
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    if (!session.roleCodes.includes('director')) {
+    if (!isAdminOrDirector(session)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     const { id } = await params

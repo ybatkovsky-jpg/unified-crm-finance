@@ -13,6 +13,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { deals } from '@/lib/db/deals'
+import { getSession } from '@/lib/auth/session'
+import { canModify } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -29,6 +31,10 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const { id } = await params
+
+    // IDOR-fix: проверка сессии и прав доступа
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const deal = await deals.findUnique(id, {
       DealStage: true,
@@ -55,6 +61,11 @@ export async function GET(
         { error: 'Deal not found', message: `Deal with id ${id} not found` },
         { status: 404 }
       )
+    }
+
+    // Проверка владельца: менеджер сделки или админ
+    if (!canModify(session, deal.managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Map Prisma PascalCase relations to API lowercase shape.
@@ -110,6 +121,9 @@ export async function PATCH(
     const { id } = await params
     const body = await request.json()
 
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     // Verify deal exists
     const existing = await deals.findUnique(id)
     if (!existing) {
@@ -117,6 +131,11 @@ export async function PATCH(
         { error: 'Deal not found', message: `Deal with id ${id} not found` },
         { status: 404 }
       )
+    }
+
+    // Админ — всё; остальные — только свои сделки.
+    if (!canModify(session, existing.managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Prepare update data (coerce types from form values)
@@ -129,6 +148,7 @@ export async function PATCH(
     if (body.lossReason !== undefined) updateData.lossReason = body.lossReason || null
     if (body.sourceId !== undefined) updateData.sourceId = body.sourceId || null
     if (body.attributes !== undefined) updateData.attributes = body.attributes
+    if (body.objectAddress !== undefined) updateData.objectAddress = body.objectAddress || null
     if (body.contactId !== undefined) updateData.contactId = body.contactId || null
     if (body.managerId !== undefined) updateData.managerId = body.managerId || null
     if (body.drawingFileId !== undefined) updateData.drawingFileId = body.drawingFileId || null
@@ -166,6 +186,22 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { id } = await params
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const existing = await deals.findUnique(id)
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Deal not found', message: `Deal with id ${id} not found` },
+        { status: 404 }
+      )
+    }
+
+    // Админ — всё; остальные — только свои сделки.
+    if (!canModify(session, existing.managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const deletedDeal = await deals.softDelete(id)
 

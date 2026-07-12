@@ -5,18 +5,28 @@
  * Query params: projectId (optional), period (optional: "month", "quarter", "year"), dateFrom, dateTo
  *
  * Returns: aggregated income/expense by group with totals.
+ *
+ * RBAC: не-viewAllProjects видят только свои проекты (PLAT-03..05 RBAC fix).
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../lib/db/prisma'
+import { prisma } from '@/lib/db/prisma'
+import { getSession } from '@/lib/auth/session'
+import { analyticsManagerScope } from '@/lib/auth/analytics-rbac'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const searchParams = request.nextUrl.searchParams
     const projectId = searchParams.get('projectId')
     const groupBy = searchParams.get('groupBy') ?? 'category'
     const dateFrom = searchParams.get('dateFrom')
     const dateTo = searchParams.get('dateTo')
+
+    // RBAC: не-viewAllProjects — только свои проекты.
+    const managerScope = analyticsManagerScope(session)
 
     const where: Record<string, unknown> = { deletedAt: null }
 
@@ -26,6 +36,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       if (dateFrom) dateFilter.gte = new Date(dateFrom)
       if (dateTo) dateFilter.lte = new Date(dateTo)
       where.date = dateFilter
+    }
+
+    // RBAC: фильтр по менеджеру через связь Project.
+    if (managerScope) {
+      where.Project = { managerId: managerScope }
     }
 
     // Fetch all matching transactions with relations

@@ -12,6 +12,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deals } from '../../../lib/db/deals'
 import { mapErrorToResponse } from '../../../lib/api/error-mapping'
+import { notifyNewLead } from '@/lib/notifications/events'
+import { prisma } from '../../../lib/db/prisma'
 
 /**
  * GET /api/deals
@@ -34,6 +36,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (managerId) where.managerId = managerId
     if (contactId) where.contactId = contactId
 
+    // Pagination
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+    const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') || '50')))
+    const skip = (page - 1) * pageSize
+
     // Filter by open/closed status
     if (status === 'open') {
       where.closedAt = null
@@ -41,18 +48,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       where.closedAt = { not: null }
     }
 
-    const allDeals = await deals.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        DealStage: true,
-        Pipeline: true,
-        Contact: true,
-        User: true,
-        LeadSource: { select: { id: true, code: true, name: true, description: true, isActive: true } },
-        Project: { select: { id: true, endDate: true, externalNumber: true } },
-      },
-    })
+    const whereClause = Object.keys(where).length > 0 ? where : undefined
+
+    const [allDeals, totalCount] = await Promise.all([
+      deals.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'desc' },
+        take: pageSize,
+        skip,
+        include: {
+          DealStage: true,
+          Pipeline: true,
+          Contact: true,
+          User: true,
+          LeadSource: { select: { id: true, code: true, name: true, description: true, isActive: true } },
+          Project: { select: { id: true, endDate: true, externalNumber: true } },
+        },
+      }),
+      prisma.deal.count({ where: whereClause as any }),
+    ])
 
     // Map Prisma PascalCase relations to API lowercase shape
     const mapped = allDeals.map((deal) => {
@@ -68,7 +82,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }
     })
 
-    return NextResponse.json({ data: mapped, count: mapped.length })
+    return NextResponse.json({
+      data: mapped,
+      count: mapped.length,
+      totalCount,
+      page,
+      pageSize,
+      totalPages: Math.ceil(totalCount / pageSize),
+    })
   } catch (error) {
     console.error('Failed to fetch deals:', error)
     return NextResponse.json(
@@ -119,14 +140,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       sourceId: body.sourceId || null,
       amount: body.amount ?? 0,
       currency: body.currency ?? 'RUB',
-      expectedCloseDate: body.expectedCloseDate || null,
+      expectedCloseDate: body.expectedCloseDate ? new Date(body.expectedCloseDate) : null,
       managerId: body.managerId || null,
       description: body.description || null,
       lossReason: body.lossReason || null,
       attributes: body.attributes || null,
+      objectAddress: body.objectAddress || null,
     }
 
     const newDeal = await deals.create(createData)
+
+    // PLAT-02: уведомить менеджера о новом лиде (побочный эффект).
+    if (newDeal.managerId) {
+      void notifyNewLead(newDeal.managerId, newDeal.title, newDeal.id).catch((err) =>
+        console.error('[deals POST] notifyNewLead failed:', err)
+      )
+    }
 
     return NextResponse.json({ data: newDeal }, { status: 201 })
   } catch (error) {

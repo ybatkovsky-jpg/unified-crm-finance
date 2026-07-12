@@ -34,18 +34,16 @@ export interface NotifyInput {
 export async function notify(input: NotifyInput): Promise<void> {
   try {
     if (input.dedupeKey) {
+      // Идемпотентность: если есть непрочитанное с тем же dedupeKey — не дублируем.
+      // Фильтр по колонке dedupeKey (PLAT-02 dedupe fix; ранее фильтр по metadata не работал).
       const existing = await prisma.notification.findFirst({
         where: {
           userId: input.userId,
           isRead: false,
-          // metadata.dedupeKey хранится как JSON-строка; ищем подстрокой.
-          // Prisma JSON-фильтр по path поддерживается через string_contains.
+          dedupeKey: input.dedupeKey,
         },
       })
-      if (existing?.metadata && typeof existing.metadata === 'object') {
-        const meta = existing.metadata as { dedupeKey?: string }
-        if (meta.dedupeKey === input.dedupeKey) return // уже есть непрочитанное
-      }
+      if (existing) return // уже есть непрочитанное с этим ключом
     }
 
     await notifications.create({
@@ -55,6 +53,7 @@ export async function notify(input: NotifyInput): Promise<void> {
       message: input.message,
       level: input.level ?? 'info',
       link: input.link ?? null,
+      dedupeKey: input.dedupeKey ?? null,
       metadata: input.dedupeKey ? { dedupeKey: input.dedupeKey } : undefined,
     })
   } catch (err) {

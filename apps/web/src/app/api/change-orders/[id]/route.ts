@@ -8,6 +8,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { changeOrders } from '@/lib/db/change-orders';
+import { getSession } from '@/lib/auth/session';
+import { canModify } from '@/lib/auth/permissions';
+import { getProjectManagerId } from '@/lib/db/projects';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -43,6 +46,15 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
+
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const existing = await changeOrders.findById(id);
+    if (!existing) return NextResponse.json({ error: 'Not found', message: 'Change order not found' }, { status: 404 });
+    const managerId = existing.projectId ? await getProjectManagerId(existing.projectId) : null;
+    if (!canModify(session, managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const updated = await changeOrders.update(id, {
       title: body.title,
@@ -83,6 +95,14 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { id } = await params;
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const existing = await changeOrders.findById(id);
+    if (!existing) return NextResponse.json({ error: 'Not found', message: 'Change order not found' }, { status: 404 });
+    const managerId = existing.projectId ? await getProjectManagerId(existing.projectId) : null;
+    if (!canModify(session, managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     await changeOrders.delete(id);
     return NextResponse.json({ data: { deleted: true } });
   } catch (error) {

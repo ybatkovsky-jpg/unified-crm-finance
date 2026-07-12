@@ -92,3 +92,4 @@ target/
 vendor/
 .cache/
 tmp/
+.local-uploads/

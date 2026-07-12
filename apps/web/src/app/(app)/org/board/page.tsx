@@ -172,7 +172,7 @@ export default function OrgBoardPage() {
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <FilterIcon className="size-4" /> Фильтры:
         </div>
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? "all")}>
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? "all")} items={{ all: "Все статусы", ...STATUS_LABELS }}>
           <SelectTrigger className="w-[180px]"><SelectValue placeholder="Статус" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Все статусы</SelectItem>
@@ -182,7 +182,17 @@ export default function OrgBoardPage() {
           </SelectContent>
         </Select>
 
-        <Select value={functionFilter} onValueChange={(v) => setFunctionFilter(v ?? "all")}>
+        <Select
+          value={functionFilter}
+          onValueChange={(v) => setFunctionFilter(v ?? "all")}
+          items={Object.fromEntries([
+            ["all", "Все функции"],
+            ...functions.map((f) => [
+              f.id,
+              f.Department?.name ? `${f.Department.name} → ${f.name}` : f.name,
+            ]),
+          ])}
+        >
           <SelectTrigger className="w-[220px]"><SelectValue placeholder="Функция" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Все функции</SelectItem>
@@ -194,7 +204,14 @@ export default function OrgBoardPage() {
           </SelectContent>
         </Select>
 
-        <Select value={assigneeFilter} onValueChange={(v) => setAssigneeFilter(v ?? "all")}>
+        <Select
+          value={assigneeFilter}
+          onValueChange={(v) => setAssigneeFilter(v ?? "all")}
+          items={Object.fromEntries([
+            ["all", "Все исполнители"],
+            ...assignees.map((a) => [a.id, a.name]),
+          ])}
+        >
           <SelectTrigger className="w-[200px]"><SelectValue placeholder="Исполнитель" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Все исполнители</SelectItem>

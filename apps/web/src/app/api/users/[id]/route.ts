@@ -3,10 +3,11 @@ import { prisma } from '@/lib/db/prisma';
 import { getSession } from '@/lib/auth/session';
 import { hashPassword } from '@/lib/auth/password';
 import { isRoleCode } from '@/lib/auth/roles';
+import { isAdminOrDirector } from '@/lib/auth/permissions';
 
 async function requireDirector() {
   const session = await getSession();
-  if (!session || !session.roleCodes.includes('director')) return null;
+  if (!session || !isAdminOrDirector(session)) return null;
   return session;
 }
 

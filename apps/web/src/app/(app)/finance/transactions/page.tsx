@@ -26,6 +26,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useMe } from "@/components/layout/use-me"
 
 type TypeFilter = "all" | "income" | "expense"
 type StatusFilter = "all" | "confirmed" | "pending"
@@ -43,6 +44,7 @@ function formatCurrency(amount: number): string {
 }
 
 export default function TransactionListPage() {
+  const { isAdmin } = useMe()
   const [transactions, setTransactions] = useState<TransactionData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -68,7 +70,7 @@ export default function TransactionListPage() {
       if (err instanceof ApiClientError) {
         setError(err.message)
       } else {
-        setError("Failed to load transactions.")
+        setError("Не удалось загрузить транзакции.")
       }
     } finally {
       setLoading(false)
@@ -87,7 +89,7 @@ export default function TransactionListPage() {
       fetchTransactions(typeFilter, statusFilter)
     } catch (err) {
       if (err instanceof ApiClientError) setError(err.message)
-      else setError("Failed to delete transaction.")
+      else setError("Не удалось удалить транзакцию.")
     } finally {
       setDeletingId(null)
     }
@@ -149,7 +151,7 @@ export default function TransactionListPage() {
           <div className="flex gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm text-muted-foreground">Type</label>
-              <Select value={typeFilter} onValueChange={(v) => { if (v) setTypeFilter(v as TypeFilter) }}>
+              <Select value={typeFilter} onValueChange={(v) => { if (v) setTypeFilter(v as TypeFilter) }} items={{ all: "All types", income: "Income", expense: "Expense" }}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
@@ -164,7 +166,7 @@ export default function TransactionListPage() {
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm text-muted-foreground">Status</label>
-              <Select value={statusFilter} onValueChange={(v) => { if (v) setStatusFilter(v as StatusFilter) }}>
+              <Select value={statusFilter} onValueChange={(v) => { if (v) setStatusFilter(v as StatusFilter) }} items={{ all: "All statuses", confirmed: "Confirmed", pending: "Pending" }}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
@@ -185,7 +187,7 @@ export default function TransactionListPage() {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading transactions...</span>
+          <span className="ml-2 text-muted-foreground">Загрузка транзакций...</span>
         </div>
       )}
 
@@ -206,7 +208,7 @@ export default function TransactionListPage() {
       {!loading && !error && transactions.length === 0 && (
         <Card>
           <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground py-8">No transactions found</p>
+            <p className="text-center text-muted-foreground py-8">Транзакции не найдены</p>
           </CardContent>
         </Card>
       )}
@@ -216,13 +218,13 @@ export default function TransactionListPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead>Дата</TableHead>
+                <TableHead>Описание</TableHead>
+                <TableHead>Категория</TableHead>
+                <TableHead>Тип</TableHead>
+                <TableHead className="text-right">Сумма</TableHead>
+                <TableHead>Статус</TableHead>
+                <TableHead className="w-[100px]">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -247,6 +249,8 @@ export default function TransactionListPage() {
                   <TableCell>{renderStatusBadge(tx.status)}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
+                      {isAdmin && (
+                      <>
                       <Button variant="ghost" size="icon" className="size-8" onClick={() => setEditingTx(tx)} title="Edit">
                         <PencilIcon className="size-4" />
                       </Button>
@@ -256,6 +260,8 @@ export default function TransactionListPage() {
                       >
                         <Trash2Icon className="size-4" />
                       </Button>
+                      </>
+                      )}
                       <Link href={`/finance/transactions/${tx.id}`}>
                         <Button variant="ghost" size="icon" className="size-8" title="View">
                           <ChevronRightIcon className="size-4" />

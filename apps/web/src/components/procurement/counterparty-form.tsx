@@ -125,7 +125,7 @@ export function CounterpartyForm({ open, onOpenChange, onSuccess }: Counterparty
       if (err instanceof ApiClientError) {
         setFormError(err.message)
       } else {
-        setFormError("Failed to create counterparty. Please try again.")
+        setFormError("Не удалось создать контрагента. Пожалуйста, попробуйте снова.")
       }
     } finally {
       setSubmitting(false)
@@ -175,7 +175,7 @@ export function CounterpartyForm({ open, onOpenChange, onSuccess }: Counterparty
                 <Label htmlFor="type">
                   Тип <span className="text-destructive">*</span>
                 </Label>
-                <Select value={type} onValueChange={(value) => { if (value) setType(value) }}>
+                <Select value={type} onValueChange={(value) => { if (value) setType(value) }} items={{ supplier: "Поставщик", customer: "Заказчик" }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Выберите тип" />
                   </SelectTrigger>

@@ -8,6 +8,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { warehouse } from '../../../../lib/db/warehouse'
+import { getSession } from '@/lib/auth/session'
+import { isAdmin } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -42,6 +44,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
       return NextResponse.json({ error: 'Validation failed', message: 'id is required' }, { status: 400 })
     }
     const body = await request.json()
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isAdmin(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     const updated = await warehouse.update(id, {
       name: body.name,
       article: body.article,
@@ -67,6 +72,9 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams): Pr
     if (!id) {
       return NextResponse.json({ error: 'Validation failed', message: 'id is required' }, { status: 400 })
     }
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isAdmin(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     const deleted = await warehouse.delete(id)
     return NextResponse.json({ data: deleted, message: 'Item deleted' })
   } catch (error) {

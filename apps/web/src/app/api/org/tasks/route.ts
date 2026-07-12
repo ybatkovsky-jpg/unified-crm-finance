@@ -12,6 +12,7 @@ import { tasks } from '@/lib/db/tasks'
 import { taskTemplates } from '@/lib/db/task-templates'
 import { org } from '@/lib/db/org'
 import { getSession } from '@/lib/auth/session'
+import { isAdminOrDirector } from '@/lib/auth/permissions'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const sp = request.nextUrl.searchParams
 
     // 3. Видимость: head-функции текущего пользователя.
-    const isDirector = session.roleCodes.includes('director')
+    const isDirector = isAdminOrDirector(session)
     let headFunctionIds: string[] = []
     if (!isDirector) {
       const userFns = await org.findFunctionsForUser(session.id)

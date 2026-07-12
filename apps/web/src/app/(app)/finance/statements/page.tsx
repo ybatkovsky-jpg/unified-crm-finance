@@ -351,7 +351,14 @@ export default function BankStatementsPage() {
           </DialogHeader>
           <div className="grid gap-2 py-2">
             <Label>Привязать к проекту</Label>
-            <Select value={confirmProject || "__none__"} onValueChange={(v) => setConfirmProject(v === "__none__" ? "" : v ?? "")}>
+            <Select
+              value={confirmProject || "__none__"}
+              onValueChange={(v) => setConfirmProject(v === "__none__" ? "" : v ?? "")}
+              items={Object.fromEntries([
+                ["__none__", "Без проекта"],
+                ...projects.map((p) => [p.id, `${p.externalNumber} — ${p.name}`]),
+              ])}
+            >
               <SelectTrigger><SelectValue placeholder="Без проекта" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="__none__">Без проекта</SelectItem>

@@ -185,7 +185,7 @@ export function RruleBuilder({ value, onChange, dtStart, until, onUntilChange }:
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label>Частота</Label>
-            <Select value={freq} onValueChange={(v) => handleFreqChange(v as RruleFreq)}>
+            <Select value={freq} onValueChange={(v) => handleFreqChange(v as RruleFreq)} items={FREQ_LABELS}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {(Object.keys(FREQ_LABELS) as RruleFreq[]).map((f) => (

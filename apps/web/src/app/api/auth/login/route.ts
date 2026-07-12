@@ -5,8 +5,26 @@ import { verifyPassword } from '@/lib/auth/password';
 import { signSession } from '@/lib/auth/jwt';
 import { SESSION_COOKIE, sessionCookieOptions } from '@/lib/auth/cookies';
 import { isRoleCode } from '@/lib/auth/roles';
+import { checkRateLimit, getClientIP } from '@/lib/auth/rate-limiter';
 
 export async function POST(request: Request) {
+  // Rate limiting: 5 попыток в минуту на IP
+  const clientIP = getClientIP(request);
+  const rateLimitMax = parseInt(process.env.RATE_LIMIT_AUTH_PER_MIN || '5');
+  const { allowed, remaining, resetAt } = checkRateLimit(`login:${clientIP}`, rateLimitMax, 60_000);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Слишком много попыток. Попробуйте позже.' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)),
+          'X-RateLimit-Remaining': '0',
+        },
+      },
+    );
+  }
+
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
   const password = typeof body.password === 'string' ? body.password : '';

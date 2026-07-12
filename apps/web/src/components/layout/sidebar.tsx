@@ -17,18 +17,20 @@ import { Sofa, ChevronsLeft, ChevronsRight, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { NAV_SECTIONS, getActiveSection } from "./nav-config"
+import { SECTION_HOME } from "./section-home"
 import { useMe } from "./use-me"
+import { useBrand } from "./use-brand"
 
 const COLLAPSE_KEY = "pm.sidebar.collapsed"
 
 export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; onMobileClose: () => void }) {
   const pathname = usePathname()
   const { isDirector } = useMe()
+  const { brand } = useBrand()
 
   const [collapsed, setCollapsed] = useState(false)
   const [mounted, setMounted] = useState(false)
 
-  // Restore collapsed preference + only animate after mount (avoid SSR flash).
   useEffect(() => {
     setCollapsed(localStorage.getItem(COLLAPSE_KEY) === "1")
     setMounted(true)
@@ -45,7 +47,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
 
   const content = (
     <div className="flex h-full flex-col">
-      {/* Brand */}
+      {/* Brand + collapse toggle */}
       <Link
         href="/"
         className={cn(
@@ -53,8 +55,16 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
           collapsed && "justify-center px-0"
         )}
       >
-        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-          <Sofa className="size-4.5" />
+        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground shadow-sm overflow-hidden">
+          {brand?.logoUrl ? (
+            <img
+              src={brand.logoUrl}
+              alt="Логотип"
+              className="h-full w-full object-contain"
+            />
+          ) : (
+            <Sofa className="size-4.5" />
+          )}
         </span>
         {!collapsed && (
           <span className="flex flex-col leading-tight">
@@ -72,8 +82,12 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
           return (
             <Link
               key={section.id}
-              href={section.children[0].href}
+              href={SECTION_HOME[section.id] ?? section.children[0].href}
               title={collapsed ? section.label : undefined}
+              onClick={() => {
+                // Close mobile drawer on navigate
+                if (mobileOpen) onMobileClose()
+              }}
               className={cn(
                 "group/section relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 collapsed && "justify-center px-0",
@@ -82,7 +96,6 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
                   : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >
-              {/* Active pill (spring-animated, shared layoutId) */}
               {isActive && mounted && (
                 <motion.span
                   layoutId="sidebar-active"
@@ -97,7 +110,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
         })}
       </nav>
 
-      {/* Collapse toggle (desktop only) */}
+      {/* Collapse toggle (desktop only) — always visible */}
       <div className="hidden shrink-0 border-t p-2.5 lg:block">
         <button
           onClick={toggleCollapse}
@@ -115,7 +128,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
 
   return (
     <>
-      {/* Desktop sidebar: fixed, width reacts to collapsed state */}
+      {/* Desktop sidebar */}
       <aside
         data-slot="sidebar"
         className={cn(

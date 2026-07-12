@@ -1,8 +1,7 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CalendarDays, DollarSign, User } from "lucide-react"
+import { CalendarDays, User } from "lucide-react"
 import Link from "next/link"
 import type { DealData } from "@/lib/api/types"
 import { getDeadlineInfo, formatDeadlineLabel, cn } from "@/lib/utils"
@@ -12,106 +11,100 @@ interface DealCardProps {
   isDragging?: boolean
 }
 
-/** Tailwind classes per deadline urgency level. */
 const DEADLINE_STYLES: Record<string, string> = {
-  overdue: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
-  soon: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  overdue: "bg-red-500/15 text-red-600 dark:text-red-400",
+  soon: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
   upcoming: "bg-muted text-muted-foreground",
+}
+
+function formatAmount(amount: number, currency: string): string {
+  const formatted = amount.toLocaleString("ru-RU", { maximumFractionDigits: 0 })
+  return currency === "RUB" ? `${formatted} ₽` : `${formatted} ${currency}`
 }
 
 export function DealCard({ deal, isDragging }: DealCardProps) {
   const deadline = getDeadlineInfo(deal.expectedCloseDate)
-  // CRM-03: project deadline takes priority over deal expectedCloseDate
   const projectDeadline = deal.project?.endDate ? getDeadlineInfo(deal.project.endDate) : null
+  const activeDeadline = projectDeadline ?? deadline
+  const endDate = deal.project?.endDate ?? deal.expectedCloseDate
+
   return (
-    <Link href={`/deals/${deal.id}`}>
-      <Card
-        className={`cursor-pointer transition-shadow hover:shadow-md ${
-          isDragging ? "opacity-50" : ""
-        }`}
+    <Link href={`/deals/${deal.id}`} className="block group">
+      <div
+        className={cn(
+          "rounded-lg border bg-card p-2.5 transition-all duration-150",
+          "hover:shadow-md hover:border-primary/40 hover:-translate-y-0.5",
+          "group-active:cursor-grabbing",
+          isDragging && "opacity-40 scale-95 shadow-lg ring-2 ring-primary/50"
+        )}
       >
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium line-clamp-2">
+        {/* Title + amount */}
+        <div className="flex items-start justify-between gap-2 mb-1.5">
+          <span className="text-sm font-medium line-clamp-2 leading-snug">
             {deal.title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="font-mono">{deal.number}</span>
-            {deal.source && (
-              <Badge variant="outline" className="text-[10px] font-normal shrink-0">
-                {deal.source.name}
-              </Badge>
-            )}
+          </span>
+        </div>
+
+        {Number(deal.amount) > 0 && (
+          <div className="text-sm font-bold tabular-nums text-foreground mb-1.5">
+            {formatAmount(Number(deal.amount), deal.currency)}
           </div>
+        )}
 
-          {Number(deal.amount) > 0 && (
-            <div className="flex items-center gap-2 text-xs">
-              <DollarSign className="size-3 text-muted-foreground" />
-              <span className="font-medium">
-                {Number(deal.amount).toLocaleString("ru-RU")} {deal.currency}
-              </span>
-            </div>
-          )}
-
-          {deal.contact && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <User className="size-3" />
-              <span className="line-clamp-1">
-                {deal.contact.type === 'company'
-                  ? deal.contact.companyName || '\—'
-                  : [deal.contact.firstName, deal.contact.lastName].filter(Boolean).join(' ') || '\—'}
-              </span>
-            </div>
-          )}
-
-          {projectDeadline ? (
-            <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-2 min-w-0">
-                <CalendarDays className="size-3 shrink-0" />
-                <span className="truncate">
-                  {new Date(deal.project!.endDate!).toLocaleDateString("ru-RU")} · проект {deal.project!.externalNumber}
-                </span>
-              </div>
-              <Badge
-                variant="secondary"
-                className={cn(
-                  "shrink-0 text-[10px] font-medium",
-                  DEADLINE_STYLES[projectDeadline.level]
-                )}
-              >
-                {formatDeadlineLabel(projectDeadline)}
-              </Badge>
-            </div>
-          ) : deal.expectedCloseDate && (
-            <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-2 min-w-0">
-                <CalendarDays className="size-3 shrink-0" />
-                <span className="truncate">
-                  {new Date(deal.expectedCloseDate).toLocaleDateString("ru-RU")}
-                </span>
-              </div>
-              {deadline && (
-                <Badge
-                  variant="secondary"
-                  className={cn(
-                    "shrink-0 text-[10px] font-medium",
-                    DEADLINE_STYLES[deadline.level]
-                  )}
-                >
-                  {formatDeadlineLabel(deadline)}
-                </Badge>
-              )}
-            </div>
-          )}
-
-          {deal.manager && (
-            <Badge variant="outline" className="text-xs w-fit">
-              {deal.manager.name || deal.manager.email || '\—'}
+        {/* Tags row */}
+        <div className="flex items-center gap-1.5 flex-wrap mb-1.5">
+          <span className="text-[10px] font-mono text-muted-foreground/70">
+            {deal.number}
+          </span>
+          {deal.source && (
+            <Badge variant="outline" className="text-[9px] font-normal h-4 px-1">
+              {deal.source.name}
             </Badge>
           )}
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Contact */}
+        {deal.contact && (
+          <div className="flex items-center gap-1 text-[11px] text-muted-foreground mb-1">
+            <User className="size-3 shrink-0" />
+            <span className="line-clamp-1">
+              {deal.contact.type === "company"
+                ? deal.contact.companyName || "—"
+                : [deal.contact.firstName, deal.contact.lastName].filter(Boolean).join(" ") || "—"}
+            </span>
+          </div>
+        )}
+
+        {/* Deadline */}
+        {endDate && activeDeadline && (
+          <div className="flex items-center gap-1.5 text-[11px]">
+            <CalendarDays className="size-3 shrink-0 text-muted-foreground" />
+            <span className="text-muted-foreground tabular-nums">
+              {new Date(endDate).toLocaleDateString("ru-RU", { day: "2-digit", month: "short" })}
+            </span>
+            {deal.project?.externalNumber && (
+              <span className="text-muted-foreground/60">· {deal.project.externalNumber}</span>
+            )}
+            <span
+              className={cn(
+                "ml-auto rounded px-1 py-0.5 text-[9px] font-medium",
+                DEADLINE_STYLES[activeDeadline.level]
+              )}
+            >
+              {formatDeadlineLabel(activeDeadline)}
+            </span>
+          </div>
+        )}
+
+        {/* Manager */}
+        {deal.manager && (
+          <div className="mt-1.5 pt-1.5 border-t">
+            <span className="text-[10px] text-muted-foreground">
+              {deal.manager.name || deal.manager.email || "—"}
+            </span>
+          </div>
+        )}
+      </div>
     </Link>
   )
 }

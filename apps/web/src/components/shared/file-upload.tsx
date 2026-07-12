@@ -73,9 +73,25 @@ export function FileUpload({
   const [internalFiles, setInternalFiles] = React.useState<FileUploadFile[]>([])
   const [isDragging, setIsDragging] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
+  const filesRef = React.useRef<FileUploadFile[]>([])
 
   const files = controlledFiles ?? internalFiles
-  const setFiles = onFilesChange ?? setInternalFiles
+  const setFiles = (newFiles: FileUploadFile[] | ((prev: FileUploadFile[]) => FileUploadFile[])) => {
+    const updated = typeof newFiles === "function" ? newFiles(filesRef.current) : newFiles
+    filesRef.current = updated
+    if (onFilesChange) {
+      onFilesChange(updated)
+    } else {
+      setInternalFiles(updated)
+    }
+  }
+
+  // Keep ref in sync with controlled files
+  React.useEffect(() => {
+    if (controlledFiles) {
+      filesRef.current = controlledFiles
+    }
+  }, [controlledFiles])
 
   const validateFile = (file: File): string | null => {
     if (file.size > maxSize) {
@@ -99,8 +115,9 @@ export function FileUpload({
 
   const addFiles = async (newFiles: FileList | File[]) => {
     const filesArray = Array.from(newFiles)
+    const current = filesRef.current
 
-    if (files.length + filesArray.length > maxFiles) {
+    if (current.length + filesArray.length > maxFiles) {
       console.warn(`Maximum ${maxFiles} files allowed`)
       return
     }
@@ -124,7 +141,9 @@ export function FileUpload({
       })
     }
 
-    setFiles([...files, ...validFiles])
+    if (validFiles.length === 0) return
+
+    setFiles([...current, ...validFiles])
 
     // Auto-upload if handler provided
     if (onUpload) {
@@ -135,26 +154,27 @@ export function FileUpload({
   }
 
   const uploadFile = async (fileId: string) => {
+    const current = filesRef.current
     setFiles(
-      files.map((f) =>
+      current.map((f) =>
         f.id === fileId ? { ...f, status: "uploading", progress: 0 } : f
       )
     )
 
     try {
-      const fileItem = files.find((f) => f.id === fileId)
+      const fileItem = current.find((f) => f.id === fileId)
       if (!fileItem || !onUpload) return
 
       await onUpload(fileItem)
 
       setFiles(
-        files.map((f) =>
+        filesRef.current.map((f) =>
           f.id === fileId ? { ...f, status: "success", progress: 100 } : f
         )
       )
     } catch (error) {
       setFiles(
-        files.map((f) =>
+        filesRef.current.map((f) =>
           f.id === fileId
             ? {
                 ...f,
@@ -168,7 +188,7 @@ export function FileUpload({
   }
 
   const removeFile = (fileId: string) => {
-    setFiles(files.filter((f) => f.id !== fileId))
+    setFiles(filesRef.current.filter((f) => f.id !== fileId))
     onDelete?.(fileId)
   }
 

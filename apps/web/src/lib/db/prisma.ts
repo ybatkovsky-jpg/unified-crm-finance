@@ -1,11 +1,9 @@
 /**
- * PrismaClient singleton (Decimal-normalized)
+ * PrismaClient singleton (Decimal-normalized) — ЕДИНСТВЕННЫЙ экземпляр.
  *
  * Avoids "too many Prisma Clients" error in development due to hot-reloading.
  * Enables query logging in development for observability.
  * Обёрнут withDecimalNumbers — денежные поля (Decimal(15,2)) возвращаются как number.
- *
- * Делит global-слот `prisma` с src/lib/db.ts — фактически один экземпляр на процесс.
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -24,7 +22,7 @@ export const prisma =
   globalForPrisma.prisma ??
   withDecimalNumbers(
     new PrismaClient({
-      log: process.env.NODE_ENV === 'development'
+      log: process.env.PRISMA_LOG_QUERY === '1'
         ? ['query', 'error', 'warn']
         : ['error'],
     }),

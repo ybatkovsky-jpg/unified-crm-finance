@@ -8,6 +8,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deliveries } from '../../../../lib/db/deliveries'
 import type { DeliveryUpdateInput } from '../../../../lib/db/deliveries'
+import { getSession } from '@/lib/auth/session'
+import { canModify } from '@/lib/auth/permissions'
+import { getProjectManagerId } from '@/lib/db/projects'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -40,6 +43,14 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
       return NextResponse.json({ error: 'Validation failed', message: 'id is required' }, { status: 400 })
     }
     const body = await request.json()
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const existing = await deliveries.findById(id)
+    if (!existing) return NextResponse.json({ error: 'Not found', message: 'Delivery not found' }, { status: 404 })
+    const managerId = existing.projectId ? await getProjectManagerId(existing.projectId) : null
+    if (!canModify(session, managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
     const updateData: DeliveryUpdateInput = {}
     for (const key of ['deliveryType', 'trackingNumber', 'carrier', 'fromLocation', 'toLocation', 'notes'] as const) {
       if (body[key] !== undefined) updateData[key] = body[key]

@@ -31,6 +31,7 @@ export function FilterBar({
         <Select
           value={statusFilter}
           onValueChange={(value) => onStatusChange(value ?? "all")}
+          items={{ all: "Все", open: "Открытые", closed: "Закрытые" }}
         >
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Все" />

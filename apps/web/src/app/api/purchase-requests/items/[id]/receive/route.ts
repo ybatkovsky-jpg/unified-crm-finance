@@ -8,6 +8,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { randomUUID } from 'node:crypto'
+import { getSession } from '@/lib/auth/session'
+import { canModify } from '@/lib/auth/permissions'
+import { getProjectManagerId } from '@/lib/db/projects'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -41,6 +44,15 @@ export async function PATCH(
         { error: 'Not found', message: 'PurchaseRequestItem not found' },
         { status: 404 }
       )
+    }
+
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const managerId = item.PurchaseRequest?.projectId
+      ? await getProjectManagerId(item.PurchaseRequest.projectId)
+      : null
+    if (!canModify(session, managerId === session.id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     if (item.itemStatus === 'received') {

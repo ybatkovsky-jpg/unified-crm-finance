@@ -614,6 +614,18 @@ export class ProjectRepository {
 }
 
 /**
+ * Lightweight helper: returns the managerId of a project (or null if not found / no manager).
+ * Used by RBAC ownership checks in child-entity endpoints (invoices, bom, deliveries, etc.)
+ */
+export async function getProjectManagerId(projectId: string): Promise<string | null> {
+  const p = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { managerId: true },
+  });
+  return p?.managerId ?? null;
+}
+
+/**
  * Singleton instance for use across the application
  */
 export const projects = new ProjectRepository();

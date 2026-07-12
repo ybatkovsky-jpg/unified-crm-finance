@@ -129,7 +129,11 @@ export function InvoiceUploadDialog({ open, onOpenChange, onSuccess }: Props) {
             </div>
             <div className="space-y-1.5">
               <Label>Поставщик</Label>
-              <Select value={supplierId} onValueChange={(v) => v && setSupplierId(v)}>
+              <Select
+                value={supplierId}
+                onValueChange={(v) => v && setSupplierId(v)}
+                items={Object.fromEntries(suppliers.map((s) => [s.id, s.name]))}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Выберите поставщика" />
                 </SelectTrigger>
