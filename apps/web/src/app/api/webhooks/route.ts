@@ -7,6 +7,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { webhookDispatcher } from '../../../lib/webhooks/dispatch'
+import { getSession } from '../../../lib/auth/session'
+import { requireSectionWrite } from '../../../lib/auth/permissions'
 
 export async function GET(): Promise<NextResponse> {
   try {
@@ -23,6 +25,10 @@ export async function GET(): Promise<NextResponse> {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    const denied = requireSectionWrite(session, 'settings')
+    if (denied) return denied
+
     const body = await request.json()
 
     if (!body.url || !body.events || !Array.isArray(body.events)) {

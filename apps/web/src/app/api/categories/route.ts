@@ -12,6 +12,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../lib/db/prisma'
 import { categories } from '../../../lib/db/categories'
+import { getSession } from '../../../lib/auth/session'
+import { requireSectionWrite } from '../../../lib/auth/permissions'
 
 /**
  * GET /api/categories
@@ -76,6 +78,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    const denied = requireSectionWrite(session, 'finance')
+    if (denied) return denied
+
     const body = await request.json()
 
     if (!body.name) {

@@ -30,36 +30,36 @@ export function canModify(session: SessionUser, isOwner: boolean): boolean {
 }
 
 /**
- * Защита мутирующих эндпоинтов на уровне роута (второй этаж после middleware).
+ * Защита мутирующих API-эндпоинтов: проверка сессии и section-RBAC на запись.
  *
  * Возвращает готовый 401/403 NextResponse, если доступ закрыт, либо `null`,
  * если доступ разрешён — caller должен ранний return при непустом ответе.
  *
- * Дублирует section-RBAC из middleware (defense in depth): если middleware
- * когда-либо изменят или секцию случайно откроют лишней роли, эта проверка
- * всё равно потребует валидную сессию с доступом к разделу. Поведение для
- * текущих пользователей не меняется — кто видел раздел в UI, тот и пишет.
+ * ВНИМАНИЕ: middleware НЕ применяет section-RBAC к /api/* — для API он проверяет
+ * только наличие валидного токена (401), а фильтр разделов (hasSection) выполняется
+ * лишь для страниц. Поэтому для мутирующих API-роутов эта функция — ЕДИНСТВЕННАЯ
+ * section-проверка, а не дублирующий «второй этаж». Без неё любой авторизованный
+ * пользователь с любой ролью может создавать сущности, раздел которых ему недоступен
+ * в UI (например, кладовщик — сделки).
+ *
+ * Поведение для текущих пользователей не меняется: кто видит раздел в UI,
+ * тот и пишет (тот же фильтр по hasSection, что и в middleware для страниц).
  *
  * Пример:
- *   const denied = requireSectionWrite(session, 'crm');
- *   if (denied) return denied;
+ *   const session = await getSession()
+ *   const denied = requireSectionWrite(session, 'crm')
+ *   if (denied) return denied
  */
 export function requireSectionWrite(
   session: SessionUser | null,
   section: Section
 ): NextResponse | null {
   if (!session) {
-    return NextResponse.json(
-      { error: 'Unauthorized', message: 'Требуется авторизация' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  // Админ пишeт везде; остальные — только если раздел доступен по любой из ролей.
+  // Админ пишет везде; остальные — только если раздел доступен по любой из ролей.
   if (!isAdmin(session) && !hasSection(session.roleCodes, section)) {
-    return NextResponse.json(
-      { error: 'Forbidden', message: 'Нет прав на действие в этом разделе' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
   return null;
 }

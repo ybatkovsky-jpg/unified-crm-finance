@@ -47,7 +47,8 @@ function makeDeal(overrides: Record<string, unknown> = {}) {
     description: null,
     amount: 100000,
     currency: 'RUB',
-    status: 'open',
+    // Статус сделки выражается через stageId / stage.closedFlag —
+    // отдельного поля `status` на модели Deal нет (см. schema.prisma).
     priority: 'medium',
     pipelineId: 'pipeline-1',
     stageId: 'stage-1',

@@ -12,6 +12,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { bom } from '../../../lib/db/bom'
 import type { BOMCreateInput } from '../../../lib/db/bom'
+import { getSession } from '../../../lib/auth/session'
+import { requireSectionWrite } from '../../../lib/auth/permissions'
 
 /**
  * GET /api/bom?projectId=X
@@ -62,6 +64,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    const denied = requireSectionWrite(session, 'projects')
+    if (denied) return denied
+
     const body = await request.json()
 
     if (!body.projectId) {

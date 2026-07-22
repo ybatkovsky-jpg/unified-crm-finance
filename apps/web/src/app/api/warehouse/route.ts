@@ -8,6 +8,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { warehouse } from '../../../lib/db/warehouse'
 import type { WarehouseItemCreateInput } from '../../../lib/db/warehouse'
+import { getSession } from '../../../lib/auth/session'
+import { requireSectionWrite } from '../../../lib/auth/permissions'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -28,6 +30,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    const denied = requireSectionWrite(session, 'procurement')
+    if (denied) return denied
+
     const body = await request.json()
     if (!body.name) {
       return NextResponse.json({ error: 'Validation failed', message: 'name is required' }, { status: 400 })
