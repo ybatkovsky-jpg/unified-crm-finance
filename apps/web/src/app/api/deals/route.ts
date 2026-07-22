@@ -14,6 +14,8 @@ import { deals } from '../../../lib/db/deals'
 import { mapErrorToResponse } from '../../../lib/api/error-mapping'
 import { notifyNewLead } from '@/lib/notifications/events'
 import { prisma } from '../../../lib/db/prisma'
+import { getSession } from '../../../lib/auth/session'
+import { requireSectionWrite } from '../../../lib/auth/permissions'
 
 /**
  * GET /api/deals
@@ -107,6 +109,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    const denied = requireSectionWrite(session, 'crm')
+    if (denied) return denied
+
     const body = await request.json()
 
     // Validate required fields

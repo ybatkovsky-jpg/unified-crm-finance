@@ -14,6 +14,8 @@ import { projects } from '../../../lib/db/projects'
 import { prisma } from '../../../lib/db/prisma'
 import { randomUUID } from 'node:crypto'
 import { mapErrorToResponse } from '../../../lib/api/error-mapping'
+import { getSession } from '../../../lib/auth/session'
+import { requireSectionWrite } from '../../../lib/auth/permissions'
 
 /** Default project stages per ROADMAP Phase 5 */
 const DEFAULT_PROJECT_STAGES = [
@@ -106,6 +108,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    const denied = requireSectionWrite(session, 'projects')
+    if (denied) return denied
+
     const body = await request.json()
 
     // Validate required fields
