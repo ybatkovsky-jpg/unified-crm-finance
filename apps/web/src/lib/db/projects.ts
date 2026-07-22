@@ -146,19 +146,23 @@ export class ProjectRepository {
 
   /**
    * Create a new project
-   * Generates UUID and timestamps if not provided
+   * Generates UUID and timestamps if not provided.
+   * Wrapped in $transaction so nextProjectNumber runs atomically with the insert —
+   * prevents duplicate externalNumber under concurrent creation.
    */
   async create(data: ProjectCreateInput): Promise<Project> {
     const now = new Date();
 
-    return prisma.project.create({
-      data: {
-        ...data,
-        id: data.id ?? randomUUID(),
-        externalNumber: data.externalNumber ?? await nextProjectNumber(prisma, new Date().getFullYear()),
-        createdAt: data.createdAt ?? now,
-        updatedAt: data.updatedAt ?? now,
-      },
+    return prisma.$transaction(async (tx) => {
+      return tx.project.create({
+        data: {
+          ...data,
+          id: data.id ?? randomUUID(),
+          externalNumber: data.externalNumber ?? await nextProjectNumber(tx, new Date().getFullYear()),
+          createdAt: data.createdAt ?? now,
+          updatedAt: data.updatedAt ?? now,
+        },
+      });
     });
   }
 

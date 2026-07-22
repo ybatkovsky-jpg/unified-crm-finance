@@ -10,10 +10,12 @@ import { FilterBar } from "@/components/deals/filter-bar"
 import { CreateDealModal } from "@/components/deals/create-deal-modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useMe } from "@/components/layout/use-me"
 
 type StatusFilter = "all" | "open" | "closed"
 
 export default function DealsPage() {
+  const { me } = useMe()
   const [deals, setDeals] = useState<DealData[]>([])
   const [stages, setStages] = useState<DealStageData[]>([])
   const [pipelineId, setPipelineId] = useState<string>("")
@@ -78,7 +80,7 @@ export default function DealsPage() {
     try {
       const response = await dealsApi.moveDeal(dealId, {
         stageId: toStageId,
-        changedBy: currentUserId,
+        changedBy: me?.id ?? "",
       })
       setDeals((prev) =>
         prev.map((deal) =>
@@ -98,7 +100,6 @@ export default function DealsPage() {
   }
 
   const firstStageId = stages.length > 0 ? stages[0].id : ""
-  const currentUserId = "current-user-id"
 
   if (loading) {
     return (

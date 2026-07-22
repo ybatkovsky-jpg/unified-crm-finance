@@ -3,7 +3,7 @@
  *
  * CRUD API for Interaction model:
  * - GET: List all interactions (optional contactId filter, ordered by createdAt desc)
- * - POST: Create a new interaction (validates contactId, type, authorId, content)
+ * - POST: Create a new interaction (validates contactId, type, content)
  *
  * GET /api/interactions
  * POST /api/interactions
@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { interactions } from '../../../lib/db/interactions'
 import { contacts } from '../../../lib/db/contacts'
+import { getSession } from '../../../lib/auth/session'
 
 const VALID_TYPES = ['call', 'meeting', 'email', 'note', 'task'] as const
 
@@ -23,6 +24,11 @@ const VALID_TYPES = ['call', 'meeting', 'email', 'note', 'task'] as const
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const searchParams = request.nextUrl.searchParams
     const contactId = searchParams.get('contactId')
 
@@ -47,13 +53,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  * POST /api/interactions
  *
  * Creates a new interaction.
- * Validates required fields: contactId, type, authorId.
+ * Validates required fields: contactId, type.
  * Validates type must be one of: call|meeting|email|note|task.
  * content is required for non-note types.
  * Verifies contactId exists before creating.
+ * authorId is taken from session — client-supplied value is ignored.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
 
     // Validate contactId
@@ -68,14 +80,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!body.type || !VALID_TYPES.includes(body.type)) {
       return NextResponse.json(
         { error: 'Validation failed', message: `type must be one of: ${VALID_TYPES.join('|')}` },
-        { status: 400 }
-      )
-    }
-
-    // Validate authorId
-    if (!body.authorId) {
-      return NextResponse.json(
-        { error: 'Validation failed', message: 'authorId is required' },
         { status: 400 }
       )
     }
@@ -97,10 +101,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
+    // authorId всегда из сессии — предотвращает impersonation (IDOR)
     const newInteraction = await interactions.create({
       contactId: body.contactId,
       type: body.type,
-      authorId: body.authorId,
+      authorId: session.id,
       direction: body.direction ?? null,
       subject: body.subject ?? null,
       content: body.content ?? null,
