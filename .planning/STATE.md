@@ -16,8 +16,9 @@ progress:
 # GSD State
 
 **Active Milestone:** v1.0 «ERP ПРО Мебель — доводка до спеки» — COMPLETE ✅
+**Next Milestone:** v2.0 «Premium Sales Experience» — PLANNING (gap-анализ + бэклог готовы, 38 PREM-ID, Phases 11–15)
 **Active Phase:** ✅ Phase 10 complete — платформа (задачи, уведомления, аналитика) — milestone завершён
-**Requirements Status:** 52 active · 52 validated · 0 deferred · 0 out of scope (51 в milestone + PLAT-06 post-milestone)
+**Requirements Status:** 52 active · 52 validated (v1.0) + 38 planned (v2.0)
 
 ## Project Reference
 
@@ -36,14 +37,15 @@ Last activity: 2026-06-30 -- PLAT-06 «Орг-платформа задач» р
 ### Progress bar
 
 ```
-[██████████] 100% — 10/10 phases (+ PLAT-06 post-milestone)
+v1.0: [██████████] 100% — 10/10 phases (+ PLAT-06 post-milestone)
+v2.0: [░░░░░░░░░░]   0% — 0/5 phases (planned)
 ```
 
 ## Performance Metrics
 
-- Phases defined: 10 (все complete)
-- Requirements mapped: 52/52 (100%) — 51 в milestone + PLAT-06
-- Plans defined: 10 (все complete)
+- Phases defined: 15 (10 complete + 5 planned)
+- Requirements mapped: 52/52 validated (v1.0) + 38 planned (v2.0 PREM-01..38)
+- Plans defined: 10 complete (v1.0) + 5 planned (v2.0)
 - Decisions logged: 12
 - Schema models: 68
 - API routes: ~131
@@ -63,6 +65,17 @@ Last activity: 2026-06-30 -- PLAT-06 «Орг-платформа задач» р
 - [x] **Phase 9:** Управленческий учёт — ACCT-01..04 (4) ✅ 2026-06-29
 - [x] **Phase 10:** Задачи, уведомления, аналитика — PLAT-01..05 (5) ✅ 2026-06-30
 - [x] **PLAT-06:** Орг-платформа задач — отделы→функции→назначения, RRULE-повторяющиеся задачи, ленивая материализация ✅ 2026-06-30 (post-milestone)
+
+### Milestone v2.0 «Premium Sales Experience» — PLANNING
+
+> Gap-анализ архитектуры премиум-цикла продаж (9 этапов) от 2026-07-03. 38 PREM-ID, 5 фаз (Phase 11–15).
+> Документ: `.planning/PREMIUM-SALES-GAP.md`.
+
+- [ ] **Phase 11:** Сегментация B2C/B2B + квалификация + портфолио — PREM-10..11, 26..31 (6)
+- [ ] **Phase 12:** КП + детальная спецификация договора — PREM-18..25 (8)
+- [ ] **Phase 13:** Автоматизация + NPS/опросы — PREM-01..09 (9)
+- [ ] **Phase 14:** Клиентский портал — PREM-12..17 (6)
+- [ ] **Phase 15:** Сервис + рефералы — PREM-32..38 (7)
 
 ## Accumulated Context
 
@@ -109,5 +122,5 @@ Last activity: 2026-06-30 -- PLAT-06 «Орг-платформа задач» р
 
 **Last session:** 2026-06-30 — PLAT-06 «Орг-платформа задач» реализован (отделы→функции→назначения, RRULE-повторяющиеся задачи с ленивой материализацией). Проведено ревью Phase 10 (найдены 4 критических + 2 важных проблемы безопасности/целостности). Документация приведена в порядок: синхронизированы .gsd + .planning под фазовую схему, README переписан, docs/ заморожены как исторические, починен конфликт Prisma root/app.
 **MILESTONE v1.0 COMPLETE** — все 10 фаз + PLAT-06, 52/52 требований validated.
-**Next action:** (1) починка критических находок ревью Phase 10 (IDOR, dedupeKey, RBAC аналитики); (2) Future requirements (Telegram/email, гарантии, телефония); (3) новые модули по запросу.
-**Resume command:** Milestone v1.0 + PLAT-06 готовы. Сначала закрыть known-баги из ревью, затем — следующий milestone.
+**Next action:** (1) починка критических находок ревью Phase 10 (IDOR, dedupeKey, RBAC аналитики); (2) утвердить с заказчиком приоритизацию v2.0; (3) декомпозировать Phase 11 на срезы и задачи.
+**Resume command:** Milestone v1.0 + PLAT-06 готовы. v2.0 «Premium Sales Experience» запланирован (см. `.planning/PREMIUM-SALES-GAP.md`).
