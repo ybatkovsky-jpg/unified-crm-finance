@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { RefreshCwIcon, PlusIcon, Trash2Icon, UsersIcon, Building2Icon } from "lucide-react"
+import { RefreshCwIcon, PlusIcon, Trash2Icon, UsersIcon, Building2Icon, GitForkIcon, ListTreeIcon } from "lucide-react"
 import { ApiClientError } from "@/lib/api/shared"
 import {
   getDepartments, createDepartment, deleteDepartment,
@@ -10,6 +10,7 @@ import {
   type DepartmentData, type FunctionData, type AssignmentData,
 } from "@/lib/api/org"
 import { useMe } from "@/components/layout/use-me"
+import { OrgChart } from "@/components/org/org-chart"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -30,12 +31,16 @@ export default function OrgStructurePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [view, setView] = useState<"list" | "chart">("list")
 
   const isDirector = !!me?.roleCodes?.includes("director")
 
   const [newDeptName, setNewDeptName] = useState("")
   const [newFnDept, setNewFnDept] = useState("")
   const [newFnName, setNewFnName] = useState("")
+  // Инлайн-добавление функции прямо в карточке отдела
+  const [inlineDeptId, setInlineDeptId] = useState<string | null>(null)
+  const [inlineFnName, setInlineFnName] = useState("")
   const [assignDialog, setAssignDialog] = useState<{ functionId: string; functionName: string } | null>(null)
   const [assignUserSel, setAssignUserSel] = useState("")
   const [assignRoleSel, setAssignRoleSel] = useState<"head" | "responsible">("responsible")
@@ -78,6 +83,19 @@ export default function OrgStructurePage() {
     try {
       await createFunction({ departmentId: newFnDept, name: newFnName.trim() })
       setNewFnName("")
+      await fetchAll()
+    } catch (e) {
+      setError(e instanceof ApiClientError ? e.message : "Ошибка")
+    } finally { setBusy(false) }
+  }
+
+  const handleInlineAddFunction = async (departmentId: string) => {
+    if (!inlineFnName.trim()) return
+    setBusy(true)
+    try {
+      await createFunction({ departmentId, name: inlineFnName.trim() })
+      setInlineFnName("")
+      setInlineDeptId(null)
       await fetchAll()
     } catch (e) {
       setError(e instanceof ApiClientError ? e.message : "Ошибка")
@@ -158,9 +176,25 @@ export default function OrgStructurePage() {
           <h1 className="text-2xl font-bold">Орг-структура</h1>
           <p className="text-sm text-muted-foreground">Отделы → функции → ответственные</p>
         </div>
-        <Button variant="outline" onClick={fetchAll}>
-          <RefreshCwIcon className="size-4" /><span className="ml-1.5">Обновить</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex rounded-md border overflow-hidden">
+            <button
+              onClick={() => setView("list")}
+              className={`px-3 py-1.5 text-sm flex items-center gap-1.5 ${view === "list" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+            >
+              <ListTreeIcon className="size-4" /> Список
+            </button>
+            <button
+              onClick={() => setView("chart")}
+              className={`px-3 py-1.5 text-sm flex items-center gap-1.5 ${view === "chart" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+            >
+              <GitForkIcon className="size-4" /> Схема
+            </button>
+          </div>
+          <Button variant="outline" onClick={fetchAll}>
+            <RefreshCwIcon className="size-4" /><span className="ml-1.5">Обновить</span>
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -185,12 +219,12 @@ export default function OrgStructurePage() {
         </CardContent>
       </Card>
 
-      {/* Дерево: отделы → функции */}
-      {departments.length === 0 ? (
+      {/* Дерево: отделы → функции (список) */}
+      {view === "list" && departments.length === 0 ? (
         <Card><CardContent className="pt-6">
           <p className="text-center text-muted-foreground py-8">Нет отделов. Создайте первый.</p>
         </CardContent></Card>
-      ) : (
+      ) : view === "list" ? (
         <div className="space-y-4">
           {departments.map((dept) => {
             const deptFunctions = functions.filter((f) => f.departmentId === dept.id)
@@ -203,10 +237,28 @@ export default function OrgStructurePage() {
                       <h3 className="font-semibold text-lg">{dept.name}</h3>
                       <Badge variant="secondary">{deptFunctions.length} функц.</Badge>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => handleDeleteDept(dept.id, dept.name)}>
-                      <Trash2Icon className="size-4 text-destructive" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button variant="outline" size="sm" onClick={() => { setInlineDeptId(inlineDeptId === dept.id ? null : dept.id); setInlineFnName("") }}>
+                        <PlusIcon className="size-3.5" /><span className="ml-1">Функция</span>
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleDeleteDept(dept.id, dept.name)}>
+                        <Trash2Icon className="size-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
+                  {inlineDeptId === dept.id && (
+                    <div className="flex items-end gap-2">
+                      <div className="flex-1 space-y-1.5">
+                        <Label htmlFor={`inline-fn-${dept.id}`}>Новая функция в отделе «{dept.name}»</Label>
+                        <Input id={`inline-fn-${dept.id}`} value={inlineFnName} onChange={(e) => setInlineFnName(e.target.value)}
+                          placeholder="Напр. Реклама, Налоги" autoFocus
+                          onKeyDown={(e) => e.key === "Enter" && handleInlineAddFunction(dept.id)} />
+                      </div>
+                      <Button onClick={() => handleInlineAddFunction(dept.id)} disabled={busy || !inlineFnName.trim()}>
+                        <PlusIcon className="size-4" /><span className="ml-1.5">Добавить</span>
+                      </Button>
+                    </div>
+                  )}
                   {dept.description && <p className="text-sm text-muted-foreground">{dept.description}</p>}
 
                   {deptFunctions.length === 0 ? (
@@ -261,10 +313,23 @@ export default function OrgStructurePage() {
             )
           })}
         </div>
+      ) : null}
+
+      {/* Схема орг-структуры */}
+      {view === "chart" && (
+        departments.length === 0 ? (
+          <Card><CardContent className="pt-6">
+            <p className="text-center text-muted-foreground py-8">Нет отделов. Создайте первый.</p>
+          </CardContent></Card>
+        ) : (
+          <Card><CardContent className="pt-6">
+            <OrgChart departments={departments} functions={functions} />
+          </CardContent></Card>
+        )
       )}
 
       {/* Добавить функцию (если есть отделы) */}
-      {departments.length > 0 && (
+      {view === "list" && departments.length > 0 && (
         <Card>
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_auto] gap-2 items-end">

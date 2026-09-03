@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ROLE_MATRIX, type RoleCode } from "@/lib/auth/roles";
+import { getFunctions, assignUser, unassignUser, type FunctionData } from "@/lib/api/org";
 
 interface UserRow {
   id: string;
@@ -11,6 +12,14 @@ interface UserRow {
   lastLoginAt: string | null;
   roleCodes: RoleCode[];
   roleNames: string[];
+}
+
+interface UserAssign {
+  assignmentId: string;
+  functionId: string;
+  functionName: string;
+  departmentName: string;
+  role: "head" | "responsible";
 }
 
 const ROLE_CODES = Object.keys(ROLE_MATRIX) as RoleCode[];
@@ -23,6 +32,9 @@ export default function UsersAdminPage() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [forbidden, setForbidden] = useState(false);
+  // Орг-функции и назначения (для «Назначить на функцию»)
+  const [functions, setFunctions] = useState<FunctionData[]>([]);
+  const [assignByUser, setAssignByUser] = useState<Record<string, UserAssign[]>>({});
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -30,6 +42,11 @@ export default function UsersAdminPage() {
   const [createRoles, setCreateRoles] = useState<RoleCode[]>(["manager_designer"]);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+
+  // Диалог назначения на функцию
+  const [assignFor, setAssignFor] = useState<UserRow | null>(null);
+  const [assignFnSel, setAssignFnSel] = useState("");
+  const [assignRoleSel, setAssignRoleSel] = useState<"head" | "responsible">("responsible");
 
   async function load() {
     const res = await fetch("/api/users");
@@ -42,8 +59,34 @@ export default function UsersAdminPage() {
     setUsers(data.data ?? []);
     setLoading(false);
   }
+
+  async function loadOrg() {
+    try {
+      const res = await getFunctions();
+      const fns = res.data ?? [];
+      setFunctions(fns);
+      const map: Record<string, UserAssign[]> = {};
+      for (const fn of fns) {
+        for (const a of fn.FunctionAssignment ?? []) {
+          if (!map[a.userId]) map[a.userId] = [];
+          map[a.userId].push({
+            assignmentId: a.id,
+            functionId: fn.id,
+            functionName: fn.name,
+            departmentName: fn.Department?.name ?? "—",
+            role: a.role,
+          });
+        }
+      }
+      setAssignByUser(map);
+    } catch {
+      // орг-структура может быть недоступна — не критично
+    }
+  }
+
   useEffect(() => {
     load();
+    loadOrg();
   }, []);
 
   async function create(e: React.FormEvent) {
@@ -93,6 +136,30 @@ export default function UsersAdminPage() {
       return;
     }
     load();
+  }
+
+  async function handleAssign() {
+    if (!assignFor || !assignFnSel) return;
+    setErr(null);
+    try {
+      await assignUser({ functionId: assignFnSel, userId: assignFor.id, role: assignRoleSel });
+      setAssignFor(null);
+      setAssignFnSel("");
+      setAssignRoleSel("responsible");
+      await loadOrg();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Ошибка назначения");
+    }
+  }
+
+  async function handleUnassign(assignmentId: string) {
+    setErr(null);
+    try {
+      await unassignUser(assignmentId);
+      await loadOrg();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Ошибка снятия назначения");
+    }
   }
 
   if (forbidden) {
@@ -145,6 +212,7 @@ export default function UsersAdminPage() {
               <th className="py-2">Email</th>
               <th>ФИО</th>
               <th>Роли</th>
+              <th>Функции</th>
               <th>Статус</th>
               <th>Действия</th>
             </tr>
@@ -166,6 +234,22 @@ export default function UsersAdminPage() {
                         {ROLE_MATRIX[c].label}
                       </label>
                     ))}
+                  </div>
+                </td>
+                <td>
+                  <div className="flex flex-wrap gap-1 max-w-sm">
+                    {(assignByUser[u.id] ?? []).map((a) => (
+                      <span key={a.assignmentId} className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-[11px]">
+                        {a.role === "head" ? "👑 " : ""}{a.departmentName} · {a.functionName}
+                        <button className="hover:text-destructive" title="Снять" onClick={() => handleUnassign(a.assignmentId)}>×</button>
+                      </span>
+                    ))}
+                    <button
+                      className="text-xs underline text-primary"
+                      onClick={() => { setAssignFor(u); setAssignFnSel(""); setAssignRoleSel("responsible"); }}
+                    >
+                      + Назначить
+                    </button>
                   </div>
                 </td>
                 <td>{u.isActive ? "активен" : "заблокирован"}</td>
@@ -190,6 +274,50 @@ export default function UsersAdminPage() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {/* Диалог назначения на функцию */}
+      {assignFor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setAssignFor(null)}>
+          <div className="w-full max-w-md rounded-lg border bg-card p-5 shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-semibold text-lg">Назначить на функцию</h3>
+            <p className="text-sm text-muted-foreground mb-4">{assignFor.name} ({assignFor.email})</p>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Функция</label>
+                <select
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  value={assignFnSel}
+                  onChange={(e) => setAssignFnSel(e.target.value)}
+                >
+                  <option value="">Выберите функцию…</option>
+                  {functions.map((fn) => (
+                    <option key={fn.id} value={fn.id}>
+                      {fn.Department?.name ?? "—"} → {fn.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Роль</label>
+                <select
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  value={assignRoleSel}
+                  onChange={(e) => setAssignRoleSel(e.target.value as "head" | "responsible")}
+                >
+                  <option value="responsible">Ответственный</option>
+                  <option value="head">Руководитель (видит все задачи функции)</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-5">
+              <button className="rounded-md border px-3 py-2 text-sm" onClick={() => setAssignFor(null)}>Отмена</button>
+              <button className="rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm font-medium" onClick={handleAssign} disabled={!assignFnSel}>
+                Назначить
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
