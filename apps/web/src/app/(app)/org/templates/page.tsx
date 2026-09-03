@@ -250,7 +250,7 @@ export default function OrgTemplatesPage() {
 
       {/* Диалог создания/редактирования */}
       <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetForm() }}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editId ? "Редактировать шаблон" : "Новый шаблон задачи"}</DialogTitle>
           </DialogHeader>
@@ -267,43 +267,44 @@ export default function OrgTemplatesPage() {
                 placeholder="Детали задачи" rows={2} />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Функция</Label>
-                <Select
-                  value={functionId}
-                  onValueChange={(v) => setFunctionId(v ?? "")}
-                  items={Object.fromEntries(
-                    functions.map((f) => [
-                      f.id,
-                      f.Department?.name ? `${f.Department.name} → ${f.name}` : f.name,
-                    ])
-                  )}
-                >
-                  <SelectTrigger><SelectValue placeholder="Без функции" /></SelectTrigger>
-                  <SelectContent>
-                    {functions.map((f) => (
-                      <SelectItem key={f.id} value={f.id}>
-                        {f.Department?.name ? `${f.Department.name} → ` : ""}{f.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-1.5">
+              <Label>Функция</Label>
+              <Select
+                value={functionId}
+                onValueChange={(v) => setFunctionId(v ?? "")}
+                items={Object.fromEntries(
+                  functions.map((f) => [
+                    f.id,
+                    f.Department?.name ? `${f.Department.name} → ${f.name}` : f.name,
+                  ])
+                )}
+              >
+                <SelectTrigger className="w-full"><SelectValue placeholder="Без функции" /></SelectTrigger>
+                <SelectContent className="min-w-[360px] max-w-[90vw]" align="start">
+                  {functions.map((f) => (
+                    <SelectItem key={f.id} value={f.id}>
+                      {f.Department?.name ? `${f.Department.name} → ` : ""}{f.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Приоритет</Label>
                 <Select value={priority} onValueChange={(v) => setPriority(v ?? "medium")} items={PRIORITY_LABELS}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {Object.entries(PRIORITY_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="t-dtstart">Дата начала / срок (для разовой) *</Label>
-              <Input id="t-dtstart" type="date" value={dtStart} onChange={(e) => setDtStart(e.target.value)} />
+              <div className="space-y-1.5">
+                <Label htmlFor="t-dtstart">Дата начала / срок (для разовой) *</Label>
+                <Input id="t-dtstart" type="date" value={dtStart} onChange={(e) => setDtStart(e.target.value)} />
+              </div>
             </div>
 
             <RruleBuilder
@@ -314,11 +315,11 @@ export default function OrgTemplatesPage() {
               onUntilChange={setUntil}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Исполнитель</Label>
                 <Select value={strategy} onValueChange={(v) => setStrategy(v ?? "function_responsible")} items={STRATEGY_LABELS}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {Object.entries(STRATEGY_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
                   </SelectContent>
@@ -332,7 +333,7 @@ export default function OrgTemplatesPage() {
                     onValueChange={(v) => setFixedAssigneeId(v ?? "")}
                     items={Object.fromEntries(users.map((u) => [u.id, u.name]))}
                   >
-                    <SelectTrigger><SelectValue placeholder="Выберите" /></SelectTrigger>
+                    <SelectTrigger className="w-full"><SelectValue placeholder="Выберите" /></SelectTrigger>
                     <SelectContent>
                       {users.map((u) => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
                     </SelectContent>
