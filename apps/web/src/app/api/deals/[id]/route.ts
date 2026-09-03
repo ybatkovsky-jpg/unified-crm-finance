@@ -37,11 +37,11 @@ export async function GET(
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const deal = await deals.findUnique(id, {
-      DealStage: true,
-      Pipeline: true,
+      DealStage: { select: { id: true, name: true, code: true, color: true, order: true, isWonStage: true, isLostStage: true, probability: true } },
+      Pipeline: { select: { id: true, name: true, code: true } },
       Contact: true,
-      User: true,
-      LeadSource: { select: { id: true, code: true, name: true, description: true, isActive: true } },
+      User: { select: { id: true, name: true, email: true } },
+      LeadSource: { select: { id: true, code: true, name: true } },
       DrawingFile: true,
       ActFile: true,
       DealHistory: {

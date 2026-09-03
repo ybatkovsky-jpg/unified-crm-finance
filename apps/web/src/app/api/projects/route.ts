@@ -63,6 +63,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         include: {
         ProjectStage: {
           orderBy: { order: 'asc' },
+          select: { id: true, code: true, name: true, order: true, status: true, startDate: true, endDate: true, completedAt: true },
         },
         ProjectMember: {
           where: { leftAt: null },
@@ -76,8 +77,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             },
           },
         },
-        Contact: true,
-        User: true,
+        Contact: { select: { id: true, firstName: true, lastName: true, companyName: true, type: true } },
+        User: { select: { id: true, name: true, email: true } },
       },
     } as const),
       prisma.project.count({ where: whereClause as any }),

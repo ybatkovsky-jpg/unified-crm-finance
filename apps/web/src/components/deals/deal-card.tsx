@@ -29,7 +29,12 @@ export function DealCard({ deal, isDragging }: DealCardProps) {
   const endDate = deal.project?.endDate ?? deal.expectedCloseDate
 
   return (
-    <Link href={`/deals/${deal.id}`} className="block group">
+    <Link
+      href={`/deals/${deal.id}`}
+      draggable={false}
+      onDragStart={(e) => e.preventDefault()}
+      className="block group"
+    >
       <div
         className={cn(
           "rounded-lg border bg-card p-2.5 transition-all duration-150",

@@ -58,7 +58,7 @@ export async function GET(
           },
         },
         Contact: true,
-        User: true,
+        User: { select: { id: true, name: true, email: true } },
         SpecFile: true,
         AcceptanceAct: {
           include: {

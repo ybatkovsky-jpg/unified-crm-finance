@@ -1,7 +1,17 @@
 "use client"
 
-import { DndContext, type DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import { useState } from "react"
+import {
+  DndContext,
+  DragOverlay,
+  type DragStartEvent,
+  type DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
 import { KanbanColumn } from "./kanban-column"
+import { DealCard } from "./deal-card"
 import type { DealData, DealStageData } from "@/lib/api/types"
 
 interface KanbanBoardProps {
@@ -11,16 +21,25 @@ interface KanbanBoardProps {
 }
 
 export function KanbanBoard({ deals, stages, onMoveDeal }: KanbanBoardProps) {
+  const [activeId, setActiveId] = useState<string | null>(null)
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
+      // Небольшое расстояние активации, чтобы клик по карточке (переход)
+      // не превращался в перетаскивание.
+      activationConstraint: { distance: 6 },
     })
   )
 
+  const activeDeal = activeId ? deals.find((d) => d.id === activeId) ?? null : null
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string)
+  }
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
+    setActiveId(null)
     if (!over) return
     const dealId = active.id as string
     const toStageId = over.id as string
@@ -40,7 +59,12 @@ export function KanbanBoard({ deals, stages, onMoveDeal }: KanbanBoardProps) {
   })
 
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={() => setActiveId(null)}
+    >
       <div className="flex gap-4 h-full overflow-x-auto pb-2">
         {stages.map((stage) => (
           <KanbanColumn
@@ -55,6 +79,15 @@ export function KanbanBoard({ deals, stages, onMoveDeal }: KanbanBoardProps) {
           />
         ))}
       </div>
+
+      {/* «Плавающая» карточка, следующая за мышью при перетаскивании. */}
+      <DragOverlay dropAnimation={{ duration: 200, easing: "ease" }}>
+        {activeDeal ? (
+          <div className="rotate-2 cursor-grabbing">
+            <DealCard deal={activeDeal} isDragging />
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   )
 }

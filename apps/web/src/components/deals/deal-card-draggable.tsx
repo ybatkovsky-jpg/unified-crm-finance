@@ -18,7 +18,7 @@ export function DraggableDealCard({ deal }: DraggableDealCardProps) {
   })
 
   return (
-    <div ref={setNodeRef} {...listeners} {...attributes}>
+    <div ref={setNodeRef} {...listeners} {...attributes} className="touch-none select-none">
       <DealCard deal={deal} isDragging={isDragging} />
     </div>
   )
