@@ -97,7 +97,9 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     objectAddress: "",
     lossReason: "",
     sourceId: "",
+    contactId: "",
   })
+  const [editContacts, setEditContacts] = useState<Array<{ id: string; name: string }>>([])
   const [drawingFiles, setDrawingFiles] = useState<FileUploadFile[]>([])
   const [actFiles, setActFiles] = useState<FileUploadFile[]>([])
   const [uploadingDrawing, setUploadingDrawing] = useState(false)
@@ -149,6 +151,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         objectAddress: (response.data as any).objectAddress || "",
         lossReason: response.data.lossReason || "",
         sourceId: response.data.source?.id || "",
+        contactId: response.data.contactId || "",
       })
 
       // Load pipeline stages for the inline stage selector.
@@ -213,6 +216,26 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     })
   }, [unwrapParams, fetchDeal, fetchTasks])
 
+  // Загрузить контакты для выбора «Заказчика» в форме редактирования.
+  const loadEditContacts = useCallback(async () => {
+    try {
+      const res = await fetch("/api/contacts?pageSize=100")
+      if (res.ok) {
+        const json = await res.json()
+        const list: Array<{ id: string; name: string }> = (json.data ?? []).map((c: any) => ({
+          id: c.id,
+          name:
+            c.type === "company"
+              ? c.companyName || "—"
+              : [c.lastName, c.firstName].filter(Boolean).join(" ") || c.phone || "—",
+        }))
+        setEditContacts(list)
+      }
+    } catch {
+      // не блокируем редактирование
+    }
+  }, [])
+
   // Load users for task assignee dropdown
   useEffect(() => {
     if (taskDialogOpen && users.length === 0) {
@@ -254,6 +277,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         objectAddress: editForm.objectAddress || undefined,
         lossReason: editForm.lossReason || undefined,
         sourceId: editForm.sourceId || undefined,
+        contactId: editForm.contactId || undefined,
       })
 
       setDeal(response.data)
@@ -282,6 +306,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         objectAddress: (deal as any).objectAddress || "",
         lossReason: deal.lossReason || "",
         sourceId: deal.source?.id || "",
+        contactId: deal.contactId || "",
       })
     }
     setIsEditing(false)
@@ -659,6 +684,27 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                       </Select>
                   </div>
 
+                  <div className="grid gap-2">
+                    <Label htmlFor="contactId">Заказчик *</Label>
+                    <Select
+                      value={editForm.contactId}
+                      onValueChange={(value) => setEditForm({ ...editForm, contactId: value ?? "" })}
+                      items={Object.fromEntries(editContacts.map((c) => [c.id, c.name]))}
+                    >
+                      <SelectTrigger id="contactId">
+                        <SelectValue placeholder="Выберите заказчика (для договора и проекта)..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {editContacts.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[11px] text-muted-foreground">
+                      Заказчик нужен для создания договора и проекта. Можно выбрать и в блоке «Заказчик» ниже.
+                    </p>
+                  </div>
+
                   {isLost && (
                     <div className="grid gap-2">
                       <Label htmlFor="lossReason">Причина проигрыша</Label>
@@ -1000,7 +1046,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
                 {(isAdmin || deal.managerId === me?.id) && (
-                  <Button onClick={() => { setIsEditing(true); getLeadSources().then(r => setLeadSources(r.data)).catch(() => {}) }}>
+                  <Button onClick={() => { setIsEditing(true); getLeadSources().then(r => setLeadSources(r.data)).catch(() => {}); loadEditContacts() }}>
                     <Edit2 className="size-4" />
                     <span className="ml-1.5">Изменить</span>
                   </Button>

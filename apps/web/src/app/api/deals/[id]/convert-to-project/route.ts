@@ -57,7 +57,7 @@ export async function POST(
 
     if (!deal.contactId) {
       return NextResponse.json(
-        { error: 'Validation failed', message: 'Deal must have a contact before converting to project' },
+        { error: 'Validation failed', message: 'Сначала укажите заказчика: в карточке сделки откройте блок «Заказчик» и нажмите «Выбрать заказчика».' },
         { status: 400 }
       )
     }
