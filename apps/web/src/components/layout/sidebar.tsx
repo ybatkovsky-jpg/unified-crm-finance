@@ -43,7 +43,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
   }
 
   const sections = NAV_SECTIONS.filter((s) => (s.directorOnly ? isDirector : true))
-  const activeSection = getActiveSection(pathname, isDirector)
+  const activeSection = getActiveSection(pathname)
 
   const content = (
     <div className="flex h-full flex-col">
@@ -114,6 +114,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
       <div className="hidden shrink-0 border-t p-2.5 lg:block">
         <button
           onClick={toggleCollapse}
+          aria-label={collapsed ? "Развернуть меню" : "Свернуть меню"}
           className={cn(
             "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
             collapsed && "justify-center px-0"

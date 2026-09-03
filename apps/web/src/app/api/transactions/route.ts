@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { transactions } from '../../../lib/db/transactions'
 import type { TransactionFilters } from '../../../lib/db/transactions'
 import { getSession } from '../../../lib/auth/session'
+import { requireSectionWrite } from '@/lib/auth/permissions'
 
 /**
  * GET /api/transactions
@@ -26,6 +27,10 @@ import { getSession } from '../../../lib/auth/session'
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    const denied = requireSectionWrite(session, 'finance')
+    if (denied) return denied
+
     const searchParams = request.nextUrl.searchParams
 
     const filters: TransactionFilters = {}

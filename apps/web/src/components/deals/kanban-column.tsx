@@ -65,7 +65,9 @@ export function KanbanColumn({
             <span />
           )}
           {probability !== undefined && probability > 0 && (
-            <span className="text-[10px] text-muted-foreground">{probability}%</span>
+            <span className="text-[10px] text-muted-foreground tabular-nums">
+              {Math.round(probability * 100)}%
+            </span>
           )}
         </div>
       </div>

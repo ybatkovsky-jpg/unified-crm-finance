@@ -100,6 +100,7 @@ export function NotificationBell() {
         variant="ghost"
         size="sm"
         className="relative"
+        aria-label="Уведомления"
         onClick={() => { setOpen(!open); if (!open) fetchNotifications() }}
       >
         <BellIcon className="size-4" />

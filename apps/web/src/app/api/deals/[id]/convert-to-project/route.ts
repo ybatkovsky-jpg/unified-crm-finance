@@ -76,32 +76,14 @@ export async function POST(
 
     const now = new Date()
     const year = now.getFullYear()
+    const contractAmount = Number(body.contractAmount ?? deal.amount ?? 0)
 
-    // Единая атомарная транзакция: проект + договор + линковка + история + смена стадии
+    // Единая атомарная транзакция: проект + договор + бонус дизайнера + линковка + история + смена стадии
     const result = await prisma.$transaction(async (tx) => {
       // 1. Generate shared number (atomic inside tx)
       const sharedNumber = await nextProjectNumber(tx, year)
 
-      // 2. Create project
-      const project = await tx.project.create({
-        data: {
-          id: randomUUID(),
-          externalNumber: sharedNumber,
-          name: body.name || deal.title,
-          description: body.description || deal.description || null,
-          dealId: deal.id,
-          contactId: deal.contactId!,
-          managerId: body.managerId || deal.managerId || null,
-          contractAmount: body.contractAmount ?? deal.amount,
-          currency: body.currency ?? deal.currency,
-          startDate: body.startDate ? new Date(body.startDate) : now,
-          endDate: body.endDate ? new Date(body.endDate) : null,
-          status: 'lead',
-          updatedAt: now,
-        },
-      })
-
-      // 3. Create contract with the SAME shared number
+      // 2. Create contract with the SAME shared number
       const contract = await tx.contract.create({
         data: {
           id: randomUUID(),
@@ -109,7 +91,7 @@ export async function POST(
           dealId: deal.id,
           contactId: deal.contactId!,
           title: `Договор: ${body.name || deal.title}`,
-          amount: body.contractAmount ?? deal.amount,
+          amount: contractAmount,
           currency: body.currency ?? deal.currency,
           notes: body.description || deal.description || undefined,
           status: 'draft',
@@ -118,7 +100,40 @@ export async function POST(
         },
       })
 
-      // 4. Record stage history
+      // 3. Create project (linked to the contract)
+      const project = await tx.project.create({
+        data: {
+          id: randomUUID(),
+          externalNumber: sharedNumber,
+          name: body.name || deal.title,
+          description: body.description || deal.description || null,
+          dealId: deal.id,
+          contactId: deal.contactId!,
+          contractId: contract.id,
+          managerId: body.managerId || deal.managerId || null,
+          contractAmount,
+          currency: body.currency ?? deal.currency,
+          startDate: body.startDate ? new Date(body.startDate) : now,
+          endDate: body.endDate ? new Date(body.endDate) : null,
+          status: 'lead',
+          updatedAt: now,
+        },
+      })
+
+      // 4. Auto-accrue designer bonus 10% (CRM-08)
+      await tx.designerBonus.create({
+        data: {
+          id: randomUUID(),
+          projectId: project.id,
+          designerId: project.managerId ?? null,
+          percent: 0.1,
+          amount: Math.round(contractAmount * 0.1 * 100) / 100,
+          status: 'pending',
+          updatedAt: now,
+        },
+      })
+
+      // 5. Record stage history
       await tx.dealHistory.create({
         data: {
           id: randomUUID(),
@@ -131,7 +146,7 @@ export async function POST(
         },
       })
 
-      // 5. Update deal: link project + contract + move to contract stage
+      // 6. Update deal: link project + contract + move to contract stage
       await tx.deal.update({
         where: { id: dealId },
         data: {

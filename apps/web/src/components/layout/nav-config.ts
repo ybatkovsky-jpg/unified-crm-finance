@@ -166,10 +166,14 @@ export const NAV_SECTIONS: NavSection[] = [
 
 /**
  * Resolve the active nav section for a given pathname.
+ *
+ * Матчит по полному списку разделов (без фильтра directorOnly) — сам факт
+ * нахождения пользователя на `/settings` означает, что у него есть доступ.
+ * directorOnly фильтруется отдельно в Sidebar при отрисовке списка.
  * Falls back to "crm" (the app default route) when nothing matches.
  */
-export function getActiveSection(pathname: string, isDirector: boolean): NavSection {
-  const sections = NAV_SECTIONS.filter((s) => (s.directorOnly ? isDirector : true))
+export function getActiveSection(pathname: string): NavSection {
+  const sections = NAV_SECTIONS
 
   // Прямое совпадение по matchPrefix
   const matched = sections.find(

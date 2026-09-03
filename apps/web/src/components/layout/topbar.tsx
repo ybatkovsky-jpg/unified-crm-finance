@@ -15,18 +15,19 @@ import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { NotificationBell } from "@/components/notification-bell"
 import { ThemeToggle } from "./theme-toggle"
+import { GlobalSearch } from "./global-search"
 import { getActiveSection } from "./nav-config"
 import { useMe } from "./use-me"
 
 export function Topbar({ onOpenMobile }: { onOpenMobile: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { me, isDirector } = useMe()
+  const { me } = useMe()
 
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  const activeSection = getActiveSection(pathname, isDirector)
+  const activeSection = getActiveSection(pathname)
 
   // Close user menu on outside click
   useEffect(() => {
@@ -96,6 +97,9 @@ export function Topbar({ onOpenMobile }: { onOpenMobile: () => void }) {
         </div>
       </div>
 
+      {/* Global search */}
+      <GlobalSearch />
+
       {/* Right cluster */}
       <div className="flex items-center gap-1">
         <ThemeToggle />
@@ -105,6 +109,7 @@ export function Topbar({ onOpenMobile }: { onOpenMobile: () => void }) {
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Меню пользователя"
             className="flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors hover:bg-muted"
           >
             <span className="grid size-7 place-items-center rounded-full bg-primary/10 text-primary">

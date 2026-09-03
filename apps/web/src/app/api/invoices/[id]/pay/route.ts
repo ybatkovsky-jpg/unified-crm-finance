@@ -13,6 +13,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../lib/db/prisma'
 import { randomUUID } from 'node:crypto'
 import { notifyPaymentReceived } from '../../../../../lib/notifications/events'
+import { getSession } from '@/lib/auth/session'
+import { requireSectionWrite } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -23,6 +25,13 @@ export async function POST(
   { params }: RouteParams
 ): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    const denied = requireSectionWrite(session, 'procurement')
+    if (denied) return denied
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { id } = await params
     const body = await request.json()
 
@@ -91,7 +100,7 @@ export async function POST(
           projectId,
           counterpartyId: invoice.supplierId,
           invoiceId: invoice.id,
-          createdBy: body.createdBy ?? 'system',
+          createdBy: session.id,
           updatedAt: new Date(),
         },
       })

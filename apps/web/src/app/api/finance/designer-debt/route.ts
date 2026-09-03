@@ -8,9 +8,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { designerBonuses } from '@/lib/db/designer-bonus';
+import { getSession } from '@/lib/auth/session';
+import { requireSectionWrite } from '@/lib/auth/permissions';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession();
+    const denied = requireSectionWrite(session, 'finance');
+    if (denied) return denied;
+
     const designerId = request.nextUrl.searchParams.get('designerId');
 
     if (designerId) {

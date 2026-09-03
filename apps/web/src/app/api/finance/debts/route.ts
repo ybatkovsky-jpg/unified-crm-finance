@@ -6,9 +6,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { debts } from '@/lib/db/debts';
+import { getSession } from '@/lib/auth/session';
+import { requireSectionWrite } from '@/lib/auth/permissions';
 
 export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession();
+    const denied = requireSectionWrite(session, 'finance');
+    if (denied) return denied;
+
     const data = await debts.getSummary();
     return NextResponse.json({ data });
   } catch (error) {

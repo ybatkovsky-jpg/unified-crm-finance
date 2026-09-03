@@ -8,7 +8,6 @@ import {
   effectiveSections,
 } from '@/lib/auth/roles';
 import { SECTION_HOME } from '@/components/layout/section-home';
-import { prisma } from '@/lib/db/prisma';
 
 const PUBLIC = new Set(['/login', '/api/health']);
 const PUBLIC_PREFIXES = ['/api/auth/', '/_next/', '/api/files/download'];
@@ -35,20 +34,8 @@ export async function middleware(request: NextRequest) {
   const payload = token ? await verifySession(token) : null;
   const roleCodes = (payload?.roleCodes ?? []).filter(isRoleCode);
 
-  // Проверка isActive/deletedAt в БД — закрывает доступ деактивированным/удалённым пользователям
-  if (payload) {
-    const user = await prisma.user.findUnique({
-      where: { id: payload.sub },
-      select: { isActive: true, deletedAt: true },
-    });
-    if (!user || !user.isActive || user.deletedAt) {
-      const res = pathname.startsWith('/api/')
-        ? NextResponse.json({ error: 'Forbidden', message: 'Account deactivated' }, { status: 403 })
-        : NextResponse.redirect(new URL('/login', request.url));
-      res.cookies.delete(SESSION_COOKIE);
-      return res;
-    }
-  }
+  // Проверка isActive/deletedAt выполняется на уровне getSession() (Node-runtime):
+  // middleware работает в Edge-runtime, где PrismaClient недоступен.
 
   // API — без сессии 401
   if (pathname.startsWith('/api/')) {

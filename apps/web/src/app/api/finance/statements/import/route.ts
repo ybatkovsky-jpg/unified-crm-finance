@@ -9,12 +9,18 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { bankStatements } from '@/lib/db/bank-statements';
-import { parseStatement } from '@/lib/finance/statement-parser';
+import { parseStatementBytes } from '@/lib/finance/statement-parser';
+import { getSession } from '@/lib/auth/session';
+import { requireSectionWrite } from '@/lib/auth/permissions';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession();
+    const denied = requireSectionWrite(session, 'finance');
+    if (denied) return denied;
+
     const formData = await request.formData();
     const file = formData.get('file');
 
@@ -32,17 +38,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Читаем содержимое как текст (1C/TXT — текстовый формат).
-    const content = await file.text();
-    if (!content.trim()) {
+    // Читаем содержимое как сырые байты: кодировка 1C может быть Windows-1251
+    // (заголовок «Кодировка=Windows»), поэтому декодируем через parseStatementBytes.
+    const buf = await file.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    if (bytes.length === 0) {
       return NextResponse.json(
         { error: 'Validation failed', message: 'File is empty' },
         { status: 400 }
       );
     }
 
-    // Парсинг.
-    const parsed = parseStatement(content);
+    // Парсинг (с декодированием кодировки).
+    const parsed = parseStatementBytes(bytes);
 
     if (parsed.transactions.length === 0) {
       return NextResponse.json(

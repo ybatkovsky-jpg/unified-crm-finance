@@ -12,6 +12,8 @@ import { prisma } from '@/lib/db/prisma';
 import { projectPayments } from '@/lib/db/project-payments';
 import type { PaymentMethod } from '@/lib/db/project-payments';
 import { notifyPaymentReceived } from '@/lib/notifications/events';
+import { getSession } from '@/lib/auth/session';
+import { requireSectionWrite } from '@/lib/auth/permissions';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -22,6 +24,10 @@ export async function POST(
   { params }: RouteParams
 ): Promise<NextResponse> {
   try {
+    const session = await getSession();
+    const denied = requireSectionWrite(session, 'finance');
+    if (denied) return denied;
+
     const { id } = await params;
     const body = await request.json();
 
@@ -59,7 +65,7 @@ export async function POST(
     })()
 
     const data = await projectPayments.findById(updated.id);
-    return NextResponse.json({ data });
+    return NextResponse.json({ data }, { status: 201 });
   } catch (error) {
     console.error('Failed to record project payment:', error);
     const status =

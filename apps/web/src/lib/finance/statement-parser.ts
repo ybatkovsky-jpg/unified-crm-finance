@@ -92,6 +92,29 @@ function parseFields(block: string): FieldMap {
 }
 
 /**
+ * Декодировать содержимое файла выписки с учётом кодировки 1C.
+ *
+ * Стандарт 1CClientBankExchange объявляет кодировку в заголовке
+ * `Кодировка=Windows` (CP1251). Пробуем строгий UTF-8; при ошибке
+ * декодирования откатываемся на Windows-1251.
+ */
+export function decodeStatementBytes(bytes: Uint8Array): string {
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    return new TextDecoder('windows-1251').decode(bytes);
+  }
+}
+
+/**
+ * Распарсить выписку из сырых байтов файла (FIN-02).
+ * Декодирует кодировку и делегирует в parseStatement.
+ */
+export function parseStatementBytes(bytes: Uint8Array): ParsedStatement {
+  return parseStatement(decodeStatementBytes(bytes));
+}
+
+/**
  * Основной парсер. Определяет формат и делегирует.
  */
 export function parseStatement(content: string): ParsedStatement {
@@ -115,7 +138,7 @@ function parse1CFormat(text: string): ParsedStatement {
   const accountMatch = text.match(/СекцияРасчСчет([\s\S]*?)(?:КонецРасчСчет|$)/);
   if (accountMatch) {
     const f = parseFields(accountMatch[1]);
-    accountNumber = f['РасчетныйСчет'] ?? f['Счет'] ?? null;
+    accountNumber = f['РасчСчет'] ?? f['РасчетныйСчет'] ?? f['Счет'] ?? null;
     periodFrom = parseDate(f['ДатаНачала']);
     periodTo = parseDate(f['ДатаКонца']);
   }
@@ -133,14 +156,27 @@ function parse1CFormat(text: string): ParsedStatement {
     const amount = parseAmount(f['Сумма']);
     if (amount === 0) continue;
 
-    // В 1C направление определяется типом документа (из заголовка или ВидДокумента)
-    // или знаком суммы.
-    const docType = (docTypeHeader || f['ВидДокумента'] || '').toLowerCase();
-    const isOutgoing =
-      docType.includes('списание') ||
-      docType.includes('платежноепоручение') ||
-      docType.includes('расход') ||
-      amount < 0;
+    // В 1C направление определяется по счёту контрагента относительно нашего
+    // расчётного счёта выписки: мы плательщик → списание (outgoing),
+    // мы получатель → поступление (incoming).
+    const docType = (docTypeHeader || f['ВидДокумента'] || '').toLowerCase().replace(/\s+/g, '');
+    const payerAccount = (f['ПлательщикСчет'] ?? f['ПлательщикРасчСчет'] ?? '').replace(/\D/g, '');
+    const receiverAccount = (f['ПолучательСчет'] ?? f['ПолучательРасчСчет'] ?? '').replace(/\D/g, '');
+    const ourAccount = (accountNumber ?? '').replace(/\D/g, '');
+
+    let isOutgoing: boolean;
+    if (ourAccount && payerAccount && payerAccount === ourAccount) {
+      isOutgoing = true;
+    } else if (ourAccount && receiverAccount && receiverAccount === ourAccount) {
+      isOutgoing = false;
+    } else {
+      // Фолбэк: тип документа / знак суммы.
+      isOutgoing =
+        docType.includes('списание') ||
+        docType.includes('платежноепоручение') ||
+        docType.includes('расход') ||
+        amount < 0;
+    }
     const direction: BankDirection = isOutgoing ? 'outgoing' : 'incoming';
     const absAmount = Math.abs(amount);
 

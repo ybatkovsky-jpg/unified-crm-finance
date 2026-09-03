@@ -14,6 +14,8 @@ import type { DealData, DealStageData, FileUploadFile, LeadSourceData } from "@/
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { ErrorState } from "@/components/shared/error-state"
 import { useMe } from "@/components/layout/use-me"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -485,9 +487,17 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-muted-foreground">Загрузка сделки...</div>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center gap-4">
+          <Skeleton className="size-9 rounded-md" />
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-64" />
+            <Skeleton className="h-4 w-40" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Skeleton className="h-72 rounded-xl" />
+          <Skeleton className="h-72 rounded-xl" />
         </div>
       </div>
     )
@@ -496,17 +506,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   if (error && !deal) {
     return (
       <div className="container mx-auto p-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center gap-3 py-8">
-              <p className="text-destructive">{error}</p>
-              <Button variant="outline" onClick={() => router.back()}>
-                <ArrowLeft className="size-4" />
-                <span className="ml-1.5">Назад</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <ErrorState message={error} onRetry={() => router.back()} />
       </div>
     )
   }
@@ -980,7 +980,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
               </Select>
               {deal && deal.stage?.probability != null && deal.stage.probability > 0 && (
                 <p className="text-xs text-center text-muted-foreground">
-                  Вероятность: {deal.stage?.probability}%
+                  Вероятность: {Math.round(deal.stage.probability * 100)}%
                 </p>
               )}
               {movingStage && (

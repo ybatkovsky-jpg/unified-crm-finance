@@ -44,14 +44,31 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       console.error('[tasks GET] org materialization failed:', err)
     )
 
-    // IDOR-fix: director видит все задачи; прочие — только свои (assigneeId=session.id),
-    // если не запрашивают чужого assigneeId явно (что для не-director → свои).
+    // IDOR-fix: director видит все задачи; прочие — только свои (assigneeId=session.id).
     const isDirector = isAdminOrDirector(session)
     const requestedAssignee = sp.get('assigneeId')
-    const effectiveAssignee = isDirector ? (requestedAssignee ?? undefined) : (requestedAssignee ?? session.id)
+    const effectiveAssignee = isDirector ? (requestedAssignee ?? undefined) : session.id
+
+    // IDOR-fix: не-director может запрашивать задачи только по своим проектам
+    // (менеджер проекта или участник). Проверка владения, а не только наличие токена.
+    const projectId = sp.get('projectId') ?? undefined
+    if (projectId && !isDirector) {
+      const project = await prisma.project.findUnique({
+        where: { id: projectId, deletedAt: null },
+        select: {
+          managerId: true,
+          ProjectMember: { where: { leftAt: null }, select: { userId: true } },
+        },
+      })
+      if (!project) return NextResponse.json({ error: 'Проект не найден' }, { status: 404 })
+      const isMember = project.managerId === session.id || project.ProjectMember.some((m) => m.userId === session.id)
+      if (!isMember) {
+        return NextResponse.json({ error: 'Forbidden', message: 'Нет доступа к задачам этого проекта' }, { status: 403 })
+      }
+    }
 
     const data = await tasks.findWithFilters({
-      projectId: sp.get('projectId') ?? undefined,
+      projectId,
       dealId: sp.get('dealId') ?? undefined,
       assigneeId: effectiveAssignee,
       status: sp.get('status') ?? undefined,

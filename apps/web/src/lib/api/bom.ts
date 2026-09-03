@@ -214,6 +214,26 @@ export class BOMApiClient {
   }
 
   /**
+   * GET /api/bom/coverage-map?projectIds=a,b,c
+   *
+   * Batch BOM coverage for many projects in one request (PROJ-07).
+   */
+  async getCoverage(
+    projectIds: string[]
+  ): Promise<ApiResponse<Record<string, { total: number; covered: number; bomStatus: string }>>> {
+    const response = await this.fetchFn(
+      this.url('/bom/coverage-map', { projectIds: projectIds.join(',') }),
+      { headers: this.defaultHeaders }
+    );
+
+    if (!response.ok) {
+      return parseApiError(response);
+    }
+
+    return parseJson(response);
+  }
+
+  /**
    * GET /api/bom/[bomId]/items
    *
    * Get all items for a BOM.
@@ -332,6 +352,7 @@ export const {
   deleteBOM,
   lockBOM,
   unlockBOM,
+  getCoverage,
   getBOMItems,
   addBOMItems,
   updateBOMItem,

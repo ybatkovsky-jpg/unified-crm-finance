@@ -2,11 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { RefreshCwIcon, Package } from "lucide-react"
+import { Package } from "lucide-react"
 
 import { projectsApi, ApiClientError } from "@/lib/api/projects"
 import { bomApi } from "@/lib/api/bom"
-import type { ProjectData, BOMData } from "@/lib/api/types"
+import type { ProjectData } from "@/lib/api/types"
+import { Skeleton } from "@/components/ui/skeleton"
+import { EmptyState } from "@/components/shared/empty-state"
+import { ErrorState } from "@/components/shared/error-state"
 import {
   Table,
   TableBody,
@@ -24,7 +27,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { CreateProjectModal } from "@/components/projects/create-project-modal"
 
@@ -106,35 +108,19 @@ export default function ProjectsPage() {
 
   type CoverageInfo = { total: number; covered: number; bomStatus: string }
 
-  // Fetch BOM coverage for all projects
+  // Fetch BOM coverage for all projects (batch — один запрос вместо N+1)
   useEffect(() => {
     if (projects.length === 0) return
     let cancelled = false
 
     const fetchCoverage = async () => {
-      const map: Record<string, CoverageInfo> = {}
-      await Promise.all(
-        projects.map(async (p) => {
-          try {
-            // Try to get BOM for the project
-            const bomRes = await bomApi.getBOM(p.id)
-            const bom: BOMData = bomRes.data
-            const items = bom.items ?? []
-            // Count covered items (those that appear in any PurchaseRequest)
-            // For the list, we use a simpler check: does BOM exist and is it locked?
-            // We set total to item count and mark as covered if BOM is locked
-            map[p.id] = {
-              total: items.length,
-              covered: bom.status === "locked" ? items.length : 0,
-              bomStatus: bom.status,
-            }
-          } catch {
-            // No BOM for this project
-            map[p.id] = { total: 0, covered: 0, bomStatus: "none" }
-          }
-        })
-      )
-      if (!cancelled) setCoverageMap(map)
+      try {
+        const res = await bomApi.getCoverage(projects.map((p) => p.id))
+        if (!cancelled) setCoverageMap(res.data ?? {})
+      } catch {
+        // Ошибка загрузки покрытия — оставляем пустую карту (не блокируем список).
+        if (!cancelled) setCoverageMap({})
+      }
     }
 
     fetchCoverage()
@@ -270,34 +256,31 @@ export default function ProjectsPage() {
       </Card>
 
       {loading && (
-        <div className="flex items-center justify-center py-12">
-          <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Загрузка проектов...</span>
+        <div className="rounded-xl border bg-card overflow-hidden">
+          <div className="space-y-0">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 border-b last:border-b-0 px-4 py-3">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 flex-1" />
+                <Skeleton className="h-5 w-20" />
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {error && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center gap-3 py-8">
-              <p className="text-destructive">{error}</p>
-              <Button variant="outline" onClick={handleRetry}>
-                <RefreshCwIcon className="size-4" />
-                <span className="ml-1.5">Повторить</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <ErrorState message={error} onRetry={handleRetry} />
       )}
 
       {!loading && !error && projects.length === 0 && (
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground py-8">
-              Проекты не найдены
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          title="Проекты не найдены"
+          description="Создайте проект вручную или конвертируйте сделку в проект."
+        />
       )}
 
       {!loading && !error && projects.length > 0 && (

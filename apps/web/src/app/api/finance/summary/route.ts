@@ -8,9 +8,15 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../lib/db/prisma'
+import { getSession } from '@/lib/auth/session'
+import { requireSectionWrite } from '@/lib/auth/permissions'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await getSession()
+    const denied = requireSectionWrite(session, 'finance')
+    if (denied) return denied
+
     const searchParams = request.nextUrl.searchParams
     const projectId = searchParams.get('projectId')
 

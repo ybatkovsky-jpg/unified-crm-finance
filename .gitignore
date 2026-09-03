@@ -63,6 +63,7 @@ prisma/dev.db*
 # Agent / tooling local state (не в репозиторий)
 .claude/
 .session/
+.zcode/
 ТЗ.docx
 *.docx
 
