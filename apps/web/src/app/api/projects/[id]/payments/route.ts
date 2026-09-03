@@ -42,6 +42,7 @@ export async function POST(
     const created = await projectPayments.create(projectId, {
       paymentType: body.paymentType as ProjectPaymentType,
       plannedPercent: typeof body.plannedPercent === 'number' ? body.plannedPercent : undefined,
+      plannedAmount: typeof body.plannedAmount === 'number' ? body.plannedAmount : undefined,
       dueDate: body.dueDate,
       notes: body.notes,
     });

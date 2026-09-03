@@ -907,6 +907,7 @@ export interface ProjectPaymentData {
 export interface ProjectPaymentCreateInput {
   paymentType: ProjectPaymentType;
   plannedPercent?: number;
+  plannedAmount?: number;
   dueDate?: string | null;
   notes?: string;
 }

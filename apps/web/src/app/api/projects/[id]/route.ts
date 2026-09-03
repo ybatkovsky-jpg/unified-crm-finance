@@ -165,14 +165,14 @@ export async function PATCH(
     if (body.managerId !== undefined) updateData.managerId = body.managerId
     if (body.contactId !== undefined) updateData.contactId = body.contactId
     if (body.dealId !== undefined) updateData.dealId = body.dealId
-    if (body.startDate !== undefined) updateData.startDate = body.startDate
-    if (body.endDate !== undefined) updateData.endDate = body.endDate
+    if (body.startDate !== undefined) updateData.startDate = body.startDate ? new Date(body.startDate) : null
+    if (body.endDate !== undefined) updateData.endDate = body.endDate ? new Date(body.endDate) : null
     if (body.contractAmount !== undefined) updateData.contractAmount = body.contractAmount
     if (body.currency !== undefined) updateData.currency = body.currency
     if (body.marginTarget !== undefined) updateData.marginTarget = body.marginTarget
     if (body.qualityRating !== undefined) updateData.qualityRating = body.qualityRating
     if (body.deadlineStatus !== undefined) updateData.deadlineStatus = body.deadlineStatus
-    if (body.completedAt !== undefined) updateData.completedAt = body.completedAt
+    if (body.completedAt !== undefined) updateData.completedAt = body.completedAt ? new Date(body.completedAt) : null
     if (body.attributes !== undefined) updateData.attributes = body.attributes
     if (body.specFileId !== undefined) updateData.specFileId = body.specFileId
 

@@ -89,6 +89,21 @@ export class ProjectPaymentApiClient {
     if (!response.ok) return parseApiError(response);
     return parseJson<ApiResponse<ProjectPaymentData>>(response);
   }
+
+  /** PATCH /api/project-payments/[id] */
+  async updatePayment(
+    id: string,
+    data: Partial<ProjectPaymentCreateInput>
+  ): Promise<ApiResponse<ProjectPaymentData>> {
+    if (!id) throw new ApiClientError(400, 'Validation failed', 'id is required');
+    const response = await this.fetchFn(this.url(`/project-payments/${id}`), {
+      method: 'PATCH',
+      headers: this.defaultHeaders,
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) return parseApiError(response);
+    return parseJson<ApiResponse<ProjectPaymentData>>(response);
+  }
 }
 
 export const projectPaymentsApi = new ProjectPaymentApiClient();
