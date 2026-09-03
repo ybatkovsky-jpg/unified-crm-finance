@@ -16,6 +16,7 @@ import type {
 import { randomUUID } from 'node:crypto';
 import { nextProjectNumber } from './sequence';
 import { ConflictError } from './errors';
+import { DEFAULT_PROJECT_STAGES } from './project-stages';
 
 /** Результат проверки готовности проекта к закрытию (PROJ-13). */
 export interface ClosureCondition {
@@ -243,6 +244,26 @@ export class ProjectRepository {
         ...where,
         deletedAt: null,
       },
+    });
+  }
+
+  /**
+   * Убедиться, что у проекта есть дефолтные 7 этапов.
+   * Идемпотентно: если этапы уже есть — ничего не делает.
+   * (Самовосстановление для проектов, созданных без этапов.)
+   */
+  async ensureDefaultStages(projectId: string): Promise<void> {
+    const count = await prisma.projectStage.count({ where: { projectId } });
+    if (count > 0) return;
+    await prisma.projectStage.createMany({
+      data: DEFAULT_PROJECT_STAGES.map((s) => ({
+        id: randomUUID(),
+        projectId,
+        code: s.code,
+        name: s.name,
+        order: s.order,
+        status: 'pending',
+      })),
     });
   }
 

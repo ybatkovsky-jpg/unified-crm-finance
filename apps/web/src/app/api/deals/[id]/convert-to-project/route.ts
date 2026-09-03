@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../lib/db/prisma'
 import { requireSession } from '@/lib/auth/session'
 import { nextProjectNumber } from '@/lib/db/sequence'
+import { DEFAULT_PROJECT_STAGES } from '@/lib/db/project-stages'
 import { randomUUID } from 'node:crypto'
 
 interface RouteParams {
@@ -118,6 +119,18 @@ export async function POST(
           status: 'lead',
           updatedAt: now,
         },
+      })
+
+      // 3b. Auto-create default project stages (7 stages per ROADMAP)
+      await tx.projectStage.createMany({
+        data: DEFAULT_PROJECT_STAGES.map((s) => ({
+          id: randomUUID(),
+          projectId: project.id,
+          code: s.code,
+          name: s.name,
+          order: s.order,
+          status: 'pending',
+        })),
       })
 
       // 4. Auto-accrue designer bonus 10% (CRM-08)

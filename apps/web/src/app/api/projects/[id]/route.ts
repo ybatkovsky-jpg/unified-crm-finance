@@ -39,6 +39,9 @@ export async function GET(
     const session = await requireSession()
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+    // Самовосстановление: если у проекта нет этапов — создать дефолтные 7.
+    await projects.ensureDefaultStages(id)
+
     const project = await projects.findUnique(
       id,
       {
