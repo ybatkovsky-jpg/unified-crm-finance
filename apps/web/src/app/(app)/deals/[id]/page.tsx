@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, File, Download, Trash2, Upload, Package, ChevronDown, Plus, ListTodo, Clock, AlertCircle, CheckCircle2, MessageSquare } from "lucide-react"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
 import { pipelinesApi } from "@/lib/api/pipelines"
@@ -839,6 +840,40 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                   )}
                 </div>
               </div>
+
+              <div className="flex items-center gap-3">
+                <FileText className="size-4 text-muted-foreground" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Договор</p>
+                  {deal.contractId ? (
+                    <Link
+                      href={`/contracts/${deal.contractId}`}
+                      className="text-sm font-medium text-primary hover:underline"
+                    >
+                      Открыть договор
+                    </Link>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">—</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Package className="size-4 text-muted-foreground" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Проект</p>
+                  {deal.projectId ? (
+                    <Link
+                      href={`/projects/${deal.projectId}`}
+                      className="text-sm font-medium text-primary hover:underline"
+                    >
+                      Открыть проект
+                    </Link>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">—</p>
+                  )}
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -1051,45 +1086,59 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                     <span className="ml-1.5">Изменить</span>
                   </Button>
                 )}
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    if (!deal) return
-                    setCreatingProject(true)
-                    setError(null)
-                    try {
-                      const res = await fetch(`/api/deals/${deal.id}/convert-to-project`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: deal.title, contactId: deal.contactId }),
-                      })
-                      if (!res.ok) {
-                        const errData = await res.json().catch(() => ({}))
-                        throw new Error(errData.message || `HTTP ${res.status}`)
+                {deal.projectId ? (
+                  <Button variant="outline" onClick={() => router.push(`/projects/${deal.projectId}`)}>
+                    <Package className="size-4" />
+                    <span className="ml-1.5">Открыть проект</span>
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      if (!deal) return
+                      setCreatingProject(true)
+                      setError(null)
+                      try {
+                        const res = await fetch(`/api/deals/${deal.id}/convert-to-project`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ name: deal.title, contactId: deal.contactId }),
+                        })
+                        if (!res.ok) {
+                          const errData = await res.json().catch(() => ({}))
+                          throw new Error(errData.message || `HTTP ${res.status}`)
+                        }
+                        const { data: result } = await res.json()
+                        router.push(`/projects/${result.project.id}`)
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : 'Не удалось создать проект и договор.')
+                      } finally {
+                        setCreatingProject(false)
                       }
-                      const { data: result } = await res.json()
-                      router.push(`/projects/${result.project.id}`)
-                    } catch (err) {
-                      setError(err instanceof Error ? err.message : 'Не удалось создать проект и договор.')
-                    } finally {
-                      setCreatingProject(false)
-                    }
-                  }}
-                  disabled={creatingProject || !!deal.projectId}
-                >
-                  <Package className="size-4" />
-                  <span className="ml-1.5">
-                    {creatingProject ? "Создание..." : deal.projectId ? "Открыть проект" : "Создать проект и договор"}
-                  </span>
-                </Button>
+                    }}
+                    disabled={creatingProject}
+                  >
+                    <Package className="size-4" />
+                    <span className="ml-1.5">
+                      {creatingProject ? "Создание..." : "Создать проект и договор"}
+                    </span>
+                  </Button>
+                )}
                 <Button variant="outline" onClick={() => setTaskDialogOpen(true)}>
                   <Plus className="size-4" />
                   <span className="ml-1.5">Добавить задачу</span>
                 </Button>
-                <Button variant="outline" onClick={handleConvertToContract} disabled={converting}>
-                  <FileText className="size-4" />
-                  <span className="ml-1.5">{converting ? "Конвертация..." : "В контракт"}</span>
-                </Button>
+                {deal.contractId ? (
+                  <Button variant="outline" onClick={() => router.push(`/contracts/${deal.contractId}`)}>
+                    <FileText className="size-4" />
+                    <span className="ml-1.5">Открыть договор</span>
+                  </Button>
+                ) : (
+                  <Button variant="outline" onClick={handleConvertToContract} disabled={converting}>
+                    <FileText className="size-4" />
+                    <span className="ml-1.5">{converting ? "Конвертация..." : "В контракт"}</span>
+                  </Button>
+                )}
               </CardContent>
             </Card>
           )}
