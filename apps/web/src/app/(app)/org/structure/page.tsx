@@ -10,6 +10,7 @@ import {
   type DepartmentData, type FunctionData, type AssignmentData,
 } from "@/lib/api/org"
 import { useMe } from "@/components/layout/use-me"
+import { ROLE_MATRIX, type RoleCode } from "@/lib/auth/roles"
 import { OrgChart } from "@/components/org/org-chart"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -44,6 +45,14 @@ export default function OrgStructurePage() {
   const [assignDialog, setAssignDialog] = useState<{ functionId: string; functionName: string } | null>(null)
   const [assignUserSel, setAssignUserSel] = useState("")
   const [assignRoleSel, setAssignRoleSel] = useState<"head" | "responsible">("responsible")
+
+  // Создание сотрудника (пользователя) прямо из оргструктуры
+  const [createUserOpen, setCreateUserOpen] = useState(false)
+  const [nuEmail, setNuEmail] = useState("")
+  const [nuName, setNuName] = useState("")
+  const [nuPassword, setNuPassword] = useState("")
+  const [nuRoles, setNuRoles] = useState<string[]>(["manager_designer"])
+  const [nuBusy, setNuBusy] = useState(false)
 
   const fetchAll = useCallback(async () => {
     setLoading(true); setError(null)
@@ -146,6 +155,33 @@ export default function OrgStructurePage() {
     } finally { setBusy(false) }
   }
 
+  const toggleRole = (arr: string[], code: string) =>
+    arr.includes(code) ? arr.filter((c) => c !== code) : [...arr, code]
+
+  const handleCreateUser = async () => {
+    if (!nuEmail.trim() || !nuName.trim() || !nuPassword) {
+      setError("Заполните email, ФИО и пароль")
+      return
+    }
+    setNuBusy(true); setError(null)
+    try {
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: nuEmail.trim(), name: nuName.trim(), password: nuPassword, roleCodes: nuRoles }),
+      })
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        throw new Error(d.error || "Ошибка создания сотрудника")
+      }
+      setCreateUserOpen(false)
+      setNuEmail(""); setNuName(""); setNuPassword(""); setNuRoles(["manager_designer"])
+      await fetchAll()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка создания сотрудника")
+    } finally { setNuBusy(false) }
+  }
+
   if (meLoading || loading) {
     return (
       <div className="container mx-auto p-6">
@@ -193,6 +229,9 @@ export default function OrgStructurePage() {
           </div>
           <Button variant="outline" onClick={fetchAll}>
             <RefreshCwIcon className="size-4" /><span className="ml-1.5">Обновить</span>
+          </Button>
+          <Button onClick={() => setCreateUserOpen(true)}>
+            <UsersIcon className="size-4" /><span className="ml-1.5">Добавить сотрудника</span>
           </Button>
         </div>
       </div>
@@ -393,6 +432,46 @@ export default function OrgStructurePage() {
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>Отмена</DialogClose>
             <Button onClick={handleAssign} disabled={busy || !assignUserSel}>Назначить</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Диалог создания сотрудника */}
+      <Dialog open={createUserOpen} onOpenChange={(o) => !o && setCreateUserOpen(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Добавить сотрудника</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="nu-email">Email</Label>
+              <Input id="nu-email" value={nuEmail} onChange={(e) => setNuEmail(e.target.value)} placeholder="user@example.com" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="nu-name">ФИО</Label>
+              <Input id="nu-name" value={nuName} onChange={(e) => setNuName(e.target.value)} placeholder="Иванов Иван" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="nu-pass">Пароль</Label>
+              <Input id="nu-pass" type="password" value={nuPassword} onChange={(e) => setNuPassword(e.target.value)} placeholder="мин. 4 символа" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Роли</Label>
+              <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                {(Object.keys(ROLE_MATRIX) as RoleCode[]).map((c) => (
+                  <label key={c} className="flex items-center gap-1.5 text-sm">
+                    <input type="checkbox" checked={nuRoles.includes(c)} onChange={() => setNuRoles((r) => toggleRole(r, c))} />
+                    {ROLE_MATRIX[c].label}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>Отмена</DialogClose>
+            <Button onClick={handleCreateUser} disabled={nuBusy}>
+              {nuBusy ? "Создание..." : "Создать"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
