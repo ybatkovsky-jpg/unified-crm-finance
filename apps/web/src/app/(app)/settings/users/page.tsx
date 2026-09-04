@@ -48,6 +48,56 @@ export default function UsersAdminPage() {
   const [assignFnSel, setAssignFnSel] = useState("");
   const [assignRoleSel, setAssignRoleSel] = useState<"head" | "responsible">("responsible");
 
+  // Диалог редактирования пользователя
+  const [editFor, setEditFor] = useState<UserRow | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editRoles, setEditRoles] = useState<RoleCode[]>([]);
+  const [editActive, setEditActive] = useState(true);
+  const [editPassword, setEditPassword] = useState("");
+  const [editErr, setEditErr] = useState<string | null>(null);
+  const [editBusy, setEditBusy] = useState(false);
+
+  function openEdit(u: UserRow) {
+    setEditFor(u);
+    setEditName(u.name);
+    setEditEmail(u.email);
+    setEditRoles([...u.roleCodes]);
+    setEditActive(u.isActive);
+    setEditPassword("");
+    setEditErr(null);
+  }
+
+  async function saveEdit() {
+    if (!editFor) return;
+    const name = editName.trim();
+    const email = editEmail.trim();
+    if (!name || !email) {
+      setEditErr("Укажите ФИО и email");
+      return;
+    }
+    if (editRoles.length === 0) {
+      setEditErr("Должна быть хотя бы одна роль");
+      return;
+    }
+    const body: Record<string, unknown> = {
+      name,
+      email,
+      roleCodes: editRoles,
+      isActive: editActive,
+    };
+    if (editPassword.trim()) body.password = editPassword.trim();
+    setEditBusy(true);
+    setEditErr(null);
+    const ok = await patch(editFor.id, body);
+    setEditBusy(false);
+    if (ok) {
+      setEditFor(null);
+      setEditPassword("");
+      setMsg(`Данные пользователя ${email} сохранены`);
+    }
+  }
+
   async function load() {
     const res = await fetch("/api/users");
     if (res.status === 403) {
@@ -111,7 +161,7 @@ export default function UsersAdminPage() {
     load();
   }
 
-  async function patch(id: string, body: Record<string, unknown>) {
+  async function patch(id: string, body: Record<string, unknown>): Promise<boolean> {
     setErr(null);
     const res = await fetch(`/api/users/${id}`, {
       method: "PATCH",
@@ -121,9 +171,10 @@ export default function UsersAdminPage() {
     if (!res.ok) {
       const d = await res.json().catch(() => ({}));
       setErr(d.error || "Ошибка");
-      return;
+      return false;
     }
     load();
+    return true;
   }
 
   async function remove(id: string, label: string) {
@@ -254,6 +305,9 @@ export default function UsersAdminPage() {
                 </td>
                 <td>{u.isActive ? "активен" : "заблокирован"}</td>
                 <td className="space-x-2 whitespace-nowrap">
+                  <button className="text-xs underline" onClick={() => openEdit(u)}>
+                    Редактировать
+                  </button>
                   <button className="text-xs underline" onClick={() => patch(u.id, { isActive: !u.isActive })}>
                     {u.isActive ? "Заблокировать" : "Активировать"}
                   </button>
@@ -317,6 +371,99 @@ export default function UsersAdminPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Диалог редактирования пользователя */}
+      {editFor && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 overflow-y-auto p-4"
+          onClick={() => { if (!editBusy) { setEditFor(null); setEditErr(null); } }}
+        >
+          <form
+            className="w-full max-w-lg my-8 rounded-lg border bg-card p-5 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+            onSubmit={(e) => { e.preventDefault(); saveEdit(); }}
+          >
+            <h3 className="font-semibold text-lg">Редактировать пользователя</h3>
+            <p className="text-sm text-muted-foreground">{editFor.email}</p>
+
+            {editErr && <div className="text-sm text-destructive bg-destructive/10 rounded-md p-2 mt-3">{editErr}</div>}
+
+            <div className="space-y-3 mt-4">
+              <div className="space-y-1">
+                <label className="text-sm font-medium" htmlFor="edit-name">ФИО *</label>
+                <input
+                  id="edit-name"
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium" htmlFor="edit-email">Email *</label>
+                <input
+                  id="edit-email"
+                  type="email"
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Роли *</label>
+                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                  {ROLE_CODES.map((c) => (
+                    <label key={c} className="flex items-center gap-1.5 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={editRoles.includes(c)}
+                        onChange={() => setEditRoles((r) => toggle(r, c))}
+                      />
+                      {ROLE_MATRIX[c].label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={editActive}
+                  onChange={(e) => setEditActive(e.target.checked)}
+                />
+                Активен (может входить в систему)
+              </label>
+              <div className="space-y-1">
+                <label className="text-sm font-medium" htmlFor="edit-password">Новый пароль</label>
+                <input
+                  id="edit-password"
+                  type="password"
+                  placeholder="Оставьте пустым, чтобы не менять"
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  value={editPassword}
+                  onChange={(e) => setEditPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-5">
+              <button
+                type="button"
+                className="rounded-md border px-3 py-2 text-sm"
+                onClick={() => { setEditFor(null); setEditErr(null); }}
+              >
+                Отмена
+              </button>
+              <button
+                type="submit"
+                className="rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm font-medium"
+                disabled={editBusy}
+              >
+                {editBusy ? "Сохранение…" : "Сохранить"}
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>

@@ -21,14 +21,69 @@ export async function PATCH(
   const { id } = await params;
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
 
-  // Блокировка/активация
-  if (typeof body.isActive === 'boolean') {
-    await prisma.user.update({ where: { id }, data: { isActive: body.isActive } });
-    return NextResponse.json({ ok: true });
+  const target = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      email: true,
+      isActive: true,
+      UserRole: { select: { Role: { select: { code: true } } } },
+    },
+  });
+  if (!target) {
+    return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
   }
 
-  // Смена набора ролей (массив — полный новый набор)
-  if (Array.isArray(body.roleCodes)) {
+  const data: {
+    email?: string;
+    name?: string;
+    isActive?: boolean;
+    passwordHash?: string;
+  } = {};
+
+  // Email
+  if (typeof body.email === 'string') {
+    const email = body.email.trim().toLowerCase();
+    if (!email) {
+      return NextResponse.json({ error: 'Укажите email' }, { status: 400 });
+    }
+    if (email !== target.email) {
+      const dup = await prisma.user.findUnique({ where: { email } });
+      if (dup) {
+        return NextResponse.json({ error: 'Пользователь с таким email уже есть' }, { status: 400 });
+      }
+    }
+    data.email = email;
+  }
+
+  // ФИО
+  if (typeof body.name === 'string') {
+    const name = body.name.trim();
+    if (!name) {
+      return NextResponse.json({ error: 'Укажите ФИО' }, { status: 400 });
+    }
+    data.name = name;
+  }
+
+  // Статус
+  if (typeof body.isActive === 'boolean') {
+    data.isActive = body.isActive;
+  }
+
+  // Новый пароль (пустая строка = не менять)
+  if (typeof body.password === 'string' && body.password !== '') {
+    if (body.password.length < 4) {
+      return NextResponse.json({ error: 'Пароль должен быть не короче 4 символов' }, { status: 400 });
+    }
+    data.passwordHash = await hashPassword(body.password);
+  }
+
+  // Роли (массив — полный новый набор)
+  let replaceRoles: { userId: string; roleId: string }[] | null = null;
+  if (body.roleCodes !== undefined) {
+    if (!Array.isArray(body.roleCodes)) {
+      return NextResponse.json({ error: 'roleCodes должен быть массивом' }, { status: 400 });
+    }
     const roleCodes = body.roleCodes.filter((c: unknown): c is string => typeof c === 'string').filter(isRoleCode);
     if (roleCodes.length === 0) {
       return NextResponse.json({ error: 'Должна быть хотя бы одна роль' }, { status: 400 });
@@ -37,25 +92,35 @@ export async function PATCH(
     if (roles.length !== roleCodes.length) {
       return NextResponse.json({ error: 'Одна из ролей не найдена' }, { status: 400 });
     }
-    await prisma.$transaction([
-      prisma.userRole.deleteMany({ where: { userId: id } }),
-      prisma.userRole.createMany({
-        data: roles.map((r) => ({ userId: id, roleId: r.id })),
-      }),
-    ]);
-    return NextResponse.json({ ok: true });
+    // Не позволить снять роль директора у последнего активного директора
+    const targetIsDirector = target.UserRole.some((ur) => ur.Role.code === 'director');
+    const keepsDirector = roleCodes.includes('director');
+    if (targetIsDirector && !keepsDirector) {
+      const directorsCount = await prisma.userRole.count({
+        where: { Role: { code: 'director' }, User: { deletedAt: null, isActive: true } },
+      });
+      if (directorsCount <= 1) {
+        return NextResponse.json(
+          { error: 'Нельзя снять роль директора у последнего директора' },
+          { status: 400 }
+        );
+      }
+    }
+    replaceRoles = roles.map((r) => ({ userId: id, roleId: r.id }));
   }
 
-  // Сброс пароля
-  if (typeof body.password === 'string' && body.password.length >= 4) {
-    await prisma.user.update({
-      where: { id },
-      data: { passwordHash: await hashPassword(body.password) },
-    });
-    return NextResponse.json({ ok: true });
+  if (Object.keys(data).length === 0 && !replaceRoles) {
+    return NextResponse.json({ error: 'Нечего обновлять' }, { status: 400 });
   }
 
-  return NextResponse.json({ error: 'Нечего обновлять' }, { status: 400 });
+  await prisma.$transaction(async (tx) => {
+    await tx.user.update({ where: { id }, data });
+    if (replaceRoles) {
+      await tx.userRole.deleteMany({ where: { userId: id } });
+      await tx.userRole.createMany({ data: replaceRoles });
+    }
+  });
+  return NextResponse.json({ ok: true });
 }
 
 /** Мягкое удаление (deletedAt) — пользователь остаётся в истории, но исчезает из списка и не может войти. */

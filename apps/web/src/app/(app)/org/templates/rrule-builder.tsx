@@ -131,7 +131,7 @@ export function RruleBuilder({ value, onChange, dtStart, until, onUntilChange }:
   return (
     <div className="space-y-4 border rounded-lg p-4 bg-muted/20">
       {/* Тип: разовая или повторяющаяся */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           type="button"
           size="sm"
@@ -175,7 +175,7 @@ export function RruleBuilder({ value, onChange, dtStart, until, onUntilChange }:
             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleRawApply())}
           />
           <Button type="button" size="sm" onClick={handleRawApply}>Применить</Button>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs [overflow-wrap:anywhere] text-muted-foreground">
             Примеры: <code>FREQ=MONTHLY;BYMONTHDAY=25</code> (каждое 25-е),&nbsp;
             <code>FREQ=WEEKLY;BYDAY=MO</code> (каждый понедельник),&nbsp;
             <code>FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=1</code>.

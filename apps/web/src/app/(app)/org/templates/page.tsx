@@ -250,7 +250,7 @@ export default function OrgTemplatesPage() {
 
       {/* Диалог создания/редактирования */}
       <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetForm() }}>
-        <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
+        <DialogContent className="max-w-[min(48rem,calc(100vw_-_2rem))]! max-h-[92vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editId ? "Редактировать шаблон" : "Новый шаблон задачи"}</DialogTitle>
           </DialogHeader>
