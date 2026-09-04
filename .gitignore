@@ -1,4 +1,4 @@
-# Dependencies
+﻿# Dependencies
 node_modules/
 .pnp
 .pnp.js
@@ -60,11 +60,11 @@ prisma/dev.db*
 *.db
 *.db-journal
 
-# Agent / tooling local state (не в репозиторий)
+# Agent / tooling local state (РЅРµ РІ СЂРµРїРѕР·РёС‚РѕСЂРёР№)
 .claude/
 .session/
 .zcode/
-ТЗ.docx
+РўР—.docx
 *.docx
 
 # Uploads (local dev)
@@ -78,7 +78,7 @@ download/
 agent-ctx/
 worklog.md
 
-# ── GSD baseline (auto-generated) ──
+# в”Ђв”Ђ GSD baseline (auto-generated) в”Ђв”Ђ
 .gsd
 .gsd-id
 .mcp.json
