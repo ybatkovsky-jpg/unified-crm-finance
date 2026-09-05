@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
@@ -51,6 +52,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
   const [error, setError] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [generatingDoc, setGeneratingDoc] = useState(false)
   const [activeTab, setActiveTab] = useState("details")
   const [editForm, setEditForm] = useState({
     title: "",
@@ -221,6 +223,34 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
     }
   }
 
+  const handleGenerateSaleContract = async () => {
+    if (!contract) return
+
+    setGeneratingDoc(true)
+    setError(null)
+
+    try {
+      const res = await fetch(`/api/contracts/${contract.id}/documents/sale-contract`)
+      if (!res.ok) {
+        const j = await res.json().catch(() => null)
+        throw new Error(j?.message || `Ошибка ${res.status}`)
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `Договор_${contract.number}.docx`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не удалось сформировать документ.")
+    } finally {
+      setGeneratingDoc(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -284,12 +314,23 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
             </p>
           </div>
         </div>
-        {!isEditing && (
-          <Button onClick={() => setIsEditing(true)}>
-            <Edit2 className="size-4" />
-            <span className="ml-1.5">Изменить</span>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={handleGenerateSaleContract}
+            disabled={generatingDoc}
+            title="Сформировать Договор купли-продажи (.docx)"
+          >
+            <FileText className="size-4" />
+            <span className="ml-1.5">{generatingDoc ? "Формирование..." : "Договор (docx)"}</span>
           </Button>
-        )}
+          {!isEditing && (
+            <Button onClick={() => setIsEditing(true)}>
+              <Edit2 className="size-4" />
+              <span className="ml-1.5">Изменить</span>
+            </Button>
+          )}
+        </div>
       </div>
 
       {error && (

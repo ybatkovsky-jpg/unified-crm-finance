@@ -67,6 +67,7 @@ prisma/dev.db*
 tz.docx
 *.docx
 !documents/*_2026.docx
+!apps/web/src/server/templates/*.docx
 
 # Uploads (local dev)
 uploads/
