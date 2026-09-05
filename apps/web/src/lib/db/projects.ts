@@ -220,7 +220,9 @@ export class ProjectRepository {
 
   /**
    * Soft delete a project by setting deletedAt timestamp
-   * Does NOT actually delete the record from database
+   * Does NOT actually delete the record from database.
+   * Атомарно отвязывает сделку (deal.projectId = null), чтобы по ней
+   * можно было создать новый проект.
    */
   async softDelete(id: string): Promise<Project> {
     // Verify project exists and not already deleted
@@ -229,9 +231,20 @@ export class ProjectRepository {
       throw new Error(`Project with id ${id} not found`);
     }
 
-    return prisma.project.update({
-      where: { id },
-      data: { deletedAt: new Date() },
+    return prisma.$transaction(async (tx) => {
+      const deleted = await tx.project.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      });
+
+      if (existing.dealId) {
+        await tx.deal.update({
+          where: { id: existing.dealId },
+          data: { projectId: null },
+        });
+      }
+
+      return deleted;
     });
   }
 

@@ -154,7 +154,9 @@ export class ContractRepository {
   }
 
   /**
-   * Soft delete a contract by setting deletedAt timestamp
+   * Soft delete a contract by setting deletedAt timestamp.
+   * Атомарно отвязывает сделку (deal.contractId = null), чтобы по ней
+   * можно было создать новый договор.
    */
   async softDelete(id: string): Promise<Contract> {
     const existing = await this.findUnique(id);
@@ -162,9 +164,20 @@ export class ContractRepository {
       throw new Error(`Contract with id ${id} not found`);
     }
 
-    return prisma.contract.update({
-      where: { id },
-      data: { deletedAt: new Date() },
+    return prisma.$transaction(async (tx) => {
+      const deleted = await tx.contract.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      });
+
+      if (existing.dealId) {
+        await tx.deal.update({
+          where: { id: existing.dealId },
+          data: { contractId: null },
+        });
+      }
+
+      return deleted;
     });
   }
 

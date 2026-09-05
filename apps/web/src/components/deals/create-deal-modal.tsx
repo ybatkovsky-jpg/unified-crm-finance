@@ -447,7 +447,8 @@ export function CreateDealModal({
       <ContactFormModal
         open={createContactOpen}
         onOpenChange={setCreateContactOpen}
-        onSuccess={() => {
+        onSuccess={(created) => {
+          if (created) handleAddContact(created, pickerRole)
           refreshContacts()
         }}
       />

@@ -47,6 +47,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams): Promi
         bankBik: contract.Contact.bankBik,
         bankCorrAccount: contract.Contact.bankCorrAccount,
         phone: contract.Contact.phone,
+        email: contract.Contact.email,
         registrationAddress: contract.Contact.registrationAddress,
         address: contract.Contact.address,
         passportSeries: contract.Contact.passportSeries,

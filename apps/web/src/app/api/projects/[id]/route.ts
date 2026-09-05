@@ -14,7 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { projects } from '@/lib/db/projects'
 import { requireSession } from '@/lib/auth/session'
-import { canModify } from '@/lib/auth/permissions'
+import { canModify, isAdmin } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/db/prisma'
 
 interface RouteParams {
@@ -203,7 +203,14 @@ export async function DELETE(
   try {
     const { id } = await params
 
+    // Удаление проектов — только администратор.
     const session = await requireSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (!isAdmin(session)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const existing = await projects.findUnique(id)
     if (!existing) {
@@ -211,11 +218,6 @@ export async function DELETE(
         { error: 'Project not found', message: `Project with id ${id} not found` },
         { status: 404 }
       )
-    }
-
-    // Админ — всё; остальные — только свои проекты.
-    if (!canModify(session, existing.managerId === session.id)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const deletedProject = await projects.softDelete(id)

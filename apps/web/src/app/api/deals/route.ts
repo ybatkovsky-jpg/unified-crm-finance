@@ -15,7 +15,7 @@ import { mapErrorToResponse } from '../../../lib/api/error-mapping'
 import { notifyNewLead } from '@/lib/notifications/events'
 import { prisma } from '../../../lib/db/prisma'
 import { getSession } from '../../../lib/auth/session'
-import { requireSectionWrite } from '../../../lib/auth/permissions'
+import { isAdmin } from '../../../lib/auth/permissions'
 
 /**
  * GET /api/deals

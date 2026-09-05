@@ -7,7 +7,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../../lib/db/prisma'
+import { prisma } from '@/lib/db/prisma'
+import { getSession } from '@/lib/auth/session'
+import { isAdmin } from '@/lib/auth/permissions'
 import { randomUUID } from 'node:crypto'
 
 interface RouteParams {
@@ -19,6 +21,15 @@ export async function POST(
   { params }: RouteParams
 ): Promise<NextResponse> {
   try {
+    // Создание проекта из сделки — только администратор.
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (!isAdmin(session)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const { id: dealId } = await params
     const body = await request.json()
 
