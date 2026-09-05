@@ -1,4 +1,4 @@
-﻿# Dependencies
+# Dependencies
 node_modules/
 .pnp
 .pnp.js
@@ -64,8 +64,9 @@ prisma/dev.db*
 .claude/
 .session/
 .zcode/
-РўР—.docx
+tz.docx
 *.docx
+!documents/*_2026.docx
 
 # Uploads (local dev)
 uploads/
