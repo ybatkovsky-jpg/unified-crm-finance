@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { Package } from "lucide-react"
+import { Package, Trash2 } from "lucide-react"
 
 import { projectsApi, ApiClientError } from "@/lib/api/projects"
 import { bomApi } from "@/lib/api/bom"
@@ -27,8 +27,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { CreateProjectModal } from "@/components/projects/create-project-modal"
+import { useMe } from "@/components/layout/use-me"
 
 type StatusFilter = "all" | "lead" | "active" | "completed" | "paused"
 
@@ -105,6 +107,9 @@ export default function ProjectsPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
   const [managerFilter, setManagerFilter] = useState<string>("all")
   const [coverageMap, setCoverageMap] = useState<Record<string, { total: number; covered: number; bomStatus: string }>>({})
+  const { isAdmin } = useMe()
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [deleting, setDeleting] = useState(false)
 
   type CoverageInfo = { total: number; covered: number; bomStatus: string }
 
@@ -184,6 +189,57 @@ export default function ProjectsPage() {
 
   const handleRetry = () => {
     fetchProjects(statusFilter, managerFilter)
+  }
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const toggleSelectAll = () => {
+    setSelected((prev) =>
+      prev.size === projects.length ? new Set() : new Set(projects.map((p) => p.id))
+    )
+  }
+
+  const handleDeleteProject = async (id: string) => {
+    if (!confirm("Удалить проект?")) return
+    setDeleting(true)
+    try {
+      await projectsApi.deleteProject(id)
+      setSelected((prev) => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
+      await fetchProjects(statusFilter, managerFilter)
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : "Не удалось удалить проект.")
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selected)
+    if (ids.length === 0) return
+    if (!confirm(`Удалить выбранные проекты (${ids.length})?`)) return
+    setDeleting(true)
+    try {
+      for (const id of ids) {
+        await projectsApi.deleteProject(id)
+      }
+      setSelected(new Set())
+      await fetchProjects(statusFilter, managerFilter)
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : "Не удалось удалить все проекты.")
+    } finally {
+      setDeleting(false)
+    }
   }
 
   const handleProjectCreated = (project: any) => {
@@ -285,9 +341,34 @@ export default function ProjectsPage() {
 
       {!loading && !error && projects.length > 0 && (
         <div className="rounded-xl border bg-card overflow-hidden">
+          {isAdmin && (
+            <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/40">
+              <span className="text-sm text-muted-foreground">
+                {selected.size > 0 ? `Выбрано: ${selected.size}` : "Выберите проекты"}
+              </span>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={selected.size === 0 || deleting}
+                onClick={handleBulkDelete}
+              >
+                <Trash2 className="size-4" />
+                <span className="ml-1.5">{deleting ? "Удаление..." : "Удалить выбранные"}</span>
+              </Button>
+            </div>
+          )}
           <Table>
             <TableHeader>
               <TableRow>
+                {isAdmin && (
+                  <TableHead className="w-10">
+                    <input
+                      type="checkbox"
+                      checked={projects.length > 0 && selected.size === projects.length}
+                      onChange={toggleSelectAll}
+                    />
+                  </TableHead>
+                )}
                 <TableHead>Номер</TableHead>
                 <TableHead>Название</TableHead>
                 <TableHead>Статус</TableHead>
@@ -297,11 +378,21 @@ export default function ProjectsPage() {
                 <TableHead>Дата окончания</TableHead>
                 <TableHead>Сумма контракта</TableHead>
                 <TableHead>Спецификация</TableHead>
+                {isAdmin && <TableHead className="w-10"></TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {projects.map((project) => (
                 <TableRow key={project.id}>
+                  {isAdmin && (
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        checked={selected.has(project.id)}
+                        onChange={() => toggleSelect(project.id)}
+                      />
+                    </TableCell>
+                  )}
                   <TableCell className="font-mono text-xs">
                     <Link
                       href={`/projects/${project.id}`}
@@ -329,6 +420,19 @@ export default function ProjectsPage() {
                   <TableCell>{formatDate(project.endDate)}</TableCell>
                   <TableCell>{formatCurrency(Number(project.contractAmount), project.currency || "RUB")}</TableCell>
                   <TableCell>{getCoverageBadge(coverageMap[project.id])}</TableCell>
+                  {isAdmin && (
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteProject(project.id)}
+                        disabled={deleting}
+                        title="Удалить проект"
+                      >
+                        <Trash2 className="size-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

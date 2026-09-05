@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { RefreshCwIcon } from "lucide-react"
+import { RefreshCwIcon, Trash2 } from "lucide-react"
 
 import { contractsApi, ApiClientError } from "@/lib/api/contracts"
 import { contactsApi } from "@/lib/api/contacts"
@@ -26,6 +26,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useMe } from "@/components/layout/use-me"
 
 type StatusFilter = "all" | "draft" | "active" | "expired" | "terminated"
 
@@ -74,6 +75,9 @@ export default function ContractsPage() {
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
   const [contactFilter, setContactFilter] = useState<string>("all")
+  const { isAdmin } = useMe()
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [deleting, setDeleting] = useState(false)
 
   const fetchContacts = useCallback(async () => {
     try {
@@ -125,6 +129,57 @@ export default function ContractsPage() {
 
   const handleRetry = () => {
     fetchContracts(statusFilter, contactFilter)
+  }
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const toggleSelectAll = () => {
+    setSelected((prev) =>
+      prev.size === contracts.length ? new Set() : new Set(contracts.map((c) => c.id))
+    )
+  }
+
+  const handleDeleteContract = async (id: string) => {
+    if (!confirm("Удалить договор?")) return
+    setDeleting(true)
+    try {
+      await contractsApi.deleteContract(id)
+      setSelected((prev) => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
+      await fetchContracts(statusFilter, contactFilter)
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : "Не удалось удалить договор.")
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selected)
+    if (ids.length === 0) return
+    if (!confirm(`Удалить выбранные договоры (${ids.length})?`)) return
+    setDeleting(true)
+    try {
+      for (const id of ids) {
+        await contractsApi.deleteContract(id)
+      }
+      setSelected(new Set())
+      await fetchContracts(statusFilter, contactFilter)
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : "Не удалось удалить все договоры.")
+    } finally {
+      setDeleting(false)
+    }
   }
 
   return (
@@ -231,9 +286,34 @@ export default function ContractsPage() {
 
       {!loading && !error && contracts.length > 0 && (
         <div className="rounded-xl border bg-card overflow-hidden">
+          {isAdmin && (
+            <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/40">
+              <span className="text-sm text-muted-foreground">
+                {selected.size > 0 ? `Выбрано: ${selected.size}` : "Выберите договоры"}
+              </span>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={selected.size === 0 || deleting}
+                onClick={handleBulkDelete}
+              >
+                <Trash2 className="size-4" />
+                <span className="ml-1.5">{deleting ? "Удаление..." : "Удалить выбранные"}</span>
+              </Button>
+            </div>
+          )}
           <Table>
             <TableHeader>
               <TableRow>
+                {isAdmin && (
+                  <TableHead className="w-10">
+                    <input
+                      type="checkbox"
+                      checked={contracts.length > 0 && selected.size === contracts.length}
+                      onChange={toggleSelectAll}
+                    />
+                  </TableHead>
+                )}
                 <TableHead>Номер</TableHead>
                 <TableHead>Название</TableHead>
                 <TableHead>Контрагент</TableHead>
@@ -241,11 +321,21 @@ export default function ContractsPage() {
                 <TableHead>Дата начала</TableHead>
                 <TableHead>Дата окончания</TableHead>
                 <TableHead>Статус</TableHead>
+                {isAdmin && <TableHead className="w-10"></TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {contracts.map((contract) => (
                 <TableRow key={contract.id}>
+                  {isAdmin && (
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        checked={selected.has(contract.id)}
+                        onChange={() => toggleSelect(contract.id)}
+                      />
+                    </TableCell>
+                  )}
                   <TableCell className="font-mono text-xs">
                     <Link
                       href={`/contracts/${contract.id}`}
@@ -271,6 +361,19 @@ export default function ContractsPage() {
                       {contract.status}
                     </Badge>
                   </TableCell>
+                  {isAdmin && (
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteContract(contract.id)}
+                        disabled={deleting}
+                        title="Удалить договор"
+                      >
+                        <Trash2 className="size-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
