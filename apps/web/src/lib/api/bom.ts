@@ -71,6 +71,11 @@ export class BOMApiClient {
     );
 
     if (!response.ok) {
+      // 404 = спецификация ещё не создана — это ожидаемое состояние,
+      // не логируем как ошибку (BOMSection сам показывает «нет спецификации»).
+      if (response.status === 404) {
+        throw new ApiClientError(404, 'Not found', 'BOM not found');
+      }
       return parseApiError(response);
     }
 
