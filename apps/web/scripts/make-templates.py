@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """Создаёт рабочие docx-шаблоны с плейсхолдерами {{Key}} (без пробелов) из исходников.
 
-Заполняются только поля, для которых есть данные в CRM; поля событий
-(даты передачи/монтажа, состав работ/изделий) остаются пустыми строками
-оригинала для ручного дополнения.
+Реквизиты покупателя/заказчика заменяются составными плейсхолдерами
+{{Client.reqLine1..6}}, содержимое которых формируется в генераторе в
+зависимости от типа клиента (физлицо/юрлицо). Абзацы основного текста
+выравниваются по ширине.
 """
 import os, re
 import docx
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 SRC = r"D:\CLAUDE\Project\unified-crm-finance\documents"
 OUT = r"D:\CLAUDE\Project\unified-crm-finance\apps\web\src\server\templates"
@@ -42,6 +44,11 @@ def write_para(p, text):
     else:
         p.add_run(text)
 
+def justify_body(doc):
+    for p in doc.paragraphs:
+        if p.alignment is None:
+            p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+
 def apply_rules(doc, rules):
     changed = 0
     for p in iter_paragraphs(doc):
@@ -60,7 +67,6 @@ def apply_rules(doc, rules):
     return changed
 
 def apply_rules_with_sequence(doc, rules, underscore_placeholders):
-    """underscore_placeholders применяются по порядку к абзацам-строкам из подчёркиваний."""
     changed = 0
     seq = list(underscore_placeholders)
     for p in iter_paragraphs(doc):
@@ -84,21 +90,20 @@ def apply_rules_with_sequence(doc, rules, underscore_placeholders):
 
 # --- Общие блоки ---
 def party_intro():
-    return [(re.compile(r"(с одной стороны, и )_{10,}(, именуем)"), r"\1{{Client.fullName}}\2")]
+    return [(re.compile(r"(с одной стороны, и )_{10,}(, )именуемый\(ая\)"),
+             r"\1{{Client.fullName}}\2{{Client.named}}")]
 
 def address_after_label():
     return [(re.compile(r"по адресу:\s*_{3,}"), "по адресу: {{Order.deliveryAddress}}")]
 
-def requisites_person():
+def requisites_composite():
     return [
-        (re.compile(r"^Ф\.И\.О\.:\s*_{3,}$"), "Ф.И.О.: {{Client.fullName}}"),
-        (re.compile(r"Паспорт:\s*серия\s+_{3,}\s*№\s+_{3,}"),
-         "Паспорт: серия {{Client.passport.series}} № {{Client.passport.number}}"),
-        (re.compile(r"^Выдан:\s*_{3,}$"), "Выдан: {{Client.passport.issuedBy}}"),
-        (re.compile(r"Дата выдачи:\s*_{3,}\s*Код подразделения:\s*_{3,}"),
-         "Дата выдачи: {{Client.passport.issuedAt}} Код подразделения: {{Client.passport.code}}"),
-        (re.compile(r"^Адрес:\s*_{3,}$"), "Адрес: {{Client.regAddress}}"),
-        (re.compile(r"^Тел\.:\s*_{3,}$"), "Тел.: {{Client.phone}}"),
+        (re.compile(r"^Ф\.И\.О\.:\s*_{3,}$"), "{{Client.reqLine1}}"),
+        (re.compile(r"Паспорт:\s*серия\s+_{3,}\s*№\s+_{3,}"), "{{Client.reqLine2}}"),
+        (re.compile(r"^Выдан:\s*_{3,}$"), "{{Client.reqLine3}}"),
+        (re.compile(r"Дата выдачи:\s*_{3,}\s*Код подразделения:\s*_{3,}"), "{{Client.reqLine4}}"),
+        (re.compile(r"^Адрес:\s*_{3,}$"), "{{Client.reqLine5}}"),
+        (re.compile(r"^Тел\.:\s*_{3,}$"), "{{Client.reqLine6}}"),
     ]
 
 def date_cells(placeholder):
@@ -111,6 +116,7 @@ def count_placeholders(path):
 def convert(src_name, rules):
     doc = docx.Document(os.path.join(SRC, src_name))
     n = apply_rules(doc, rules)
+    justify_body(doc)
     out = os.path.join(OUT, src_name)
     doc.save(out)
     print(f"{src_name}: замен={n}, плейсхолдеров={count_placeholders(out)}")
@@ -118,6 +124,7 @@ def convert(src_name, rules):
 def convert_sequential(src_name, rules, underscore_placeholders):
     doc = docx.Document(os.path.join(SRC, src_name))
     n = apply_rules_with_sequence(doc, rules, underscore_placeholders)
+    justify_body(doc)
     out = os.path.join(OUT, src_name)
     doc.save(out)
     print(f"{src_name}: замен={n}, плейсхолдеров={count_placeholders(out)}")
@@ -130,7 +137,7 @@ convert("sale_contract_2026.docx", [
     (re.compile(r"НДС не облагается / в том числе НДС \(нужное указать\)"), "{{Order.ndsLabel}}"),
     *date_cells("Doc.saleContract.date"),
     *party_intro(),
-    *requisites_person(),
+    *requisites_composite(),
 ])
 
 # --- 2. Договор на монтаж ---
@@ -141,7 +148,7 @@ convert("assembly_service_contract_2026.docx", [
     *date_cells("Doc.serviceContract.date"),
     *party_intro(),
     *address_after_label(),
-    *requisites_person(),
+    *requisites_composite(),
 ])
 
 # --- 3. Акт выполненных работ ---
@@ -160,7 +167,7 @@ convert("goods_transfer_act_2026.docx", [
      "Договору купли-продажи № {{Doc.saleContract.number}} от {{Doc.saleContract.date}}"),
     *date_cells("Doc.actAcceptance.date"),
     *party_intro(),
-    *requisites_person(),
+    *requisites_composite(),
 ])
 
 # --- 5. Гарантийный талон (3 пустые строки заполняются по порядку) ---
@@ -183,13 +190,12 @@ convert("buyer_memo_2026.docx", [
 # --- 7. Правила эксплуатации ---
 convert("usage_rules_2026.docx", [
     (re.compile(r"^«_____»\s*_{3,}\s*2026\s*г\.?$"), "{{Doc.rules.signDate}}"),
-    (re.compile(r"^ФИО:$"), "ФИО: {{Client.fullName}}"),
-    (re.compile(r"^паспорт: серия номер$"), "паспорт: серия {{Client.passport.series}} номер {{Client.passport.number}}"),
-    (re.compile(r"^Выдан:$"), "Выдан: {{Client.passport.issuedBy}}"),
-    (re.compile(r"^Дата выдачи: Код подразделения:$"),
-     "Дата выдачи: {{Client.passport.issuedAt}} Код подразделения: {{Client.passport.code}}"),
-    (re.compile(r"^Адрес:$"), "Адрес: {{Client.regAddress}}"),
-    (re.compile(r"^тел:$"), "тел: {{Client.phone}}"),
+    (re.compile(r"^ФИО:$"), "{{Client.reqLine1}}"),
+    (re.compile(r"^паспорт: серия номер$"), "{{Client.reqLine2}}"),
+    (re.compile(r"^Выдан:$"), "{{Client.reqLine3}}"),
+    (re.compile(r"^Дата выдачи: Код подразделения:$"), "{{Client.reqLine4}}"),
+    (re.compile(r"^Адрес:$"), "{{Client.reqLine5}}"),
+    (re.compile(r"^тел:$"), "{{Client.reqLine6}}"),
     (re.compile(r"^«\s*»\s*2026\s*г\.?$"), "{{Doc.rules.signDate}}"),
 ])
 

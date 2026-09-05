@@ -118,6 +118,9 @@ export interface ClientInput {
   lastName: string | null
   middleName: string | null
   companyName: string | null
+  inn: string | null
+  kpp: string | null
+  ogrn: string | null
   phone: string | null
   email: string | null
   registrationAddress: string | null
@@ -146,21 +149,50 @@ export function buildSaleContractContext(input: {
       ? (client.companyName ?? "")
       : [client.lastName, client.firstName, client.middleName].filter(Boolean).join(" ")
 
+  const isLegal = client.type === "company" || client.type === "ip" || client.type === "legal"
+  const isFemale = isLegal
+    ? false
+    : (client.middleName ?? "").toLowerCase().replace(/ё/g, "е").endsWith("вна")
+  const named = isLegal ? "именуемое" : isFemale ? "именуемая" : "именуемый"
+
+  const passportIssuedAt = client.passportIssuedAt ? rusShortDate(new Date(client.passportIssuedAt)) : ""
+  const regOrJurAddress = client.registrationAddress ?? client.address ?? ""
+
+  const reqLines: Record<string, string> = isLegal
+    ? {
+        "Client.reqLine1": `Наименование: ${client.companyName ?? ""}`,
+        "Client.reqLine2": `ИНН/КПП: ${client.inn ?? ""} / ${client.kpp ?? "—"}`,
+        "Client.reqLine3": `ОГРН: ${client.ogrn ?? ""}`,
+        "Client.reqLine4": `Юридический адрес: ${regOrJurAddress}`,
+        "Client.reqLine5": "Банковские реквизиты: ",
+        "Client.reqLine6": `Тел.: ${client.phone ?? ""}`,
+      }
+    : {
+        "Client.reqLine1": `Ф.И.О.: ${fullName}`,
+        "Client.reqLine2": `Паспорт: серия ${client.passportSeries ?? ""} № ${client.passportNumber ?? ""}`,
+        "Client.reqLine3": `Выдан: ${client.passportIssuedBy ?? ""}`,
+        "Client.reqLine4": `Дата выдачи: ${passportIssuedAt} Код подразделения: ${client.passportCode ?? ""}`,
+        "Client.reqLine5": `Адрес: ${regOrJurAddress}`,
+        "Client.reqLine6": `Тел.: ${client.phone ?? ""}`,
+      }
+
   return {
     "Doc.saleContract.number": number,
     "Doc.saleContract.date": rusDate(d),
     "Client.fullName": fullName,
+    "Client.named": named,
     "Client.passport.series": client.passportSeries ?? "",
     "Client.passport.number": client.passportNumber ?? "",
     "Client.passport.issuedBy": client.passportIssuedBy ?? "",
-    "Client.passport.issuedAt": client.passportIssuedAt ? rusShortDate(new Date(client.passportIssuedAt)) : "",
+    "Client.passport.issuedAt": passportIssuedAt,
     "Client.passport.code": client.passportCode ?? "",
-    "Client.regAddress": client.registrationAddress ?? client.address ?? "",
+    "Client.regAddress": regOrJurAddress,
     "Client.phone": client.phone ?? "",
     "Order.amountRoubles": formatRoubles(amount),
     "Order.amountKopecks": formatKopecks(amount),
     "Order.amountWords": amountWords(amount),
     "Order.ndsLabel": "НДС не облагается",
+    ...reqLines,
   }
 }
 
