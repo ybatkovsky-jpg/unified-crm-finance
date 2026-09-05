@@ -15,7 +15,7 @@ import { useMe } from "@/components/layout/use-me"
 type StatusFilter = "all" | "open" | "closed"
 
 export default function DealsPage() {
-  const { me } = useMe()
+  const { me, isAdmin } = useMe()
   const [deals, setDeals] = useState<DealData[]>([])
   const [stages, setStages] = useState<DealStageData[]>([])
   const [pipelineId, setPipelineId] = useState<string>("")
@@ -76,6 +76,13 @@ export default function DealsPage() {
   }, [statusFilter, fetchDeals])
 
   const handleMoveDeal = async (dealId: string, toStageId: string) => {
+    // Защита от лишнего запроса: сделка уже на этой стадии — ничего не делаем.
+    const existing = deals.find((d) => d.id === dealId)
+    const currentStageId = (existing as { stage?: { id?: string } } | undefined)?.stage?.id
+    if (currentStageId === toStageId) {
+      return
+    }
+
     setMovingDealId(dealId)
     try {
       const response = await dealsApi.moveDeal(dealId, {
@@ -88,7 +95,10 @@ export default function DealsPage() {
         )
       )
     } catch (err) {
-      console.error("Failed to move deal:", err)
+      // «Уже на этой стадии» — не ошибка (гонка перетаскивания), тихо обновляем.
+      if (!(err instanceof ApiClientError && err.statusCode === 400 && /already in the target stage/i.test(err.message))) {
+        console.error("Failed to move deal:", err)
+      }
       fetchDeals(statusFilter)
     } finally {
       setMovingDealId(null)
@@ -135,7 +145,8 @@ export default function DealsPage() {
             loading={loading}
           />
         </div>
-        {firstStageId && (
+        {/* Создание сделок — только администратор */}
+        {firstStageId && isAdmin && (
           <CreateDealModal
             pipelineId={pipelineId}
             firstStageId={firstStageId}
