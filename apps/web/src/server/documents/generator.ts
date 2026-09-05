@@ -119,6 +119,7 @@ export interface ClientInput {
   middleName: string | null
   companyName: string | null
   phone: string | null
+  email: string | null
   registrationAddress: string | null
   address: string | null
   passportSeries: string | null
@@ -193,6 +194,7 @@ export function buildPackageContext(input: PackageContextInput): Record<string, 
     "Doc.rules.signDate": "",
     "Order.deliveryAddress": deliveryAddress,
     "Order.productName": "",
+    "Client.email": input.client.email ?? "",
   }
 }
 
@@ -224,4 +226,88 @@ export function zipFiles(files: GeneratedFile[]): Buffer {
     zip.file(f.filename, f.buffer)
   }
   return Buffer.from(zip.generate({ type: "nodebuffer", compression: "DEFLATE" }))
+}
+
+// --- Заполнение xlsx (без внешних библиотек — правка sheet XML через PizZip) ---
+
+function xmlEscape(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+}
+
+/**
+ * Заполняет ячейки листа sheet1.xlsx значениями.
+ * fills: координата (верхний левый угол объединённой ячейки) → значение.
+ */
+export function fillXlsxCells(buffer: Buffer, fills: Record<string, string | number>): Buffer {
+  const zip = new PizZip(buffer)
+  const sheetPath = "xl/worksheets/sheet1.xml"
+  if (!zip.file(sheetPath)) {
+    throw new Error(`Лист не найден в xlsx: ${sheetPath}`)
+  }
+  let xml = zip.file(sheetPath)!.asText()
+
+  for (const [coord, value] of Object.entries(fills)) {
+    // удаляем существующую ячейку с этой координатой
+    const cellRe = new RegExp(`<c r="${coord}"[^>]*>.*?</c>`, "s")
+    xml = xml.replace(cellRe, "")
+
+    const node =
+      typeof value === "number"
+        ? `<c r="${coord}"><v>${value}</v></c>`
+        : `<c r="${coord}" t="inlineStr"><is><t xml:space="preserve">${xmlEscape(value)}</t></is></c>`
+
+    const rowNum = parseInt(coord.replace(/[A-Z]/g, ""), 10)
+    const rowStart = xml.search(new RegExp(`<row r="${rowNum}"[^>]*>`))
+    if (rowStart !== -1) {
+      const rowEnd = xml.indexOf("</row>", rowStart)
+      if (rowEnd !== -1) {
+        xml = xml.slice(0, rowEnd) + node + xml.slice(rowEnd)
+      } else {
+        xml = xml.replace("</sheetData>", node + "</sheetData>")
+      }
+    } else {
+      xml = xml.replace("</sheetData>", `<row r="${rowNum}">${node}</row></sheetData>`)
+    }
+  }
+
+  zip.file(sheetPath, xml)
+  return Buffer.from(zip.generate({ type: "nodebuffer", compression: "DEFLATE" }))
+}
+
+export function fillOrderForm(buffer: Buffer, ctx: Record<string, unknown>): Buffer {
+  const date = String(ctx["Doc.saleContract.date"] ?? "")
+  const fills: Record<string, string | number> = {
+    C4: `БЛАНК-ЗАКАЗА № ${ctx["Doc.saleContract.number"]}`,
+    F4: `от ${date}`,
+    B6: String(ctx["Client.fullName"] ?? ""),
+    B7: String(ctx["Order.deliveryAddress"] ?? ""),
+    B8: String(ctx["Client.phone"] ?? ""),
+    B9: String(ctx["Client.email"] ?? ""),
+  }
+  const total = Number(ctx["Order.amountRoubles"]?.toString().replace(/\s/g, "") || 0)
+  if (total) fills.G29 = total
+  return fillXlsxCells(buffer, fills)
+}
+
+export function fillSpecification(buffer: Buffer, ctx: Record<string, unknown>): Buffer {
+  const number = String(ctx["Doc.saleContract.number"] ?? "")
+  const date = String(ctx["Doc.saleContract.date"] ?? "")
+  const total = Number(ctx["Order.amountRoubles"]?.toString().replace(/\s/g, "") || 0)
+  const fills: Record<string, string | number> = {
+    B1: `СПЕЦИФИКАЦИЯ ЗАКАЗА № ${number}`,
+    B2: `к Договору купли-продажи № ${number} от ${date}`,
+    B3: `Дата заказа: ${date}`,
+    A6: `Заказчик (Ф.И.О.): ${String(ctx["Client.fullName"] ?? "")}`,
+    A7: `Адрес доставки (установки): ${String(ctx["Order.deliveryAddress"] ?? "")}`,
+    A8: `Телефон: ${String(ctx["Client.phone"] ?? "")}`,
+  }
+  if (total) {
+    fills.F28 = total
+    fills.F29 = total
+  }
+  return fillXlsxCells(buffer, fills)
 }

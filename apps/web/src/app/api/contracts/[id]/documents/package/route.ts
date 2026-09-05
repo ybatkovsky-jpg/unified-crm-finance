@@ -6,6 +6,8 @@ import {
   buildPackageContext,
   renderDocumentPackage,
   zipFiles,
+  fillOrderForm,
+  fillSpecification,
 } from "@/server/documents/generator"
 
 export const dynamic = "force-dynamic"
@@ -46,6 +48,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams): Promi
         middleName: contract.Contact.middleName,
         companyName: contract.Contact.companyName,
         phone: contract.Contact.phone,
+        email: contract.Contact.email,
         registrationAddress: contract.Contact.registrationAddress,
         address: contract.Contact.address,
         passportSeries: contract.Contact.passportSeries,
@@ -58,17 +61,21 @@ export async function GET(_request: NextRequest, { params }: RouteParams): Promi
 
     const files = renderDocumentPackage(context)
 
-    // xlsx-бланки включаются как есть (автозаполнение — следующая итерация)
+    // xlsx-бланки заполняются по карте ячеек
     const docsDir = path.resolve(process.cwd(), "..", "..", "documents")
-    const xlsxFiles: Array<[string, string]> = [
-      ["order_form_2026.xlsx", "Бланк-заказа.xlsx"],
-      ["specification_2026.xlsx", "Спецификация.xlsx"],
-    ]
-    for (const [src, out] of xlsxFiles) {
-      const p = path.join(docsDir, src)
-      if (fs.existsSync(p)) {
-        files.push({ filename: out, buffer: fs.readFileSync(p) })
-      }
+    const orderFormPath = path.join(docsDir, "order_form_2026.xlsx")
+    const specPath = path.join(docsDir, "specification_2026.xlsx")
+    if (fs.existsSync(orderFormPath)) {
+      files.push({
+        filename: "Бланк-заказа.xlsx",
+        buffer: fillOrderForm(fs.readFileSync(orderFormPath), context),
+      })
+    }
+    if (fs.existsSync(specPath)) {
+      files.push({
+        filename: "Спецификация.xlsx",
+        buffer: fillSpecification(fs.readFileSync(specPath), context),
+      })
     }
 
     const zip = zipFiles(files)
