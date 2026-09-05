@@ -16,6 +16,7 @@ import {
   DollarSign,
   Building2,
   FilePlus,
+  Trash2,
   Plus,
 } from "lucide-react"
 import { contractsApi, ApiClientError } from "@/lib/api/contracts"
@@ -44,9 +45,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useMe } from "@/components/layout/use-me"
 
 export default function ContractDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
+  const { isAdmin } = useMe()
   const [contract, setContract] = useState<ContractData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -251,6 +254,17 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
     }
   }
 
+  const handleDeleteContract = async () => {
+    if (!contract) return
+    if (!confirm(`Удалить договор «${contract.number}»?`)) return
+    try {
+      await contractsApi.deleteContract(contract.id)
+      router.push("/contracts")
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : "Не удалось удалить договор.")
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -328,6 +342,12 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
             <Button onClick={() => setIsEditing(true)}>
               <Edit2 className="size-4" />
               <span className="ml-1.5">Изменить</span>
+            </Button>
+          )}
+          {isAdmin && (
+            <Button variant="destructive" onClick={handleDeleteContract}>
+              <Trash2 className="size-4" />
+              <span className="ml-1.5">Удалить</span>
             </Button>
           )}
         </div>

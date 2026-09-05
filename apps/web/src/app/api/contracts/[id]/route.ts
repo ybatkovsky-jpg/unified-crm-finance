@@ -13,6 +13,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { contracts } from '@/lib/db/contracts'
+import { getSession } from '@/lib/auth/session'
+import { isAdmin } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -72,7 +74,7 @@ export async function GET(
 /**
  * PATCH /api/contracts/[id]
  *
- * Updates an existing contract.
+ * Updates an existing contract. Requires an authenticated session.
  */
 export async function PATCH(
   request: NextRequest,
@@ -80,6 +82,12 @@ export async function PATCH(
 ): Promise<NextResponse> {
   try {
     const { id } = await params
+
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
 
     // Verify contract exists
@@ -126,6 +134,15 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { id } = await params
+
+    // Удаление договоров — только администратор.
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (!isAdmin(session)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const deletedContract = await contracts.softDelete(id)
 

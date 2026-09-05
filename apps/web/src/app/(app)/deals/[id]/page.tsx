@@ -546,36 +546,55 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
 
   const activeTasks = tasks.filter((t) => !["done", "cancelled"].includes(t.status))
 
+  const handleDeleteDeal = async () => {
+    if (!deal) return
+    if (!confirm(`Удалить сделку «${deal.title}»?`)) return
+    try {
+      await dealsApi.deleteDeal(deal.id)
+      router.push("/deals")
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : "Не удалось удалить сделку.")
+    }
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="size-4" />
-        </Button>
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-semibold">{deal.title}</h1>
-            <Badge
-              style={{
-                backgroundColor: stageColor,
-                color: "#fff",
-              }}
-            >
-              {deal.stage?.name}
-            </Badge>
-            {isWon && <Badge variant="default">Выиграна</Badge>}
-            {isLost && <Badge variant="destructive">Проиграна</Badge>}
-          </div>
-          <p className="text-sm text-muted-foreground mt-1">
-            {deal.number} · {deal.pipeline?.name}
-            {deal.source && (
-              <Badge variant="secondary" className="ml-2 text-xs">
-                {deal.source.name}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="size-4" />
+          </Button>
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-semibold">{deal.title}</h1>
+              <Badge
+                style={{
+                  backgroundColor: stageColor,
+                  color: "#fff",
+                }}
+              >
+                {deal.stage?.name}
               </Badge>
-            )}
-          </p>
+              {isWon && <Badge variant="default">Выиграна</Badge>}
+              {isLost && <Badge variant="destructive">Проиграна</Badge>}
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">
+              {deal.number} · {deal.pipeline?.name}
+              {deal.source && (
+                <Badge variant="secondary" className="ml-2 text-xs">
+                  {deal.source.name}
+                </Badge>
+              )}
+            </p>
+          </div>
         </div>
+        {isAdmin && (
+          <Button variant="destructive" size="sm" onClick={handleDeleteDeal}>
+            <Trash2 className="size-4" />
+            <span className="ml-1.5">Удалить</span>
+          </Button>
+        )}
       </div>
 
       {error && (

@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic"
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Edit2, Save, X, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, Users, Layers, Package, Upload, CheckCircle2, Wrench, Truck, ShieldCheck, FileCheck, Gift, CreditCard } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, Users, Layers, Package, Upload, CheckCircle2, Wrench, Truck, ShieldCheck, FileCheck, Gift, CreditCard, Trash2 } from "lucide-react"
 import { projectsApi, ApiClientError } from "@/lib/api/projects"
 import { filesApi } from "@/lib/api/files"
 import type { ProjectData, FileUploadFile, ClosureReadiness } from "@/lib/api/types"
@@ -384,6 +384,17 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     )
   }
 
+  const handleDeleteProject = async () => {
+    if (!project) return
+    if (!confirm(`Удалить проект «${project.name}»?`)) return
+    try {
+      await projectsApi.deleteProject(project.id)
+      router.push("/projects")
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : "Не удалось удалить проект.")
+    }
+  }
+
   if (!project) return null
 
   return (
@@ -419,6 +430,13 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 <Edit2 className="size-4" />
                 <span className="ml-1.5">Изменить</span>
               </Button>
+
+              {isAdmin && (
+                <Button variant="destructive" onClick={handleDeleteProject}>
+                  <Trash2 className="size-4" />
+                  <span className="ml-1.5">Удалить</span>
+                </Button>
+              )}
 
               {canCompleteProject && (
                 <AlertDialog open={closeDialogOpen} onOpenChange={handleOpenCloseDialog}>
