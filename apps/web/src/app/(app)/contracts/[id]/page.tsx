@@ -56,6 +56,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [generatingDoc, setGeneratingDoc] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [activeTab, setActiveTab] = useState("details")
   const [editForm, setEditForm] = useState({
     title: "",
@@ -255,13 +256,19 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
   }
 
   const handleDeleteContract = async () => {
-    if (!contract) return
+    if (!contract || deleting) return
     if (!confirm(`Удалить договор «${contract.number}»?`)) return
+    setDeleting(true)
     try {
       await contractsApi.deleteContract(contract.id)
       router.push("/contracts")
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : "Не удалось удалить договор.")
+      if (err instanceof ApiClientError && err.statusCode === 404) {
+        router.push("/contracts")
+      } else {
+        setError(err instanceof ApiClientError ? err.message : "Не удалось удалить договор.")
+        setDeleting(false)
+      }
     }
   }
 
@@ -345,9 +352,9 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
             </Button>
           )}
           {isAdmin && (
-            <Button variant="destructive" onClick={handleDeleteContract}>
+            <Button variant="destructive" onClick={handleDeleteContract} disabled={deleting}>
               <Trash2 className="size-4" />
-              <span className="ml-1.5">Удалить</span>
+              <span className="ml-1.5">{deleting ? "Удаление..." : "Удалить"}</span>
             </Button>
           )}
         </div>

@@ -83,6 +83,7 @@ function isOverdue(t: TaskData): boolean {
 export default function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const { me, isAdmin } = useMe()
+  const [deleting, setDeleting] = useState(false)
   const [deal, setDeal] = useState<DealData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -547,13 +548,19 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   const activeTasks = tasks.filter((t) => !["done", "cancelled"].includes(t.status))
 
   const handleDeleteDeal = async () => {
-    if (!deal) return
+    if (!deal || deleting) return
     if (!confirm(`Удалить сделку «${deal.title}»?`)) return
+    setDeleting(true)
     try {
       await dealsApi.deleteDeal(deal.id)
       router.push("/deals")
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : "Не удалось удалить сделку.")
+      if (err instanceof ApiClientError && err.statusCode === 404) {
+        router.push("/deals")
+      } else {
+        setError(err instanceof ApiClientError ? err.message : "Не удалось удалить сделку.")
+        setDeleting(false)
+      }
     }
   }
 
@@ -590,9 +597,9 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           </div>
         </div>
         {isAdmin && (
-          <Button variant="destructive" size="sm" onClick={handleDeleteDeal}>
+          <Button variant="destructive" size="sm" onClick={handleDeleteDeal} disabled={deleting}>
             <Trash2 className="size-4" />
-            <span className="ml-1.5">Удалить</span>
+            <span className="ml-1.5">{deleting ? "Удаление..." : "Удалить"}</span>
           </Button>
         )}
       </div>

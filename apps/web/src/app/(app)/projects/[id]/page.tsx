@@ -124,6 +124,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [readiness, setReadiness] = useState<ClosureReadiness | null>(null)
   const [readinessLoading, setReadinessLoading] = useState(false)
   const { me, isAdmin } = useMe()
+  const [deleting, setDeleting] = useState(false)
   const filePreview = useFilePreview()
 
   const unwrapParams = useCallback(async () => {
@@ -385,13 +386,19 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   }
 
   const handleDeleteProject = async () => {
-    if (!project) return
+    if (!project || deleting) return
     if (!confirm(`Удалить проект «${project.name}»?`)) return
+    setDeleting(true)
     try {
       await projectsApi.deleteProject(project.id)
       router.push("/projects")
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : "Не удалось удалить проект.")
+      if (err instanceof ApiClientError && err.statusCode === 404) {
+        router.push("/projects")
+      } else {
+        setError(err instanceof ApiClientError ? err.message : "Не удалось удалить проект.")
+        setDeleting(false)
+      }
     }
   }
 
@@ -432,9 +439,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               </Button>
 
               {isAdmin && (
-                <Button variant="destructive" onClick={handleDeleteProject}>
+                <Button variant="destructive" onClick={handleDeleteProject} disabled={deleting}>
                   <Trash2 className="size-4" />
-                  <span className="ml-1.5">Удалить</span>
+                  <span className="ml-1.5">{deleting ? "Удаление..." : "Удалить"}</span>
                 </Button>
               )}
 
