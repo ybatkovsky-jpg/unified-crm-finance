@@ -15,8 +15,9 @@ import { prisma } from '../../../lib/db/prisma'
 import { randomUUID } from 'node:crypto'
 import { mapErrorToResponse } from '../../../lib/api/error-mapping'
 import { getSession } from '../../../lib/auth/session'
-import { requireSectionWrite } from '../../../lib/auth/permissions'
+import { isAdmin } from '../../../lib/auth/permissions'
 import { DEFAULT_PROJECT_STAGES } from '@/lib/db/project-stages'
+import { nextProjectNumber } from '@/lib/db/sequence'
 
 /**
  * GET /api/projects
@@ -94,16 +95,30 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 /**
  * POST /api/projects
  *
- * Creates a new project.
- * Validates required fields.
+ * Creates a new project. Admin-only.
+ * Проект создаётся только из сделки: обязательно dealId, связь со сделкой
+ * устанавливается атомарно в одной транзакции.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    // Создание проектов — только администратор.
     const session = await getSession()
-    const denied = requireSectionWrite(session, 'projects')
-    if (denied) return denied
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (!isAdmin(session)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const body = await request.json()
+
+    // Проект создаётся только из сделки
+    if (!body.dealId) {
+      return NextResponse.json(
+        { error: 'Validation failed', message: 'Проект создаётся только из сделки (укажите dealId)' },
+        { status: 400 }
+      )
+    }
 
     // Validate required fields
     if (!body.name) {
@@ -113,48 +128,78 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    if (!body.externalNumber) {
-      return NextResponse.json(
-        { error: 'Validation failed', message: 'externalNumber is required' },
-        { status: 400 }
-      )
-    }
+    const newProject = await prisma.$transaction(async (tx) => {
+      // Сделка должна существовать и не быть удалённой
+      const deal = await tx.deal.findFirst({ where: { id: body.dealId, deletedAt: null } })
+      if (!deal) {
+        throw new Error(`Deal with id ${body.dealId} not found`)
+      }
 
-    // Prepare creation data (fields aligned with ProjectCreateInput api type)
-    const createData = {
-      name: body.name,
-      externalNumber: body.externalNumber,
-      description: body.description || null,
-      status: body.status ?? 'lead',
-      managerId: body.managerId || null,
-      contactId: body.contactId || null,
-      dealId: body.dealId || null,
-      contractId: body.contractId || null,
-      startDate: body.startDate ? new Date(body.startDate) : null,
-      endDate: body.endDate ? new Date(body.endDate) : null,
-      contractAmount: body.contractAmount || 0,
-      currency: body.currency ?? 'RUB',
-      marginTarget: body.marginTarget ?? undefined,
-      attributes: body.attributes || null,
-    }
+      // Одна сделка — один проект
+      if (deal.projectId) {
+        throw new Error(`Project already exists for deal ${body.dealId}`)
+      }
 
-    const newProject = await projects.create(createData)
+      const now = new Date()
+      const project = await tx.project.create({
+        data: {
+          id: randomUUID(),
+          name: body.name,
+          externalNumber: body.externalNumber ?? await nextProjectNumber(tx, new Date().getFullYear()),
+          description: body.description || null,
+          status: body.status ?? 'lead',
+          managerId: body.managerId || deal.managerId || null,
+          contactId: body.contactId || deal.contactId || null,
+          dealId: deal.id,
+          contractId: body.contractId || null,
+          startDate: body.startDate ? new Date(body.startDate) : null,
+          endDate: body.endDate ? new Date(body.endDate) : null,
+          contractAmount: body.contractAmount || 0,
+          currency: body.currency ?? 'RUB',
+          marginTarget: body.marginTarget ?? undefined,
+          attributes: body.attributes || null,
+          createdAt: now,
+          updatedAt: now,
+        },
+      })
 
-    // Auto-create default project stages (7 stages per ROADMAP)
-    const now = new Date()
-    await prisma.projectStage.createMany({
-      data: DEFAULT_PROJECT_STAGES.map((s) => ({
-        id: randomUUID(),
-        projectId: newProject.id,
-        code: s.code,
-        name: s.name,
-        order: s.order,
-        status: 'pending',
-      })),
+      // Атомарно связываем проект со сделкой (обратная связь 1:1)
+      await tx.deal.update({
+        where: { id: deal.id },
+        data: { projectId: project.id },
+      })
+
+      // Auto-create default project stages (7 stages per ROADMAP)
+      await tx.projectStage.createMany({
+        data: DEFAULT_PROJECT_STAGES.map((s) => ({
+          id: randomUUID(),
+          projectId: project.id,
+          code: s.code,
+          name: s.name,
+          order: s.order,
+          status: 'pending',
+        })),
+      })
+
+      return project
     })
 
     return NextResponse.json({ data: newProject }, { status: 201 })
   } catch (error) {
+    if (error instanceof Error) {
+      if (error.message.includes('not found')) {
+        return NextResponse.json(
+          { error: 'Сделка не найдена' },
+          { status: 404 }
+        )
+      }
+      if (error.message.includes('Project already exists')) {
+        return NextResponse.json(
+          { error: 'По этой сделке уже существует проект' },
+          { status: 409 }
+        )
+      }
+    }
     return mapErrorToResponse(error, 'create project')
   }
 }

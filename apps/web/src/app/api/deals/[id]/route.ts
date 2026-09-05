@@ -14,7 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deals } from '@/lib/db/deals'
 import { getSession } from '@/lib/auth/session'
-import { canModify } from '@/lib/auth/permissions'
+import { canModify, isAdmin } from '@/lib/auth/permissions'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -198,8 +198,8 @@ export async function DELETE(
       )
     }
 
-    // Админ — всё; остальные — только свои сделки.
-    if (!canModify(session, existing.managerId === session.id)) {
+    // Удаление сделок — только администратор.
+    if (!isAdmin(session)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
