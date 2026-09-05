@@ -107,17 +107,24 @@ export function DealContactsSection({
       return
     }
     try {
-      const res = await contactsApi.getContact(contactId)
+      const res = await fetch(`/api/contacts/${contactId}`)
+      if (!res.ok) {
+        // 404 = контакт удалён/не найден — тихо показываем «нет клиента»
+        setCustomer(null)
+        return
+      }
+      const json = await res.json()
+      const c = json.data
       setCustomer({
-        id: res.data.id,
-        type: res.data.type,
-        firstName: res.data.firstName ?? null,
-        lastName: res.data.lastName ?? null,
-        companyName: res.data.companyName ?? null,
-        inn: res.data.inn ?? null,
-        phone: res.data.phone ?? null,
-        email: res.data.email ?? null,
-        companyId: (res.data as { companyId?: string | null }).companyId ?? null,
+        id: c.id,
+        type: c.type,
+        firstName: c.firstName ?? null,
+        lastName: c.lastName ?? null,
+        companyName: c.companyName ?? null,
+        inn: c.inn ?? null,
+        phone: c.phone ?? null,
+        email: c.email ?? null,
+        companyId: c.companyId ?? null,
       })
     } catch {
       setCustomer(null)
