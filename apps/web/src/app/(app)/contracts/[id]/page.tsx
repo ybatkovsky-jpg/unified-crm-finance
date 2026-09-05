@@ -223,14 +223,14 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
     }
   }
 
-  const handleGenerateSaleContract = async () => {
+  const handleGeneratePackage = async () => {
     if (!contract) return
 
     setGeneratingDoc(true)
     setError(null)
 
     try {
-      const res = await fetch(`/api/contracts/${contract.id}/documents/sale-contract`)
+      const res = await fetch(`/api/contracts/${contract.id}/documents/package`)
       if (!res.ok) {
         const j = await res.json().catch(() => null)
         throw new Error(j?.message || `Ошибка ${res.status}`)
@@ -239,13 +239,13 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
-      a.download = `Договор_${contract.number}.docx`
+      a.download = `Документы_${contract.number}.zip`
       document.body.appendChild(a)
       a.click()
       a.remove()
       URL.revokeObjectURL(url)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не удалось сформировать документ.")
+      setError(err instanceof Error ? err.message : "Не удалось сформировать пакет документов.")
     } finally {
       setGeneratingDoc(false)
     }
@@ -317,12 +317,12 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            onClick={handleGenerateSaleContract}
+            onClick={handleGeneratePackage}
             disabled={generatingDoc}
-            title="Сформировать Договор купли-продажи (.docx)"
+            title="Сформировать пакет документов (ZIP: договоры, акты, талон, памятка, правила, бланки)"
           >
             <FileText className="size-4" />
-            <span className="ml-1.5">{generatingDoc ? "Формирование..." : "Договор (docx)"}</span>
+            <span className="ml-1.5">{generatingDoc ? "Формирование..." : "Сформировать пакет"}</span>
           </Button>
           {!isEditing && (
             <Button onClick={() => setIsEditing(true)}>

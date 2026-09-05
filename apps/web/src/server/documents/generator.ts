@@ -162,3 +162,66 @@ export function buildSaleContractContext(input: {
     "Order.ndsLabel": "НДС не облагается",
   }
 }
+
+export interface PackageContextInput {
+  number: string
+  amount: number
+  date: Date | null
+  client: ClientInput
+  objectAddress: string | null
+}
+
+/** Плоский контекст для всего пакета (событийные даты — пустые, дополняются позже). */
+export function buildPackageContext(input: PackageContextInput): Record<string, unknown> {
+  const base = buildSaleContractContext({
+    number: input.number,
+    amount: input.amount,
+    date: input.date,
+    client: input.client,
+  })
+  const deliveryAddress = input.objectAddress ?? input.client.address ?? ""
+  return {
+    ...base,
+    "Doc.serviceContract.number": input.number,
+    "Doc.serviceContract.date": base["Doc.saleContract.date"],
+    "Doc.actWorks.number": input.number,
+    "Doc.actWorks.date": "",
+    "Doc.actAcceptance.date": "",
+    "Doc.guarantee.number": input.number,
+    "Doc.blankOrder.number": input.number,
+    "Doc.memo.signDate": base["Doc.saleContract.date"],
+    "Doc.rules.signDate": "",
+    "Order.deliveryAddress": deliveryAddress,
+    "Order.productName": "",
+  }
+}
+
+export interface GeneratedFile {
+  filename: string
+  buffer: Buffer
+}
+
+const PACKAGE_DOCX: Array<[string, string]> = [
+  ["sale_contract_2026.docx", "Договор_купли-продажи.docx"],
+  ["assembly_service_contract_2026.docx", "Договор_монтажа.docx"],
+  ["works_acceptance_act_2026.docx", "Акт_выполненных_работ.docx"],
+  ["goods_transfer_act_2026.docx", "Акт_приема-передачи.docx"],
+  ["warranty_card_2026.docx", "Гарантийный_талон.docx"],
+  ["buyer_memo_2026.docx", "Памятка_покупателю.docx"],
+  ["usage_rules_2026.docx", "Правила_эксплуатации.docx"],
+]
+
+export function renderDocumentPackage(context: Record<string, unknown>): GeneratedFile[] {
+  return PACKAGE_DOCX.map(([tpl, out]) => ({
+    filename: out,
+    buffer: renderDocx(tpl, context),
+  }))
+}
+
+export function zipFiles(files: GeneratedFile[]): Buffer {
+  const zip = new PizZip()
+  for (const f of files) {
+    zip.file(f.filename, f.buffer)
+  }
+  return Buffer.from(zip.generate({ type: "nodebuffer", compression: "DEFLATE" }))
+}
