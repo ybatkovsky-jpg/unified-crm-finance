@@ -121,6 +121,10 @@ export interface ClientInput {
   inn: string | null
   kpp: string | null
   ogrn: string | null
+  bankAccount: string | null
+  bankName: string | null
+  bankBik: string | null
+  bankCorrAccount: string | null
   phone: string | null
   email: string | null
   registrationAddress: string | null
@@ -164,7 +168,7 @@ export function buildSaleContractContext(input: {
         "Client.reqLine2": `ИНН/КПП: ${client.inn ?? ""} / ${client.kpp ?? "—"}`,
         "Client.reqLine3": `ОГРН: ${client.ogrn ?? ""}`,
         "Client.reqLine4": `Юридический адрес: ${regOrJurAddress}`,
-        "Client.reqLine5": "Банковские реквизиты: ",
+        "Client.reqLine5": `Банковские реквизиты: р/с ${client.bankAccount ?? ""} в ${client.bankName ?? ""}, БИК ${client.bankBik ?? ""}, к/с ${client.bankCorrAccount ?? ""}`,
         "Client.reqLine6": `Тел.: ${client.phone ?? ""}`,
       }
     : {

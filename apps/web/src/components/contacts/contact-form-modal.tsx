@@ -11,8 +11,8 @@
  *  - person  → имя/фамилия/отчество/должность + выбор юрлица
  *  - company → название/ИНН/КПП/ОГРН + опциональное создание сотрудника
  */
-import { useEffect, useState, useCallback } from "react";
-import { UserPlus, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { UserPlus, Loader2, ChevronDown, ChevronUp, Search } from "lucide-react";
 
 import {
   Dialog,
@@ -25,14 +25,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { contactsApi, ApiClientError } from "@/lib/api/contacts";
 import type { ContactCreateInput, ContactData } from "@/lib/api/types";
@@ -47,6 +39,8 @@ function validateFormFields(fields: {
   companyName?: string | null; position?: string | null
   email?: string | null; phone?: string | null
   inn?: string | null; kpp?: string | null; ogrn?: string | null
+  bankAccount?: string | null; bankName?: string | null
+  bankBik?: string | null; bankCorrAccount?: string | null
 }): string | null {
   if (fields.firstName && !NAME_RE.test(fields.firstName)) return 'Имя должно содержать только буквы, пробелы и дефисы.'
   if (fields.lastName && !NAME_RE.test(fields.lastName)) return 'Фамилия должна содержать только буквы, пробелы и дефисы.'
@@ -61,6 +55,9 @@ function validateFormFields(fields: {
   if (fields.inn && !/^\d{10,12}$/.test(fields.inn)) return 'ИНН должен содержать 10 или 12 цифр.'
   if (fields.kpp && !/^\d{9}$/.test(fields.kpp)) return 'КПП должен содержать 9 цифр.'
   if (fields.ogrn && !/^\d{13}$/.test(fields.ogrn)) return 'ОГРН должен содержать 13 цифр.'
+  if (fields.bankBik && !/^\d{9}$/.test(fields.bankBik)) return 'БИК должен содержать 9 цифр.'
+  if (fields.bankAccount && !/^\d{20}$/.test(fields.bankAccount)) return 'Расчётный счёт должен содержать 20 цифр.'
+  if (fields.bankCorrAccount && !/^\d{20}$/.test(fields.bankCorrAccount)) return 'Корр. счёт должен содержать 20 цифр.'
   return null
 }
 
@@ -71,8 +68,8 @@ interface ContactFormModalProps {
   contact?: ContactData | null;
   /** Предзаполненный companyId (например, при создании сотрудника из карточки юрлица). */
   defaultCompanyId?: string | null;
-  /** Вызывается после успешного создания/обновления. */
-  onSuccess?: () => void;
+  /** Вызывается после успешного создания/обновления с сохранённым контактом. */
+  onSuccess?: (contact: ContactData) => void;
 }
 
 type ContactType = "person" | "company";
@@ -98,6 +95,10 @@ export function ContactFormModal({
   const [inn, setInn] = useState("");
   const [kpp, setKpp] = useState("");
   const [ogrn, setOgrn] = useState("");
+  const [bankAccount, setBankAccount] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [bankBik, setBankBik] = useState("");
+  const [bankCorrAccount, setBankCorrAccount] = useState("");
   // Common fields
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -122,6 +123,9 @@ export function ContactFormModal({
   // Company list for person→company linking
   const [companies, setCompanies] = useState<ContactData[]>([]);
   const [companiesLoading, setCompaniesLoading] = useState(false);
+  const [companySearch, setCompanySearch] = useState("");
+  const [companyPickerOpen, setCompanyPickerOpen] = useState(false);
+  const companyPickerRef = useRef<HTMLDivElement>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -138,6 +142,43 @@ export function ContactFormModal({
       setCompaniesLoading(false);
     }
   }, []);
+
+  // ── Company picker: selected item + search filtering ──
+  const selectedCompany = companyId
+    ? companies.find((c) => c.id === companyId) ?? null
+    : null;
+  const filteredCompanies = (() => {
+    const q = companySearch.trim().toLowerCase();
+    if (!q) return companies;
+    const innQ = q.replace(/\D/g, "");
+    return companies.filter(
+      (c) =>
+        (c.companyName || "").toLowerCase().includes(q) ||
+        (innQ !== "" && (c.inn || "").includes(innQ))
+    );
+  })();
+
+  // Close the company picker on outside click / Escape
+  useEffect(() => {
+    if (!companyPickerOpen) return;
+    const handlePointerDown = (e: MouseEvent) => {
+      if (
+        companyPickerRef.current &&
+        !companyPickerRef.current.contains(e.target as Node)
+      ) {
+        setCompanyPickerOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCompanyPickerOpen(false);
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [companyPickerOpen]);
 
   // ── Reset / populate form ──
   useEffect(() => {
@@ -165,6 +206,10 @@ export function ContactFormModal({
       setPassportIssuedAt(c.passportIssuedAt ? String(c.passportIssuedAt).slice(0, 10) : "");
       setPassportCode(c.passportCode || "");
       setRegistrationAddress(c.registrationAddress || "");
+      setBankAccount(c.bankAccount || "");
+      setBankName(c.bankName || "");
+      setBankBik(c.bankBik || "");
+      setBankCorrAccount(c.bankCorrAccount || "");
       setShowPassport(!!(c.passportSeries || c.passportNumber || c.passportIssuedBy));
       setAddEmployee(false);
     } else {
@@ -179,6 +224,10 @@ export function ContactFormModal({
       setInn("");
       setKpp("");
       setOgrn("");
+      setBankAccount("");
+      setBankName("");
+      setBankBik("");
+      setBankCorrAccount("");
       setPhone("");
       setEmail("");
       setNotes("");
@@ -196,6 +245,8 @@ export function ContactFormModal({
       setEmpPosition("");
     }
     setError(null);
+    setCompanySearch("");
+    setCompanyPickerOpen(false);
 
     // Preload companies for person dropdown
     loadCompanies();
@@ -232,6 +283,10 @@ export function ContactFormModal({
       inn: type === "company" ? inn : null,
       kpp: type === "company" ? kpp : null,
       ogrn: type === "company" ? ogrn : null,
+      bankAccount: type === "company" ? bankAccount : null,
+      bankName: type === "company" ? bankName : null,
+      bankBik: type === "company" ? bankBik : null,
+      bankCorrAccount: type === "company" ? bankCorrAccount : null,
     })
     if (fieldError) {
       setError(fieldError)
@@ -271,12 +326,18 @@ export function ContactFormModal({
       payload.inn = inn.trim() || null;
       payload.kpp = kpp.trim() || null;
       payload.ogrn = ogrn.trim() || null;
+      payload.bankAccount = bankAccount.trim() || null;
+      payload.bankName = bankName.trim() || null;
+      payload.bankBik = bankBik.trim() || null;
+      payload.bankCorrAccount = bankCorrAccount.trim() || null;
     }
 
     setSubmitting(true);
     try {
+      let saved: ContactData;
       if (isEditing && contact) {
-        await contactsApi.updateContact(contact.id, payload as any);
+        const res = await contactsApi.updateContact(contact.id, payload as any);
+        saved = res.data;
       } else {
         const res = await contactsApi.createContact(payload);
 
@@ -296,9 +357,10 @@ export function ContactFormModal({
             // Не ломаем основной поток — компания создана
           }
         }
+        saved = res.data;
       }
 
-      onSuccess?.();
+      onSuccess?.(saved);
       onOpenChange(false);
     } catch (err) {
       setError(
@@ -374,31 +436,82 @@ export function ContactFormModal({
                     Загрузка…
                   </div>
                 ) : (
-                  <Select
-                    value={companyId || "__none__"}
-                    onValueChange={(v) => setCompanyId(v === "__none__" ? null : v)}
-                    items={Object.fromEntries([
-                      ["__none__", "Без организации"],
-                      ...companies.map((c) => [
-                        c.id,
-                        c.inn ? `${c.companyName} (ИНН ${c.inn})` : c.companyName,
-                      ]),
-                    ])}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Без организации" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="__none__">Без организации</SelectItem>
-                        {companies.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.companyName} {c.inn ? `(ИНН ${c.inn})` : ""}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <div className="relative" ref={companyPickerRef}>
+                    <button
+                      type="button"
+                      onClick={() => setCompanyPickerOpen((v) => !v)}
+                      className="flex h-8 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pr-2 pl-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                    >
+                      <span className={cn("truncate", !companyId && "text-muted-foreground")}>
+                        {selectedCompany
+                          ? `${selectedCompany.companyName}${selectedCompany.inn ? ` (ИНН ${selectedCompany.inn})` : ""}`
+                          : "Без организации"}
+                      </span>
+                      <ChevronDown
+                        className={cn(
+                          "size-4 shrink-0 opacity-50 transition-transform",
+                          companyPickerOpen && "rotate-180"
+                        )}
+                      />
+                    </button>
+                    {companyPickerOpen && (
+                      <div className="absolute z-50 mt-1 w-full rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10">
+                        <div className="relative border-b p-1.5">
+                          <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+                          <Input
+                            value={companySearch}
+                            onChange={(e) => setCompanySearch(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") e.preventDefault();
+                            }}
+                            placeholder="Поиск по названию или ИНН…"
+                            className="h-8 pl-7"
+                            autoFocus
+                          />
+                        </div>
+                        <div className="max-h-48 overflow-y-auto p-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCompanyId(null);
+                              setCompanyPickerOpen(false);
+                            }}
+                            className={cn(
+                              "flex w-full items-center rounded-md py-1 pr-2 pl-1.5 text-left text-sm select-none transition-colors hover:bg-accent hover:text-accent-foreground",
+                              !companyId && "bg-accent/60 font-medium"
+                            )}
+                          >
+                            Без организации
+                          </button>
+                          {filteredCompanies.length === 0 ? (
+                            <div className="px-2 py-3 text-center text-sm text-muted-foreground">
+                              Ничего не найдено
+                            </div>
+                          ) : (
+                            filteredCompanies.map((c) => (
+                              <button
+                                key={c.id}
+                                type="button"
+                                onClick={() => {
+                                  setCompanyId(c.id);
+                                  setCompanyPickerOpen(false);
+                                }}
+                                className={cn(
+                                  "flex w-full items-center rounded-md py-1 pr-2 pl-1.5 text-left text-sm select-none transition-colors hover:bg-accent hover:text-accent-foreground",
+                                  companyId === c.id && "bg-accent/60 font-medium"
+                                )}
+                              >
+                                <span className="truncate">
+                                  {c.companyName}
+                                  {c.inn ? ` (ИНН ${c.inn})` : ""}
+                                </span>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </Field>
             </div>
@@ -416,6 +529,14 @@ export function ContactFormModal({
                 </Field>
                 <Field label="ОГРН" className="col-span-2">
                   <Input value={ogrn} onChange={(e) => setOgrn(e.target.value)} placeholder="1027700132195" />
+                </Field>
+                <Field label="Банковские реквизиты" className="col-span-2">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} placeholder="Расчётный счёт" />
+                    <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Банк" />
+                    <Input value={bankBik} onChange={(e) => setBankBik(e.target.value)} placeholder="БИК" />
+                    <Input value={bankCorrAccount} onChange={(e) => setBankCorrAccount(e.target.value)} placeholder="Корр. счёт" />
+                  </div>
                 </Field>
               </div>
               {/* Inline employee — only for CREATE company mode */}

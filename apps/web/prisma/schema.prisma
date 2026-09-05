@@ -195,6 +195,10 @@ model Contact {
   inn             String?
   kpp             String?
   ogrn            String?
+  bankAccount     String?
+  bankName        String?
+  bankBik         String?
+  bankCorrAccount String?
   email           String?
   phone           String?
   address         String?

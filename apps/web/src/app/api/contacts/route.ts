@@ -99,6 +99,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (body.ogrn && !/^\d{13}$/.test(body.ogrn)) {
       return NextResponse.json({ error: 'Validation failed', message: 'ОГРН: 13 цифр' }, { status: 400 })
     }
+    if (body.bankBik && !/^\d{9}$/.test(body.bankBik)) {
+      return NextResponse.json({ error: 'Validation failed', message: 'БИК: 9 цифр' }, { status: 400 })
+    }
+    if (body.bankAccount && !/^\d{20}$/.test(body.bankAccount)) {
+      return NextResponse.json({ error: 'Validation failed', message: 'Расчётный счёт: 20 цифр' }, { status: 400 })
+    }
+    if (body.bankCorrAccount && !/^\d{20}$/.test(body.bankCorrAccount)) {
+      return NextResponse.json({ error: 'Validation failed', message: 'Корр. счёт: 20 цифр' }, { status: 400 })
+    }
 
     if (body.companyId) {
       if (body.type !== 'person') {
@@ -114,6 +123,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       type: body.type, phone: body.phone,
       firstName: body.firstName || null, lastName: body.lastName || null, middleName: body.middleName || null,
       companyName: body.companyName || null, inn: body.inn || null, kpp: body.kpp || null, ogrn: body.ogrn || null,
+      bankAccount: body.bankAccount || null, bankName: body.bankName || null,
+      bankBik: body.bankBik || null, bankCorrAccount: body.bankCorrAccount || null,
       email: body.email || null, address: body.address || null, physicalAddress: body.physicalAddress || null,
       position: body.position || null, notes: body.notes || null,
       sourceId: body.sourceId || null, ownerId: body.ownerId || null, companyId: body.companyId || null,

@@ -73,6 +73,10 @@ export interface ContactCreateInput {
   inn?: string | null;
   kpp?: string | null;
   ogrn?: string | null;
+  bankAccount?: string | null;
+  bankName?: string | null;
+  bankBik?: string | null;
+  bankCorrAccount?: string | null;
   email?: string | null;
   address?: string | null;
   physicalAddress?: string | null;
@@ -104,6 +108,10 @@ export interface ContactUpdateInput {
   inn?: string | null;
   kpp?: string | null;
   ogrn?: string | null;
+  bankAccount?: string | null;
+  bankName?: string | null;
+  bankBik?: string | null;
+  bankCorrAccount?: string | null;
   email?: string | null;
   phone?: string | null;
   address?: string | null;
