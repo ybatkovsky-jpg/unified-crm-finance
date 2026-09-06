@@ -21,54 +21,48 @@ async function main() {
   console.log('🌱 Seeding...');
 
   // === Роли ===
+  // Права ролей — единый источник в src/lib/auth/roles.ts (ROLE_MATRIX).
+  // Колонка Role.permissions удалена; здесь — только код/имя/описание.
   const roles = [
     {
       code: 'admin',
       name: 'Админ',
       description: 'Полный административный доступ — редактирование и удаление любых сущностей',
-      permissions: { sections: ['crm', 'projects', 'tasks', 'org', 'procurement', 'finance', 'accounting', 'analytics', 'settings'], viewAllProjects: true },
     },
     {
       code: 'director',
       name: 'Директор',
       description: 'Полный доступ ко всему',
-      permissions: { sections: ['crm', 'projects', 'procurement', 'finance', 'accounting', 'analytics', 'settings'], viewAllProjects: true },
     },
     {
       code: 'manager_designer',
       name: 'Менеджер-дизайнер',
       description: 'Сделки, КП, договоры; ведёт проект от и до',
-      permissions: { sections: ['crm', 'projects', 'procurement', 'finance', 'analytics'], viewAllProjects: false },
     },
     {
       code: 'technologist',
       name: 'Технолог',
       description: 'Замер #2, ТЗ/спецификация, контроль производства',
-      permissions: { sections: ['projects', 'procurement', 'analytics'], viewAllProjects: true },
     },
     {
       code: 'supply',
       name: 'Снабженец',
       description: 'Закупки, поставщики, склад',
-      permissions: { sections: ['projects', 'procurement', 'finance', 'analytics'], viewAllProjects: true },
     },
     {
       code: 'installer',
       name: 'Монтажник',
       description: 'Монтаж, сдача акта физлицам',
-      permissions: { sections: ['projects', 'analytics'], viewAllProjects: false },
     },
     {
       code: 'accountant',
       name: 'Бухгалтер',
       description: 'Финансы, оплаты, отчёты',
-      permissions: { sections: ['finance', 'accounting', 'analytics', 'procurement'], viewAllProjects: true },
     },
     {
       code: 'storekeeper',
       name: 'Кладовщик',
       description: 'Склад, приёмка, списание',
-      permissions: { sections: ['procurement'], viewAllProjects: false },
     },
   ];
 

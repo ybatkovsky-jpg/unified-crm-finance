@@ -111,7 +111,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       content: body.content ?? null,
       scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : null,
       completedAt: body.completedAt ? new Date(body.completedAt) : null,
-      eventId: body.eventId ?? null,
     })
 
     return NextResponse.json({ data: newInteraction }, { status: 201 })

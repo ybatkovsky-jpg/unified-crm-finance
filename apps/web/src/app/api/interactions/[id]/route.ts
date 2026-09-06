@@ -118,7 +118,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams): Promis
     if (body.authorId !== undefined) updateData.authorId = body.authorId
     if (body.scheduledAt !== undefined) updateData.scheduledAt = body.scheduledAt ? new Date(body.scheduledAt) : null
     if (body.completedAt !== undefined) updateData.completedAt = body.completedAt ? new Date(body.completedAt) : null
-    if (body.eventId !== undefined) updateData.eventId = body.eventId
 
     const updatedInteraction = await interactions.update(id, updateData)
 

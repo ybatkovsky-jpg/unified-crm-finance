@@ -217,7 +217,6 @@ export interface InteractionCreateInput {
   scheduledAt?: string | null;
   completedAt?: string | null;
   authorId: string;
-  eventId?: string | null;
 }
 
 /**
@@ -232,7 +231,6 @@ export interface InteractionUpdateInput {
   authorId?: string | null;
   scheduledAt?: string | null;
   completedAt?: string | null;
-  eventId?: string | null;
 }
 
 /**
@@ -390,6 +388,8 @@ export interface DealMoveInput {
   /** @deprecated Server now derives changedBy from the session. Kept for back-compat. */
   changedBy?: string;
   comment?: string | null;
+  /** Required when moving to a lost stage — reason code from LOSS_REASONS. */
+  lossReason?: string | null;
 }
 
 /**

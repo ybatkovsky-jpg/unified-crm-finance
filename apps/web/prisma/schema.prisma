@@ -41,20 +41,6 @@ model AuditLog {
   @@index([entityType, entityId])
 }
 
-model AutomationRule {
-  id        String    @id
-  name      String
-  type      String
-  enabled   Boolean   @default(false)
-  config    Json
-  lastRunAt DateTime?
-  runCount  Int       @default(0)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime
-
-  @@index([enabled])
-}
-
 model BOM {
   id           String      @id
   projectId    String      @unique
@@ -150,24 +136,10 @@ model Category {
   Budget             Budget[]
   Category           Category?            @relation("CategoryToCategory", fields: [parentId], references: [id])
   other_Category     Category[]           @relation("CategoryToCategory")
-  ClassificationRule ClassificationRule[]
   Transaction        Transaction[]
 
   @@index([parentId])
   @@index([type])
-}
-
-model ClassificationRule {
-  id                  String   @id
-  keyword             String
-  categoryId          String
-  counterpartyKeyword String?
-  projectId           String?
-  priority            Int      @default(0)
-  isActive            Boolean  @default(true)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime
-  Category            Category @relation(fields: [categoryId], references: [id])
 }
 
 model Comment {
@@ -229,9 +201,7 @@ model Contact {
   Contract        Contract[]
   Deal            Deal[]
   DealContact     DealContact[]
-  Event           Event[]
   Interaction     Interaction[]
-  Lead            Lead[]
   Project         Project[]
   Task            Task[]
 
@@ -387,7 +357,6 @@ model Deal {
   Pipeline          Pipeline      @relation(fields: [pipelineId], references: [id])
   DealHistory       DealHistory[]
   DealContact       DealContact[]
-  Event             Event[]
   Task              Task[]
   User              User?         @relation(fields: [managerId], references: [id])
   Contract          Contract?
@@ -497,72 +466,6 @@ model EmailLog {
   @@index([projectId])
 }
 
-model Event {
-  id              String           @id
-  googleEventId   String?          @unique
-  title           String
-  description     String?
-  location        String?
-  isAllDay        Boolean          @default(false)
-  startAt         DateTime
-  endAt           DateTime
-  status          String           @default("confirmed")
-  eventType       String           @default("meeting")
-  recurrenceId    String?
-  recurrenceRule  String?
-  contactId       String?
-  projectId       String?
-  dealId          String?
-  createdBy       String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime
-  deletedAt       DateTime?
-  EventRecurrence EventRecurrence? @relation(fields: [recurrenceId], references: [id])
-  Deal            Deal?            @relation(fields: [dealId], references: [id])
-  Project         Project?         @relation(fields: [projectId], references: [id])
-  Contact         Contact?         @relation(fields: [contactId], references: [id])
-  EventAttendee   EventAttendee[]
-  Interaction     Interaction?
-
-  @@index([deletedAt])
-  @@index([projectId])
-  @@index([contactId])
-  @@index([status])
-  @@index([endAt])
-  @@index([startAt])
-}
-
-model EventAttendee {
-  id         String    @id
-  eventId    String
-  userId     String?
-  email      String
-  name       String?
-  status     String    @default("needs_action")
-  responseAt DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime
-  Event      Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([eventId])
-}
-
-model EventRecurrence {
-  id         String    @id
-  frequency  String
-  interval   Int       @default(1)
-  until      DateTime?
-  count      Int?
-  byDay      String?
-  byMonthDay String?
-  createdBy  String
-  createdAt  DateTime  @default(now())
-  Event      Event[]
-
-  @@index([frequency])
-}
-
 model FileEntity {
   id                String            @id
   fileName          String
@@ -589,39 +492,6 @@ model FileEntity {
   @@index([uploadedBy])
 }
 
-model GoogleAccount {
-  id             String    @id
-  userId         String
-  email          String
-  refreshToken   String
-  accessToken    String?
-  tokenExpiresAt DateTime?
-  calendarId     String    @default("primary")
-  syncEnabled    Boolean   @default(true)
-  lastSyncAt     DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime
-
-  @@unique([userId, calendarId])
-  @@index([userId])
-}
-
-model GoogleSyncLog {
-  id            String   @id
-  accountId     String
-  direction     String
-  entityType    String
-  entityId      String
-  googleEventId String?
-  status        String
-  error         String?
-  syncedAt      DateTime @default(now())
-
-  @@index([syncedAt])
-  @@index([entityId])
-  @@index([accountId])
-}
-
 model Interaction {
   id          String       @id
   contactId   String
@@ -632,10 +502,8 @@ model Interaction {
   scheduledAt DateTime?
   completedAt DateTime?
   authorId    String
-  eventId     String?      @unique
   createdAt   DateTime     @default(now())
   updatedAt   DateTime
-  Event       Event?       @relation(fields: [eventId], references: [id])
   Contact     Contact      @relation(fields: [contactId], references: [id], onDelete: Cascade)
   User        User         @relation(fields: [authorId], references: [id])
   FileEntity  FileEntity[]
@@ -695,23 +563,6 @@ model InvoiceItem {
   @@index([invoiceId])
 }
 
-model Lead {
-  id                String    @id
-  contactId         String
-  status            String    @default("new")
-  value             Decimal?  @db.Decimal(15, 2)
-  currency          String    @default("RUB")
-  expectedCloseDate DateTime?
-  notes             String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime
-  Contact           Contact   @relation(fields: [contactId], references: [id])
-
-  @@index([expectedCloseDate])
-  @@index([status])
-  @@index([contactId])
-}
-
 model LeadSource {
   id          String    @id
   code        String    @unique
@@ -743,15 +594,6 @@ model Notification {
   @@index([createdAt])
   @@index([userId, isRead])
   @@index([userId, dedupeKey, isRead])
-}
-
-model PeriodClose {
-  id         String   @id
-  period     String   @unique
-  closedBy   String
-  closedAt   DateTime @default(now())
-  note       String?
-  isReopened Boolean  @default(false)
 }
 
 model Pipeline {
@@ -801,7 +643,6 @@ model Project {
   CashFlowPayment      CashFlowPayment[]
   Delivery             Delivery[]
   EmailLog             EmailLog[]
-  Event                Event[]
   Invoice              Invoice[]
   SpecFile             FileEntity?            @relation("Project_SpecFile", fields: [specFileId], references: [id])
   User                 User?                  @relation(fields: [managerId], references: [id])
@@ -1072,7 +913,6 @@ model Role {
   code        String     @unique
   name        String
   description String?
-  permissions Json
   createdAt   DateTime   @default(now())
   updatedAt   DateTime
   UserRole    UserRole[]
@@ -1085,21 +925,6 @@ model Setting {
   key   String @unique
   value String
   type  String @default("string")
-}
-
-model SyncLog {
-  id            String    @id
-  source        String
-  status        String
-  recordsTotal  Int       @default(0)
-  recordsSynced Int       @default(0)
-  errors        String?
-  startedAt     DateTime  @default(now())
-  completedAt   DateTime?
-
-  @@index([startedAt])
-  @@index([status])
-  @@index([source])
 }
 
 /// Задача (выезд замер#1/#2/монтаж или общая). PLAT-01.
