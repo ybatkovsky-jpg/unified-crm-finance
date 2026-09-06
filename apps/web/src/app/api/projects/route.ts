@@ -75,9 +75,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       prisma.project.count({ where: whereClause as any }),
     ])
 
+    // Маппинг Prisma-связи User (managerId) → поле `manager` клиентского контракта.
+    const data = allProjects.map((p) => {
+      const { User: managerUser, ...rest } = p as typeof p & {
+        User?: { id: string; name: string; email: string } | null
+      }
+      return { ...rest, manager: managerUser ?? null }
+    })
+
     return NextResponse.json({
-      data: allProjects,
-      count: allProjects.length,
+      data,
+      count: data.length,
       totalCount,
       page,
       pageSize,

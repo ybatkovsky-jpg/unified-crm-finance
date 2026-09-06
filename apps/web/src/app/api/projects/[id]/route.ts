@@ -114,9 +114,15 @@ export async function GET(
       })
     }
 
+    // Маппинг Prisma-связи User (managerId) → поле `manager` клиентского контракта.
+    const { User: managerUser, ...projectRest } = project as typeof project & {
+      User?: { id: string; name: string; email: string } | null
+    }
+
     return NextResponse.json({
       data: {
-        ...project,
+        ...projectRest,
+        manager: managerUser ?? null,
         deal,
         contract,
       },
@@ -181,7 +187,15 @@ export async function PATCH(
 
     const updatedProject = await projects.update(id, updateData, session.id)
 
-    return NextResponse.json({ data: updatedProject })
+    // Ответственный менеджер — резолвим связь для клиента (поле `manager`).
+    const manager = updatedProject.managerId
+      ? await prisma.user.findUnique({
+          where: { id: updatedProject.managerId },
+          select: { id: true, name: true, email: true },
+        })
+      : null
+
+    return NextResponse.json({ data: { ...updatedProject, manager } })
   } catch (error) {
     console.error('Failed to update project:', error)
     return NextResponse.json(
