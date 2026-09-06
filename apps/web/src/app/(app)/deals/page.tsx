@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { RefreshCwIcon, Plus } from "lucide-react"
+import { RefreshCwIcon, Plus, Search, Star, Trash2 } from "lucide-react"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
 import { pipelinesApi } from "@/lib/api/pipelines"
 import type { DealData, DealStageData } from "@/lib/api/types"
@@ -9,6 +9,7 @@ import { KanbanBoard } from "@/components/deals/kanban-board"
 import { FilterBar } from "@/components/deals/filter-bar"
 import { CreateDealModal } from "@/components/deals/create-deal-modal"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Select,
@@ -46,6 +47,56 @@ export default function DealsPage() {
     title: string
   } | null>(null)
   const [lossReason, setLossReason] = useState("")
+
+  // ── Сохранённые представления (localStorage) ──
+  const [search, setSearch] = useState("")
+  const [savedViews, setSavedViews] = useState<{ name: string; status: StatusFilter; search: string }[]>([])
+  const [activeView, setActiveView] = useState("")
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("deals_saved_views")
+      if (raw) setSavedViews(JSON.parse(raw))
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
+  const persistViews = (views: { name: string; status: StatusFilter; search: string }[]) => {
+    setSavedViews(views)
+    try {
+      localStorage.setItem("deals_saved_views", JSON.stringify(views))
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const saveView = () => {
+    const name = window.prompt("Название представления:", "")
+    if (!name || !name.trim()) return
+    const view = { name: name.trim(), status: statusFilter, search }
+    persistViews([...savedViews.filter((v) => v.name !== view.name), view])
+    setActiveView(view.name)
+  }
+
+  const applyView = (name: string) => {
+    const v = savedViews.find((x) => x.name === name)
+    if (!v) return
+    setStatusFilter(v.status)
+    setSearch(v.search)
+    setActiveView(name)
+  }
+
+  const deleteView = () => {
+    if (!activeView) return
+    if (!window.confirm(`Удалить представление «${activeView}»?`)) return
+    persistViews(savedViews.filter((v) => v.name !== activeView))
+    setActiveView("")
+  }
+
+  const filteredDeals = search.trim()
+    ? deals.filter((d) => `${d.title} ${d.number ?? ""}`.toLowerCase().includes(search.trim().toLowerCase()))
+    : deals
 
   const fetchPipeline = useCallback(async () => {
     try {
@@ -186,6 +237,38 @@ export default function DealsPage() {
             onRefresh={() => fetchDeals(statusFilter)}
             loading={loading}
           />
+          <div className="relative">
+            <Search className="size-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Поиск по сделке…"
+              className="pl-8 w-48"
+            />
+          </div>
+          <Button variant="outline" size="sm" onClick={saveView}>
+            <Star className="size-4" />
+            <span className="ml-1.5">Сохранить</span>
+          </Button>
+          {savedViews.length > 0 && (
+            <select
+              value={activeView}
+              onChange={(e) => e.target.value && applyView(e.target.value)}
+              className="rounded-md border bg-transparent px-2 py-1.5 text-sm"
+            >
+              <option value="">Представления…</option>
+              {savedViews.map((v) => (
+                <option key={v.name} value={v.name}>
+                  {v.name}
+                </option>
+              ))}
+            </select>
+          )}
+          {activeView && (
+            <Button variant="ghost" size="icon" onClick={deleteView} title="Удалить представление">
+              <Trash2 className="size-4" />
+            </Button>
+          )}
         </div>
         {/* Создание сделок — только администратор */}
         {firstStageId && isAdmin && (
@@ -201,7 +284,7 @@ export default function DealsPage() {
       <div className="flex-1 min-h-0 px-6 pb-4">
         {stages.length > 0 ? (
           <KanbanBoard
-            deals={deals}
+            deals={filteredDeals}
             stages={stages}
             onMoveDeal={handleMoveDeal}
           />
