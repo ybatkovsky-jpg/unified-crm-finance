@@ -1,10 +1,10 @@
 /**
  * POST /api/invoices/[id]/pay
  *
- * Pays an invoice by creating:
- * 1. A Transaction (type=expense) linked to the invoice
- * 2. A CashFlowPayment (status=paid)
- * 3. Updates Invoice.paidAt
+ * Pays an invoice by:
+ * 1. Creating a Transaction (type=expense, факт) linked to the invoice
+ * 2. Realizing a linked planned CashFlowPayment → paid (если есть связанный плановый платёж)
+ * 3. Updating Invoice.paidAt
  *
  * Body: { amount, date?, description? }
  */
@@ -86,7 +86,7 @@ export async function POST(
 
     // Use transaction to ensure atomicity
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Create Transaction
+      // 1. Create Transaction (факт)
       const transaction = await tx.transaction.create({
         data: {
           id: randomUUID(),
@@ -105,21 +105,25 @@ export async function POST(
         },
       })
 
-      // 2. Create CashFlowPayment
-      const payment = await tx.cashFlowPayment.create({
-        data: {
-          id: randomUUID(),
-          date,
-          amount,
-          type: 'expense',
-          status: 'paid',
-          description,
-          projectId,
-          counterpartyId: invoice.supplierId,
+      // 2. Realize linked planned payment → paid (не создаём дубль)
+      const planned = await tx.cashFlowPayment.findFirst({
+        where: {
           invoiceId: invoice.id,
-          updatedAt: new Date(),
+          status: { in: ['planned', 'scheduled'] },
         },
+        orderBy: { date: 'asc' },
       })
+      const payment = planned
+        ? await tx.cashFlowPayment.update({
+            where: { id: planned.id },
+            data: {
+              status: 'paid',
+              amount,
+              date,
+              updatedAt: new Date(),
+            },
+          })
+        : null
 
       // 3. Update invoice
       const updatedInvoice = await tx.invoice.update({

@@ -202,7 +202,7 @@ export class InvoiceApiClient {
     return parseJson<ApiResponse<InvoiceData>>(response);
   }
 
-  /** POST /api/invoices/[id]/pay — pay invoice (creates Transaction + CashFlowPayment) */
+  /** POST /api/invoices/[id]/pay — pay invoice (Transaction факт + реализация планового платежа в paid) */
   async payInvoice(
     invoiceId: string,
     data?: { amount?: number; date?: string; description?: string; categoryId?: string }
