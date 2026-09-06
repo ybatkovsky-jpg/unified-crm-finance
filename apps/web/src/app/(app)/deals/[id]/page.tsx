@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic"
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, File, Download, Trash2, Upload, Package, ChevronDown, Plus, ListTodo, Clock, AlertCircle, CheckCircle2, MessageSquare } from "lucide-react"
+import { ArrowLeft, Edit2, Save, X, History, Link as LinkIcon, Calendar, User, DollarSign, Building2, FileText, File, Download, Trash2, Upload, Package, Plus, ListTodo, Clock, AlertCircle, CheckCircle2 } from "lucide-react"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
 import { pipelinesApi } from "@/lib/api/pipelines"
 import { filesApi } from "@/lib/api/files"
@@ -37,8 +37,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { DealHistoryTimeline } from "@/components/deals/deal-history-timeline"
-import { DealComments } from "@/components/deals/deal-comments"
+import { DealTimeline } from "@/components/deals/deal-timeline"
 import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 import { DealContactsSection } from "@/components/deals/deal-contacts-section"
 import { DealOffersSection } from "@/components/deals/deal-offers-section"
@@ -115,8 +114,6 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   const [movingStage, setMovingStage] = useState(false)
   const [lossDialog, setLossDialog] = useState<{ stageId: string } | null>(null)
   const [lossReason, setLossReason] = useState("")
-  // History section is collapsed by default (per UX decision).
-  const [historyOpen, setHistoryOpen] = useState(false)
   const [leadSources, setLeadSources] = useState<LeadSourceData[]>([])
 
   // Tasks state
@@ -900,30 +897,17 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           {/* Коммерческие предложения (КП) */}
           <DealOffersSection dealId={deal.id} />
 
-          {/* Deal History — collapsible (collapsed by default) */}
+          {/* Лента активности: история стадий + комментарии в одном потоке */}
           <Card>
-            <button
-              type="button"
-              onClick={() => setHistoryOpen((v) => !v)}
-              className="flex w-full items-center justify-between gap-2 p-6 pb-0 text-left"
-              aria-expanded={historyOpen}
-            >
+            <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <History className="size-4" />
-                История изменений
-                {deal.history && deal.history.length > 0 && (
-                  <Badge variant="secondary" className="text-[10px]">{deal.history.length}</Badge>
-                )}
+                Лента активности
               </CardTitle>
-              <ChevronDown
-                className={`size-4 text-muted-foreground transition-transform ${historyOpen ? "rotate-180" : ""}`}
-              />
-            </button>
-            {historyOpen && (
-              <CardContent className="pt-4">
-                <DealHistoryTimeline history={deal.history} />
-              </CardContent>
-            )}
+            </CardHeader>
+            <CardContent>
+              <DealTimeline dealId={deal.id} history={deal.history} />
+            </CardContent>
           </Card>
 
           {/* File Attachments */}
@@ -1290,19 +1274,6 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                   })}
                 </div>
               )}
-            </CardContent>
-          </Card>
-
-          {/* Комментарии */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="size-4" />
-                Комментарии
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <DealComments dealId={deal.id} />
             </CardContent>
           </Card>
 
