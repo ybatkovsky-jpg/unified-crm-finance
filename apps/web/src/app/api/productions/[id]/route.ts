@@ -102,6 +102,7 @@ export async function PATCH(
     if (body.material !== undefined) updateData.material = body.material
     if (body.dimensions !== undefined) updateData.dimensions = body.dimensions
     if (body.notes !== undefined) updateData.notes = body.notes
+    if (body.type !== undefined) updateData.type = body.type
     if (body.attributes !== undefined) updateData.attributes = body.attributes
 
     const updatedProduction = await productions.update(id, updateData)

@@ -780,6 +780,9 @@ model Production {
   partnerId        String?
   status           String            @default("planning")
   materialMode     String?           @default("our_materials")
+  /// Тип производства: PLATE (плитные материалы) | COUNTERTOP (столешницы).
+  /// Ранее хранился в attributes.type — вынесен в типизированное поле.
+  type             String?
   plannedStartDate DateTime?
   plannedEndDate   DateTime?
   actualStartDate  DateTime?

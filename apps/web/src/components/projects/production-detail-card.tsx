@@ -82,7 +82,7 @@ export function ProductionDetailCard({ production, onUpdate }: ProductionDetailC
   )
 
   const getTypeLabel = (): string => {
-    const type = (production.attributes as any)?.type as string | undefined
+    const type = production.type ?? undefined
     return type ? TYPE_LABELS[type] || type : "Производство"
   }
 

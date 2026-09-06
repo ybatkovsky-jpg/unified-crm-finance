@@ -132,10 +132,10 @@ export function CreateProductionModal({ projectId, onCreate }: CreateProductionM
         status: "planning",
         partnerId: partnerId || null,
         materialMode: materialMode || "our_materials",
+        type: type,
         plannedStartDate: plannedStartDate || undefined,
         plannedEndDate: plannedEndDate || undefined,
         notes: notes || undefined,
-        attributes: { type },
       })
 
       const production = response.data

@@ -660,6 +660,7 @@ export interface ProductionCreateInput {
   partnerId?: string | null;
   status?: string | null;
   materialMode?: string | null;
+  type?: string | null;
   plannedStartDate?: string | null;
   plannedEndDate?: string | null;
   actualStartDate?: string | null;
@@ -676,6 +677,7 @@ export interface ProductionUpdateInput {
   status?: string | null;
   partnerId?: string | null;
   materialMode?: string | null;
+  type?: string | null;
   plannedStartDate?: string | null;
   plannedEndDate?: string | null;
   actualStartDate?: string | null;

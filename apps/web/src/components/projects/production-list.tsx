@@ -102,7 +102,7 @@ export function ProductionList({ projectId, canEdit = true, onUpdate }: Producti
   }
 
   const getTypeLabel = (production: ProductionData): string => {
-    const type = (production.attributes as any)?.type as string | undefined
+    const type = production.type ?? undefined
     return type ? TYPE_LABELS[type] || type : "Производство"
   }
 
