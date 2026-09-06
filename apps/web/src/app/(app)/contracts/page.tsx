@@ -5,8 +5,7 @@ import Link from "next/link"
 import { RefreshCwIcon, Trash2 } from "lucide-react"
 
 import { contractsApi, ApiClientError } from "@/lib/api/contracts"
-import { contactsApi } from "@/lib/api/contacts"
-import type { ContractData, ContactData } from "@/lib/api/types"
+import type { ContractData } from "@/lib/api/types"
 import {
   Table,
   TableBody,
@@ -27,6 +26,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useMe } from "@/components/layout/use-me"
+import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 
 type StatusFilter = "all" | "draft" | "active" | "expired" | "terminated"
 
@@ -70,24 +70,13 @@ function getContactName(contract: ContractData): string {
 
 export default function ContractsPage() {
   const [contracts, setContracts] = useState<ContractData[]>([])
-  const [contacts, setContacts] = useState<ContactData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
-  const [contactFilter, setContactFilter] = useState<string>("all")
+  const [contactFilter, setContactFilter] = useState<string>("")
   const { isAdmin } = useMe()
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState(false)
-
-  const fetchContacts = useCallback(async () => {
-    try {
-      const response = await contactsApi.getContacts()
-      console.log(`[Contracts] Fetched ${response.data.length} contacts`)
-      setContacts(response.data)
-    } catch (err) {
-      console.error("[Contracts] Failed to fetch contacts:", err)
-    }
-  }, [])
 
   const fetchContracts = useCallback(async (status: StatusFilter, contactId: string) => {
     setLoading(true)
@@ -95,15 +84,11 @@ export default function ContractsPage() {
     try {
       const params: Record<string, string> = {}
       if (status !== "all") params.status = status
-      if (contactId !== "all") params.contactId = contactId
+      if (contactId) params.contactId = contactId
 
-      const startTime = performance.now()
       const response = await contractsApi.getContracts(
         Object.keys(params).length > 0 ? params : undefined
       )
-      const duration = performance.now() - startTime
-
-      console.log(`[Contracts] Fetched ${response.data.length} contracts in ${duration.toFixed(2)}ms`)
 
       setContracts(response.data)
     } catch (err) {
@@ -118,10 +103,6 @@ export default function ContractsPage() {
       setLoading(false)
     }
   }, [])
-
-  useEffect(() => {
-    fetchContacts()
-  }, [fetchContacts])
 
   useEffect(() => {
     fetchContracts(statusFilter, contactFilter)
@@ -214,40 +195,13 @@ export default function ContractsPage() {
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm text-muted-foreground">Контрагент</label>
-              <Select
-                value={contactFilter}
-                onValueChange={(value) => {
-                  if (value) setContactFilter(value)
-                }}
-                items={Object.fromEntries([
-                  ["all", "Все контрагенты"],
-                  ...contacts.map((contact) => [
-                    contact.id,
-                    contact.type === "company"
-                      ? contact.companyName || `Компания ${contact.id}`
-                      : [contact.lastName, contact.firstName].filter(Boolean).join(" ") || `Контакт ${contact.id}`,
-                  ]),
-                ])}
-              >
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder="Все контрагенты" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="all">Все контрагенты</SelectItem>
-                    {contacts.map((contact) => (
-                      <SelectItem key={contact.id} value={contact.id}>
-                        {contact.type === "company"
-                          ? contact.companyName || `Компания ${contact.id}`
-                          : [contact.lastName, contact.firstName]
-                              .filter(Boolean)
-                              .join(" ") || `Контакт ${contact.id}`
-                        }
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <EntitySearchSelect
+                type="contact"
+                value={contactFilter || null}
+                onValueChange={(value) => setContactFilter(value ?? "")}
+                placeholder="Все контрагенты"
+                className="w-64"
+              />
             </div>
           </div>
         </CardContent>

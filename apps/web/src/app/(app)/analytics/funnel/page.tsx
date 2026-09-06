@@ -118,7 +118,7 @@ export default function SalesFunnelPage() {
                         <div className="w-32 text-sm font-medium text-right shrink-0">{stage.stageName}</div>
                         <div className="flex-1">
                           <div
-                            className={`h-8 ${color} rounded-r-md flex items-center justify-end px-3 min-w-[60px] transition-all`}
+                            className={`h-8 ${color} rounded-r-md flex items-center justify-end px-3 min-w-[60px] transition-[width] duration-500 ease-out`}
                             style={{ width: `${widthPct}%` }}
                           >
                             <span className="text-white font-semibold text-sm">{stage.dealCount}</span>

@@ -11,7 +11,7 @@ import { filesApi } from "@/lib/api/files"
 import { contractsApi } from "@/lib/api/contracts"
 import { createTask, getTasks, updateTask, type TaskData } from "@/lib/api/tasks"
 import { getLeadSources } from "@/lib/api/lead-source"
-import { getLossReasonLabel } from "@/lib/loss-reasons"
+import { getLossReasonLabel, LOSS_REASONS } from "@/lib/loss-reasons"
 import type { DealData, DealStageData, FileUploadFile, LeadSourceData } from "@/lib/api/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dialog"
 import { DealHistoryTimeline } from "@/components/deals/deal-history-timeline"
 import { DealComments } from "@/components/deals/deal-comments"
+import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 import { DealContactsSection } from "@/components/deals/deal-contacts-section"
 import { FileUpload } from "@/components/shared/file-upload"
 import { FilePreview, useFilePreview } from "@/components/shared/file-preview"
@@ -102,7 +103,6 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     sourceId: "",
     contactId: "",
   })
-  const [editContacts, setEditContacts] = useState<Array<{ id: string; name: string }>>([])
   const [drawingFiles, setDrawingFiles] = useState<FileUploadFile[]>([])
   const [actFiles, setActFiles] = useState<FileUploadFile[]>([])
   const [uploadingDrawing, setUploadingDrawing] = useState(false)
@@ -112,6 +112,8 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   // Pipeline stages for the inline stage selector.
   const [stages, setStages] = useState<DealStageData[]>([])
   const [movingStage, setMovingStage] = useState(false)
+  const [lossDialog, setLossDialog] = useState<{ stageId: string } | null>(null)
+  const [lossReason, setLossReason] = useState("")
   // History section is collapsed by default (per UX decision).
   const [historyOpen, setHistoryOpen] = useState(false)
   const [leadSources, setLeadSources] = useState<LeadSourceData[]>([])
@@ -131,7 +133,6 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     priority: "medium",
     assigneeId: "",
   })
-  const [users, setUsers] = useState<Array<{ id: string; name: string | null; email: string }>>([])
 
   const unwrapParams = useCallback(async () => {
     return await params
@@ -219,49 +220,40 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     })
   }, [unwrapParams, fetchDeal, fetchTasks])
 
-  // Загрузить контакты для выбора «Заказчика» в форме редактирования.
-  const loadEditContacts = useCallback(async () => {
-    try {
-      const res = await fetch("/api/contacts?pageSize=100")
-      if (res.ok) {
-        const json = await res.json()
-        const list: Array<{ id: string; name: string }> = (json.data ?? []).map((c: any) => ({
-          id: c.id,
-          name:
-            c.type === "company"
-              ? c.companyName || "—"
-              : [c.lastName, c.firstName].filter(Boolean).join(" ") || c.phone || "—",
-        }))
-        setEditContacts(list)
-      }
-    } catch {
-      // не блокируем редактирование
-    }
-  }, [])
-
-  // Load users for task assignee dropdown
-  useEffect(() => {
-    if (taskDialogOpen && users.length === 0) {
-      fetch("/api/users/list")
-        .then((r) => r.json())
-        .then((d: { data?: typeof users }) => setUsers(d.data ?? []))
-        .catch(() => {})
-    }
-  }, [taskDialogOpen, users.length])
-
   // Move deal to a different stage via /move (records history, server derives actor).
-  const handleMoveStage = async (stageId: string) => {
-    if (!deal || deal.stageId === stageId) return
+  const doMoveStage = async (stageId: string, lossReason?: string) => {
+    if (!deal) return
     setMovingStage(true)
     setError(null)
     try {
-      const response = await dealsApi.moveDeal(deal.id, { stageId })
+      const response = await dealsApi.moveDeal(deal.id, {
+        stageId,
+        ...(lossReason ? { lossReason } : {}),
+      })
       setDeal(response.data)
     } catch (err) {
       setError(err instanceof ApiClientError ? err.message : "Не удалось сменить этап.")
     } finally {
       setMovingStage(false)
     }
+  }
+
+  const handleMoveStage = (stageId: string) => {
+    if (!deal || deal.stageId === stageId) return
+    const targetStage = stages.find((s) => s.id === stageId)
+    if (targetStage?.isLostStage) {
+      setLossReason("")
+      setLossDialog({ stageId })
+      return
+    }
+    void doMoveStage(stageId)
+  }
+
+  const confirmLossMove = async () => {
+    if (!lossDialog || !lossReason) return
+    const { stageId } = lossDialog
+    setLossDialog(null)
+    await doMoveStage(stageId, lossReason)
   }
 
   const handleSave = async () => {
@@ -714,20 +706,13 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
 
                   <div className="grid gap-2">
                     <Label htmlFor="contactId">Заказчик *</Label>
-                    <Select
-                      value={editForm.contactId}
+                    <EntitySearchSelect
+                      type="contact"
+                      id="contactId"
+                      value={editForm.contactId || null}
                       onValueChange={(value) => setEditForm({ ...editForm, contactId: value ?? "" })}
-                      items={Object.fromEntries(editContacts.map((c) => [c.id, c.name]))}
-                    >
-                      <SelectTrigger id="contactId">
-                        <SelectValue placeholder="Выберите заказчика (для договора и проекта)..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {editContacts.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      placeholder="Выберите заказчика (для договора и проекта)..."
+                    />
                     <p className="text-[11px] text-muted-foreground">
                       Заказчик нужен для создания договора и проекта. Можно выбрать и в блоке «Заказчик» ниже.
                     </p>
@@ -1097,6 +1082,42 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
             </CardContent>
           </Card>
 
+          {/* Диалог причины проигрыша при смене этапа */}
+          <Dialog open={!!lossDialog} onOpenChange={(o) => { if (!o) setLossDialog(null) }}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Сделка проиграна</DialogTitle>
+                <DialogDescription>
+                  Укажите причину отказа, чтобы переместить сделку в «проигранную» стадию.
+                </DialogDescription>
+              </DialogHeader>
+              <Select
+                value={lossReason}
+                onValueChange={(value) => setLossReason(value ?? "")}
+                items={Object.fromEntries(LOSS_REASONS.map((r) => [r.code, r.label]))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Выберите причину..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {LOSS_REASONS.map((r) => (
+                    <SelectItem key={r.code} value={r.code}>
+                      {r.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setLossDialog(null)}>
+                  Отмена
+                </Button>
+                <Button onClick={confirmLossMove} disabled={!lossReason}>
+                  Переместить
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           {/* Действия */}
           {!isEditing && (
             <Card>
@@ -1108,7 +1129,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
                 {(isAdmin || deal.managerId === me?.id) && (
-                  <Button onClick={() => { setIsEditing(true); getLeadSources().then(r => setLeadSources(r.data)).catch(() => {}); loadEditContacts() }}>
+                  <Button onClick={() => { setIsEditing(true); getLeadSources().then(r => setLeadSources(r.data)).catch(() => {}) }}>
                     <Edit2 className="size-4" />
                     <span className="ml-1.5">Изменить</span>
                   </Button>
@@ -1381,20 +1402,12 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
 
             <div className="space-y-1.5">
               <Label>Исполнитель</Label>
-              <Select
-                value={newTask.assigneeId}
-                onValueChange={(v) => v && setNewTask({ ...newTask, assigneeId: v })}
-                items={Object.fromEntries(users.map((u) => [u.id, u.name ?? u.email]))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите исполнителя" />
-                </SelectTrigger>
-                <SelectContent>
-                  {users.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>{u.name ?? u.email}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <EntitySearchSelect
+                type="user"
+                value={newTask.assigneeId || null}
+                onValueChange={(value) => setNewTask({ ...newTask, assigneeId: value ?? "" })}
+                placeholder="Выберите исполнителя"
+              />
             </div>
           </div>
 

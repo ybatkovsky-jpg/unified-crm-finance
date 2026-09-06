@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { FileUpload } from "@/components/shared/file-upload"
 import { FilePreview, useFilePreview } from "@/components/shared/file-preview"
+import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 
 function formatDate(date: Date | string | null | undefined): string {
   if (!date) return "—"
@@ -115,6 +116,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     startDate: "",
     endDate: "",
     marginTarget: "",
+    managerId: null as string | null,
   })
   const [specFiles, setSpecFiles] = useState<FileUploadFile[]>([])
   const [uploadingSpec, setUploadingSpec] = useState(false)
@@ -135,11 +137,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     setLoading(true)
     setError(null)
     try {
-      const startTime = performance.now()
       const response = await projectsApi.getProject(id)
-      const duration = performance.now() - startTime
-
-      console.log(`[ProjectDetail] Fetched project in ${duration.toFixed(2)}ms`)
 
       setProject(response.data)
       setEditForm({
@@ -156,6 +154,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           ? new Date(response.data.endDate).toISOString().split('T')[0]
           : "",
         marginTarget: response.data.marginTarget?.toString() || "",
+        managerId: response.data.managerId ?? null,
       })
 
       // Load spec file data if attached
@@ -207,6 +206,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         startDate: editForm.startDate || undefined,
         endDate: editForm.endDate || undefined,
         marginTarget: parseFloat(editForm.marginTarget) || undefined,
+        managerId: editForm.managerId || null,
         specFileId: specFileId || undefined,
       })
 
@@ -239,6 +239,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           ? new Date(project.endDate).toISOString().split('T')[0]
           : "",
         marginTarget: project.marginTarget?.toString() || "",
+        managerId: project.managerId ?? null,
       })
       // Reset spec files to current project state
       if (project.specFile) {
@@ -603,6 +604,17 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     />
                   </div>
 
+                  <div className="grid gap-2">
+                    <Label htmlFor="managerId">Ответственный менеджер</Label>
+                    <EntitySearchSelect
+                      id="managerId"
+                      type="user"
+                      value={editForm.managerId}
+                      onValueChange={(v) => setEditForm({ ...editForm, managerId: v })}
+                      placeholder="Поиск сотрудника…"
+                    />
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
                       <Label htmlFor="status">Статус</Label>
@@ -701,6 +713,16 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 <>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
+                      <User className="size-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Ответственный менеджер</p>
+                        <p className="font-medium">
+                          {project.manager ? project.manager.name : "Не назначен"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
                       <DollarSign className="size-4 text-muted-foreground" />
                       <div>
                         <p className="text-xs text-muted-foreground">Сумма контракта</p>
@@ -709,7 +731,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                         </p>
                       </div>
                     </div>
+                  </div>
 
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
                       <Calendar className="size-4 text-muted-foreground" />
                       <div>
@@ -717,9 +741,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                         <p className="font-medium">{formatDate(project.startDate)}</p>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
                       <Calendar className="size-4 text-muted-foreground" />
                       <div>
@@ -727,7 +749,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                         <p className="font-medium">{formatDate(project.endDate)}</p>
                       </div>
                     </div>
+                  </div>
 
+                  <div className="grid grid-cols-2 gap-4">
                     {project.marginTarget != null && (
                       <div className="flex items-center gap-2">
                         <DollarSign className="size-4 text-muted-foreground" />

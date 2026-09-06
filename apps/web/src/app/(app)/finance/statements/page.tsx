@@ -14,14 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
+import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 
 interface StatementListItem {
   id: string
@@ -48,8 +42,6 @@ interface StatementDetail extends StatementListItem {
   BankTransaction: BankTransactionRow[]
 }
 
-interface ProjectOption { id: string; name: string; externalNumber: string }
-
 function formatRub(n: number): string {
   return new Intl.NumberFormat("ru-RU", { style: "currency", currency: "RUB", maximumFractionDigits: 0 }).format(n)
 }
@@ -72,7 +64,6 @@ export default function BankStatementsPage() {
   const [matching, setMatching] = useState(false)
   const [matchSummary, setMatchSummary] = useState<string | null>(null)
   const [confirmFor, setConfirmFor] = useState<BankTransactionRow | null>(null)
-  const [projects, setProjects] = useState<ProjectOption[]>([])
   const [confirmProject, setConfirmProject] = useState<string>("")
   const [confirming, setConfirming] = useState(false)
 
@@ -93,11 +84,6 @@ export default function BankStatementsPage() {
 
   useEffect(() => {
     fetchStatements()
-    // Загрузить список проектов для ручного сопоставления.
-    fetch("/api/projects?take=100", { headers: { "Content-Type": "application/json" } })
-      .then((r) => r.json())
-      .then((d) => setProjects(d.data ?? []))
-      .catch(() => {})
   }, [fetchStatements])
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -351,24 +337,12 @@ export default function BankStatementsPage() {
           </DialogHeader>
           <div className="grid gap-2 py-2">
             <Label>Привязать к проекту</Label>
-            <Select
-              value={confirmProject || "__none__"}
-              onValueChange={(v) => setConfirmProject(v === "__none__" ? "" : v ?? "")}
-              items={Object.fromEntries([
-                ["__none__", "Без проекта"],
-                ...projects.map((p) => [p.id, `${p.externalNumber} — ${p.name}`]),
-              ])}
-            >
-              <SelectTrigger><SelectValue placeholder="Без проекта" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__none__">Без проекта</SelectItem>
-                {projects.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.externalNumber} — {p.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <EntitySearchSelect
+              type="project"
+              value={confirmProject || null}
+              onValueChange={(v) => setConfirmProject(v ?? "")}
+              placeholder="Без проекта"
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmFor(null)}>Отмена</Button>

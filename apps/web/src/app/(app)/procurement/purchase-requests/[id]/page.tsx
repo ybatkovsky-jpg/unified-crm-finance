@@ -390,7 +390,7 @@ export default function PurchaseRequestDetailPage() {
               <div className="flex items-center gap-2">
                 <div className="h-2 w-32 rounded-full bg-muted overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-green-500 transition-all"
+                    className="h-full rounded-full bg-green-500 transition-[width] duration-500 ease-out"
                     style={{ width: `${receivedPct}%` }}
                   />
                 </div>

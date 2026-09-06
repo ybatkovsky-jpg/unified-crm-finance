@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -78,30 +79,7 @@ function getContactName(project: ProjectData): string {
     .join(" ") || "—"
 }
 
-type ManagerOption = {
-  id: string
-  name: string
-}
-
-function extractManagerOptions(projects: ProjectData[]): ManagerOption[] {
-  const managersMap = new Map<string, ManagerOption>()
-
-  for (const project of projects) {
-    if (project.manager) {
-      const name = project.manager.name || project.manager.email || `Пользователь ${project.manager.id}`
-
-      if (!managersMap.has(project.manager.id)) {
-        managersMap.set(project.manager.id, { id: project.manager.id, name })
-      }
-    }
-  }
-
-  return Array.from(managersMap.values()).sort((a, b) => a.name.localeCompare(b.name))
-}
-
-export default function ProjectsPage() {
-  const [projects, setProjects] = useState<ProjectData[]>([])
-  const [managerOptions, setManagerOptions] = useState<ManagerOption[]>([])
+export default function ProjectsPage() {  const [projects, setProjects] = useState<ProjectData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
@@ -160,16 +138,11 @@ export default function ProjectsPage() {
       if (status !== "all") params.status = status
       if (managerId !== "all") params.managerId = managerId
 
-      const startTime = performance.now()
       const response = await projectsApi.getProjects(
         Object.keys(params).length > 0 ? params : undefined
       )
-      const duration = performance.now() - startTime
-
-      console.log(`[Projects] Fetched ${response.data.length} projects in ${duration.toFixed(2)}ms`)
 
       setProjects(response.data)
-      setManagerOptions(extractManagerOptions(response.data))
     } catch (err) {
       if (err instanceof ApiClientError) {
         console.error("[Projects] API error:", err.message)
@@ -243,7 +216,7 @@ export default function ProjectsPage() {
   }
 
   const handleProjectCreated = (project: any) => {
-    console.log("[Projects] Project created:", project)
+    void project
     fetchProjects(statusFilter, managerFilter)
   }
 
@@ -282,30 +255,13 @@ export default function ProjectsPage() {
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm text-muted-foreground">Менеджер</label>
-              <Select
-                value={managerFilter}
-                onValueChange={(value) => {
-                  if (value) setManagerFilter(value)
-                }}
-                items={Object.fromEntries([
-                  ["all", "Все менеджеры"],
-                  ...managerOptions.map((m) => [m.id, m.name]),
-                ])}
-              >
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder="Все менеджеры" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="all">Все менеджеры</SelectItem>
-                    {managerOptions.map((manager) => (
-                      <SelectItem key={manager.id} value={manager.id}>
-                        {manager.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <EntitySearchSelect
+                type="user"
+                value={managerFilter === "all" ? null : managerFilter}
+                onValueChange={(v) => setManagerFilter(v ?? "all")}
+                placeholder="Все менеджеры"
+                className="w-64"
+              />
             </div>
           </div>
         </CardContent>

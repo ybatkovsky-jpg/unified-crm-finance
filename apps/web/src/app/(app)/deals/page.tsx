@@ -10,6 +10,23 @@ import { FilterBar } from "@/components/deals/filter-bar"
 import { CreateDealModal } from "@/components/deals/create-deal-modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { LOSS_REASONS } from "@/lib/loss-reasons"
 import { useMe } from "@/components/layout/use-me"
 
 type StatusFilter = "all" | "open" | "closed"
@@ -23,6 +40,12 @@ export default function DealsPage() {
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
   const [movingDealId, setMovingDealId] = useState<string | null>(null)
+  const [lossDialog, setLossDialog] = useState<{
+    dealId: string
+    toStageId: string
+    title: string
+  } | null>(null)
+  const [lossReason, setLossReason] = useState("")
 
   const fetchPipeline = useCallback(async () => {
     try {
@@ -75,19 +98,13 @@ export default function DealsPage() {
     fetchDeals(statusFilter)
   }, [statusFilter, fetchDeals])
 
-  const handleMoveDeal = async (dealId: string, toStageId: string) => {
-    // Защита от лишнего запроса: сделка уже на этой стадии — ничего не делаем.
-    const existing = deals.find((d) => d.id === dealId)
-    const currentStageId = (existing as { stage?: { id?: string } } | undefined)?.stage?.id
-    if (currentStageId === toStageId) {
-      return
-    }
-
+  const doMoveDeal = async (dealId: string, toStageId: string, lossReason?: string) => {
     setMovingDealId(dealId)
     try {
       const response = await dealsApi.moveDeal(dealId, {
         stageId: toStageId,
         changedBy: me?.id ?? "",
+        ...(lossReason ? { lossReason } : {}),
       })
       setDeals((prev) =>
         prev.map((deal) =>
@@ -103,6 +120,31 @@ export default function DealsPage() {
     } finally {
       setMovingDealId(null)
     }
+  }
+
+  const handleMoveDeal = async (dealId: string, toStageId: string) => {
+    // Защита от лишнего запроса: сделка уже на этой стадии — ничего не делаем.
+    const existing = deals.find((d) => d.id === dealId)
+    if (existing?.stageId === toStageId) {
+      return
+    }
+
+    // Перемещение в «проигранную» стадию требует причину отказа.
+    const targetStage = stages.find((s) => s.id === toStageId)
+    if (targetStage?.isLostStage) {
+      setLossReason("")
+      setLossDialog({ dealId, toStageId, title: existing?.title ?? "Сделка" })
+      return
+    }
+
+    await doMoveDeal(dealId, toStageId)
+  }
+
+  const confirmLossMove = async () => {
+    if (!lossDialog || !lossReason) return
+    const { dealId, toStageId } = lossDialog
+    setLossDialog(null)
+    await doMoveDeal(dealId, toStageId, lossReason)
   }
 
   const handleRetry = () => {
@@ -173,6 +215,44 @@ export default function DealsPage() {
           </Card>
         )}
       </div>
+
+      {/* Диалог причины проигрыша при переносе в «проигранную» стадию */}
+      <AlertDialog open={!!lossDialog} onOpenChange={() => setLossDialog(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Сделка проиграна</AlertDialogTitle>
+            <AlertDialogDescription>
+              Укажите причину отказа для сделки «{lossDialog?.title}».
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="grid gap-2">
+            <Select
+              value={lossReason}
+              onValueChange={(value) => setLossReason(value ?? "")}
+              items={Object.fromEntries(
+                LOSS_REASONS.map((r) => [r.code, r.label])
+              )}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Выберите причину..." />
+              </SelectTrigger>
+              <SelectContent>
+                {LOSS_REASONS.map((r) => (
+                  <SelectItem key={r.code} value={r.code}>
+                    {r.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <Button onClick={confirmLossMove} disabled={!lossReason}>
+              Переместить
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
