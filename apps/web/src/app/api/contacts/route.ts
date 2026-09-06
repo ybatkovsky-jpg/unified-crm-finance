@@ -19,9 +19,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const type = sp.get('type')
     const status = sp.get('status')
     const companyId = sp.get('companyId')
+    const search = sp.get('search')
     if (type) where.type = type
     if (status) where.status = status
     if (companyId) where.companyId = companyId
+    if (search) {
+      where.OR = [
+        { phone: search },
+        { inn: search },
+        { email: search },
+      ]
+    }
 
     // Pagination
     const page = Math.max(1, parseInt(sp.get('page') || '1'))

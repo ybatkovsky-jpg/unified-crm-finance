@@ -12,7 +12,8 @@
  *  - company → название/ИНН/КПП/ОГРН + опциональное создание сотрудника
  */
 import { useEffect, useState } from "react";
-import { UserPlus, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import Link from "next/link";
+import { UserPlus, Loader2, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
 
 import {
   Dialog,
@@ -123,6 +124,7 @@ export function ContactFormModal({
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [duplicates, setDuplicates] = useState<ContactData[]>([]);
 
   // ── Reset / populate form ──
   useEffect(() => {
@@ -190,6 +192,28 @@ export function ContactFormModal({
     }
     setError(null);
   }, [open, contact, defaultCompanyId]);
+
+  // ── Поиск дублей по телефону/ИНН (debounced) ──
+  useEffect(() => {
+    const value = (type === "person" ? phone : inn).trim()
+    if (!value || value.length < 5) {
+      setDuplicates([])
+      return
+    }
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/contacts?search=${encodeURIComponent(value)}`)
+        if (res.ok) {
+          const json = await res.json()
+          const list = (json.data ?? []) as ContactData[]
+          setDuplicates(list.filter((c) => c.id !== contact?.id))
+        }
+      } catch {
+        /* ignore */
+      }
+    }, 400)
+    return () => clearTimeout(t)
+  }, [type, phone, inn, contact?.id])
 
   // ── Submit ──
   async function handleSubmit(e: React.FormEvent) {
@@ -436,6 +460,25 @@ export function ContactFormModal({
               <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ivan@example.com" type="email" />
             </Field>
           </div>
+
+          {duplicates.length > 0 && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
+              <div className="flex items-center gap-1.5 font-medium">
+                <AlertTriangle className="size-3.5" />
+                Возможные дубликаты ({duplicates.length}):
+              </div>
+              <ul className="mt-1 space-y-0.5">
+                {duplicates.map((d) => (
+                  <li key={d.id}>
+                    <Link href={`/crm/contacts/${d.id}`} className="hover:underline" target="_blank">
+                      {d.companyName || [d.lastName, d.firstName].filter(Boolean).join(" ") || d.phone || d.email}
+                      {d.phone ? ` · ${d.phone}` : ""}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Passport fields — person only, collapsible */}
           {type === "person" && (
