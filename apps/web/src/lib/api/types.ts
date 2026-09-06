@@ -5,7 +5,7 @@
  * Matches the API route contracts from /api/contacts and /api/contacts/[id].
  */
 
-import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction, Delivery, Budget, Transaction, CashFlowPayment, Category } from '@prisma/client';
+import type { Contact, Counterparty, Interaction, Deal, DealStage, Pipeline, User, Contract, ContractVersion, ContractSigner, ContractTemplate, Project, ProjectStage, ProjectMember, Production, ProductionStage, FileEntity, BOM, BOMItem, PurchaseRequest, PurchaseRequestItem, Invoice, InvoiceItem, ApprovalRequest, WarehouseItem, WarehouseTransaction, Delivery, Budget, Transaction, CashFlowPayment, CommercialOffer, Category } from '@prisma/client';
 
 /**
  * Base contact fields without Prisma metadata
@@ -1498,6 +1498,13 @@ export interface CashFlowPaymentUpdateInput {
   status?: string | null;
   dueDate?: string | null;
 }
+
+// ─── CommercialOffer (КП) ──────────────────────────────────
+
+export type CommercialOfferData = Omit<CommercialOffer, 'amount'> & {
+  // amount: Prisma.Decimal в БД → number в API (см. lib/db/decimal-extension.ts)
+  amount: number;
+};
 
 /**
  * File upload file state (mirrors FileUpload component)

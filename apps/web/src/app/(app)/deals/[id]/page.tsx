@@ -41,6 +41,7 @@ import { DealHistoryTimeline } from "@/components/deals/deal-history-timeline"
 import { DealComments } from "@/components/deals/deal-comments"
 import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 import { DealContactsSection } from "@/components/deals/deal-contacts-section"
+import { DealOffersSection } from "@/components/deals/deal-offers-section"
 import { FileUpload } from "@/components/shared/file-upload"
 import { FilePreview, useFilePreview } from "@/components/shared/file-preview"
 
@@ -895,6 +896,9 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
             contactId={deal.contactId ?? null}
             onCustomerChange={() => fetchDeal(deal.id)}
           />
+
+          {/* Коммерческие предложения (КП) */}
+          <DealOffersSection dealId={deal.id} />
 
           {/* Deal History — collapsible (collapsed by default) */}
           <Card>

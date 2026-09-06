@@ -361,6 +361,7 @@ model Deal {
   User              User?         @relation(fields: [managerId], references: [id])
   Contract          Contract?
   Project           Project?
+  CommercialOffer   CommercialOffer[]
 
   @@index([projectId])
   @@index([contractId])
@@ -420,6 +421,27 @@ model DealStage {
 
   @@unique([pipelineId, code])
   @@index([pipelineId, order])
+}
+
+/// Коммерческое предложение (КП) по сделке. Версии: несколько КП на сделку.
+/// status: draft | sent | won | lost. Срок действия — validUntil (по умолчанию +30 дней).
+model CommercialOffer {
+  id         String    @id
+  dealId     String
+  number     String    @unique
+  title      String
+  amount     Decimal   @default(0) @db.Decimal(15, 2)
+  currency   String    @default("RUB")
+  version    Int       @default(1)
+  status     String    @default("draft")
+  validUntil DateTime?
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime
+  Deal       Deal      @relation(fields: [dealId], references: [id], onDelete: Cascade)
+
+  @@index([dealId])
+  @@index([status])
 }
 
 model Delivery {
