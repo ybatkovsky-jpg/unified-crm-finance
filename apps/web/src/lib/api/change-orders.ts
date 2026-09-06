@@ -13,7 +13,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -110,7 +110,7 @@ export class ChangeOrderApiClient {
   }
 }
 
-export const changeOrdersApi = new ChangeOrderApiClient();
+export const changeOrdersApi = bindMethods(new ChangeOrderApiClient());
 
 export const {
   getChangeOrders,

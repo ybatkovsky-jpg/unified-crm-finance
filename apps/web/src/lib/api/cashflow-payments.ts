@@ -13,7 +13,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -85,6 +85,6 @@ export class CashFlowPaymentApiClient {
   }
 }
 
-export const cashflowPaymentsApi = new CashFlowPaymentApiClient();
+export const cashflowPaymentsApi = bindMethods(new CashFlowPaymentApiClient());
 export const { getPayments, getPayment, createPayment, updatePayment, deletePayment } = cashflowPaymentsApi;
 export default cashflowPaymentsApi;

@@ -16,7 +16,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -121,7 +121,7 @@ export class WarehouseApiClient {
 }
 
 /** Default singleton instance */
-export const warehouseApi = new WarehouseApiClient();
+export const warehouseApi = bindMethods(new WarehouseApiClient());
 
 /** Convenience exports */
 export const {

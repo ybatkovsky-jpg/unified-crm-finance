@@ -13,7 +13,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -105,7 +105,7 @@ export class DeliveryApiClient {
 }
 
 /** Default singleton instance */
-export const deliveriesApi = new DeliveryApiClient();
+export const deliveriesApi = bindMethods(new DeliveryApiClient());
 
 /** Convenience exports */
 export const { getDeliveries, getDelivery, createDelivery, updateDelivery, updateStatus } = deliveriesApi;

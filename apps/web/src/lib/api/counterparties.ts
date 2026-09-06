@@ -14,7 +14,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -202,7 +202,7 @@ export class CounterpartyApiClient {
 /**
  * Default singleton instance for use across the application
  */
-export const counterpartiesApi = new CounterpartyApiClient();
+export const counterpartiesApi = bindMethods(new CounterpartyApiClient());
 
 /**
  * Convenience exports for direct use

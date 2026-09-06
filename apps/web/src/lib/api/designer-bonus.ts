@@ -10,7 +10,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -75,7 +75,7 @@ export class DesignerBonusApiClient {
   }
 }
 
-export const designerBonusesApi = new DesignerBonusApiClient();
+export const designerBonusesApi = bindMethods(new DesignerBonusApiClient());
 
 export const {
   getDesignerBonus,

@@ -16,7 +16,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -320,7 +320,7 @@ export class ProductionApiClient {
 /**
  * Default singleton instance
  */
-export const productionsApi = new ProductionApiClient();
+export const productionsApi = bindMethods(new ProductionApiClient());
 
 /**
  * Convenience exports

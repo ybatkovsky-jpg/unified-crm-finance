@@ -16,7 +16,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -344,7 +344,7 @@ export class BOMApiClient {
 /**
  * Default singleton instance for use across the application
  */
-export const bomApi = new BOMApiClient();
+export const bomApi = bindMethods(new BOMApiClient());
 
 /**
  * Convenience exports for direct use

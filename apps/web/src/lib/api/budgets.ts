@@ -14,7 +14,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -168,7 +168,7 @@ export class BudgetApiClient {
 }
 
 /** Default singleton instance */
-export const budgetsApi = new BudgetApiClient();
+export const budgetsApi = bindMethods(new BudgetApiClient());
 
 /** Convenience exports for direct use */
 export const {

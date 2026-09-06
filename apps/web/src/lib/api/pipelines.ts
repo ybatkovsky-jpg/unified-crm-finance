@@ -12,7 +12,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -103,7 +103,7 @@ export class PipelineApiClient {
 /**
  * Default singleton instance
  */
-export const pipelinesApi = new PipelineApiClient();
+export const pipelinesApi = bindMethods(new PipelineApiClient());
 
 /**
  * Convenience exports

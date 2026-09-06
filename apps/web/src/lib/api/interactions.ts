@@ -14,7 +14,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -231,7 +231,7 @@ export class InteractionApiClient {
 /**
  * Default singleton instance for use across the application
  */
-export const interactionsApi = new InteractionApiClient();
+export const interactionsApi = bindMethods(new InteractionApiClient());
 
 /**
  * Convenience exports for direct use

@@ -14,7 +14,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -204,7 +204,7 @@ export class ContactApiClient {
 /**
  * Default singleton instance for use across the application
  */
-export const contactsApi = new ContactApiClient();
+export const contactsApi = bindMethods(new ContactApiClient());
 
 /**
  * Convenience exports for direct use

@@ -17,7 +17,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -287,7 +287,7 @@ export class ProjectApiClient {
 /**
  * Default singleton instance
  */
-export const projectsApi = new ProjectApiClient();
+export const projectsApi = bindMethods(new ProjectApiClient());
 
 /**
  * Convenience exports

@@ -18,7 +18,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -232,7 +232,7 @@ export class PurchaseRequestApiClient {
 }
 
 /** Default singleton instance */
-export const purchaseRequestsApi = new PurchaseRequestApiClient();
+export const purchaseRequestsApi = bindMethods(new PurchaseRequestApiClient());
 
 /** Convenience exports */
 export const {

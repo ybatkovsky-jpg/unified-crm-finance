@@ -14,7 +14,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -106,7 +106,7 @@ export class ProjectPaymentApiClient {
   }
 }
 
-export const projectPaymentsApi = new ProjectPaymentApiClient();
+export const projectPaymentsApi = bindMethods(new ProjectPaymentApiClient());
 
 export const {
   getPayments: getProjectPayments,

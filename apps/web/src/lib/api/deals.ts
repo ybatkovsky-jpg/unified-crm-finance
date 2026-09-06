@@ -16,7 +16,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -207,7 +207,7 @@ export class DealApiClient {
 /**
  * Default singleton instance
  */
-export const dealsApi = new DealApiClient();
+export const dealsApi = bindMethods(new DealApiClient());
 
 /**
  * Convenience exports

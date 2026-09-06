@@ -12,7 +12,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -88,7 +88,7 @@ export class ApprovalRequestApiClient {
 }
 
 /** Default singleton instance */
-export const approvalsApi = new ApprovalRequestApiClient();
+export const approvalsApi = bindMethods(new ApprovalRequestApiClient());
 
 /** Convenience exports */
 export const { getApprovals, getApproval, createApproval, decideApproval } = approvalsApi;

@@ -6,7 +6,7 @@
  */
 
 import type { ApiResponse, ApiClientConfig } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -213,7 +213,7 @@ export class FilesApiClient {
 /**
  * Default singleton instance
  */
-export const filesApi = new FilesApiClient();
+export const filesApi = bindMethods(new FilesApiClient());
 
 /**
  * Convenience exports

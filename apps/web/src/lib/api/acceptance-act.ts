@@ -13,7 +13,7 @@ import type {
   ApiResponse,
   ApiClientConfig,
 } from './types';
-import { ApiClientError, parseApiError, parseJson } from './shared';
+import { ApiClientError, parseApiError, parseJson, bindMethods } from './shared';
 
 export { ApiClientError } from './shared';
 
@@ -106,7 +106,7 @@ export class AcceptanceActApiClient {
   }
 }
 
-export const acceptanceActsApi = new AcceptanceActApiClient();
+export const acceptanceActsApi = bindMethods(new AcceptanceActApiClient());
 
 export const {
   getAcceptanceAct,
