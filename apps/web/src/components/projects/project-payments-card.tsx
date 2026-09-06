@@ -247,7 +247,7 @@ export function ProjectPaymentsCard({ projectId, onUpdate }: ProjectPaymentsCard
                 </div>
                 <div className="h-2 rounded-full bg-muted overflow-hidden">
                   <div
-                    className="h-full bg-primary transition-all"
+                    className="h-full bg-primary transition-[width] duration-500 ease-out"
                     style={{ width: `${percent}%` }}
                   />
                 </div>

@@ -241,7 +241,7 @@ export function FileUpload({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-all cursor-pointer",
+          "relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-[border-color,background-color] duration-150 cursor-pointer",
           isDragging
             ? "border-primary bg-primary/5"
             : "border-border hover:border-muted-foreground/50 hover:bg-muted/30",

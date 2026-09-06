@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -10,9 +10,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 import { purchaseRequestsApi, ApiClientError } from "@/lib/api/purchase-requests"
 import { bomApi } from "@/lib/api/bom"
 import { warehouseApi } from "@/lib/api/warehouse"
@@ -181,11 +181,12 @@ export function PurchaseRequestCreateDialog({ open, onOpenChange, onSuccess }: P
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
             <Label htmlFor="projectId">Project ID</Label>
-            <Input
+            <EntitySearchSelect
               id="projectId"
+              type="project"
+              value={projectId || null}
+              onValueChange={(v) => setProjectId(v ?? "")}
               placeholder="например, uuid проекта"
-              value={projectId}
-              onChange={(e) => setProjectId(e.target.value)}
               disabled={loading || creating || !!created}
             />
           </div>

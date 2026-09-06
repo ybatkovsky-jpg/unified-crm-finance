@@ -7,13 +7,14 @@ import {
   Mail,
   FileText,
   CheckSquare,
-  Loader2,
   AlertCircle,
   MessageSquare,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/shared/empty-state";
 import { getContactInteractions } from "@/lib/api/interactions";
 import { ApiClientError } from "@/lib/api/shared";
 
@@ -97,9 +98,20 @@ export function InteractionTimeline({ contactId }: InteractionTimelineProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12 text-muted-foreground">
-        <Loader2 className="mr-2 size-4 animate-spin" />
-        Загрузка взаимодействий…
+      <div className="flex flex-col gap-3">
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="flex items-start gap-3 rounded-xl border bg-card p-3"
+          >
+            <Skeleton className="size-6 shrink-0 rounded-md" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-3 w-1/3" />
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-2/3" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
@@ -120,9 +132,11 @@ export function InteractionTimeline({ contactId }: InteractionTimelineProps) {
 
   if (!items || items.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
-        No interactions yet
-      </div>
+      <EmptyState
+        icon={MessageSquare}
+        title="Взаимодействий пока нет"
+        description="Звонки, встречи, письма и заметки по контакту появятся здесь."
+      />
     );
   }
 

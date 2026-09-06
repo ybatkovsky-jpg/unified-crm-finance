@@ -17,7 +17,7 @@
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import {
-  Plus, X, Search, User, Building2, RefreshCw, UserPlus, Trash2,
+  Plus, X, User, Building2, RefreshCw, UserPlus, Trash2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,8 +25,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { contactsApi } from "@/lib/api/contacts"
 import { dealsApi } from "@/lib/api/deals"
-import type { ContactData } from "@/lib/api/types"
 import { AddContactDialog } from "@/components/deals/add-contact-dialog"
+import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 
 // ── Types ──
 
@@ -73,8 +73,6 @@ export function DealContactsSection({
 
   // Customer picker
   const [showCustomerPicker, setShowCustomerPicker] = useState(false)
-  const [allContacts, setAllContacts] = useState<ContactData[]>([])
-  const [search, setSearch] = useState("")
 
   // Contact picker
   const [showContactPicker, setShowContactPicker] = useState(false)
@@ -139,31 +137,26 @@ export function DealContactsSection({
     fetchContacts()
   }, [fetchContacts])
 
-  // ── Load all contacts for picker ──
-  const loadAllContacts = useCallback(async () => {
-    try {
-      const res = await contactsApi.getContacts({})
-      setAllContacts(res.data.slice(0, 100))
-    } catch (err) {
-      console.error("Failed to fetch contacts:", err)
-    }
-  }, [])
-
   // ── Set customer ( Deal.contactId ) ──
-  const handleSetCustomer = async (contact: ContactData) => {
+  const handleSetCustomer = async (contactIdToSet: string) => {
     setAdding(true)
     try {
-      await dealsApi.updateDeal(dealId, { contactId: contact.id } as never)
+      await dealsApi.updateDeal(dealId, { contactId: contactIdToSet } as never)
 
-      // Если выбрали организацию — подтянуть её сотрудников как контакты сделки
-      if (contact.type === "company") {
-        await autoImportEmployees(contact.id)
+      // Если выбрали организацию — подтянуть её сотрудников как контакты сделки.
+      try {
+        const res = await fetch(`/api/contacts/${contactIdToSet}`)
+        const json = await res.json()
+        if (res.ok && json.data?.type === "company") {
+          await autoImportEmployees(contactIdToSet)
+        }
+      } catch {
+        // не критично — сотрудники не подтянутся
       }
 
       await fetchCustomer()
       await fetchContacts()
       setShowCustomerPicker(false)
-      setSearch("")
       onCustomerChange?.()
     } catch (err) {
       console.error("Failed to set customer:", err)
@@ -220,7 +213,6 @@ export function DealContactsSection({
       })
       await fetchContacts()
       setShowContactPicker(false)
-      setSearch("")
       setNewRole("")
     } catch (err) {
       console.error("Failed to add contact:", err)
@@ -241,14 +233,6 @@ export function DealContactsSection({
       console.error("Failed to remove contact:", err)
     }
   }
-
-  const filtered = allContacts.filter((c) => {
-    const name =
-      c.type === "person"
-        ? `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase()
-        : (c.companyName ?? "").toLowerCase()
-    return name.includes(search.toLowerCase())
-  })
 
   return (
     <>
@@ -303,49 +287,15 @@ export function DealContactsSection({
             </div>
           ) : showCustomerPicker ? (
             <div className="border rounded-md space-y-2 p-2">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-                <Input
-                  placeholder="Поиск физлица или организации..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onFocus={loadAllContacts}
-                  className="pl-8 h-8"
-                  autoFocus
-                />
-              </div>
-              <div className="max-h-40 overflow-y-auto border rounded-md">
-                {filtered.length === 0 ? (
-                  <p className="text-sm text-muted-foreground p-2 text-center">
-                    {allContacts.length === 0 ? "Загрузка..." : "Не найдено"}
-                  </p>
-                ) : (
-                  filtered.map((contact) => (
-                    <button
-                      key={contact.id}
-                      type="button"
-                      disabled={adding}
-                      className="w-full text-left px-3 py-1.5 hover:bg-muted flex items-center gap-2 text-sm border-b last:border-b-0 disabled:opacity-50"
-                      onClick={() => handleSetCustomer(contact)}
-                    >
-                      {contact.type === "person" ? (
-                        <User className="size-3 text-muted-foreground shrink-0" />
-                      ) : (
-                        <Building2 className="size-3 text-muted-foreground shrink-0" />
-                      )}
-                      <span className="flex-1 truncate">
-                        {contact.type === "person"
-                          ? `${contact.firstName ?? ""} ${contact.lastName ?? ""}`.trim() ||
-                            contact.id
-                          : contact.companyName || contact.id}
-                      </span>
-                      <Badge variant="outline" className="text-[10px] shrink-0">
-                        {contact.type === "person" ? "Физ" : "Юр"}
-                      </Badge>
-                    </button>
-                  ))
-                )}
-              </div>
+              <EntitySearchSelect
+                type="contact"
+                value={null}
+                onValueChange={(value) => {
+                  if (value) handleSetCustomer(value)
+                }}
+                placeholder="Поиск физлица или организации..."
+                disabled={adding}
+              />
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -366,7 +316,6 @@ export function DealContactsSection({
               className="w-full"
               onClick={() => {
                 setShowCustomerPicker(true)
-                loadAllContacts()
               }}
             >
               <Plus className="size-3.5" />
@@ -435,46 +384,15 @@ export function DealContactsSection({
                 onChange={(e) => setNewRole(e.target.value)}
                 className="h-8 text-xs"
               />
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-                <Input
-                  placeholder="Поиск контакта..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onFocus={loadAllContacts}
-                  className="pl-8 h-8"
-                  autoFocus
-                />
-              </div>
-              <div className="max-h-32 overflow-y-auto border rounded-md">
-                {filtered.length === 0 ? (
-                  <p className="text-sm text-muted-foreground p-2 text-center">
-                    {allContacts.length === 0 ? "Загрузка..." : "Не найдено"}
-                  </p>
-                ) : (
-                  filtered.map((contact) => (
-                    <button
-                      key={contact.id}
-                      type="button"
-                      disabled={adding}
-                      className="w-full text-left px-3 py-1.5 hover:bg-muted flex items-center gap-2 text-sm border-b last:border-b-0 disabled:opacity-50"
-                      onClick={() => handleAddContact(contact.id, newRole)}
-                    >
-                      {contact.type === "person" ? (
-                        <User className="size-3 text-muted-foreground shrink-0" />
-                      ) : (
-                        <Building2 className="size-3 text-muted-foreground shrink-0" />
-                      )}
-                      <span className="flex-1 truncate">
-                        {contact.type === "person"
-                          ? `${contact.firstName ?? ""} ${contact.lastName ?? ""}`.trim() ||
-                            contact.id
-                          : contact.companyName || contact.id}
-                      </span>
-                    </button>
-                  ))
-                )}
-              </div>
+              <EntitySearchSelect
+                type="contact"
+                value={null}
+                onValueChange={(value) => {
+                  if (value) handleAddContact(value, newRole)
+                }}
+                placeholder="Поиск контакта..."
+                disabled={adding}
+              />
               <Button
                 type="button"
                 variant="ghost"
@@ -494,7 +412,6 @@ export function DealContactsSection({
                 className="w-full"
                 onClick={() => {
                   setShowContactPicker(true)
-                  loadAllContacts()
                 }}
               >
                 <Plus className="size-3.5" />

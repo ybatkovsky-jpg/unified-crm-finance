@@ -15,7 +15,6 @@ import {
   X,
 } from "lucide-react"
 import { bomApi, ApiClientError } from "@/lib/api/bom"
-import { counterpartiesApi } from "@/lib/api/counterparties"
 import { purchaseRequestsApi } from "@/lib/api/purchase-requests"
 import type { BOMData, BOMItemData, BOMItemCreateInput, BOMItemUpdateInput, CounterpartyData } from "@/lib/api/types"
 import { Button } from "@/components/ui/button"
@@ -23,12 +22,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  EntitySearchSelect,
+  type EntitySearchOption,
+} from "@/components/ui/entity-search-select"
 import {
   Table,
   TableBody,
@@ -179,7 +175,6 @@ function getBOMStatusVariant(
 
 export function BOMSection({ projectId }: { projectId: string }) {
   const [state, setState] = useState<BOMSectionState>({ kind: "loading" })
-  const [suppliers, setSuppliers] = useState<CounterpartyData[]>([])
   const [editingCell, setEditingCell] = useState<EditableCell | null>(null)
   const [editValue, setEditValue] = useState("")
   const [savingItemId, setSavingItemId] = useState<string | null>(null)
@@ -208,19 +203,9 @@ export function BOMSection({ projectId }: { projectId: string }) {
     }
   }, [projectId])
 
-  const fetchSuppliers = useCallback(async () => {
-    try {
-      const response = await counterpartiesApi.getCounterparties({ type: "supplier" })
-      setSuppliers(response.data)
-    } catch {
-      // Non-critical; suppliers dropdown will be empty
-    }
-  }, [])
-
   useEffect(() => {
     fetchBOM()
-    fetchSuppliers()
-  }, [fetchBOM, fetchSuppliers])
+  }, [fetchBOM])
 
   // Fetch procurement coverage for PROJ-07 tracking
   useEffect(() => {
@@ -447,16 +432,20 @@ export function BOMSection({ projectId }: { projectId: string }) {
   // Supplier assignment
   // -----------------------------------------------------------------------
 
-  const handleSupplierChange = async (itemId: string, supplierId: string) => {
+  const handleSupplierChange = async (
+    itemId: string,
+    supplierId: string | null,
+    option?: EntitySearchOption | null
+  ) => {
     if (state.kind !== "has-bom") return
 
-    // The Select component may pass empty string
-    const effectiveId = supplierId || ""
+    const effectiveId = supplierId ?? ""
 
-    // Optimistic update
-    const supplier = effectiveId
-      ? suppliers.find((s) => s.id === effectiveId) || null
-      : null
+    // Optimistic update — option несёт label выбранного контрагента из поиска.
+    const supplier =
+      effectiveId && option
+        ? ({ id: effectiveId, name: option.label } as CounterpartyData)
+        : null
     setState({
       kind: "has-bom",
       bom: state.bom,
@@ -873,32 +862,16 @@ export function BOMSection({ projectId }: { projectId: string }) {
                               : "\—"}
                           </span>
                         ) : (
-                          <Select
-                            value={item.supplierId ?? ""}
-                            onValueChange={(value) =>
-                              handleSupplierChange(item.id, value ?? "")
+                          <EntitySearchSelect
+                            type="counterparty"
+                            counterpartyType="supplier"
+                            value={item.supplierId ?? null}
+                            onValueChange={(value, option) =>
+                              handleSupplierChange(item.id, value, option)
                             }
-                            items={Object.fromEntries([
-                              ["", "— Не выбран —"],
-                              ...suppliers.map((s) => [
-                                s.id,
-                                `${s.name}${s.inn ? ` (ИНН ${s.inn})` : ""}`,
-                              ]),
-                            ])}
-                          >
-                            <SelectTrigger size="sm" className="w-full min-w-[140px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="">— Не выбран —</SelectItem>
-                              {suppliers.map((s) => (
-                                <SelectItem key={s.id} value={s.id}>
-                                  {s.name}
-                                  {s.inn ? ` (ИНН ${s.inn})` : ""}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            placeholder="Выберите поставщика"
+                            className="w-full min-w-[140px]"
+                          />
                         )}
                       </TableCell>
                       {!isLocked && (

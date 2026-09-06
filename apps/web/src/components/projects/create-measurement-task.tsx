@@ -1,9 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Ruler, Loader2, CheckCircle2 } from "lucide-react"
 import { createTask, ApiClientError } from "@/lib/api/tasks"
-import { parseJson } from "@/lib/api/shared"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,9 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select"
+import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 
 interface Props {
   projectId: string
@@ -47,19 +44,8 @@ export function CreateMeasurementTask({ projectId, projectName, contactId, measu
   const [description, setDescription] = useState("")
   const [dueDate, setDueDate] = useState("")
   const [assigneeId, setAssigneeId] = useState<string>("")
-  const [users, setUsers] = useState<Array<{ id: string; name: string | null; email: string }>>([])
 
   const info = LABELS[measurementType]
-
-  // Загрузка списка исполнителей для выбора.
-  useEffect(() => {
-    if (open && users.length === 0) {
-      fetch("/api/users/list")
-        .then((r) => r.json())
-        .then((d: { data?: typeof users }) => setUsers(d.data ?? []))
-        .catch(() => {})
-    }
-  }, [open, users.length])
 
   const handleCreate = async () => {
     setSaving(true)
@@ -157,19 +143,14 @@ export function CreateMeasurementTask({ projectId, projectName, contactId, measu
               </div>
 
               <div className="space-y-1.5">
-                <Label>Исполнитель</Label>
-                <Select
-                  value={assigneeId}
-                  onValueChange={(v) => { if (v) setAssigneeId(v) }}
-                  items={Object.fromEntries(users.map((u) => [u.id, u.name ?? u.email]))}
-                >
-                  <SelectTrigger><SelectValue placeholder="Выберите исполнителя" /></SelectTrigger>
-                  <SelectContent><SelectGroup>
-                    {users.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>{u.name ?? u.email}</SelectItem>
-                    ))}
-                  </SelectGroup></SelectContent>
-                </Select>
+                <Label htmlFor="meas-assignee">Исполнитель</Label>
+                <EntitySearchSelect
+                  id="meas-assignee"
+                  type="user"
+                  value={assigneeId || null}
+                  onValueChange={(value) => setAssigneeId(value ?? "")}
+                  placeholder="Выберите исполнителя"
+                />
               </div>
 
               {error && <p className="text-sm text-destructive">{error}</p>}

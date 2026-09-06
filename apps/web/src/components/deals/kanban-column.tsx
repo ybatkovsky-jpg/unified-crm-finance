@@ -38,7 +38,7 @@ export function KanbanColumn({
     <div
       ref={setNodeRef}
       className={cn(
-        "flex flex-col w-72 min-w-72 h-full rounded-xl border bg-card/50 backdrop-blur-sm transition-all duration-200",
+        "flex flex-col w-72 min-w-72 h-full rounded-xl border bg-card/50 backdrop-blur-sm transition-[background-color,border-color,box-shadow,transform] duration-200",
         isOver && "ring-2 ring-primary/60 bg-accent/40 scale-[1.01]"
       )}
     >

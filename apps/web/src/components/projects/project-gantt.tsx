@@ -36,8 +36,6 @@ export function ProjectGantt({ projectId, stages }: ProjectGanttProps) {
   useEffect(() => {
     if (!timelineRef.current || stages.length === 0) return
 
-    console.log("[ProjectGantt] Initializing timeline with", stages.length, "stages")
-
     // Convert stages to vis-timeline items
     const items = new DataSet(
       stages.map((stage) => ({
@@ -68,11 +66,9 @@ export function ProjectGantt({ projectId, stages }: ProjectGanttProps) {
         move: true,
       },
       onMoving: (item: any, callback: (item: any) => void) => {
-        console.log("[ProjectGantt] Drag start:", item.id)
         callback(item)
       },
       onMove: (item: any, callback: (item: any) => void) => {
-        console.log("[ProjectGantt] Drag move:", item.id, item.start, item.end)
         callback(item)
       },
     }
@@ -84,7 +80,6 @@ export function ProjectGantt({ projectId, stages }: ProjectGanttProps) {
       // Handle item move (drag-drop) event
       timeline.on("itemMoved", async (properties: any) => {
         const { item, start, end } = properties
-        console.log("[ProjectGantt] Stage dragged:", item.id, "new dates:", start, end)
 
         setLoading(true)
         setError(null)
@@ -94,7 +89,6 @@ export function ProjectGantt({ projectId, stages }: ProjectGanttProps) {
             startDate: start instanceof Date ? start.toISOString() : String(start),
             endDate: end instanceof Date ? end.toISOString() : String(end),
           })
-          console.log("[ProjectGantt] Stage updated successfully")
         } catch (err) {
           console.error("[ProjectGantt] Failed to update stage:", err)
           setError(err instanceof Error ? err.message : "Не удалось обновить этап")

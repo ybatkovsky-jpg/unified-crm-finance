@@ -37,7 +37,7 @@ export function DealCard({ deal, isDragging }: DealCardProps) {
     >
       <div
         className={cn(
-          "rounded-lg border bg-card p-2.5 transition-all duration-150",
+          "rounded-lg border bg-card p-2.5 transition-[transform,box-shadow,border-color,background-color,opacity] duration-150",
           "hover:shadow-md hover:border-primary/40 hover:-translate-y-0.5",
           "group-active:cursor-grabbing",
           isDragging && "opacity-40 scale-95 shadow-lg ring-2 ring-primary/50"

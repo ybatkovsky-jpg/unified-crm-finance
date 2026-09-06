@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, X, Search, User, Building2, MapPin, Trash2 } from "lucide-react"
+import { Plus, X, User, Building2, MapPin, Trash2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -24,10 +24,10 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { dealsApi, ApiClientError } from "@/lib/api/deals"
-import { contactsApi } from "@/lib/api/contacts"
 import { getLeadSources } from "@/lib/api/lead-source"
 import type { DealCreateInput, ContactData, LeadSourceData } from "@/lib/api/types"
 import { ContactFormModal } from "@/components/contacts/contact-form-modal"
+import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 
 function getContactDisplayName(contact: ContactData): string {
   if (contact.type === "person") {
@@ -47,7 +47,9 @@ const ROLE_LABELS: Record<ContactRole, string> = {
 }
 
 interface SelectedContact {
-  contact: ContactData
+  id: string
+  name: string
+  type?: "person" | "company"
   role: ContactRole
 }
 
@@ -71,43 +73,34 @@ export function CreateDealModal({
   const [expectedCloseDate, setExpectedCloseDate] = useState("")
   const [description, setDescription] = useState("")
   const [objectAddress, setObjectAddress] = useState("")
-  const [contacts, setContacts] = useState<ContactData[]>([])
   const [leadSources, setLeadSources] = useState<LeadSourceData[]>([])
   const [sourceId, setSourceId] = useState("")
 
   // Multi-contact selection with roles
   const [selectedContacts, setSelectedContacts] = useState<SelectedContact[]>([])
   const [showContactPicker, setShowContactPicker] = useState(false)
-  const [contactSearch, setContactSearch] = useState("")
   const [pickerRole, setPickerRole] = useState<ContactRole>("customer")
   const [createContactOpen, setCreateContactOpen] = useState(false)
 
   useEffect(() => {
     if (open) {
-      contactsApi
-        .getContacts({})
-        .then((res) => setContacts(res.data.slice(0, 100)))
-        .catch((err) => console.error("Failed to fetch contacts:", err))
       getLeadSources()
         .then((res) => setLeadSources(res.data))
         .catch((err) => console.error("Failed to fetch lead sources:", err))
     }
   }, [open])
 
-  const filteredContacts = contacts.filter((c) => {
-    const name = getContactDisplayName(c).toLowerCase()
-    return name.includes(contactSearch.toLowerCase())
-  })
-
-  const handleAddContact = (contact: ContactData, role: ContactRole) => {
+  const handleAddContact = (
+    contact: { id: string; name: string; type?: "person" | "company" },
+    role: ContactRole
+  ) => {
     const exists = selectedContacts.some(
-      (sc) => sc.contact.id === contact.id && sc.role === role
+      (sc) => sc.id === contact.id && sc.role === role
     )
     if (!exists) {
-      setSelectedContacts([...selectedContacts, { contact, role }])
+      setSelectedContacts([...selectedContacts, { ...contact, role }])
     }
     setShowContactPicker(false)
-    setContactSearch("")
   }
 
   const handleRemoveContact = (index: number) => {
@@ -119,13 +112,8 @@ export function CreateDealModal({
     if (!isOpen) {
       setSelectedContacts([])
       setShowContactPicker(false)
-      setContactSearch("")
       setSourceId("")
     }
-  }
-
-  const refreshContacts = () => {
-    contactsApi.getContacts({}).then((res) => setContacts(res.data.slice(0, 100)))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,14 +122,14 @@ export function CreateDealModal({
     setLoading(true)
 
     try {
-      const primaryContact = selectedContacts.find((sc) => sc.role === "customer")?.contact
-        ?? selectedContacts[0]?.contact
+      const primaryContactId = selectedContacts.find((sc) => sc.role === "customer")?.id
+        ?? selectedContacts[0]?.id
 
       const data: DealCreateInput = {
         title,
         pipelineId,
         stageId: firstStageId,
-        contactId: primaryContact?.id || undefined,
+        contactId: primaryContactId || undefined,
         sourceId: sourceId || undefined,
         amount: amount ? parseFloat(amount) : 0,
         currency,
@@ -160,7 +148,7 @@ export function CreateDealModal({
             fetch(`/api/deals/${dealId}/contacts`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ contactId: sc.contact.id, role: sc.role }),
+              body: JSON.stringify({ contactId: sc.id, role: sc.role }),
             }).catch((err) => console.error("Failed to add deal contact:", err))
           )
         )
@@ -293,14 +281,14 @@ export function CreateDealModal({
                 {selectedContacts.length > 0 && (
                   <div className="space-y-1.5">
                     {selectedContacts.map((sc, i) => (
-                      <div key={`${sc.contact.id}-${sc.role}`} className="flex items-center gap-2 p-2 border rounded-md">
-                        {sc.contact.type === "person" ? (
-                          <User className="size-4 text-muted-foreground shrink-0" />
-                        ) : (
+                      <div key={`${sc.id}-${sc.role}`} className="flex items-center gap-2 p-2 border rounded-md">
+                        {sc.type === "company" ? (
                           <Building2 className="size-4 text-muted-foreground shrink-0" />
+                        ) : (
+                          <User className="size-4 text-muted-foreground shrink-0" />
                         )}
                         <span className="text-sm flex-1 truncate">
-                          {getContactDisplayName(sc.contact)}
+                          {sc.name}
                         </span>
                         <Badge variant="secondary" className="text-[10px] shrink-0">
                           {ROLE_LABELS[sc.role]}
@@ -335,62 +323,37 @@ export function CreateDealModal({
                         ))}
                       </SelectContent>
                     </Select>
-                    <div className="relative">
-                      <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Поиск контакта..."
-                        value={contactSearch}
-                        onChange={(e) => setContactSearch(e.target.value)}
-                        className="pl-8 h-8"
-                        autoFocus
-                      />
+                    <EntitySearchSelect
+                      type="contact"
+                      value={null}
+                      onValueChange={(value, option) => {
+                        if (value && option) {
+                          handleAddContact({ id: value, name: option.label }, pickerRole)
+                        }
+                      }}
+                      placeholder="Поиск контакта..."
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => setCreateContactOpen(true)}
+                      >
+                        <Plus className="size-3" />
+                        <span className="ml-1">Создать контакт</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => setShowContactPicker(false)}
+                      >
+                        Отмена
+                      </Button>
                     </div>
-                    <div className="max-h-32 overflow-y-auto border rounded-md">
-                      {filteredContacts.length === 0 ? (
-                        <div className="p-2 text-center">
-                          <p className="text-sm text-muted-foreground mb-1">Не найдено</p>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setCreateContactOpen(true)}
-                          >
-                            <Plus className="size-3" />
-                            <span className="ml-1">Создать контакт</span>
-                          </Button>
-                        </div>
-                      ) : (
-                        filteredContacts.map((contact) => (
-                          <button
-                            key={contact.id}
-                            type="button"
-                            className="w-full text-left px-3 py-1.5 hover:bg-muted flex items-center gap-2 text-sm border-b last:border-b-0"
-                            onClick={() => handleAddContact(contact, pickerRole)}
-                          >
-                            {contact.type === "person" ? (
-                              <User className="size-3 text-muted-foreground shrink-0" />
-                            ) : (
-                              <Building2 className="size-3 text-muted-foreground shrink-0" />
-                            )}
-                            <span className="flex-1 truncate">
-                              {getContactDisplayName(contact)}
-                            </span>
-                            <Badge variant="outline" className="text-[10px] shrink-0">
-                              {contact.type === "person" ? "Физ" : "Юр"}
-                            </Badge>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => setShowContactPicker(false)}
-                    >
-                      Отмена
-                    </Button>
                   </div>
                 ) : (
                   <Button
@@ -448,8 +411,19 @@ export function CreateDealModal({
         open={createContactOpen}
         onOpenChange={setCreateContactOpen}
         onSuccess={(created) => {
-          if (created) handleAddContact(created, pickerRole)
-          refreshContacts()
+          if (created) {
+            handleAddContact(
+              {
+                id: created.id,
+                name: getContactDisplayName(created),
+                type:
+                  created.type === "person" || created.type === "company"
+                    ? created.type
+                    : undefined,
+              },
+              pickerRole
+            )
+          }
         }}
       />
     </>

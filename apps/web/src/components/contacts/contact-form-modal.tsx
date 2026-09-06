@@ -11,8 +11,8 @@
  *  - person  → имя/фамилия/отчество/должность + выбор юрлица
  *  - company → название/ИНН/КПП/ОГРН + опциональное создание сотрудника
  */
-import { useEffect, useState, useCallback, useRef } from "react";
-import { UserPlus, Loader2, ChevronDown, ChevronUp, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { UserPlus, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 
 import {
   Dialog,
@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { contactsApi, ApiClientError } from "@/lib/api/contacts";
 import type { ContactCreateInput, ContactData } from "@/lib/api/types";
+import { EntitySearchSelect } from "@/components/ui/entity-search-select";
 
 // ── Inline validators (избегаем импорта из lib/validation — Turbopack) ──
 const NAME_RE = /^[\p{L}\s\-.\u0301']+$/u
@@ -120,65 +121,8 @@ export function ContactFormModal({
   const [empPhone, setEmpPhone] = useState("");
   const [empPosition, setEmpPosition] = useState("");
 
-  // Company list for person→company linking
-  const [companies, setCompanies] = useState<ContactData[]>([]);
-  const [companiesLoading, setCompaniesLoading] = useState(false);
-  const [companySearch, setCompanySearch] = useState("");
-  const [companyPickerOpen, setCompanyPickerOpen] = useState(false);
-  const companyPickerRef = useRef<HTMLDivElement>(null);
-
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // ── Load companies for dropdown ──
-  const loadCompanies = useCallback(async () => {
-    setCompaniesLoading(true);
-    try {
-      const res = await contactsApi.getContacts({ type: "company" });
-      setCompanies(res.data);
-    } catch {
-      // не критично — список будет пустым
-    } finally {
-      setCompaniesLoading(false);
-    }
-  }, []);
-
-  // ── Company picker: selected item + search filtering ──
-  const selectedCompany = companyId
-    ? companies.find((c) => c.id === companyId) ?? null
-    : null;
-  const filteredCompanies = (() => {
-    const q = companySearch.trim().toLowerCase();
-    if (!q) return companies;
-    const innQ = q.replace(/\D/g, "");
-    return companies.filter(
-      (c) =>
-        (c.companyName || "").toLowerCase().includes(q) ||
-        (innQ !== "" && (c.inn || "").includes(innQ))
-    );
-  })();
-
-  // Close the company picker on outside click / Escape
-  useEffect(() => {
-    if (!companyPickerOpen) return;
-    const handlePointerDown = (e: MouseEvent) => {
-      if (
-        companyPickerRef.current &&
-        !companyPickerRef.current.contains(e.target as Node)
-      ) {
-        setCompanyPickerOpen(false);
-      }
-    };
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setCompanyPickerOpen(false);
-    };
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [companyPickerOpen]);
 
   // ── Reset / populate form ──
   useEffect(() => {
@@ -245,12 +189,7 @@ export function ContactFormModal({
       setEmpPosition("");
     }
     setError(null);
-    setCompanySearch("");
-    setCompanyPickerOpen(false);
-
-    // Preload companies for person dropdown
-    loadCompanies();
-  }, [open, contact, defaultCompanyId, loadCompanies]);
+  }, [open, contact, defaultCompanyId]);
 
   // ── Submit ──
   async function handleSubmit(e: React.FormEvent) {
@@ -430,89 +369,13 @@ export function ContactFormModal({
               </div>
               {/* Company link */}
               <Field label="Организация">
-                {companiesLoading ? (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="size-4 animate-spin" />
-                    Загрузка…
-                  </div>
-                ) : (
-                  <div className="relative" ref={companyPickerRef}>
-                    <button
-                      type="button"
-                      onClick={() => setCompanyPickerOpen((v) => !v)}
-                      className="flex h-8 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pr-2 pl-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                    >
-                      <span className={cn("truncate", !companyId && "text-muted-foreground")}>
-                        {selectedCompany
-                          ? `${selectedCompany.companyName}${selectedCompany.inn ? ` (ИНН ${selectedCompany.inn})` : ""}`
-                          : "Без организации"}
-                      </span>
-                      <ChevronDown
-                        className={cn(
-                          "size-4 shrink-0 opacity-50 transition-transform",
-                          companyPickerOpen && "rotate-180"
-                        )}
-                      />
-                    </button>
-                    {companyPickerOpen && (
-                      <div className="absolute z-50 mt-1 w-full rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10">
-                        <div className="relative border-b p-1.5">
-                          <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            value={companySearch}
-                            onChange={(e) => setCompanySearch(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") e.preventDefault();
-                            }}
-                            placeholder="Поиск по названию или ИНН…"
-                            className="h-8 pl-7"
-                            autoFocus
-                          />
-                        </div>
-                        <div className="max-h-48 overflow-y-auto p-1">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setCompanyId(null);
-                              setCompanyPickerOpen(false);
-                            }}
-                            className={cn(
-                              "flex w-full items-center rounded-md py-1 pr-2 pl-1.5 text-left text-sm select-none transition-colors hover:bg-accent hover:text-accent-foreground",
-                              !companyId && "bg-accent/60 font-medium"
-                            )}
-                          >
-                            Без организации
-                          </button>
-                          {filteredCompanies.length === 0 ? (
-                            <div className="px-2 py-3 text-center text-sm text-muted-foreground">
-                              Ничего не найдено
-                            </div>
-                          ) : (
-                            filteredCompanies.map((c) => (
-                              <button
-                                key={c.id}
-                                type="button"
-                                onClick={() => {
-                                  setCompanyId(c.id);
-                                  setCompanyPickerOpen(false);
-                                }}
-                                className={cn(
-                                  "flex w-full items-center rounded-md py-1 pr-2 pl-1.5 text-left text-sm select-none transition-colors hover:bg-accent hover:text-accent-foreground",
-                                  companyId === c.id && "bg-accent/60 font-medium"
-                                )}
-                              >
-                                <span className="truncate">
-                                  {c.companyName}
-                                  {c.inn ? ` (ИНН ${c.inn})` : ""}
-                                </span>
-                              </button>
-                            ))
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                <EntitySearchSelect
+                  type="contact"
+                  contactType="company"
+                  value={companyId}
+                  onValueChange={(v) => setCompanyId(v)}
+                  placeholder="Без организации"
+                />
               </Field>
             </div>
           ) : (

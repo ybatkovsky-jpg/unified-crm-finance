@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -12,17 +12,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 import { PlusIcon, Trash2Icon } from "lucide-react"
 import { invoicesApi, ApiClientError } from "@/lib/api/invoices"
-import { counterpartiesApi } from "@/lib/api/counterparties"
-import type { CounterpartyData } from "@/lib/api/types"
 
 interface Props {
   open: boolean
@@ -38,21 +30,12 @@ interface ItemRow {
 
 /** Manual invoice upload (PROC-27). AI parsing deferred — items entered by hand. */
 export function InvoiceUploadDialog({ open, onOpenChange, onSuccess }: Props) {
-  const [suppliers, setSuppliers] = useState<CounterpartyData[]>([])
   const [projectId, setProjectId] = useState("")
   const [supplierId, setSupplierId] = useState("")
   const [invoiceNumber, setInvoiceNumber] = useState("")
   const [items, setItems] = useState<ItemRow[]>([{ name: "", quantity: "1", price: "0" }])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!open) return
-    counterpartiesApi
-      .getCounterparties({ type: "supplier" })
-      .then((r) => setSuppliers(r.data))
-      .catch(() => setSuppliers([]))
-  }, [open])
 
   const reset = () => {
     setProjectId("")
@@ -120,31 +103,23 @@ export function InvoiceUploadDialog({ open, onOpenChange, onSuccess }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="projectId">Project ID</Label>
-              <Input
+              <EntitySearchSelect
                 id="projectId"
+                type="project"
+                value={projectId || null}
+                onValueChange={(v) => setProjectId(v ?? "")}
                 placeholder="uuid проекта"
-                value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
               <Label>Поставщик</Label>
-              <Select
-                value={supplierId}
-                onValueChange={(v) => v && setSupplierId(v)}
-                items={Object.fromEntries(suppliers.map((s) => [s.id, s.name]))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите поставщика" />
-                </SelectTrigger>
-                <SelectContent>
-                  {suppliers.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <EntitySearchSelect
+                type="counterparty"
+                counterpartyType="supplier"
+                value={supplierId || null}
+                onValueChange={(v) => setSupplierId(v ?? "")}
+                placeholder="Выберите поставщика"
+              />
             </div>
           </div>
 

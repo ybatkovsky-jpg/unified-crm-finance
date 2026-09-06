@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import { EntitySearchSelect } from "@/components/ui/entity-search-select"
 import { productionsApi, ApiClientError } from "@/lib/api/productions"
 import { counterpartiesApi } from "@/lib/api/counterparties"
 import type { CounterpartyData } from "@/lib/api/types"
@@ -79,19 +80,16 @@ export function CreateProductionModal({ projectId, onCreate }: CreateProductionM
   const [plannedEndDate, setPlannedEndDate] = useState("")
   const [notes, setNotes] = useState("")
 
-  // Counterparties (suppliers as potential partners)
+  // Counterparties — fetched ONLY to resolve skill tags (badges) for the selected
+  // partner; the select itself searches server-side via /api/search/entities.
   const [partners, setPartners] = useState<CounterpartyData[]>([])
-  const [loadingPartners, setLoadingPartners] = useState(false)
 
   const fetchPartners = async () => {
-    setLoadingPartners(true)
     try {
       const response = await counterpartiesApi.getCounterparties({ type: "supplier" })
       setPartners(response.data)
     } catch (err) {
       console.error("Failed to fetch counterparties:", err)
-    } finally {
-      setLoadingPartners(false)
     }
   }
 
@@ -221,37 +219,14 @@ export function CreateProductionModal({ projectId, onCreate }: CreateProductionM
             {/* Partner Selection */}
             <div className="grid gap-2">
               <Label htmlFor="partner">Производство-партнёр</Label>
-              <Select
-                value={partnerId || "none"}
-                onValueChange={(value) => value && setPartnerId(value === "none" ? "" : value)}
-                disabled={loadingPartners}
-                items={Object.fromEntries([
-                  ["none", "— Без партнёра —"],
-                  ...partners.map((p) => [p.id, p.name]),
-                ])}
-              >
-                <SelectTrigger id="partner">
-                  <SelectValue placeholder={loadingPartners ? "Загрузка..." : "Выберите партнёра"} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">— Без партнёра —</SelectItem>
-                  {partners.map((p) => {
-                    const tags: string[] = p.types
-                      ? (Array.isArray(p.types) ? p.types as string[] : [])
-                      : []
-                    return (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.name}
-                        {tags.length > 0 && (
-                          <span className="ml-2 text-xs text-muted-foreground">
-                            ({tags.map(t => SKILL_TAG_LABELS[t] || t).join(", ")})
-                          </span>
-                        )}
-                      </SelectItem>
-                    )
-                  })}
-                </SelectContent>
-              </Select>
+              <EntitySearchSelect
+                id="partner"
+                type="counterparty"
+                counterpartyType="supplier"
+                value={partnerId || null}
+                onValueChange={(value) => setPartnerId(value ?? "")}
+                placeholder="Выберите партнёра"
+              />
               {/* Show skill tags for selected partner */}
               {partnerSkillTags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1">
