@@ -33,6 +33,11 @@ describe('analyticsManagerScope', () => {
     expect(scope).toBeUndefined()
   })
 
+  it('admin — undefined (viewAllProjects по ROLE_MATRIX; регрессия audit 2026-07)', () => {
+    const scope = analyticsManagerScope(makeSession(['admin']))
+    expect(scope).toBeUndefined()
+  })
+
   it('technologist — undefined (viewAllProjects роль)', () => {
     const scope = analyticsManagerScope(makeSession(['technologist']))
     expect(scope).toBeUndefined()

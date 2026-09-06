@@ -15,14 +15,14 @@ import { getSession } from '../../../lib/auth/session'
 // Max upload size from environment (default 50MB)
 const MAX_UPLOAD_SIZE = Number(process.env.MAX_UPLOAD_SIZE_MB || 50) * 1024 * 1024
 
-// Allowed MIME types for upload (can be extended)
+// Allowed MIME types for upload (can be extended).
+// SVG исключён намеренно: скачивается как image/svg+xml inline — вектор stored-XSS.
 const ALLOWED_MIME_TYPES = new Set([
   // Images
   'image/jpeg',
   'image/png',
   'image/gif',
   'image/webp',
-  'image/svg+xml',
   // Documents
   'application/pdf',
   'application/msword',

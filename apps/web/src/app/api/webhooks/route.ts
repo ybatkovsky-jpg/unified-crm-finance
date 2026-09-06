@@ -12,6 +12,11 @@ import { requireSectionWrite } from '../../../lib/auth/permissions'
 
 export async function GET(): Promise<NextResponse> {
   try {
+    // Подписки содержат secret и payload-логи — доступ только для настроек (admin/director).
+    const session = await getSession()
+    const denied = requireSectionWrite(session, 'settings')
+    if (denied) return denied
+
     const subs = webhookDispatcher.getSubscriptions()
     const logs = webhookDispatcher.getDeliveryLogs(20)
     return NextResponse.json({ data: { subscriptions: subs, recentLogs: logs } })

@@ -12,6 +12,7 @@
  */
 
 import type { SessionUser } from './session'
+import { ROLE_MATRIX } from './roles'
 
 /** Требовать сессию для аналитики (401 без неё). */
 export function requireAnalyticsSession(session: SessionUser | null): session is SessionUser {
@@ -20,16 +21,12 @@ export function requireAnalyticsSession(session: SessionUser | null): session is
 
 /**
  * Скоуп по менеджеру: для не-viewAllProjects — session.id (видит только свои проекты/сделки);
- * для viewAllProjects/director — undefined (видит все).
+ * для viewAllProjects (admin/director/technologist/supply/accountant) — undefined (видит все).
+ *
+ * Источник правды — ROLE_MATRIX.viewAllProjects (единая точка, без хардкода списка ролей).
  */
 export function analyticsManagerScope(session: SessionUser): string | undefined {
-  const isDirector = session.roleCodes.includes('director')
-  // viewAllProjects: true если хоть одна роль это разрешает (manager_designer/installer — false).
-  const canViewAll = session.roleCodes.some((c) => {
-    // Локальная проверка без импорта roles.ts (избегаем цикла): director всегда viewAll.
-    const viewAllRoles = ['director', 'technologist', 'supply', 'accountant']
-    return viewAllRoles.includes(c)
-  })
-  if (isDirector || canViewAll) return undefined
+  const canViewAll = session.roleCodes.some((c) => ROLE_MATRIX[c]?.viewAllProjects === true)
+  if (canViewAll) return undefined
   return session.id
 }
